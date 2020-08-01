@@ -2,6 +2,7 @@ import telebot
 import re
 from random import randint, choice
 from nword import *
+import os
 import json
 
 rules = """
