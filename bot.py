@@ -14,8 +14,15 @@ rules = """
 /xui - отправляет мем "хуй" 
 """
 
-with open("./token.txt") as token:
-	bot = telebot.TeleBot(token.read())
+if "TOKEN_HEROKU" in os.environ:
+    bot = telebot.TeleBot(os.environ["TOKEN_HEROKU"])
+
+elif "TOKEN" in os.environ:
+    bot = telebot.TeleBot(os.environ["TOKEN"])
+
+else:
+    with open("./token.txt") as token:
+        bot = telebot.TeleBot(token.read())
 
 @bot.message_handler(commands=["generate_password"])
 def password(message):
