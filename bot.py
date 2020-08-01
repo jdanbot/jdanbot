@@ -1,6 +1,8 @@
 import telebot
-import random
 import re
+from random import randint, choice
+from nword import *
+import json
 
 rules = """
 /ban - отправляет "Бан"
@@ -14,6 +16,34 @@ rules = """
 
 with open("./token.txt") as token:
 	bot = telebot.TeleBot(token.read())
+
+@bot.message_handler(commands=["generate_password"])
+def password(message):
+    try:
+        crypto_type = int(message.text.split(maxsplit=1)[1])
+        print(crypto_type)
+        if crypto_type > 4096:
+            bot.reply_to(message, "Телеграм поддерживает сообщения длиной не больше `4096` символов", parse_mode="Markdown")
+            0 / 0
+    except:
+        crypto_type = 256
+
+    data = []
+    password = ""
+    # data.extend(list("абвгдеёжзийклмнопрстуфхцчшщъыьэюя"))
+    # data.extend(list("абвгдеёжзийклмнопрстуфхцчшщъыьэюя".upper()))
+    data.extend(list("abcdefghijklmnopqrstuvwxyz"))
+    data.extend(list("abcdefghijklmnopqrstuvwxyz".upper()))
+    data.extend(list('~!@#$%^&*()_+-=`[]\\{}|;\':"<>,./?'))
+    data.extend(list("0123456789"))
+    #bot.reply_to(message, f"<code>{json.dumps(data)}</code>", parse_mode="HTML")
+    #bot.reply_to(message, json.dumps(data))
+
+    for num in range(0, crypto_type):
+        password += choice(data)
+
+    bot.reply_to(message, password)
+    #print(data)
 	
 @bot.message_handler(commands=["start", "help"])
 def start(message):
@@ -52,7 +82,7 @@ def bylo(message):
         bot.send_message(message.chat.id, "Было")
 
 @bot.message_handler(commands=["ne_bylo"])
-def bylo(message):
+def ne_bylo(message):
     #print(message)
     try:
         bot.delete_message(message.chat.id, message.message_id)
@@ -145,25 +175,41 @@ def detect(message):
     else:
         bot.reply_to(message, "Бойкот не обнаружен")
 
+@bot.message_handler(commands=["random_ban", "random"])
+def random(message):
+    bot.reply_to(message, f"Лови бан на {randint(1, 100)} минут")
+
+@bot.message_handler(commands=["random_putin"])
+def random_putin(message):
+    number = randint(1, 500)
+    date = choice(["дней", "месяцев", "лет"])
+
+    if date == "дней":
+        true_date = nword(number, ["день", "дня", "дней"])
+    elif date == "месяцев":
+        true_date = nword(number, ["месяц", "месяца", "месяцев"])
+    elif date == "лет":
+        true_date = nword(number, ["год", "года", "лет"])
+
+
+    bot.reply_to(message, f'Путин уйдет через {number} {true_date}')
+    #bot.reply_to(message, bot.reply_to(message, f'Путин уйдет через {randint(1, 500)} {choice(["дней", "месяцев", "лет", "тысячелетий"])}').message_id)
+
+@bot.message_handler(commands=["da_net"])
+def da_net(message):
+    bot.reply_to(message, choice(["Да", "Нет"]))
+
 @bot.message_handler(content_types=['text'])
 def detect(message):
     if message.text.find("бойкот") != -1:
         bot.reply_to(message, "Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
 
+    if message.text.find("когда уйдет путин") != -1:
+        #bot.reply_to(message, f'Путин уйдет через {randint(1, 500)} {choice(["дней", "месяцев", "лет", "тысячелетий"])}')
+        random_putin(message)  
+
 @bot.message_handler(content_types=["new_chat_members"])
 def john(message):
-    number = random.randint(0, 5)
-    if number == 0:
-        bot.reply_to(message, "Поляк?")
-    elif number == 1:
-        bot.reply_to(message, "Джон?")
-    elif number == 2:
-        bot.reply_to(message, "Александр Гомель?")
-    elif number == 3:
-        bot.reply_to(message, "Иван?")
-    elif number == 4:
-        bot.reply_to(message, "УберКац?")
-    elif number == 5:
-        bot.reply_to(message, "Яблочник?")
+    bot.reply_to(message, f'{choice(["Поляк", "Джон", "Александр Гомель", "Иван", "УберКац", "Яблочник"])}?')
 
 bot.polling()
