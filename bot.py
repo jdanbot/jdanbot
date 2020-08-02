@@ -75,7 +75,7 @@ def getWiki(message, lang="ru"):
     url = "https://ru.wikipedia.org"
     r = requests.get(url + "/wiki/" + name.replace(" ", "_"))
 
-    page = {"page": "ededed", "image_url": "doom2"}
+    page = {}
     wiki = wikipedia.Wikipedia(lang)
 
 
@@ -86,7 +86,7 @@ def getWiki(message, lang="ru"):
     if page["page"].find("</b>") == -1:
         page["page"] = f'{page["page"].replace("—", "</b>—", 1)}'
 
-    soup = BeautifulSoup(r.text, 'html.parser')
+    soup = BeautifulSoup(r.text, 'lxml')
     #bot.send_photo(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
     try:
         try:
@@ -116,6 +116,50 @@ def getWiki(message, lang="ru"):
 # @bot.message_handler(commands=["to_tree_my_info"])
 # def to_tree(message):
 #     bot.send_message(message.chat.id, message.reply_to_message)
+
+@bot.message_handler(commands=["lurk"])
+def lurk(message):
+    name = message.text.replace("/lurk@jDan734_bot ", "").replace("/lurk ", "")
+    url = "https://lurkmore.to/"
+    r = requests.get(url + "index.php",
+                     params={"search": name})
+
+    soup = BeautifulSoup(r.text, 'lxml')
+
+    #print(dir(soup.find("div", id="mw-content-text").find("table")))
+    #soup.find("div", id="mw-content-text").find("table").remove()
+    page = soup.find(id="mw-content-text").find("p")
+    for tag in soup.find(id="mw-content-text").find_all("p"):
+        if tag.get("class"):
+            pass
+        elif tag.parent.get("class") == ["gallerytext"]:
+            pass
+        else:
+            page = tag
+            break
+
+    page_text = f'<b>{page.text.replace("(", "</b>(", 1)}'
+    if page.find("</b>") == -1:
+        page = f'{page.text.replace("—", "</b>—", 1)}'
+    try:
+        try:
+            image_url = soup.find(class_=["thumb", "tright"]).find("img").get("src")
+            bot.send_photo(message.chat.id, "https:" + image_url, caption=page_text, parse_mode="HTML", reply_to_message_id=message.message_id)
+        except:
+            bot.send_message(message.chat.id, page_text, parse_mode="HTML", reply_to_message_id=message.message_id)
+    except:
+        bot.send_message(message.chat.id, "Статья недоступна")
+
+# @bot.message_handler(commands=["bashorg"])
+# def bashorg(message):
+#     num = int(message.text.replace("/bashorg@jDan734_bot ", "").replace("/bashorg ", ""))
+#     r = requests.get(f"https://bash.im/quote/{num}")
+#     soup = BeautifulSoup(r.text.replace("<br>", "БАН").replace("<br\\>", "БАН"), 'html.parser')
+
+#     print(soup.find("div", class_="quote__body").text.replace('<div class="quote__body">', "").replace("</div>", "").replace("<br\\>", "\n"))
+
+#     soup2 = BeautifulSoup(soup.find("div", class_="quote__body"), "lxml")
+#     bot.reply_to(message, soup2)
 
 @bot.message_handler(commands=["to_json"])
 def to_json(message):
@@ -368,4 +412,5 @@ def john(message):
 try:
     bot.polling()
 except:
-    bot.send_message("-1001335444502", f"`{str(traceback.format_exc())}`", parse_mode="Markdown")
+    #bot.send_message("-1001335444502", f"`{str(traceback.format_exc())}`", parse_mode="Markdown")
+    pass
