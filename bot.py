@@ -6,7 +6,7 @@ import os
 import json
 import traceback
 import hashlib
-from tree_lib import *
+#from tree_lib import *
 import wikipediaapi as wikipedia
 from bs4 import BeautifulSoup
 import requests
@@ -109,13 +109,13 @@ def getWiki(message, lang="ru"):
     except:
         bot.reply_to(message, "Такой статьи нет")
 
-@bot.message_handler(commands=["to_tree_my"])
-def to_tree(message):
-    bot.send_message(message.chat.id, "json\n" + dict_to_tree(json.loads(message.reply_to_message.text)), parse_mode="HTML")
+# @bot.message_handler(commands=["to_tree_my"])
+# def to_tree(message):
+#     bot.send_message(message.chat.id, "json\n" + dict_to_tree(json.loads(message.reply_to_message.text)), parse_mode="HTML")
 
-@bot.message_handler(commands=["to_tree_my_info"])
-def to_tree(message):
-    bot.send_message(message.chat.id, message.reply_to_message)
+# @bot.message_handler(commands=["to_tree_my_info"])
+# def to_tree(message):
+#     bot.send_message(message.chat.id, message.reply_to_message)
 
 @bot.message_handler(commands=["to_json"])
 def to_json(message):
