@@ -1,1 +1,4 @@
 PyTelegramBotAPI
+
+beautifulsoup4
+wikipedia-api

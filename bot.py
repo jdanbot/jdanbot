@@ -4,6 +4,12 @@ from random import randint, choice
 from nword import *
 import os
 import json
+import traceback
+import hashlib
+from tree_lib import *
+import wikipediaapi as wikipedia
+from bs4 import BeautifulSoup
+import requests
 
 rules = """
 /ban - отправляет "Бан"
@@ -25,11 +31,130 @@ else:
     with open("./token.txt") as token:
         bot = telebot.TeleBot(token.read())
 
+# @bot.message_handler(commands=["wikiru"])
+# def wikiru(message):
+#     print(message.text.replace("/wikiru@jDan734_bot ", "").replace("/wikiru ", ""))
+#     name = message.text.replace("/wikiru@jDan734_bot ", "").replace("/wikiru ", "")
+#     wiki = wikipedia.Wikipedia("ru")
+#     bot.send_message(message.chat.id, re.split("\\n", wiki.page(name).text)[0])
+#     #except:
+#     #    bot.send_message(message.chat.id, "Отправьте название статьи")
+
+@bot.message_handler(commands=["wikiru", "wikiru2"])
+def wikiru(message):
+    getWiki(message, "ru")
+
+@bot.message_handler(commands=["wikien"])
+def wikien(message):
+    getWiki(message, "en")
+
+@bot.message_handler(commands=["wikide"])
+def wikide(message):
+    getWiki(message, "de")
+
+@bot.message_handler(commands=["wikipl"])
+def wikipl(message):
+    getWiki(message, "pl")
+
+@bot.message_handler(commands=["wikiua", "wikiuk"])
+def wikiua(message):
+    getWiki(message, "uk")
+
+@bot.message_handler(commands=["wikibe"])
+def wikibe(message):
+    getWiki(message, "be")
+
+@bot.message_handler(commands=["wikies"])
+def wikies(message):
+    getWiki(message, "es")
+
+def getWiki(message, lang="ru"):
+    name = message.text.replace("/wikiru2@jDan734_bot ", "").replace("/wikiru2 ", "").replace("/wikiru@jDan734_bot ", "").replace("/wikiru ", "").replace("/wikide@jDan734_bot ", "").replace("/wikide ", "").replace("/wikien@jDan734_bot ", "").replace("/wikien ", "").replace("/wikipl@jDan734_bot ", "").replace("/wikipl ", "").replace("/wikiua@jDan734_bot ", "").replace("/wikiua ", "").replace("/wikipl@jDan734_bot ", "").replace("/wikipl ", "").replace("/wikiuk@jDan734_bot ", "").replace("/wikiuk ", "").replace("/wikibe@jDan734_bot ", "").replace("/wikibe ", "").replace("/wikies@jDan734_bot ", "").replace("/wikies ", "")
+    print(name)
+
+    url = "https://ru.wikipedia.org"
+    r = requests.get(url + "/wiki/" + name.replace(" ", "_"))
+
+    page = {"page": "ededed", "image_url": "doom2"}
+    wiki = wikipedia.Wikipedia(lang)
+
+
+    page["page"] = wiki.page(name).text
+    page["page"] = re.split("\\n", page["page"])[0]
+
+    page["page"] = f'<b>{page["page"].replace("(", "</b>(", 1)}'
+    if page["page"].find("</b>") == -1:
+        page["page"] = f'{page["page"].replace("—", "</b>—", 1)}'
+
+    soup = BeautifulSoup(r.text, 'html.parser')
+    #bot.send_photo(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
+    try:
+        try:
+            page["image_url"] = soup.find("td", class_="infobox-image").span.a.img.get("src")
+            print("https:" + page["image_url"])
+            #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
+
+            bot.send_photo(message.chat.id, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML", reply_to_message_id=message.message_id)
+            #bot.reply_to(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
+        except:
+            try:
+                page["image_url"] = soup.find("td", class_="infobox-image").span.span.a.img.get("src")
+                print("https:" + page["image_url"])
+                #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
+
+                bot.send_photo(message.chat.id, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML", reply_to_message_id=message.message_id)
+            except:
+                #bot.send_message(message.chat.id, page["page"])
+                bot.reply_to(message, page["page"], parse_mode="HTML")
+    except:
+        bot.reply_to(message, "Такой статьи нет")
+
+@bot.message_handler(commands=["to_tree_my"])
+def to_tree(message):
+    bot.send_message(message.chat.id, "json\n" + dict_to_tree(json.loads(message.reply_to_message.text)), parse_mode="HTML")
+
+@bot.message_handler(commands=["to_tree_my_info"])
+def to_tree(message):
+    bot.send_message(message.chat.id, message.reply_to_message)
+
+@bot.message_handler(commands=["to_json"])
+def to_json(message):
+    bot.send_message(message.chat.id, message.reply_to_message.text.replace("'", "\"").replace("False", "false").replace("True", "true").replace("None", '"none"').replace("<", '"<').replace(">", '>"'))
+
+@bot.message_handler(commands=["sha256"])
+def sha(message):
+    if message.reply_to_message.text is None:
+        bot.reply_to(message, "Это текст? Ответьте на сообщение с текстом")
+    else:
+        bot.reply_to(message, hashlib.sha256(bytearray(message.reply_to_message.text.encode("utf-8"))).hexdigest())
+
+@bot.message_handler(commands=["delete"])
+def delete(message):
+    try:
+        bot.delete_message(message.chat.id, message.message_id)
+    except:
+        pass
+    try:
+        #bot.send_message(message.chat.id, message.reply_to_message)
+        bot.delete_message(message.chat.id, message.reply_to_message.message_id)
+    except:
+        pass
+
+@bot.message_handler(commands=["delete_message"])
+def delete(message):
+    try:
+        msgid = int(message.text.split(maxsplit=1)[1])
+        bot.delete_message(message.chat.id, msgid)
+        bot.reply_to(message, "Удалил")
+    except:
+        bot.reply_to(message, "Бан))")
+
+
 @bot.message_handler(commands=["generate_password"])
 def password(message):
     try:
         crypto_type = int(message.text.split(maxsplit=1)[1])
-        print(crypto_type)
+        #print(crypto_type)
         if crypto_type > 4096:
             bot.reply_to(message, "Телеграм поддерживает сообщения длиной не больше `4096` символов", parse_mode="Markdown")
             0 / 0
@@ -104,36 +229,52 @@ def ne_bylo(message):
 
 @bot.message_handler(commands=["pizda"])
 def pizda(message):
+    stid = "CAACAgIAAx0CUDyGjwACAQxfCFkaHE52VvWZzaEDQwUC8FYa-wAC3wADlJlpL5sCLYkiJrDFGgQ"
     try:
         bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
     try:
-        bot.send_photo(message.chat.id, open("images/pizda.jpg", "rb"), reply_to_message_id=message.reply_to_message.message_id)
+        bot.send_sticker(message.chat.id, stid, reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_photo(message.chat.id, open("images/pizda.jpg", "rb").read())
+        bot.send_sticker(message.chat.id, stid)
+
 
 @bot.message_handler(commands=["net_pizdy"])
 def net_pizdy(message):
+    stid = "CAACAgIAAx0CUDyGjwACAQ1fCFkcDHIDN_h0qHDu7LgvS8SBIgAC4AADlJlpL8ZF00AlPORXGgQ"
     try:
         bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
     try:
-        bot.send_photo(message.chat.id, open("images/net_pizdy.jpg", "rb"), reply_to_message_id=message.reply_to_message.message_id)
+        bot.send_sticker(message.chat.id, stid, reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_photo(message.chat.id, open("images/net_pizdy.jpg", "rb").read())
+        bot.send_sticker(message.chat.id, stid)
 
 @bot.message_handler(commands=["xui"])
 def xui(message):
+    stid = "CAACAgIAAx0CUDyGjwACAQ5fCFkeR-pVhI_PUTcTbDGUOgzwfAAC4QADlJlpL9ZRhbtO0tQzGgQ"
     try:
         bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
     try:
-        bot.send_photo(message.chat.id, open("images/xui.jpg", "rb"), reply_to_message_id=message.reply_to_message.message_id)
+        bot.send_sticker(message.chat.id, stid, reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_photo(message.chat.id, open("images/xui.jpg", "rb").read())
+        bot.send_sticker(message.chat.id, stid)
+
+@bot.message_handler(commands=["net_xua"])
+def net_xua(message):
+    stid = "CAACAgIAAx0CUDyGjwACAQ9fCFkfgfI9pH9Hr96q7dH0biVjEwAC4gADlJlpL_foG56vPzRPGgQ"
+    try:
+        bot.delete_message(message.chat.id, message.message_id)
+    except:
+        pass
+    try:
+        bot.send_sticker(message.chat.id, stid, reply_to_message_id=message.reply_to_message.message_id)
+    except AttributeError:
+        bot.send_sticker(message.chat.id, stid)
 
 @bot.message_handler(commands=["fake"])
 def polak(message):
@@ -175,6 +316,10 @@ def rzaka_full(message):
         bot.send_message(message.chat.id, text, reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
         bot.send_message(message.chat.id, text)
+
+@bot.message_handler(commands=["genfile"])
+def genfile(message):
+    pass
 
 @bot.message_handler(commands=["detect"])
 def detect(message):
@@ -220,4 +365,7 @@ def detect(message):
 def john(message):
     bot.reply_to(message, f'{choice(["Поляк", "Джон", "Александр Гомель", "Иван", "УберКац", "Яблочник"])}?')
 
-bot.polling()
+try:
+    bot.polling()
+except:
+    bot.send_message("-1001335444502", f"`{str(traceback.format_exc())}`", parse_mode="Markdown")
