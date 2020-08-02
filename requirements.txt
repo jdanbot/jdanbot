@@ -1,4 +1,4 @@
 PyTelegramBotAPI
-
+lxml
 beautifulsoup4
 wikipedia-api
