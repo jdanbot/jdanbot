@@ -148,7 +148,7 @@ def lurk(message):
         except:
             bot.send_message(message.chat.id, page_text, parse_mode="HTML", reply_to_message_id=message.message_id)
     except:
-        bot.send_message(message.chat.id, "Статья недоступна")
+        bot.reply_to(message, "Статья недоступна")
 
 # @bot.message_handler(commands=["bashorg"])
 # def bashorg(message):
