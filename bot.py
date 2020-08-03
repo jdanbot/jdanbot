@@ -33,6 +33,9 @@ else:
     with open("./token.txt") as token:
         bot = telebot.TeleBot(token.read())
 
+
+separator = "/" if os.name == "posix" or os.name == "macos" else "\\"
+
 # @bot.message_handler(commands=["wikiru"])
 # def wikiru(message):
 #     print(message.text.replace("/wikiru@jDan734_bot ", "").replace("/wikiru ", ""))
@@ -63,7 +66,7 @@ def resize(message):
         if int(options[2]) == 0:
             options[2] = 500
 
-        src = f"{os.path.dirname(os.path.abspath(__file__))}\\cache\\"
+        src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}cache{separator}"
 
         photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
         file = bot.download_file(photo.file_path)
@@ -89,18 +92,19 @@ def resize(message):
 def text(message):
     #text = message.text.replace("/text@jDan734_bot ", "").replace("/text ", "")
     params = message.text.split(maxsplit=4)
+    print(params)
     print(len(params))
     if len(params) == 5:
         params = message.text.split(maxsplit=4)
         text = params[len(params) - 1]
-    if len(params) == 1:
+    elif len(params) == 1:
         bot.reply_to(message, "Ответь на фото, на которое нужно добавить текст")
         return
     else:
         params = message.text.split(maxsplit=1)
         text = params[1]
 
-    src = f"{os.path.dirname(os.path.abspath(__file__))}\\cache\\"
+    src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}cache{separator}"
 
     photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
     file = bot.download_file(photo.file_path)
@@ -156,12 +160,13 @@ def text(message):
 
 
     shadowcolor = "white"
+
     try:
-        fillcolor = params[2].split(",").extend(["0"])
+        fillcolor = params[2].split(",")
+        fillcolor = fillcolor.extend(["0"])
         fillcolor = [int(num) for num in fillcolor]
         fillcolor = tuple(fillcolor)
     except Exception as e:
-        print(e)
         fillcolor = params[2]
 
     font = ImageFont.truetype("OpenSans-Bold.ttf", size=size)
@@ -186,7 +191,6 @@ def text(message):
         idraw.text((x, y), text, font=font, fill="black")
 
     img.save(src + message.reply_to_message.photo[-1].file_id + "_text.png", "PNG", dpi=[300,300], quality=100)
-    img.save(src + message.reply_to_message.photo[-1].file_id + "_cool.png", "PNG", dpi=[300,300], quality=100)
     bot.send_photo(message.chat.id, open(src + message.reply_to_message.photo[-1].file_id + "_text.png", "rb"))
 
     os.remove(src + message.reply_to_message.photo[-1].file_id + "_text.png")
