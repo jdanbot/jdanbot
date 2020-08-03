@@ -10,6 +10,8 @@ import hashlib
 import wikipediaapi as wikipedia
 from bs4 import BeautifulSoup
 import requests
+import math
+from PIL import Image, ImageDraw, ImageFont
 
 rules = """
 /ban - отправляет "Бан"
@@ -39,6 +41,219 @@ else:
 #     bot.send_message(message.chat.id, re.split("\\n", wiki.page(name).text)[0])
 #     #except:
 #     #    bot.send_message(message.chat.id, "Отправьте название статьи")
+
+#bot.leave_chat(-1001189395000)
+
+@bot.message_handler(commands=["if"])
+def if_(message):
+    options = message.text.split()
+    bot.reply_to(message, f"{options[1] == options[2]}")
+
+@bot.message_handler(commands=["pypi"])
+def pypi(message):
+    pass
+
+@bot.message_handler(commands=["resize"])
+def resize(message):
+    try:
+        options = message.text.split()
+        print(options)
+        if int(options[1]) == 0:
+            options[1] = 500
+        if int(options[2]) == 0:
+            options[2] = 500
+
+        src = f"{os.path.dirname(os.path.abspath(__file__))}\\cache\\"
+
+        photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
+        file = bot.download_file(photo.file_path)
+
+        try:
+            os.remove(src + message.reply_to_message.photo[-1].file_id)
+        except:
+            pass
+
+        with open(src + message.reply_to_message.photo[-1].file_id + ".jpg", "wb") as new_file:
+            new_file.write(file)
+        img = Image.open(src + message.reply_to_message.photo[-1].file_id + ".jpg")
+        img.thumbnail((int(options[1]), int(options[1])))
+        img.save(src + message.reply_to_message.photo[-1].file_id + "_saved.jpg")
+        bot.send_photo(message.chat.id, open(src + message.reply_to_message.photo[-1].file_id + "_saved.jpg", "rb"))
+        os.remove(src + message.reply_to_message.photo[-1].file_id + "_saved.jpg")
+        os.remove(src + message.reply_to_message.photo[-1].file_id + ".jpg")
+    except Exception as e:
+        bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
+
+
+@bot.message_handler(commands=["text"])
+def text(message):
+    #text = message.text.replace("/text@jDan734_bot ", "").replace("/text ", "")
+    params = message.text.split(maxsplit=4)
+    print(len(params))
+    if len(params) == 5:
+        params = message.text.split(maxsplit=4)
+        text = params[len(params) - 1]
+    if len(params) == 1:
+        bot.reply_to(message, "Ответь на фото, на которое нужно добавить текст")
+        return
+    else:
+        params = message.text.split(maxsplit=1)
+        text = params[1]
+
+    src = f"{os.path.dirname(os.path.abspath(__file__))}\\cache\\"
+
+    photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
+    file = bot.download_file(photo.file_path)
+
+    try:
+        os.remove(src + message.reply_to_message.photo[-1].file_id + ".jpg")
+    except:
+        pass
+
+    with open(src + message.reply_to_message.photo[-1].file_id + "_copy.jpg", "wb") as new_file:
+        new_file.write(file)
+
+    with open(src + message.reply_to_message.photo[-1].file_id + ".jpg", "wb") as new_file:
+        new_file.write(file)
+
+    img = Image.open(src + message.reply_to_message.photo[-1].file_id + ".jpg")
+
+
+    idraw = ImageDraw.Draw(img)
+
+
+    # font = ImageFont.truetype("JetBrainsMono.ttf", size=28)
+    # idraw.text((4, 4), text, font=font)
+
+    # font = ImageFont.truetype("JetBrainsMono.ttf", size=27)
+    # idraw.text((6, 6), text, font=font)
+    try:
+        xy = params[3].split("x")
+    except:
+        xy = [100, 100]
+
+    try:
+        x = int(xy[0])
+    except:
+        x = 100
+
+    try:
+        y = int(xy[1])
+    except:
+        y = 100
+
+    try:
+        size = int(params[1])
+    except:
+        size = 100
+
+    if size > 1000:
+        size = 1000
+
+    #font = ImageFont.truetype("NotoSans-Regular.ttf", size=size)
+    #font = ImageFont.truetype("Apple Color Emoji.ttf", size=size)
+    # idraw.text((7, 10), text, font=font, fill=(0, 0, 0, 0))
+
+
+    shadowcolor = "white"
+    try:
+        fillcolor = params[2].split(",").extend(["0"])
+        fillcolor = [int(num) for num in fillcolor]
+        fillcolor = tuple(fillcolor)
+    except Exception as e:
+        print(e)
+        fillcolor = params[2]
+
+    font = ImageFont.truetype("OpenSans-Bold.ttf", size=size)
+
+    p = 3
+
+    idraw.text((x-p, y), text, font=font, fill=shadowcolor)
+    idraw.text((x+p, y), text, font=font, fill=shadowcolor)
+    idraw.text((x, y-p), text, font=font, fill=shadowcolor)
+    idraw.text((x, y+p), text, font=font, fill=shadowcolor)
+
+    # thicker border
+    idraw.text((x-p, y-p), text, font=font, fill=shadowcolor)
+    idraw.text((x+p, y-p), text, font=font, fill=shadowcolor)
+    idraw.text((x-p, y+p), text, font=font, fill=shadowcolor)
+    idraw.text((x+p, y+p), text, font=font, fill=shadowcolor)
+
+
+    try:
+        idraw.text((x, y), text, font=font, fill=fillcolor)
+    except:
+        idraw.text((x, y), text, font=font, fill="black")
+
+    img.save(src + message.reply_to_message.photo[-1].file_id + "_text.png", "PNG", dpi=[300,300], quality=100)
+    img.save(src + message.reply_to_message.photo[-1].file_id + "_cool.png", "PNG", dpi=[300,300], quality=100)
+    bot.send_photo(message.chat.id, open(src + message.reply_to_message.photo[-1].file_id + "_text.png", "rb"))
+
+    os.remove(src + message.reply_to_message.photo[-1].file_id + "_text.png")
+    os.remove(src + message.reply_to_message.photo[-1].file_id + ".jpg")
+
+        #os.remove(src + message.reply_to_message.photo[0].file_id)
+
+
+@bot.message_handler(commands=["sqrt"])
+def sqrt(message):
+    try:
+        num = float(message.text.split()[1])
+        res = math.sqrt(num)
+
+        try:
+            res = int(res)
+        except:
+            res = float(res)
+
+        bot.reply_to(message, f"`{res}`", parse_mode="Markdown")
+    except Exception as e:
+        bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
+
+@bot.message_handler(commands=["calc"])
+def calc(message):
+    options = message.text.split(" ")
+    try:
+        num1 = float(options[1])
+        num2 = float(options[3])
+        operator = options[2]
+
+        if operator == "+":
+            result = num1 + num2
+
+        elif operator == "/":
+            result = num1 / num2
+
+        elif operator == "*" or operator.lower() == "x":
+            result = num1 * num2
+
+        elif operator == "-":
+            result = num1 - num2
+
+        elif operator == "%":
+            result = num1 % num2
+
+        elif operator == "^" or operator == "**":
+            result = num1 ** num2
+
+        try:
+            result = int(result)
+        except:
+            result = float(result) 
+
+        bot.reply_to(message, f"`{result}`", parse_mode="Markdown")
+
+        # except Exception as e:
+        #     operator = options[1]
+        #     num = float(operator.replace("sqrt(", "").replace(")", ""))
+
+        #     if num:
+        #         bot.reply_to(message, math.sqrt(num))
+
+        #     if 
+
+    except Exception as e:
+        bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
 
 @bot.message_handler(commands=["wikiru", "wikiru2"])
 def wikiru(message):
@@ -70,18 +285,23 @@ def wikies(message):
 
 def getWiki(message, lang="ru"):
     name = message.text.replace("/wikiru2@jDan734_bot ", "").replace("/wikiru2 ", "").replace("/wikiru@jDan734_bot ", "").replace("/wikiru ", "").replace("/wikide@jDan734_bot ", "").replace("/wikide ", "").replace("/wikien@jDan734_bot ", "").replace("/wikien ", "").replace("/wikipl@jDan734_bot ", "").replace("/wikipl ", "").replace("/wikiua@jDan734_bot ", "").replace("/wikiua ", "").replace("/wikipl@jDan734_bot ", "").replace("/wikipl ", "").replace("/wikiuk@jDan734_bot ", "").replace("/wikiuk ", "").replace("/wikibe@jDan734_bot ", "").replace("/wikibe ", "").replace("/wikies@jDan734_bot ", "").replace("/wikies ", "")
-    print(name)
 
     url = "https://ru.wikipedia.org"
     r = requests.get(url + "/wiki/" + name.replace(" ", "_"))
+
+    print(f"[Wikipedia {lang.upper()}] {name}")
 
     page = {}
     wiki = wikipedia.Wikipedia(lang)
 
 
-    page["page"] = wiki.page(name).text
+    page["orig"] = wiki.page(name)
+    page["page"] = page["orig"].text
+    page["title"] = page["orig"].title
     page["page"] = re.split("\\n", page["page"])[0]
 
+
+    page["page"] = page["page"].replace("<", "&lt;").replace(">", "&gt;")
     page["page"] = f'<b>{page["page"].replace("(", "</b>(", 1)}'
     if page["page"].find("</b>") == -1:
         page["page"] = f'{page["page"].replace("—", "</b>—", 1)}'
@@ -91,19 +311,24 @@ def getWiki(message, lang="ru"):
     try:
         try:
             page["image_url"] = soup.find("td", class_="infobox-image").span.a.img.get("src")
-            print("https:" + page["image_url"])
             #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
 
-            bot.send_photo(message.chat.id, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML", reply_to_message_id=message.message_id)
+            bot.send_photo(message.chat.id, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML",reply_to_message_id=message.message_id)
             #bot.reply_to(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
         except:
             try:
-                page["image_url"] = soup.find("td", class_="infobox-image").span.span.a.img.get("src")
-                print("https:" + page["image_url"])
+                page["image_url"] = soup.find("div", class_="mw-parser-output").find("img", class_="thumbimage").get("srcset").split()[0]
+                #print(f"{dir(image)=}")
                 #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
 
-                bot.send_photo(message.chat.id, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML", reply_to_message_id=message.message_id)
-            except:
+                bot.send_photo(message.chat.id, 
+                               "https:" + page["image_url"], 
+                               caption={page["page"]}, 
+                               parse_mode="HTML",
+                               reply_to_message_id=message.message_id)
+
+            except Exception as e:
+                print(e)
                 #bot.send_message(message.chat.id, page["page"])
                 bot.reply_to(message, page["page"], parse_mode="HTML")
     except:
@@ -120,6 +345,9 @@ def getWiki(message, lang="ru"):
 @bot.message_handler(commands=["lurk"])
 def lurk(message):
     name = message.text.replace("/lurk@jDan734_bot ", "").replace("/lurk ", "")
+
+    print(f"[Lurkmore] {name}")
+
     url = "https://lurkmore.to/"
     r = requests.get(url + "index.php",
                      params={"search": name})
@@ -138,9 +366,10 @@ def lurk(message):
             page = tag
             break
 
-    page_text = f'<b>{page.text.replace("(", "</b>(", 1)}'
+    page_text = page.text.replace("<", "&lt;").replace(">", "&gt;")
+    page_text = f'<b>{page_text.replace("(", "</b>(", 1)}'
     if page.find("</b>") == -1:
-        page = f'{page.text.replace("—", "</b>—", 1)}'
+        page = f'{page_text.replace("—", "</b>—", 1)}'
     try:
         try:
             image_url = soup.find(class_=["thumb", "tright"]).find("img").get("src")
@@ -412,5 +641,4 @@ def john(message):
 try:
     bot.polling()
 except:
-    #bot.send_message("-1001335444502", f"`{str(traceback.format_exc())}`", parse_mode="Markdown")
-    pass
+    bot.send_message("-1001335444502", f"`{str(traceback.format_exc())}`", parse_mode="Markdown")
