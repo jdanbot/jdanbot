@@ -326,7 +326,7 @@ def sqrt(message):
 @bot.message_handler(commands=["calc"])
 def calc(message):
     options = message.text.split(maxsplit=1)[1].replace(" ", "").replace(",", ".").replace("pi", "3.141592653589793238462643383279")
-    getcontext().prec = 75
+    getcontext().prec = 25
 
     try:
         nums = re.split(r"\+", options)
