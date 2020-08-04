@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 import requests
 import math
 from PIL import Image, ImageDraw, ImageFont
+from decimal import *
 
 rules = """
 /ban - отправляет "Бан"
@@ -56,34 +57,58 @@ def if_(message):
 def pypi(message):
     pass
 
+@bot.message_handler(commands=["preview"])
+def preview(message):
+    try:
+        bot.send_photo(message.chat.id, f"https://img.youtube.com/vi/{message.reply_to_message.text.replace('watch?v=', '').split('/')[-1]}/maxresdefault.jpg")
+    except:
+        bot.reply_to(message, "Не удалось скачать превью")
+
 @bot.message_handler(commands=["resize"])
 def resize(message):
     try:
-        options = message.text.split()
+        try:
+            options = message.text.split()
+        except:
+            options = []
+            options[0] = message.text
         print(options)
-        if int(options[1]) == 0:
-            options[1] = 500
-        if int(options[2]) == 0:
-            options[2] = 500
+
+        try:
+            int(options[1])
+        except:
+            options.extend([100000])
+
+        try:
+            int(options[2])
+        except:
+            options.extend([100000])
 
         src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}cache{separator}"
 
-        photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
+        try:
+            photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
+            file_id = message.reply_to_message.photo[-1].file_id
+        except:
+            photo = bot.get_file(message.reply_to_message.document.file_id)
+            file_id = message.reply_to_message.document.file_id
+
         file = bot.download_file(photo.file_path)
 
         try:
-            os.remove(src + message.reply_to_message.photo[-1].file_id)
+            os.remove(src + file_id)
         except:
             pass
 
-        with open(src + message.reply_to_message.photo[-1].file_id + ".jpg", "wb") as new_file:
+        with open(src + file_id + ".jpg", "wb") as new_file:
             new_file.write(file)
-        img = Image.open(src + message.reply_to_message.photo[-1].file_id + ".jpg")
+        img = Image.open(src + file_id + ".jpg")
         img.thumbnail((int(options[1]), int(options[1])))
-        img.save(src + message.reply_to_message.photo[-1].file_id + "_saved.jpg")
-        bot.send_photo(message.chat.id, open(src + message.reply_to_message.photo[-1].file_id + "_saved.jpg", "rb"))
-        os.remove(src + message.reply_to_message.photo[-1].file_id + "_saved.jpg")
-        os.remove(src + message.reply_to_message.photo[-1].file_id + ".jpg")
+        img.save(src + file_id + "_saved.jpg")
+        bot.send_photo(message.chat.id, open(src + file_id + "_saved.jpg", "rb"))
+        os.remove(src + file_id + "_saved.jpg")
+        os.remove(src + file_id + ".jpg")
+
     except Exception as e:
         bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
 
@@ -91,12 +116,16 @@ def resize(message):
 @bot.message_handler(commands=["text"])
 def text(message):
     #text = message.text.replace("/text@jDan734_bot ", "").replace("/text ", "")
-    params = message.text.split(maxsplit=4)
+    params = message.text.split()
     print(params)
-    print(len(params))
-    if len(params) == 5:
-        params = message.text.split(maxsplit=4)
-        text = params[len(params) - 1]
+    if True:
+        try:
+            int(params[3].split("x")[0])
+            params = message.text.split(maxsplit=4)
+            text = params[len(params) - 1]
+        except:
+            params = message.text.split(maxsplit=1)
+            text = params[1]
     elif len(params) == 1:
         bot.reply_to(message, "Ответь на фото, на которое нужно добавить текст")
         return
@@ -106,97 +135,173 @@ def text(message):
 
     src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}cache{separator}"
 
-    photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
-    file = bot.download_file(photo.file_path)
-
     try:
-        os.remove(src + message.reply_to_message.photo[-1].file_id + ".jpg")
-    except:
-        pass
+        try:
+            print(message.reply_to_message.photo[-1].file_id)
+            photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
+            print(photo)
+            file_id = message.reply_to_message.photo[-1].file_id
+        except:
+            print(message.reply_to_message.document.file_id)
+            photo = bot.get_file(message.reply_to_message.document.file_id)
+            print(photo)
+            file_id = message.reply_to_message.document.file_id
+        file = bot.download_file(photo.file_path)
 
-    with open(src + message.reply_to_message.photo[-1].file_id + "_copy.jpg", "wb") as new_file:
-        new_file.write(file)
+        try:
+            os.remove(src + file_id + ".jpg")
+        except:
+            pass
 
-    with open(src + message.reply_to_message.photo[-1].file_id + ".jpg", "wb") as new_file:
-        new_file.write(file)
+        with open(src + file_id + "_copy.jpg", "wb") as new_file:
+            new_file.write(file)
 
-    img = Image.open(src + message.reply_to_message.photo[-1].file_id + ".jpg")
+        with open(src + file_id + ".jpg", "wb") as new_file:
+            new_file.write(file)
 
-
-    idraw = ImageDraw.Draw(img)
-
-
-    # font = ImageFont.truetype("JetBrainsMono.ttf", size=28)
-    # idraw.text((4, 4), text, font=font)
-
-    # font = ImageFont.truetype("JetBrainsMono.ttf", size=27)
-    # idraw.text((6, 6), text, font=font)
-    try:
-        xy = params[3].split("x")
-    except:
-        xy = [100, 100]
-
-    try:
-        x = int(xy[0])
-    except:
-        x = 100
-
-    try:
-        y = int(xy[1])
-    except:
-        y = 100
-
-    try:
-        size = int(params[1])
-    except:
-        size = 100
-
-    if size > 1000:
-        size = 1000
-
-    #font = ImageFont.truetype("NotoSans-Regular.ttf", size=size)
-    #font = ImageFont.truetype("Apple Color Emoji.ttf", size=size)
-    # idraw.text((7, 10), text, font=font, fill=(0, 0, 0, 0))
+        img = Image.open(src + file_id + ".jpg")
 
 
-    shadowcolor = "white"
+        idraw = ImageDraw.Draw(img)
 
-    try:
-        fillcolor = params[2].split(",")
-        fillcolor = fillcolor.extend(["0"])
-        fillcolor = [int(num) for num in fillcolor]
-        fillcolor = tuple(fillcolor)
+
+        # font = ImageFont.truetype("JetBrainsMono.ttf", size=28)
+        # idraw.text((4, 4), text, font=font)
+
+        # font = ImageFont.truetype("JetBrainsMono.ttf", size=27)
+        # idraw.text((6, 6), text, font=font)
+        try:
+            xy = params[3].split("x")
+        except:
+            xy = [100, 100]
+
+        try:
+            x = int(xy[0])
+        except:
+            x = 100
+
+        try:
+            y = int(xy[1])
+        except:
+            y = 100
+
+        try:
+            size = int(params[1])
+        except:
+            size = 100
+
+        if size > 1000:
+            size = 1000
+
+        #font = ImageFont.truetype("NotoSans-Regular.ttf", size=size)
+        #font = ImageFont.truetype("Apple Color Emoji.ttf", size=size)
+        # idraw.text((7, 10), text, font=font, fill=(0, 0, 0, 0))
+
+
+        shadowcolor = "white"
+
+        try:
+            try:
+                fillcolor = params[2].split(",")
+                fillcolor = fillcolor.extend(["0"])
+                fillcolor = [int(num) for num in fillcolor]
+                fillcolor = tuple(fillcolor)
+            except:
+                fillcolor = params[2]
+        except:
+            fillcolor = "black"
+
+        font = ImageFont.truetype("OpenSans-Bold.ttf", size=size)
+
+        p = 3
+
+        idraw.text((x-p, y), text, font=font, fill=shadowcolor)
+        idraw.text((x+p, y), text, font=font, fill=shadowcolor)
+        idraw.text((x, y-p), text, font=font, fill=shadowcolor)
+        idraw.text((x, y+p), text, font=font, fill=shadowcolor)
+
+        # thicker border
+        idraw.text((x-p, y-p), text, font=font, fill=shadowcolor)
+        idraw.text((x+p, y-p), text, font=font, fill=shadowcolor)
+        idraw.text((x-p, y+p), text, font=font, fill=shadowcolor)
+        idraw.text((x+p, y+p), text, font=font, fill=shadowcolor)
+
+
+        try:
+            idraw.text((x, y), text, font=font, fill=fillcolor)
+        except:
+            idraw.text((x, y), text, font=font, fill="black")
+
+        img.save(src + file_id + "_text.png", "PNG", dpi=[300,300], quality=100)
+        bot.send_photo(message.chat.id, open(src + file_id + "_text.png", "rb"))
+
+        os.remove(src + file_id + "_text.png")
+        os.remove(src + file_id + ".jpg")
+
+            #os.remove(src + message.reply_to_message.photo[0].file_id)
     except Exception as e:
-        fillcolor = params[2]
-
-    font = ImageFont.truetype("OpenSans-Bold.ttf", size=size)
-
-    p = 3
-
-    idraw.text((x-p, y), text, font=font, fill=shadowcolor)
-    idraw.text((x+p, y), text, font=font, fill=shadowcolor)
-    idraw.text((x, y-p), text, font=font, fill=shadowcolor)
-    idraw.text((x, y+p), text, font=font, fill=shadowcolor)
-
-    # thicker border
-    idraw.text((x-p, y-p), text, font=font, fill=shadowcolor)
-    idraw.text((x+p, y-p), text, font=font, fill=shadowcolor)
-    idraw.text((x-p, y+p), text, font=font, fill=shadowcolor)
-    idraw.text((x+p, y+p), text, font=font, fill=shadowcolor)
+        bot.reply_to(message, e)
 
 
+@bot.message_handler(commands=["rectangle"])
+def rectangle(message):
+    #text = message.text.replace("/text@jDan734_bot ", "").replace("/text ", "")
+    params = message.text.split(maxsplit=4)
+    print(params)
     try:
-        idraw.text((x, y), text, font=font, fill=fillcolor)
-    except:
-        idraw.text((x, y), text, font=font, fill="black")
+        params[2]
 
-    img.save(src + message.reply_to_message.photo[-1].file_id + "_text.png", "PNG", dpi=[300,300], quality=100)
-    bot.send_photo(message.chat.id, open(src + message.reply_to_message.photo[-1].file_id + "_text.png", "rb"))
+        src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}cache{separator}"
 
-    os.remove(src + message.reply_to_message.photo[-1].file_id + "_text.png")
-    os.remove(src + message.reply_to_message.photo[-1].file_id + ".jpg")
+        try:
+            photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
+        except:
+            photo = bot.get_file(message.reply_to_message.document.thumb.file_id)
+        file = bot.download_file(photo.file_path)
 
-        #os.remove(src + message.reply_to_message.photo[0].file_id)
+        try:
+            os.remove(src + message.reply_to_message.photo[-1].file_id + ".jpg")
+        except:
+            pass
+
+        with open(src + message.reply_to_message.photo[-1].file_id + "_copy.jpg", "wb") as new_file:
+            new_file.write(file)
+
+        with open(src + message.reply_to_message.photo[-1].file_id + ".jpg", "wb") as new_file:
+            new_file.write(file)
+
+        img = Image.open(src + message.reply_to_message.photo[-1].file_id + ".jpg")
+
+
+        idraw = ImageDraw.Draw(img)
+
+
+        try:
+            optsize = params[2].split("x")
+            optsize1 = params[3].split("x")
+
+            size = (int(optsize[0]), int(optsize[1]))
+            size1 = (int(optsize1[0]), int(optsize1[0]))
+        except:
+            optsize = params[2].split(".")
+            optsize1 = params[3].split(".")
+
+            size = (int(optsize[0]), int(optsize[1]))
+            size1 = (int(optsize1[0]), int(optsize1[0]))
+
+        idraw.rectangle((size, size1), fill=params[1])
+        #except:
+        #    idraw.text((x, y), text, font=font, fill="black")
+
+        img.save(src + message.reply_to_message.photo[-1].file_id + "_text.png", "PNG", dpi=[300,300], quality=100)
+        bot.send_photo(message.chat.id, open(src + message.reply_to_message.photo[-1].file_id + "_text.png", "rb"))
+
+        os.remove(src + message.reply_to_message.photo[-1].file_id + "_text.png")
+        os.remove(src + message.reply_to_message.photo[-1].file_id + ".jpg")
+
+                #os.remove(src + message.reply_to_message.photo[0].file_id)
+    except Exception as e:
+        bot.reply_to(message, e)
 
 
 @bot.message_handler(commands=["sqrt"])
@@ -216,36 +321,58 @@ def sqrt(message):
 
 @bot.message_handler(commands=["calc"])
 def calc(message):
-    options = message.text.split(" ")
+    options = message.text.split(maxsplit=1)[1].replace(" ", "").replace(",", ".").replace("pi", "3.141592653589793238462643383279")
+    getcontext().prec = 75
+
     try:
-        num1 = float(options[1])
-        num2 = float(options[3])
-        operator = options[2]
+        nums = re.split(r"\+", options)
+        result = Decimal(nums[0]) + Decimal(nums[1])
+    except:
+        pass
 
-        if operator == "+":
-            result = num1 + num2
+    try:
+        nums = re.split(r"/", options)
+        result = Decimal(nums[0]) / Decimal(nums[1])
+    except:
+        pass
 
-        elif operator == "/":
-            result = num1 / num2
+    try:
+        nums = re.split(r"-", options)
+        result = Decimal(nums[0]) - Decimal(nums[1])
+    except:
+        pass
 
-        elif operator == "*" or operator.lower() == "x":
-            result = num1 * num2
+    try:
+        nums = re.split(r"\*", options)
+        result = Decimal(nums[0]) * Decimal(nums[1])
+    except:
+        pass
 
-        elif operator == "-":
-            result = num1 - num2
+    try:
+        nums = re.split(r"%", options)
+        result = Decimal(nums[0]) % Decimal(nums[1])
+    except:
+        pass
 
-        elif operator == "%":
-            result = num1 % num2
+    try:
+        nums = re.split(r"\*\*", options)
+        result = Decimal(nums[0]) ** Decimal(nums[1])
+    except:
+        pass
 
-        elif operator == "^" or operator == "**":
-            result = num1 ** num2
+    try:
+        nums = re.split(r"\^", options)
+        result = Decimal(nums[0]) ** Decimal(nums[1])
+    except:
+        pass
 
-        try:
-            result = int(result)
-        except:
-            result = float(result) 
+    try:
+        # if int(result) == float(result):
+        #     result = int(result)
+        # else:
+        #     result = float(result) 
 
-        bot.reply_to(message, f"`{result}`", parse_mode="Markdown")
+        bot.reply_to(message, f"`{str(result)}`", parse_mode="Markdown")
 
         # except Exception as e:
         #     operator = options[1]
@@ -298,17 +425,31 @@ def getWiki(message, lang="ru"):
     page = {}
     wiki = wikipedia.Wikipedia(lang)
 
+    try:
+        wiki.page(name).text
+        page["orig"] = wiki.page(name)
+    except:
+        wiki.page(name.title()).text
+        page["orig"] = wiki.page(name.title())        
 
-    page["orig"] = wiki.page(name)
     page["page"] = page["orig"].text
     page["title"] = page["orig"].title
     page["page"] = re.split("\\n", page["page"])[0]
 
 
     page["page"] = page["page"].replace("<", "&lt;").replace(">", "&gt;")
-    page["page"] = f'<b>{page["page"].replace("(", "</b>(", 1)}'
-    if page["page"].find("</b>") == -1:
-        page["page"] = f'{page["page"].replace("—", "</b>—", 1)}'
+
+    if page["page"].find("фамилия. Известные носители:") == -1:
+        page["page"] = f'<b>{page["page"].replace("(", "</b>(", 1)}'
+        if page["page"].find("</b>") == -1:
+            page["page"] = f'{page["page"].replace("—", "</b>—", 1)}'
+        if page["page"].find("</b>") == -1:
+            page["page"] = f'{page["page"].replace("-", "</b>—", 1)}'
+        if page["page"].find("</b>") == -1:
+            page["page"] = page["orig"].text.replace("<", "&lt;").replace(">", "&gt;")
+            page["page"] = re.sub(r"BRBR(Фамилия|Аббревиатура).{,}BRBR", "", page["orig"].text.replace("\n", "BR")).replace("BR", "\n").replace("== Примечания ==", "")
+    else:
+        page["page"] = page["orig"].text.replace("<", "&lt;").replace(">", "&gt;")
 
     soup = BeautifulSoup(r.text, 'lxml')
     #bot.send_photo(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
@@ -335,7 +476,8 @@ def getWiki(message, lang="ru"):
                 print(e)
                 #bot.send_message(message.chat.id, page["page"])
                 bot.reply_to(message, page["page"], parse_mode="HTML")
-    except:
+    except Exception as e:
+        print(e)
         bot.reply_to(message, "Такой статьи нет")
 
 # @bot.message_handler(commands=["to_tree_my"])
@@ -413,18 +555,21 @@ def delete(message):
         pass
     try:
         #bot.send_message(message.chat.id, message.reply_to_message)
-        bot.delete_message(message.chat.id, message.reply_to_message.message_id)
+        print(message.reply_to_message.from_user.id)
+        print(message.reply_to_message.message_id)
+        if message.reply_to_message.from_user.id == "1121412322":
+            bot.delete_message(message.chat.id, message.reply_to_message.message_id)
     except:
         pass
 
-@bot.message_handler(commands=["delete_message"])
-def delete(message):
-    try:
-        msgid = int(message.text.split(maxsplit=1)[1])
-        bot.delete_message(message.chat.id, msgid)
-        bot.reply_to(message, "Удалил")
-    except:
-        bot.reply_to(message, "Бан))")
+# @bot.message_handler(commands=["delete_message"])
+# def delete(message):
+#     try:
+#         msgid = int(message.text.split(maxsplit=1)[1])
+#         bot.delete_message(message.chat.id, msgid)
+#         bot.reply_to(message, "Удалил")
+#     except:
+#         bot.reply_to(message, "Бан))")
 
 
 @bot.message_handler(commands=["generate_password"])
@@ -532,6 +677,18 @@ def net_pizdy(message):
 @bot.message_handler(commands=["xui"])
 def xui(message):
     stid = "CAACAgIAAx0CUDyGjwACAQ5fCFkeR-pVhI_PUTcTbDGUOgzwfAAC4QADlJlpL9ZRhbtO0tQzGgQ"
+    try:
+        bot.delete_message(message.chat.id, message.message_id)
+    except:
+        pass
+    try:
+        bot.send_sticker(message.chat.id, stid, reply_to_message_id=message.reply_to_message.message_id)
+    except AttributeError:
+        bot.send_sticker(message.chat.id, stid)
+
+@bot.message_handler(commands=["xui_pizda"])
+def xui_pizda(message):
+    stid = choice(["CAACAgIAAx0CUDyGjwACAQ5fCFkeR-pVhI_PUTcTbDGUOgzwfAAC4QADlJlpL9ZRhbtO0tQzGgQ", "CAACAgIAAx0CUDyGjwACAQxfCFkaHE52VvWZzaEDQwUC8FYa-wAC3wADlJlpL5sCLYkiJrDFGgQ"])
     try:
         bot.delete_message(message.chat.id, message.message_id)
     except:
