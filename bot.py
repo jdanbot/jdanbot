@@ -13,6 +13,7 @@ import requests
 import math
 from PIL import Image, ImageDraw, ImageFont
 from decimal import *
+import urllib
 
 rules = """
 /ban - отправляет "Бан"
@@ -60,9 +61,12 @@ def pypi(message):
 @bot.message_handler(commands=["preview"])
 def preview(message):
     try:
-        bot.send_photo(message.chat.id, f"https://img.youtube.com/vi/{message.reply_to_message.text.replace('watch?v=', '').split('/')[-1]}/maxresdefault.jpg")
-    except:
-        bot.reply_to(message, "Не удалось скачать превью")
+        try:
+            bot.send_photo(message.chat.id, f"https://img.youtube.com/vi/{message.reply_to_message.text.split('/')[-1]}/maxresdefault.jpg")
+        except:
+            bot.send_photo(message.chat.id, f'https://img.youtube.com/vi/{urllib.parse.parse_qs(urllib.parse.urlparse(message.reply_to_message.text).query)["v"][0]}/maxresdefault.jpg')
+    except Exception as e:
+        bot.reply_to(message, "Не получилось скачать превью")
 
 @bot.message_handler(commands=["resize"])
 def resize(message):
