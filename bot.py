@@ -1,7 +1,7 @@
 import telebot
 import re
 from random import randint, choice
-from nword import *
+from prettyword import *
 import os
 import json
 import traceback
@@ -52,11 +52,10 @@ separator = "/" if os.name == "posix" or os.name == "macos" else "\\"
 @bot.message_handler(commands=["if"])
 def if_(message):
     options = message.text.split()
-    bot.reply_to(message, f"{options[1] == options[2]}")
-
-@bot.message_handler(commands=["pypi"])
-def pypi(message):
-    pass
+    try:
+        bot.reply_to(message, f"{options[1] == options[2]}")
+    except:
+        bot.reply_to(message, "Напиши аргументы :/")
 
 @bot.message_handler(commands=["preview"])
 def preview(message):
@@ -419,7 +418,11 @@ def wikies(message):
     getWiki(message, "es")
 
 def getWiki(message, lang="ru"):
-    name = message.text.replace("/wikiru2@jDan734_bot ", "").replace("/wikiru2 ", "").replace("/wikiru@jDan734_bot ", "").replace("/wikiru ", "").replace("/wikide@jDan734_bot ", "").replace("/wikide ", "").replace("/wikien@jDan734_bot ", "").replace("/wikien ", "").replace("/wikipl@jDan734_bot ", "").replace("/wikipl ", "").replace("/wikiua@jDan734_bot ", "").replace("/wikiua ", "").replace("/wikipl@jDan734_bot ", "").replace("/wikipl ", "").replace("/wikiuk@jDan734_bot ", "").replace("/wikiuk ", "").replace("/wikibe@jDan734_bot ", "").replace("/wikibe ", "").replace("/wikies@jDan734_bot ", "").replace("/wikies ", "")
+    try:
+        name = message.text.split(maxsplit=1)[1]
+    except IndexError:
+        bot.reply_to(message, "Напишите название статьи")
+        return
 
     url = "https://ru.wikipedia.org"
     r = requests.get(url + "/wiki/" + name.replace(" ", "_"))
@@ -447,8 +450,13 @@ def getWiki(message, lang="ru"):
         page["page"] = f'<b>{page["page"].replace("(", "</b>(", 1)}'
         if page["page"].find("</b>") == -1:
             page["page"] = f'{page["page"].replace("—", "</b>—", 1)}'
+
+        if page["page"].find("</b>") == -1:
+            page["page"] = f'{page["page"].replace(", котор", "</b>, котор", 1)}'
+
         if page["page"].find("</b>") == -1:
             page["page"] = f'{page["page"].replace("-", "</b>—", 1)}'
+
         if page["page"].find("</b>") == -1:
             page["page"] = page["orig"].text.replace("<", "&lt;").replace(">", "&gt;")
             page["page"] = re.sub(r"BRBR(Фамилия|Аббревиатура).{,}BRBR", "", page["orig"].text.replace("\n", "BR")).replace("BR", "\n").replace("== Примечания ==", "")
@@ -459,10 +467,14 @@ def getWiki(message, lang="ru"):
     #bot.send_photo(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
     try:
         try:
-            page["image_url"] = soup.find("td", class_="infobox-image").span.a.img.get("src")
+            page["image_url"] = soup.find("td", class_="infobox-image").span.a.img.get("srcset").split()[2]
             #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
 
-            bot.send_photo(message.chat.id, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML",reply_to_message_id=message.message_id)
+            bot.send_photo(message.chat.id, 
+                           "https:" + page["image_url"], 
+                           caption=page["page"], 
+                           parse_mode="HTML",
+                           reply_to_message_id=message.message_id)
             #bot.reply_to(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
         except:
             try:
@@ -546,10 +558,13 @@ def to_json(message):
 
 @bot.message_handler(commands=["sha256"])
 def sha(message):
-    if message.reply_to_message.text is None:
-        bot.reply_to(message, "Это текст? Ответьте на сообщение с текстом")
-    else:
-        bot.reply_to(message, hashlib.sha256(bytearray(message.reply_to_message.text.encode("utf-8"))).hexdigest())
+    try:
+        if message.reply_to_message.text is None:
+            bot.reply_to(message, "Ответьте на сообщение с текстом")
+        else:
+            bot.reply_to(message, hashlib.sha256(bytearray(message.reply_to_message.text.encode("utf-8"))).hexdigest())
+    except Exception as e:
+        bot.reply_to(message, e)
 
 @bot.message_handler(commands=["delete"])
 def delete(message):
@@ -755,10 +770,6 @@ def rzaka_full(message):
     except AttributeError:
         bot.send_message(message.chat.id, text)
 
-@bot.message_handler(commands=["genfile"])
-def genfile(message):
-    pass
-
 @bot.message_handler(commands=["detect"])
 def detect(message):
     if message.text.find("бойкот") != -1:
@@ -776,11 +787,11 @@ def random_putin(message):
     date = choice(["дней", "месяцев", "лет"])
 
     if date == "дней":
-        true_date = nword(number, ["день", "дня", "дней"])
+        true_date = prettyword(number, ["день", "дня", "дней"])
     elif date == "месяцев":
-        true_date = nword(number, ["месяц", "месяца", "месяцев"])
+        true_date = prettyword(number, ["месяц", "месяца", "месяцев"])
     elif date == "лет":
-        true_date = nword(number, ["год", "года", "лет"])
+        true_date = prettyword(number, ["год", "года", "лет"])
 
 
     bot.reply_to(message, f'Путин уйдет через {number} {true_date}')
