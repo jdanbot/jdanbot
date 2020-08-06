@@ -49,11 +49,13 @@ separator = "/" if os.name == "posix" or os.name == "macos" else "\\"
 
 #bot.leave_chat(-1001189395000)
 
-@bot.message_handler(commands=["if"])
+#bot.delete_message(-1001176998310, 164427)
+
+@bot.message_handler(["if"])
 def if_(message):
     options = message.text.split()
     try:
-        bot.reply_to(message, f"{options[1] == options[2]}")
+        bot.reply_to(message, f"<code>{options[1]}</code> == <code>{options[2]}</code>: <b>{options[1] == options[2]}</b>", parse_mode="HTML")
     except:
         bot.reply_to(message, "Напиши аргументы :/")
 
@@ -121,33 +123,29 @@ def text(message):
     #text = message.text.replace("/text@jDan734_bot ", "").replace("/text ", "")
     params = message.text.split()
     print(params)
-    if True:
-        try:
-            int(params[3].split("x")[0])
-            params = message.text.split(maxsplit=4)
-            text = params[len(params) - 1]
-        except:
-            params = message.text.split(maxsplit=1)
-            text = params[1]
-    elif len(params) == 1:
-        bot.reply_to(message, "Ответь на фото, на которое нужно добавить текст")
-        return
-    else:
+    # if True:
+    try:
+        int(params[3].split("x")[0])
+        params = message.text.split(maxsplit=4)
+        text = params[len(params) - 1]
+    except:
         params = message.text.split(maxsplit=1)
         text = params[1]
+    # elif len(params) == 1:
+    #     bot.reply_to(message, "Ответь на фото, на которое нужно добавить текст")
+    #     return
+    # else:
+    #     params = message.text.split(maxsplit=1)
+    #     text = params[1]
 
     src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}cache{separator}"
 
     try:
         try:
-            print(message.reply_to_message.photo[-1].file_id)
             photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
-            print(photo)
             file_id = message.reply_to_message.photo[-1].file_id
         except:
-            print(message.reply_to_message.document.file_id)
             photo = bot.get_file(message.reply_to_message.document.file_id)
-            print(photo)
             file_id = message.reply_to_message.document.file_id
         file = bot.download_file(photo.file_path)
 
@@ -314,9 +312,10 @@ def sqrt(message):
         res = math.sqrt(num)
 
         try:
-            res = int(res)
-        except:
             res = float(res)
+        except:
+            res = int(res)
+
 
         bot.reply_to(message, f"`{res}`", parse_mode="Markdown")
     except Exception as e:
@@ -389,6 +388,8 @@ def calc(message):
     except Exception as e:
         bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
 
+#TODO: REWRITE
+
 @bot.message_handler(commands=["wikiru", "wikiru2"])
 def wikiru(message):
     getWiki(message, "ru")
@@ -447,15 +448,17 @@ def getWiki(message, lang="ru"):
     page["page"] = page["page"].replace("<", "&lt;").replace(">", "&gt;")
 
     if page["page"].find("фамилия. Известные носители:") == -1:
+
         page["page"] = f'<b>{page["page"].replace("(", "</b>(", 1)}'
-        if page["page"].find("</b>") == -1:
-            page["page"] = f'{page["page"].replace("—", "</b>—", 1)}'
 
         if page["page"].find("</b>") == -1:
-            page["page"] = f'{page["page"].replace(", котор", "</b>, котор", 1)}'
+            page["page"] = page["page"].replace("—", "</b>—", 1)
 
         if page["page"].find("</b>") == -1:
-            page["page"] = f'{page["page"].replace("-", "</b>—", 1)}'
+            page["page"] = page["page"].replace(", котор", "</b>, котор", 1)
+
+        if page["page"].find("</b>") == -1:
+            page["page"] = page["page"].replace("-", "</b>—", 1)
 
         if page["page"].find("</b>") == -1:
             page["page"] = page["orig"].text.replace("<", "&lt;").replace(">", "&gt;")
@@ -494,7 +497,7 @@ def getWiki(message, lang="ru"):
                 bot.reply_to(message, page["page"], parse_mode="HTML")
     except Exception as e:
         print(e)
-        bot.reply_to(message, "Такой статьи нет")
+        bot.reply_to(message, f"Такой статьи нет\n<code>{e}</code>", parse_mode="HTML")
 
 # @bot.message_handler(commands=["to_tree_my"])
 # def to_tree(message):
@@ -506,7 +509,11 @@ def getWiki(message, lang="ru"):
 
 @bot.message_handler(commands=["lurk"])
 def lurk(message):
-    name = message.text.replace("/lurk@jDan734_bot ", "").replace("/lurk ", "")
+    try:
+        name = message.text.replace("/lurk@jDan734_bot ", "").replace("/lurk ", "")
+    except:
+        bot.reply_to(message, "Введите название статьи")
+        return
 
     print(f"[Lurkmore] {name}")
 
@@ -518,28 +525,55 @@ def lurk(message):
 
     #print(dir(soup.find("div", id="mw-content-text").find("table")))
     #soup.find("div", id="mw-content-text").find("table").remove()
-    page = soup.find(id="mw-content-text").find("p")
-    for tag in soup.find(id="mw-content-text").find_all("p"):
-        if tag.get("class"):
-            pass
-        elif tag.parent.get("class") == ["gallerytext"]:
-            pass
-        else:
-            page = tag
-            break
 
-    page_text = page.text.replace("<", "&lt;").replace(">", "&gt;")
-    page_text = f'<b>{page_text.replace("(", "</b>(", 1)}'
-    if page.find("</b>") == -1:
-        page = f'{page_text.replace("—", "</b>—", 1)}'
+    div = soup.find(id="mw-content-text")
+    page_text = first if (first := div.find("p").text.strip()) else div.findAll("p", recursive=False)[1].text.strip()
+
+    
+    # for tag in soup.find(id="mw-content-text").find_all("p"):
+    #     if tag.get("class"):
+    #         pass
+    #     elif tag.parent.get("class") == ["gallerytext"]:
+    #         pass
+    #     elif re.search(".", tag.text) is None:
+    #         pass
+    #     else:
+    #         page = tag
+    #         break
+
+
+
+    # page_text = page.text.replace("<", "&lt;").replace(">", "&gt;")
+    # page_text = f'<b>{page_text.replace("(", "</b>(", 1)}'
+
+    # if page_text.find("</b>") == -1:
+    #     page = f'{page_text.replace("—", "</b>—", 1)}'
+    # if page_text.find("</b>") == -1:
+    #     try:
+    #         page = soup.find(id="mw-content-text").find("p").text
+    #     except:
+    #         pass
+
+    #center
+
     try:
         try:
-            image_url = soup.find(class_=["thumb", "tright"]).find("img").get("src")
-            bot.send_photo(message.chat.id, "https:" + image_url, caption=page_text, parse_mode="HTML", reply_to_message_id=message.message_id)
+            bot.send_photo(message.chat.id, 
+                           "https:" + div.find("div", class_="thumb").find("img")["src"], 
+                           caption=page_text, 
+                           parse_mode="HTML", 
+                           reply_to_message_id=message.message_id)
         except:
-            bot.send_message(message.chat.id, page_text, parse_mode="HTML", reply_to_message_id=message.message_id)
-    except:
-        bot.reply_to(message, "Статья недоступна")
+            try:
+                bot.send_photo(message.chat.id, 
+                               "https:" + div.find("img", class_="thumbborder")["src"], 
+                               caption=page_text, 
+                               parse_mode="HTML", 
+                               reply_to_message_id=message.message_id)
+            except:
+                bot.send_message(message.chat.id, page_text, parse_mode="HTML", reply_to_message_id=message.message_id)
+    except Exception as e:
+        bot.reply_to(message, f"Статья недоступна\n<code>{e}</code>", parse_mode="HTML")
 
 # @bot.message_handler(commands=["bashorg"])
 # def bashorg(message):
@@ -788,8 +822,10 @@ def random_putin(message):
 
     if date == "дней":
         true_date = prettyword(number, ["день", "дня", "дней"])
+
     elif date == "месяцев":
         true_date = prettyword(number, ["месяц", "месяца", "месяцев"])
+
     elif date == "лет":
         true_date = prettyword(number, ["год", "года", "лет"])
 
