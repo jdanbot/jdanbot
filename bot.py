@@ -440,6 +440,16 @@ def getWiki(message, lang="ru"):
         wiki.page(name.title()).text
         page["orig"] = wiki.page(name.title())        
 
+    if page["orig"].text == "":
+        try:
+            #name = name.replace("<", "&lt;").replace(">", "&gt;")
+            bot.reply_to(message, f'Не удалось найти статью по запросу: <code>{name}</code>\n\nПопробуйте поискать так так <code>{name.title()}</code> или так <code>{name.upper()}</code>', parse_mode="HTML")
+        except:
+            bot.reply_to(message, f'Не удалось найти статью по запросу: `{name}`\n\nПопробуйте поискать так`{name.title()}` или так `{name.upper()}`', parse_mode="Markdown")
+        else:
+            bot.reply_to(message, f'Не удалось найти статью по запросу: "{name}"\n\nПопробуйте поискать так так "{name.title()}" или так "{name.upper()}"')
+        return
+
     page["page"] = page["orig"].text
     page["title"] = page["orig"].title
     page["page"] = re.split("\\n", page["page"])[0]
@@ -848,7 +858,7 @@ def detect(message):
 
 @bot.message_handler(content_types=["new_chat_members"])
 def john(message):
-    bot.reply_to(message, f'{choice(["Поляк", "Джон", "Александр Гомель", "Иван", "УберКац", "Яблочник"])}?')
+    bot.reply_to(message, f'{choice(["Поляк", "Джон", "Александр Гомель", "Иван", "УберКац", "Яблочник", "Электрическая Говноварка"])}?')
 
 try:
     bot.polling()
