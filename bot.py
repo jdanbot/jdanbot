@@ -440,7 +440,7 @@ def getWiki(message, lang="ru"):
         if page["orig"].text == "":
             page["orig"] = wiki.page(name.upper())
             
-    if page["orig"].text == "" & (lang == "ru" or lang == "en" or lang == "uk"):
+    if page["orig"].text == "" and (lang == "ru" or lang == "en" or lang == "uk"):
         #https://speller.yandex.net/services/spellservice.json?op=checkText
         r = requests.get("https://speller.yandex.net/services/spellservice.json/checkText",
                          params={
