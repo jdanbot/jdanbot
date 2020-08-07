@@ -388,6 +388,10 @@ def calc(message):
     except Exception as e:
         bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
 
+@bot.message_handler(["Math"])
+def math_command(message):
+    pass
+
 #TODO: REWRITE
 
 @bot.message_handler(commands=["wikiru", "wikiru2"])
@@ -425,35 +429,49 @@ def getWiki(message, lang="ru"):
         bot.reply_to(message, "Напишите название статьи")
         return
 
-    url = "https://ru.wikipedia.org"
-    r = requests.get(url + "/wiki/" + name.replace(" ", "_"))
-
     print(f"[Wikipedia {lang.upper()}] {name}")
 
     page = {}
     wiki = wikipedia.Wikipedia(lang)
 
-    try:
-        wiki.page(name).text
-        page["orig"] = wiki.page(name)
-    except:
-        wiki.page(name.title()).text
-        page["orig"] = wiki.page(name.title())        
+    page["orig"] = wiki.page(name)
+    if page["orig"].text == "":
+        page["orig"] = wiki.page(name.title())
+        if page["orig"].text == "":
+            page["orig"] = wiki.page(name.upper())
+            
+    if page["orig"].text == "" & (lang == "ru" or lang == "en" or lang == "uk"):
+        #https://speller.yandex.net/services/spellservice.json?op=checkText
+        r = requests.get("https://speller.yandex.net/services/spellservice.json/checkText",
+                         params={
+                             "text": name,
+                             "lang": lang
+                         })
+
+        data = json.loads(r.text)
+        newname = name
+
+        for word in data:
+            newname = newname.replace(word["word"], word["s"][0])
+
+        page["orig"] = wiki.page(newname)
+        if page["orig"].text == "":
+            page["orig"] = wiki.page(newname.title())
+            if page["orig"].text == "":
+                page["orig"] = wiki.page(newname.upper())
+
+
 
     if page["orig"].text == "":
-        try:
-            #name = name.replace("<", "&lt;").replace(">", "&gt;")
-            bot.reply_to(message, f'Не удалось найти статью по запросу: <code>{name}</code>\n\nПопробуйте поискать так так <code>{name.title()}</code> или так <code>{name.upper()}</code>', parse_mode="HTML")
-        except:
-            bot.reply_to(message, f'Не удалось найти статью по запросу: `{name}`\n\nПопробуйте поискать так`{name.title()}` или так `{name.upper()}`', parse_mode="Markdown")
-        else:
-            bot.reply_to(message, f'Не удалось найти статью по запросу: "{name}"\n\nПопробуйте поискать так так "{name.title()}" или так "{name.upper()}"')
+        bot.reply_to(message, "Не удалось найти статью")
         return
 
     page["page"] = page["orig"].text
     page["title"] = page["orig"].title
     page["page"] = re.split("\\n", page["page"])[0]
 
+    url = "https://ru.wikipedia.org"
+    r = requests.get(url + "/wiki/" + page["title"].replace(" ", "_"))
 
     page["page"] = page["page"].replace("<", "&lt;").replace(">", "&gt;")
 
@@ -517,6 +535,29 @@ def getWiki(message, lang="ru"):
 # def to_tree(message):
 #     bot.send_message(message.chat.id, message.reply_to_message)
 
+@bot.message_handler(commands=["github"])
+def github(message):
+    try:
+        url = message.text.split(maxsplit=1)[1]
+    except:
+        bot.reply_to(message, "Введи название аккаунта")
+        return
+    try:
+        r = requests.get(f"https://api.github.com/users/{url}")
+        repos = requests.get(f"https://api.github.com/users/{url}/repos")
+        data = json.loads(r.text)
+        repos_list = json.loads(repos.text)
+        text = f'*{data["name"]}*\nFollowers `{data["followers"]}` Following `{data["following"]}`\n\n__{data["bio"]}__\n\nRepositories:'
+        for repo in repos_list:
+            print(repo["full_name"])
+            text += f'\n[{repo["full_name"]}]({repo["html_url"]})'
+        bot.send_photo(message.chat.id, 
+                       data["avatar_url"], 
+                       caption=text,
+                       parse_mode="Markdown")
+    except Exception as e:
+        bot.reply_to(message, e)
+
 @bot.message_handler(commands=["lurk"])
 def lurk(message):
     try:
@@ -537,6 +578,14 @@ def lurk(message):
     #soup.find("div", id="mw-content-text").find("table").remove()
 
     div = soup.find(id="mw-content-text")
+
+    for t in div.findAll("table", {"class": "lm-plashka"}):
+        t.replace_with("")
+
+    for t in div.findAll("table", {"class": "tpl-quote-tiny"}):
+        t.replace_with("")
+
+
     page_text = first if (first := div.find("p").text.strip()) else div.findAll("p", recursive=False)[1].text.strip()
 
     
@@ -567,9 +616,14 @@ def lurk(message):
     #center
 
     try:
+        path = f'https:{div.find(id="fullResImage")["src"]}'
+    except:
+        path = f'https:{div.find("div", class_="thumb").find("img")["src"]}'
+
+    try:
         try:
             bot.send_photo(message.chat.id, 
-                           "https:" + div.find("div", class_="thumb").find("img")["src"], 
+                           path, 
                            caption=page_text, 
                            parse_mode="HTML", 
                            reply_to_message_id=message.message_id)
@@ -603,12 +657,25 @@ def to_json(message):
 @bot.message_handler(commands=["sha256"])
 def sha(message):
     try:
-        if message.reply_to_message.text is None:
-            bot.reply_to(message, "Ответьте на сообщение с текстом")
+        if message.reply_to_message.text:
+            bot.reply_to(message, hashlib.sha256(bytearray(message.reply_to_message.text.encode("utf-8"))).hexdigest())
+        elif message.reply_to_message.document:
+            file_id = message.reply_to_message.document.file_id
+
+            document = bot.get_file(file_id)
+            bot.reply_to(message, hashlib.sha256(bytearray(bot.download_file(document.file_path))).hexdigest())
         else:
             bot.reply_to(message, hashlib.sha256(bytearray(message.reply_to_message.text.encode("utf-8"))).hexdigest())
     except Exception as e:
         bot.reply_to(message, e)
+
+@bot.message_handler(commands=["sticker_id"])
+def get_sticker_id(message):
+    print(hasattr("reply_to_message", "message"))
+    try:
+        bot.reply_to(message, message.reply_to_message.sticker.file_id)
+    except Exception as e:
+        bot.reply_to(f"Ответь на сообщение со стикером\n`{e}`", parse_mode="Markdown")
 
 @bot.message_handler(commands=["delete"])
 def delete(message):
