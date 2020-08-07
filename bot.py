@@ -561,7 +561,7 @@ def github(message):
 @bot.message_handler(commands=["lurk"])
 def lurk(message):
     try:
-        name = message.text.replace("/lurk@jDan734_bot ", "").replace("/lurk ", "")
+        name = message.text.split(maxsplit=1)[1]
     except:
         bot.reply_to(message, "Введите название статьи")
         return
