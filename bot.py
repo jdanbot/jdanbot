@@ -518,7 +518,10 @@ def getWiki(message, lang="ru"):
     #bot.send_photo(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
     try:
         try:
-            page["image_url"] = soup.find("table", class_="infobox").find("td", class_="plainlist").span.a.img["srcset"].split()[2]
+            try:
+                page["image_url"] = soup.find("table", class_="infobox").find("td", class_="plainlist").span.a.img["srcset"].split()[2]
+            except:
+                page["image_url"] = soup.find("td", class_="infobox-image").span.a.img["srcset"].split()[2]
             #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
 
             bot.send_photo(message.chat.id, 
