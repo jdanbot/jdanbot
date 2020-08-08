@@ -681,6 +681,86 @@ def lurk(message):
 #     soup2 = BeautifulSoup(soup.find("div", class_="quote__body"), "lxml")
 #     bot.reply_to(message, soup2)
 
+@bot.message_handler(commands=["mrakopedia"])
+def pizdec(message):
+    try:
+        name = message.text.split(maxsplit=1)[1]
+    except:
+        bot.reply_to(message, "Введите название статьи")
+        return
+
+    print(f"[Mrakopedia] {name}")
+
+    url = "https://mrakopedia.net"
+    r = requests.get(url + "/w/index.php",
+                     params={"search": name})
+
+    #print(r.text)
+
+    soup = BeautifulSoup(r.text, 'lxml')
+
+    if soup.find("div", class_="searchresults") == None:
+        pass
+    else:
+        div = soup.find("div", class_="searchresults")
+        try:
+            div.find("p", class_="mw-search-createlink").replace_with("")
+            r = requests.get(url + div.find("a")["href"])
+            soup = BeautifulSoup(r.text, 'lxml')
+        except:
+            if div.find("p", class_="mw-search-nonefound").text == "Соответствий запросу не найдено.":
+                bot.reply_to(message, "Не получилось найти статью")
+                return
+
+
+    #print(dir(soup.find("div", id="mw-content-text").find("table")))
+    #soup.find("div", id="mw-content-text").find("table").remove()
+
+    div = soup.find(id="mw-content-text")
+
+    for t in div.findAll("table", {"class": "lm-plashka"}):
+        t.replace_with("")
+
+    for t in div.findAll("table", {"class": "tpl-quote-tiny"}):
+        t.replace_with("")
+
+    try:
+        page_text = first if (first := div.find("p").text.strip()) else div.findAll("p", recursive=False)[1].text.strip()
+    except Exception as e:
+        bot.reply_to(message, "Не удалось найти статью")
+        #bot.reply_to(message, e)
+        return
+
+    try:
+        try:
+            path = f'{url}{div.find(id="fullResImage")["src"]}'
+        except:
+            path = f'{url}{div.find("a", class_="image").find("img")["src"]}'
+    except Exception as e:
+        # print(e)
+        # bot.reply_to(message, "Не удалось загрузить статью")
+        # return
+        pass
+
+    try:
+        try:
+            bot.send_photo(message.chat.id, 
+                           path, 
+                           caption=page_text, 
+                           parse_mode="HTML", 
+                           reply_to_message_id=message.message_id)
+        except:
+            try:
+                bot.send_photo(message.chat.id, 
+                               "https:" + div.find("img", class_="thumbborder")["src"], 
+                               caption=page_text, 
+                               parse_mode="HTML", 
+                               reply_to_message_id=message.message_id)
+            except:
+                bot.send_message(message.chat.id, page_text, parse_mode="HTML", reply_to_message_id=message.message_id)
+    except Exception as e:
+        bot.reply_to(message, f"Статья недоступна\n<code>{e}</code>", parse_mode="HTML")
+
 @bot.message_handler(commands=["to_json"])
 def to_json(message):
     bot.send_message(message.chat.id, message.reply_to_message.text.replace("'", "\"").replace("False", "false").replace("True", "true").replace("None", '"none"').replace("<", '"<').replace(">", '>"'))
@@ -957,6 +1037,14 @@ def detect(message):
 @bot.message_handler(content_types=["new_chat_members"])
 def john(message):
     bot.reply_to(message, f'{choice(["Поляк", "Джон", "Александр Гомель", "Иван", "УберКац", "Яблочник", "Электрическая Говноварка"])}?')
+
+@bot.message_handler(content_types=['document', 'video'], func=lambda message: message.chat.id == -1001189395000)
+def delete_w10(message):
+    try:
+        if message.video.file_size == 842295 or message.video.file_size == 912607:
+            bot.delete_message(message.chat.id, message.message_id)
+    except:
+        pass
 
 try:
     bot.polling()
