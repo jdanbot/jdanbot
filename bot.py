@@ -14,6 +14,9 @@ import math
 from PIL import Image, ImageDraw, ImageFont
 from decimal import *
 import urllib
+from io import BytesIO
+import subprocess
+import youtube_dl
 
 rules = """
 /ban - отправляет "Бан"
@@ -59,14 +62,33 @@ def if_(message):
     except:
         bot.reply_to(message, "Напиши аргументы :/")
 
+
+# @bot.message_handler(["youtube"])
+# def downloadYoutube(message):
+#     try:
+#         message.reply_to_message.text.replace(" ", "").replace(";", "")
+#         print("Text")
+#     except:
+#         bot.reply_to(message, "Ответь на сообщение с ссылкой")
+#         return
+
+#     src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}"
+
+#     with youtube_dl.YoutubeDL({'outtmpl': '%(id)s.%(ext)s', "format": "18"}) as ydl:
+#         video = ydl.download([message.reply_to_message.text])
+#     print(src + "M1a2JBhacz8.mp4")
+#     bot.send_video(message.chat.id, open(src + "M1a2JBhacz8.mp4" , "rb"))
+
 @bot.message_handler(commands=["preview"])
 def preview(message):
     try:
         try:
-            bot.send_photo(message.chat.id, f"https://img.youtube.com/vi/{message.reply_to_message.text.split('/')[-1]}/maxresdefault.jpg")
+            bot.send_photo(message.chat.id, f"https://img.youtube.com/vi/{message.reply_to_message.text.replace('&feature=share', '').split('/')[-1]}/maxresdefault.jpg")
         except:
-            bot.send_photo(message.chat.id, f'https://img.youtube.com/vi/{urllib.parse.parse_qs(urllib.parse.urlparse(message.reply_to_message.text).query)["v"][0]}/maxresdefault.jpg')
+            bot.send_photo(message.chat.id, 
+                           f'https://img.youtube.com/vi/{urllib.parse.parse_qs(urllib.parse.urlparse(message.reply_to_message.text).query)["v"][0]}/maxresdefault.jpg')
     except Exception as e:
+        print(e)
         bot.reply_to(message, "Не получилось скачать превью")
 
 @bot.message_handler(commands=["resize"])
@@ -498,7 +520,7 @@ def getWiki(message, lang="ru"):
     #bot.send_photo(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
     try:
         try:
-            page["image_url"] = soup.find("td", class_="infobox-image").span.a.img.get("srcset").split()[2]
+            page["image_url"] = soup.find("table", class_="infobox").find("td", class_="plainlist").span.a.img["srcset"].split()[2]
             #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
 
             bot.send_photo(message.chat.id, 
@@ -515,7 +537,7 @@ def getWiki(message, lang="ru"):
 
                 bot.send_photo(message.chat.id, 
                                "https:" + page["image_url"], 
-                               caption={page["page"]}, 
+                               caption=page["page"], 
                                parse_mode="HTML",
                                reply_to_message_id=message.message_id)
 
@@ -585,8 +607,11 @@ def lurk(message):
     for t in div.findAll("table", {"class": "tpl-quote-tiny"}):
         t.replace_with("")
 
-
-    page_text = first if (first := div.find("p").text.strip()) else div.findAll("p", recursive=False)[1].text.strip()
+    try:
+        page_text = first if (first := div.find("p").text.strip()) else div.findAll("p", recursive=False)[1].text.strip()
+    except:
+        bot.reply_to(message, "Не удалось найти статью")
+        return
 
     
     # for tag in soup.find(id="mw-content-text").find_all("p"):
@@ -616,9 +641,14 @@ def lurk(message):
     #center
 
     try:
-        path = f'https:{div.find(id="fullResImage")["src"]}'
-    except:
-        path = f'https:{div.find("div", class_="thumb").find("img")["src"]}'
+        try:
+            path = f'https:{div.find(id="fullResImage")["src"]}'
+        except:
+            path = f'https:{div.find("div", class_="thumb").find("img")["src"]}'
+    except Exception as e:
+        print(e)
+        bot.reply_to(message, "Не удалось загрузить статью")
+        return
 
     try:
         try:
@@ -930,4 +960,4 @@ def john(message):
 try:
     bot.polling()
 except:
-    bot.send_message("-1001335444502", f"`{str(traceback.format_exc())}`", parse_mode="Markdown")
+    bot.send_message("795449748", f"`{str(traceback.format_exc())}`", parse_mode="Markdown")
