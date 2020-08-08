@@ -14,9 +14,7 @@ import math
 from PIL import Image, ImageDraw, ImageFont
 from decimal import *
 import urllib
-from io import BytesIO
-import subprocess
-import youtube_dl
+#import youtube_dl
 
 rules = """
 /ban - отправляет "Бан"
