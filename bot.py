@@ -119,7 +119,7 @@ def md(message):
 
     try:
         bot.reply_to(message, text, parse_mode="Markdown")
-        
+
     except:
         bot.reply_to(message, "Невалидный markdown")
 
@@ -513,113 +513,199 @@ def wikibe(message):
 def wikies(message):
     getWiki(message, "es")
 
+
 def getWiki(message, lang="ru"):
-    try:
-        name = message.text.split(maxsplit=1)[1]
-    except IndexError:
-        bot.reply_to(message, "Напишите название статьи")
-        return
+    if len(message.text.split(maxsplit=1)) == 2:
+        query = message.text.split(maxsplit=1)[1]
 
-    print(f"[Wikipedia {lang.upper()}] {name}")
-
-    page = {}
-    wiki = wikipedia.Wikipedia(lang)
-
-    page["orig"] = wiki.page(name)
-    if page["orig"].text == "":
-        page["orig"] = wiki.page(name.title())
-        if page["orig"].text == "":
-            page["orig"] = wiki.page(name.upper())
-            
-    if page["orig"].text == "" and (lang == "ru" or lang == "en" or lang == "uk"):
-        #https://speller.yandex.net/services/spellservice.json?op=checkText
-        r = requests.get("https://speller.yandex.net/services/spellservice.json/checkText",
-                         params={
-                             "text": name,
-                             "lang": lang
-                         })
-
-        data = json.loads(r.text)
-        newname = name
-
-        for word in data:
-            newname = newname.replace(word["word"], word["s"][0])
-
-        page["orig"] = wiki.page(newname)
-        if page["orig"].text == "":
-            page["orig"] = wiki.page(newname.title())
-            if page["orig"].text == "":
-                page["orig"] = wiki.page(newname.upper())
-
-
-
-    if page["orig"].text == "":
-        bot.reply_to(message, "Не удалось найти статью")
-        return
-
-    page["page"] = page["orig"].text
-    page["title"] = page["orig"].title
-    page["page"] = re.split("\\n", page["page"])[0]
-
-    url = "https://ru.wikipedia.org"
-    r = requests.get(url + "/wiki/" + page["title"].replace(" ", "_"))
-
-    page["page"] = page["page"].replace("<", "&lt;").replace(">", "&gt;")
-
-    if page["page"].find("фамилия. Известные носители:") == -1:
-
-        page["page"] = f'<b>{page["page"].replace("(", "</b>(", 1)}'
-
-        if page["page"].find("</b>") == -1:
-            page["page"] = page["page"].replace("—", "</b>—", 1)
-
-        if page["page"].find("</b>") == -1:
-            page["page"] = page["page"].replace(", котор", "</b>, котор", 1)
-
-        if page["page"].find("</b>") == -1:
-            page["page"] = page["page"].replace("-", "</b>—", 1)
-
-        if page["page"].find("</b>") == -1:
-            page["page"] = page["orig"].text.replace("<", "&lt;").replace(">", "&gt;")
-            page["page"] = re.sub(r"BRBR(Фамилия|Аббревиатура).{,}BRBR", "", page["orig"].text.replace("\n", "BR")).replace("BR", "\n").replace("== Примечания ==", "")
     else:
-        page["page"] = page["orig"].text.replace("<", "&lt;").replace(">", "&gt;")
+        bot.reply_to(message, f"Пожалуйста напишите название статьи\nНапример так: `/wiki{lang} Название Статьи`", parse_mode="Markdown")
+        return
+
+    print(f"[Wikipedia {lang.upper()}] {query}")
+
+    url = f"https://{lang}.wikipedia.org"
+
+    r = requests.get(f"{url}/w/index.php",
+                     params={
+                        "search": query,
+                        "sort": "relevance",
+                        "profile": "advanced",
+                        "fulltext": 1
+                     })
+
+    if not r.status_code == 200:
+        bot.reply_to(message, "Сервер не отвечает")
+        return
 
     soup = BeautifulSoup(r.text, 'lxml')
-    #bot.send_photo(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
-    try:
-        try:
-            try:
-                page["image_url"] = soup.find("table", class_="infobox").find("td", class_="plainlist").span.a.img["srcset"].split()[2]
-            except:
-                page["image_url"] = soup.find("td", class_="infobox-image").span.a.img["srcset"].split()[2]
-            #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
 
-            bot.send_photo(message.chat.id, 
-                           "https:" + page["image_url"], 
-                           caption=page["page"], 
-                           parse_mode="HTML",
-                           reply_to_message_id=message.message_id)
-            #bot.reply_to(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
+    results = soup.find_all("div", class_="mw-search-result-heading")
+
+    if len(results) == 0:
+        bot.reply_to(message, "Не удалось найти статью по вашему запросу")
+        return
+
+    page_url = url + results[0].a["href"]
+
+    r = requests.get(page_url)
+
+    if not r.status_code == 200:
+        bot.reply_to(message, "Не удалось загрузить статью")
+        return
+
+    soup = BeautifulSoup(r.text, "lxml")
+
+    div = soup.find("div", class_="mw-parser-output")
+
+    try:
+        image = div.find("table", class_="infobox").find("td", class_="plainlist").span.a.img["srcset"].split()[2]
+
+    except:
+        try:
+            image = div.find("td", class_="infobox-image").span.a.img["srcset"].split()[2]
+
         except:
             try:
-                page["image_url"] = soup.find("div", class_="mw-parser-output").find("img", class_="thumbimage").get("srcset").split()[0]
-                #print(f"{dir(image)=}")
-                #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
+                image = div.find("img", class_="thumbimage")["srcset"].split()[0]
+            except:
+                image = ""
 
-                bot.send_photo(message.chat.id, 
-                               "https:" + page["image_url"], 
-                               caption=page["page"], 
-                               parse_mode="HTML",
-                               reply_to_message_id=message.message_id)
+    for tag in div.find_all("div"):
+        tag.replace_with("")
 
-            except Exception as e:
-                print(e)
-                #bot.send_message(message.chat.id, page["page"])
-                bot.reply_to(message, page["page"], parse_mode="HTML")
-    except Exception as e:
-        print(e)
-        bot.reply_to(message, f"Такой статьи нет\n<code>{e}</code>", parse_mode="HTML")
+    p = div.find_all("p")[0]
+
+    bold_text = []
+
+    for tag in p.find_all("b"):
+        bold_text.append(tag.text)
+
+    text = re.sub(r"\[.{,}\]", "", p.text)
+    text = text.replace("<", "&lt;").replace(">", "&gt;")
+
+    for bold in bold_text:
+        text = text.replace(bold, f"<b>{bold}</b>")
+
+    if image != "":
+        bot.send_photo(message.chat.id, 
+                       "https:" + image, 
+                       caption=text, 
+                       parse_mode="HTML",
+                       reply_to_message_id=message.message_id)
+
+    else:
+        bot.reply_to(message, text, parse_mode="HTML")
+
+
+
+# def getWiki(message, lang="ru"):
+#     try:
+#         name = message.text.split(maxsplit=1)[1]
+#     except IndexError:
+#         bot.reply_to(message, "Напишите название статьи")
+#         return
+
+#     print(f"[Wikipedia {lang.upper()}] {name}")
+
+#     page = {}
+#     wiki = wikipedia.Wikipedia(lang)
+
+#     page["orig"] = wiki.page(name)
+#     if page["orig"].text == "":
+#         page["orig"] = wiki.page(name.title())
+#         if page["orig"].text == "":
+#             page["orig"] = wiki.page(name.upper())
+            
+#     if page["orig"].text == "" and (lang == "ru" or lang == "en" or lang == "uk"):
+#         #https://speller.yandex.net/services/spellservice.json?op=checkText
+#         r = requests.get("https://speller.yandex.net/services/spellservice.json/checkText",
+#                          params={
+#                              "text": name,
+#                              "lang": lang
+#                          })
+
+#         data = json.loads(r.text)
+#         newname = name
+
+#         for word in data:
+#             newname = newname.replace(word["word"], word["s"][0])
+
+#         page["orig"] = wiki.page(newname)
+#         if page["orig"].text == "":
+#             page["orig"] = wiki.page(newname.title())
+#             if page["orig"].text == "":
+#                 page["orig"] = wiki.page(newname.upper())
+
+
+
+#     if page["orig"].text == "":
+#         bot.reply_to(message, "Не удалось найти статью")
+#         return
+
+#     page["page"] = page["orig"].text
+#     page["title"] = page["orig"].title
+#     page["page"] = re.split("\\n", page["page"])[0]
+
+#     url = "https://ru.wikipedia.org"
+#     r = requests.get(url + "/wiki/" + page["title"].replace(" ", "_"))
+
+#     page["page"] = page["page"].replace("<", "&lt;").replace(">", "&gt;")
+
+#     if page["page"].find("фамилия. Известные носители:") == -1:
+
+#         page["page"] = f'<b>{page["page"].replace("(", "</b>(", 1)}'
+
+#         if page["page"].find("</b>") == -1:
+#             page["page"] = page["page"].replace("—", "</b>—", 1)
+
+#         if page["page"].find("</b>") == -1:
+#             page["page"] = page["page"].replace(", котор", "</b>, котор", 1)
+
+#         if page["page"].find("</b>") == -1:
+#             page["page"] = page["page"].replace("-", "</b>—", 1)
+
+#         if page["page"].find("</b>") == -1:
+#             page["page"] = page["orig"].text.replace("<", "&lt;").replace(">", "&gt;")
+#             page["page"] = re.sub(r"BRBR(Фамилия|Аббревиатура).{,}BRBR", "", page["orig"].text.replace("\n", "BR")).replace("BR", "\n").replace("== Примечания ==", "")
+#     else:
+#         page["page"] = page["orig"].text.replace("<", "&lt;").replace(">", "&gt;")
+
+#     soup = BeautifulSoup(r.text, 'lxml')
+#     #bot.send_photo(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
+#     try:
+#         try:
+#             try:
+#                 page["image_url"] = soup.find("table", class_="infobox").find("td", class_="plainlist").span.a.img["srcset"].split()[2]
+#             except:
+#                 page["image_url"] = soup.find("td", class_="infobox-image").span.a.img["srcset"].split()[2]
+#             #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
+
+#             bot.send_photo(message.chat.id, 
+#                            "https:" + page["image_url"], 
+#                            caption=page["page"], 
+#                            parse_mode="HTML",
+#                            reply_to_message_id=message.message_id)
+#             #bot.reply_to(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
+#         except:
+#             try:
+#                 page["image_url"] = soup.find("div", class_="mw-parser-output").find("img", class_="thumbimage").get("srcset").split()[0]
+#                 #print(f"{dir(image)=}")
+#                 #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
+
+#                 bot.send_photo(message.chat.id, 
+#                                "https:" + page["image_url"], 
+#                                caption=page["page"], 
+#                                parse_mode="HTML",
+#                                reply_to_message_id=message.message_id)
+
+#             except Exception as e:
+#                 print(e)
+#                 #bot.send_message(message.chat.id, page["page"])
+#                 bot.reply_to(message, page["page"], parse_mode="HTML")
+#     except Exception as e:
+#         print(e)
+#         bot.reply_to(message, f"Такой статьи нет\n<code>{e}</code>", parse_mode="HTML")
 
 # @bot.message_handler(commands=["to_tree_my"])
 # def to_tree(message):
@@ -853,7 +939,6 @@ def sha(message):
 
 @bot.message_handler(commands=["sticker_id"])
 def get_sticker_id(message):
-    print(hasattr("reply_to_message", "message"))
     try:
         bot.reply_to(message, message.reply_to_message.sticker.file_id)
     except Exception as e:
