@@ -1,3 +1,4 @@
+# -- coding: utf8 --
 import telebot
 import re
 from random import randint, choice
@@ -23,7 +24,7 @@ rules = """
 /fake - отправляет фото с джонами/поляками
 /pizda - отправляет мем "пизда"
 /net_pizdy - отправляет мем "нет пизда"
-/xui - отправляет мем "хуй" 
+/xui - отправляет мем "хуй"
 """
 
 if "TOKEN_HEROKU" in os.environ:
@@ -154,7 +155,7 @@ def preview(message):
         try:
             bot.send_photo(message.chat.id, f"https://img.youtube.com/vi/{message.reply_to_message.text.replace('&feature=share', '').split('/')[-1]}/maxresdefault.jpg")
         except:
-            bot.send_photo(message.chat.id, 
+            bot.send_photo(message.chat.id,
                            f'https://img.youtube.com/vi/{urllib.parse.parse_qs(urllib.parse.urlparse(message.reply_to_message.text).query)["v"][0]}/maxresdefault.jpg')
     except Exception as e:
         print(e)
@@ -463,7 +464,7 @@ def calc(message):
         # if int(result) == float(result):
         #     result = int(result)
         # else:
-        #     result = float(result) 
+        #     result = float(result)
 
         bot.reply_to(message, f"`{str(result)}`", parse_mode="Markdown")
 
@@ -474,7 +475,7 @@ def calc(message):
         #     if num:
         #         bot.reply_to(message, math.sqrt(num))
 
-        #     if 
+        #     if
 
     except Exception as e:
         bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
@@ -526,55 +527,54 @@ def getWiki(message, lang="ru"):
 
     url = f"https://{lang}.wikipedia.org"
 
-    r = requests.get(f"{url}/w/index.php",
+    #https://ru.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=%D0%BA%D0%B0%D1%86&srlimit=1&srsort=relevance
+
+    r = requests.get(f"{url}/w/api.php",
                      params={
-                        "search": query,
-                        "sort": "relevance",
-                        "profile": "advanced",
-                        "fulltext": 1
+                        "action": "query",
+                        "format": "json",
+                        "list": "search",
+                        "srsearch": query,
+                        "srlimit": 1,
+                        "srsort": "relevance"
                      })
 
     if not r.status_code == 200:
         bot.reply_to(message, "Сервер не отвечает")
         return
 
-    soup = BeautifulSoup(r.text, 'lxml')
+    data = json.loads(r.text)
 
-    results = soup.find_all("div", class_="mw-search-result-heading")
-
-    if len(results) == 0:
+    if len(data["query"]["search"]) == 0:
         bot.reply_to(message, "Не удалось найти статью по вашему запросу")
         return
 
-    page_url = url + results[0].a["href"]
+    title = data["query"]["search"][0]["title"]
+    page_id = data["query"]["search"][0]["pageid"]
 
-    r = requests.get(page_url)
+    #https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=Albert%20Einstein&format=json
+
+    #r = requests.get(page_url)
+
+    r = requests.get(url + "/w/api.php",
+                     params={
+                        "action": "query",
+                        "prop": "extracts",
+                        "titles": title,
+                        "format": "json",
+                        "exintro": " "
+                     })
 
     if not r.status_code == 200:
         bot.reply_to(message, "Не удалось загрузить статью")
         return
 
-    soup = BeautifulSoup(r.text, "lxml")
+    soup = BeautifulSoup(json.loads(r.text)["query"]["pages"][str(page_id)]["extract"], "lxml")
 
-    div = soup.find("div", class_="mw-parser-output")
-
-    try:
-        image = div.find("table", class_="infobox").find("td", class_="plainlist").span.a.img["srcset"].split()[2]
-
-    except:
-        try:
-            image = div.find("td", class_="infobox-image").span.a.img["srcset"].split()[2]
-
-        except:
-            try:
-                image = div.find("img", class_="thumbimage")["srcset"].split()[0]
-            except:
-                image = ""
-
-    for tag in div.find_all("div"):
+    for tag in soup.find_all("p", class_="mv-empty-elt"):
         tag.replace_with("")
 
-    p = div.find_all("p")[0]
+    p = soup.find_all("p")[0]
 
     bold_text = []
 
@@ -587,14 +587,45 @@ def getWiki(message, lang="ru"):
     for bold in bold_text:
         text = text.replace(bold, f"<b>{bold}</b>")
 
-    if image != "":
-        bot.send_photo(message.chat.id, 
-                       "https:" + image, 
-                       caption=text, 
+    # https://ru.wikipedia.org/w/api.php?action=query&titles=%D0%9A%D0%B0%D1%86,%20%D0%9C%D0%B0%D0%BA%D1%81%D0%B8%D0%BC%20%D0%95%D0%B2%D0%B3%D0%B5%D0%BD%D1%8C%D0%B5%D0%B2%D0%B8%D1%87&prop=pageimages&format=json&pithumbsize=100
+
+    r = requests.get(url + "/w/api.php",
+                     params={
+                         "action": "query",
+                         "titles": title,
+                         "prop": "pageimages",
+                         "pitnumbsize": 10000,
+                         "format": "json"
+                     })
+
+    try:
+        image_info = json.loads(r.text)
+
+        imagename = image_info["query"]["pages"][str(page_id)]["pageimage"]
+
+        # https://en.wikipedia.org/w/api.php?action=query&titles=File:Albert_Einstein_(Nobel).png&prop=imageinfo&iiprop=url&format=json
+
+        r = requests.get(url + "/w/api.php",
+                         params={
+                             "action": "query",
+                             "titles": "File:" + imagename,
+                             "prop": "imageinfo",
+                             "iiprop": "url",
+                             "format": "json"
+                         })
+
+        data = json.loads(r.text)
+
+        image = urllib.parse.unquote(data["query"]["pages"][str(-1)]["imageinfo"][0]["url"])
+
+        bot.send_photo(message.chat.id,
+                       image,
+                       caption=text,
                        parse_mode="HTML",
                        reply_to_message_id=message.message_id)
 
-    else:
+    except:
+        print(traceback.format_exc())
         bot.reply_to(message, text, parse_mode="HTML")
 
 
@@ -616,7 +647,7 @@ def getWiki(message, lang="ru"):
 #         page["orig"] = wiki.page(name.title())
 #         if page["orig"].text == "":
 #             page["orig"] = wiki.page(name.upper())
-            
+
 #     if page["orig"].text == "" and (lang == "ru" or lang == "en" or lang == "uk"):
 #         #https://speller.yandex.net/services/spellservice.json?op=checkText
 #         r = requests.get("https://speller.yandex.net/services/spellservice.json/checkText",
@@ -681,9 +712,9 @@ def getWiki(message, lang="ru"):
 #                 page["image_url"] = soup.find("td", class_="infobox-image").span.a.img["srcset"].split()[2]
 #             #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
 
-#             bot.send_photo(message.chat.id, 
-#                            "https:" + page["image_url"], 
-#                            caption=page["page"], 
+#             bot.send_photo(message.chat.id,
+#                            "https:" + page["image_url"],
+#                            caption=page["page"],
 #                            parse_mode="HTML",
 #                            reply_to_message_id=message.message_id)
 #             #bot.reply_to(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
@@ -693,9 +724,9 @@ def getWiki(message, lang="ru"):
 #                 #print(f"{dir(image)=}")
 #                 #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
 
-#                 bot.send_photo(message.chat.id, 
-#                                "https:" + page["image_url"], 
-#                                caption=page["page"], 
+#                 bot.send_photo(message.chat.id,
+#                                "https:" + page["image_url"],
+#                                caption=page["page"],
 #                                parse_mode="HTML",
 #                                reply_to_message_id=message.message_id)
 
@@ -731,8 +762,8 @@ def github(message):
         for repo in repos_list:
             print(repo["full_name"])
             text += f'\n[{repo["full_name"]}]({repo["html_url"]})'
-        bot.send_photo(message.chat.id, 
-                       data["avatar_url"], 
+        bot.send_photo(message.chat.id,
+                       data["avatar_url"],
                        caption=text,
                        parse_mode="Markdown")
     except Exception as e:
@@ -771,7 +802,7 @@ def lurk(message):
         bot.reply_to(message, "Не удалось найти статью")
         return
 
-    
+
     # for tag in soup.find(id="mw-content-text").find_all("p"):
     #     if tag.get("class"):
     #         pass
@@ -810,17 +841,17 @@ def lurk(message):
 
     try:
         try:
-            bot.send_photo(message.chat.id, 
-                           path, 
-                           caption=page_text, 
-                           parse_mode="HTML", 
+            bot.send_photo(message.chat.id,
+                           path,
+                           caption=page_text,
+                           parse_mode="HTML",
                            reply_to_message_id=message.message_id)
         except:
             try:
-                bot.send_photo(message.chat.id, 
-                               "https:" + div.find("img", class_="thumbborder")["src"], 
-                               caption=page_text, 
-                               parse_mode="HTML", 
+                bot.send_photo(message.chat.id,
+                               "https:" + div.find("img", class_="thumbborder")["src"],
+                               caption=page_text,
+                               parse_mode="HTML",
                                reply_to_message_id=message.message_id)
             except:
                 bot.send_message(message.chat.id, page_text, parse_mode="HTML", reply_to_message_id=message.message_id)
@@ -901,17 +932,17 @@ def pizdec(message):
 
     try:
         try:
-            bot.send_photo(message.chat.id, 
-                           path, 
-                           caption=page_text, 
-                           parse_mode="HTML", 
+            bot.send_photo(message.chat.id,
+                           path,
+                           caption=page_text,
+                           parse_mode="HTML",
                            reply_to_message_id=message.message_id)
         except:
             try:
-                bot.send_photo(message.chat.id, 
-                               "https:" + div.find("img", class_="thumbborder")["src"], 
-                               caption=page_text, 
-                               parse_mode="HTML", 
+                bot.send_photo(message.chat.id,
+                               "https:" + div.find("img", class_="thumbborder")["src"],
+                               caption=page_text,
+                               parse_mode="HTML",
                                reply_to_message_id=message.message_id)
             except:
                 bot.send_message(message.chat.id, page_text, parse_mode="HTML", reply_to_message_id=message.message_id)
@@ -971,14 +1002,27 @@ def delete(message):
 
 @bot.message_handler(commands=["generate_password"])
 def password(message):
+    if len(message.text.split(maxsplit=1)) == 1:
+        bot.reply_to(message, "Укажите количество символов в пароле")
+        return
+
     try:
         crypto_type = int(message.text.split(maxsplit=1)[1])
-        #print(crypto_type)
-        if crypto_type > 4096:
-            bot.reply_to(message, "Телеграм поддерживает сообщения длиной не больше `4096` символов", parse_mode="Markdown")
-            0 / 0
     except:
-        crypto_type = 256
+        bot.reply_to(message, "Введите число")
+        return
+
+    if crypto_type > 4096:
+        bot.reply_to(message,
+                     "Телеграм поддерживает сообщения длиной не больше `4096` символов",
+                     parse_mode="Markdown")
+        return
+
+    elif crypto_type < 6:
+        bot.reply_to(message,
+                     "Пароли меньше `6` символов запрещены",
+                     parse_mode="Markdown")
+        return
 
     data = []
     password = ""
@@ -996,7 +1040,7 @@ def password(message):
 
     bot.reply_to(message, password)
     #print(data)
-	
+
 @bot.message_handler(commands=["start", "help"])
 def start(message):
     # try:
@@ -1188,7 +1232,7 @@ def detect(message):
 
     if message.text.find("когда уйдет путин") != -1:
         #bot.reply_to(message, f'Путин уйдет через {randint(1, 500)} {choice(["дней", "месяцев", "лет", "тысячелетий"])}')
-        random_putin(message)  
+        random_putin(message)
 
 @bot.message_handler(content_types=["new_chat_members"])
 def john(message):
