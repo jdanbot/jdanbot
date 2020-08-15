@@ -1,31 +1,22 @@
 # -- coding: utf8 --
-import telebot
-import re
-from random import randint, choice
-from prettyword import *
-import os
+
 import json
-import traceback
+import re
+from random import choice, randint
 import hashlib
-#from tree_lib import *
-import wikipediaapi as wikipedia
-from bs4 import BeautifulSoup
 import requests
 import math
-from PIL import Image, ImageDraw, ImageFont
-from decimal import *
+import os
+import traceback
 import urllib
-#import youtube_dl
 
-rules = """
-/ban - отправляет "Бан"
-/bylo - отправляет "Было"
-/ne_bylo - отправляет "Не было"
-/fake - отправляет фото с джонами/поляками
-/pizda - отправляет мем "пизда"
-/net_pizdy - отправляет мем "нет пизда"
-/xui - отправляет мем "хуй"
-"""
+from decimal import Decimal, getcontext
+from PIL import Image, ImageDraw, ImageFont
+from bs4 import BeautifulSoup
+import telebot
+
+from prettyword import prettyword
+import data
 
 if "TOKEN_HEROKU" in os.environ:
     bot = telebot.TeleBot(os.environ["TOKEN_HEROKU"])
@@ -37,21 +28,8 @@ else:
     with open("./token.txt") as token:
         bot = telebot.TeleBot(token.read())
 
-
 separator = "/" if os.name == "posix" or os.name == "macos" else "\\"
 
-# @bot.message_handler(commands=["wikiru"])
-# def wikiru(message):
-#     print(message.text.replace("/wikiru@jDan734_bot ", "").replace("/wikiru ", ""))
-#     name = message.text.replace("/wikiru@jDan734_bot ", "").replace("/wikiru ", "")
-#     wiki = wikipedia.Wikipedia("ru")
-#     bot.send_message(message.chat.id, re.split("\\n", wiki.page(name).text)[0])
-#     #except:
-#     #    bot.send_message(message.chat.id, "Отправьте название статьи")
-
-#bot.leave_chat(-1001189395000)
-
-#bot.delete_message(-1001176998310, 164427)
 
 @bot.message_handler(["title"])
 def title(message):
@@ -67,6 +45,7 @@ def title(message):
 
     bot.reply_to(message, text.title())
 
+
 @bot.message_handler(["upper"])
 def upper(message):
     if len(message.text.split(maxsplit=1)) == 2:
@@ -79,6 +58,7 @@ def upper(message):
         bot.reply_to(message, "Ответь на сообщение")
         return
     bot.reply_to(message, text.upper())
+
 
 @bot.message_handler(["lower"])
 def lower(message):
@@ -93,6 +73,7 @@ def lower(message):
         return
     bot.reply_to(message, text.lower())
 
+
 @bot.message_handler(["len"])
 def len_(message):
     if len(message.text.split(maxsplit=1)) == 2:
@@ -105,6 +86,7 @@ def len_(message):
         bot.reply_to(message, "Ответь на сообщение")
         return
     bot.reply_to(message, len(text))
+
 
 @bot.message_handler(["markdown"])
 def md(message):
@@ -123,6 +105,7 @@ def md(message):
 
     except:
         bot.reply_to(message, "Невалидный markdown")
+
 
 @bot.message_handler(["if"])
 def if_(message):
@@ -161,24 +144,21 @@ def preview(message):
         print(e)
         bot.reply_to(message, "Не получилось скачать превью")
 
+
 @bot.message_handler(commands=["resize"])
 def resize(message):
     try:
-        try:
-            options = message.text.split()
-        except:
-            options = []
-            options[0] = message.text
-        print(options)
+        options = message.text.split()
 
         try:
             int(options[1])
-        except:
+
+        except ValueError:
             options.extend([100000])
 
         try:
             int(options[2])
-        except:
+        except ValueError:
             options.extend([100000])
 
         src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}cache{separator}"
@@ -186,6 +166,7 @@ def resize(message):
         try:
             photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
             file_id = message.reply_to_message.photo[-1].file_id
+
         except:
             photo = bot.get_file(message.reply_to_message.document.file_id)
             file_id = message.reply_to_message.document.file_id
@@ -194,7 +175,7 @@ def resize(message):
 
         try:
             os.remove(src + file_id)
-        except:
+        except FileNotFoundError:
             pass
 
         with open(src + file_id + ".jpg", "wb") as new_file:
@@ -212,23 +193,18 @@ def resize(message):
 
 @bot.message_handler(commands=["text"])
 def text(message):
-    #text = message.text.replace("/text@jDan734_bot ", "").replace("/text ", "")
     params = message.text.split()
     print(params)
     # if True:
+
     try:
         int(params[3].split("x")[0])
         params = message.text.split(maxsplit=4)
         text = params[len(params) - 1]
-    except:
+
+    except (ValueError, IndexError):
         params = message.text.split(maxsplit=1)
         text = params[1]
-    # elif len(params) == 1:
-    #     bot.reply_to(message, "Ответь на фото, на которое нужно добавить текст")
-    #     return
-    # else:
-    #     params = message.text.split(maxsplit=1)
-    #     text = params[1]
 
     src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}cache{separator}"
 
@@ -236,14 +212,17 @@ def text(message):
         try:
             photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
             file_id = message.reply_to_message.photo[-1].file_id
+
         except:
             photo = bot.get_file(message.reply_to_message.document.file_id)
             file_id = message.reply_to_message.document.file_id
+
         file = bot.download_file(photo.file_path)
 
         try:
             os.remove(src + file_id + ".jpg")
-        except:
+
+        except FileNotFoundError:
             pass
 
         with open(src + file_id + "_copy.jpg", "wb") as new_file:
@@ -254,9 +233,7 @@ def text(message):
 
         img = Image.open(src + file_id + ".jpg")
 
-
         idraw = ImageDraw.Draw(img)
-
 
         # font = ImageFont.truetype("JetBrainsMono.ttf", size=28)
         # idraw.text((4, 4), text, font=font)
@@ -265,31 +242,30 @@ def text(message):
         # idraw.text((6, 6), text, font=font)
         try:
             xy = params[3].split("x")
-        except:
+        except IndexError:
             xy = [100, 100]
 
         try:
             x = int(xy[0])
-        except:
+        except IndexError:
             x = 100
 
         try:
             y = int(xy[1])
-        except:
+        except IndexError:
             y = 100
 
         try:
             size = int(params[1])
-        except:
+        except IndexError:
             size = 100
 
         if size > 1000:
             size = 1000
 
-        #font = ImageFont.truetype("NotoSans-Regular.ttf", size=size)
-        #font = ImageFont.truetype("Apple Color Emoji.ttf", size=size)
+        # font = ImageFont.truetype("NotoSans-Regular.ttf", size=size)
+        # font = ImageFont.truetype("Apple Color Emoji.ttf", size=size)
         # idraw.text((7, 10), text, font=font, fill=(0, 0, 0, 0))
-
 
         shadowcolor = "white"
 
@@ -301,6 +277,7 @@ def text(message):
                 fillcolor = tuple(fillcolor)
             except:
                 fillcolor = params[2]
+
         except:
             fillcolor = "black"
 
@@ -319,26 +296,24 @@ def text(message):
         idraw.text((x-p, y+p), text, font=font, fill=shadowcolor)
         idraw.text((x+p, y+p), text, font=font, fill=shadowcolor)
 
-
         try:
             idraw.text((x, y), text, font=font, fill=fillcolor)
-        except:
+
+        except NameError:
             idraw.text((x, y), text, font=font, fill="black")
 
-        img.save(src + file_id + "_text.png", "PNG", dpi=[300,300], quality=100)
+        img.save(src + file_id + "_text.png", "PNG", dpi=[300, 300], quality=100)
         bot.send_photo(message.chat.id, open(src + file_id + "_text.png", "rb"))
 
         os.remove(src + file_id + "_text.png")
         os.remove(src + file_id + ".jpg")
 
-            #os.remove(src + message.reply_to_message.photo[0].file_id)
     except Exception as e:
         bot.reply_to(message, e)
 
 
 @bot.message_handler(commands=["rectangle"])
 def rectangle(message):
-    #text = message.text.replace("/text@jDan734_bot ", "").replace("/text ", "")
     params = message.text.split(maxsplit=4)
     print(params)
     try:
@@ -365,9 +340,7 @@ def rectangle(message):
 
         img = Image.open(src + message.reply_to_message.photo[-1].file_id + ".jpg")
 
-
         idraw = ImageDraw.Draw(img)
-
 
         try:
             optsize = params[2].split("x")
@@ -375,6 +348,7 @@ def rectangle(message):
 
             size = (int(optsize[0]), int(optsize[1]))
             size1 = (int(optsize1[0]), int(optsize1[0]))
+
         except:
             optsize = params[2].split(".")
             optsize1 = params[3].split(".")
@@ -383,7 +357,7 @@ def rectangle(message):
             size1 = (int(optsize1[0]), int(optsize1[0]))
 
         idraw.rectangle((size, size1), fill=params[1])
-        #except:
+        # except:
         #    idraw.text((x, y), text, font=font, fill="black")
 
         img.save(src + message.reply_to_message.photo[-1].file_id + "_text.png", "PNG", dpi=[300,300], quality=100)
@@ -392,7 +366,6 @@ def rectangle(message):
         os.remove(src + message.reply_to_message.photo[-1].file_id + "_text.png")
         os.remove(src + message.reply_to_message.photo[-1].file_id + ".jpg")
 
-                #os.remove(src + message.reply_to_message.photo[0].file_id)
     except Exception as e:
         bot.reply_to(message, e)
 
@@ -405,13 +378,14 @@ def sqrt(message):
 
         try:
             res = float(res)
+
         except:
             res = int(res)
-
 
         bot.reply_to(message, f"`{res}`", parse_mode="Markdown")
     except Exception as e:
         bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
+
 
 @bot.message_handler(commands=["calc"])
 def calc(message):
@@ -480,35 +454,43 @@ def calc(message):
     except Exception as e:
         bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
 
+
 @bot.message_handler(["Math"])
 def math_command(message):
     pass
 
-#TODO: REWRITE
+# TODO: REWRITE
+
 
 @bot.message_handler(commands=["wikiru", "wikiru2"])
 def wikiru(message):
     getWiki(message, "ru")
 
+
 @bot.message_handler(commands=["wikien"])
 def wikien(message):
     getWiki(message, "en")
+
 
 @bot.message_handler(commands=["wikide"])
 def wikide(message):
     getWiki(message, "de")
 
+
 @bot.message_handler(commands=["wikipl"])
 def wikipl(message):
     getWiki(message, "pl")
+
 
 @bot.message_handler(commands=["wikiua", "wikiuk"])
 def wikiua(message):
     getWiki(message, "uk")
 
+
 @bot.message_handler(commands=["wikibe"])
 def wikibe(message):
     getWiki(message, "be")
+
 
 @bot.message_handler(commands=["wikies"])
 def wikies(message):
@@ -582,7 +564,7 @@ def getWiki(message, lang="ru"):
     for tag in p.find_all("b"):
         bold_text.append(tag.text)
 
-    #bot.reply_to(message, bold_text)
+    # bot.reply_to(message, bold_text)
 
     text = re.sub(r"\[.{,}\]", "", p.text)
     text = text.replace("<", "&lt;").replace(">", "&gt;")
@@ -639,123 +621,6 @@ def getWiki(message, lang="ru"):
         bot.reply_to(message, text, parse_mode="HTML")
 
 
-
-# def getWiki(message, lang="ru"):
-#     try:
-#         name = message.text.split(maxsplit=1)[1]
-#     except IndexError:
-#         bot.reply_to(message, "Напишите название статьи")
-#         return
-
-#     print(f"[Wikipedia {lang.upper()}] {name}")
-
-#     page = {}
-#     wiki = wikipedia.Wikipedia(lang)
-
-#     page["orig"] = wiki.page(name)
-#     if page["orig"].text == "":
-#         page["orig"] = wiki.page(name.title())
-#         if page["orig"].text == "":
-#             page["orig"] = wiki.page(name.upper())
-
-#     if page["orig"].text == "" and (lang == "ru" or lang == "en" or lang == "uk"):
-#         #https://speller.yandex.net/services/spellservice.json?op=checkText
-#         r = requests.get("https://speller.yandex.net/services/spellservice.json/checkText",
-#                          params={
-#                              "text": name,
-#                              "lang": lang
-#                          })
-
-#         data = json.loads(r.text)
-#         newname = name
-
-#         for word in data:
-#             newname = newname.replace(word["word"], word["s"][0])
-
-#         page["orig"] = wiki.page(newname)
-#         if page["orig"].text == "":
-#             page["orig"] = wiki.page(newname.title())
-#             if page["orig"].text == "":
-#                 page["orig"] = wiki.page(newname.upper())
-
-
-
-#     if page["orig"].text == "":
-#         bot.reply_to(message, "Не удалось найти статью")
-#         return
-
-#     page["page"] = page["orig"].text
-#     page["title"] = page["orig"].title
-#     page["page"] = re.split("\\n", page["page"])[0]
-
-#     url = "https://ru.wikipedia.org"
-#     r = requests.get(url + "/wiki/" + page["title"].replace(" ", "_"))
-
-#     page["page"] = page["page"].replace("<", "&lt;").replace(">", "&gt;")
-
-#     if page["page"].find("фамилия. Известные носители:") == -1:
-
-#         page["page"] = f'<b>{page["page"].replace("(", "</b>(", 1)}'
-
-#         if page["page"].find("</b>") == -1:
-#             page["page"] = page["page"].replace("—", "</b>—", 1)
-
-#         if page["page"].find("</b>") == -1:
-#             page["page"] = page["page"].replace(", котор", "</b>, котор", 1)
-
-#         if page["page"].find("</b>") == -1:
-#             page["page"] = page["page"].replace("-", "</b>—", 1)
-
-#         if page["page"].find("</b>") == -1:
-#             page["page"] = page["orig"].text.replace("<", "&lt;").replace(">", "&gt;")
-#             page["page"] = re.sub(r"BRBR(Фамилия|Аббревиатура).{,}BRBR", "", page["orig"].text.replace("\n", "BR")).replace("BR", "\n").replace("== Примечания ==", "")
-#     else:
-#         page["page"] = page["orig"].text.replace("<", "&lt;").replace(">", "&gt;")
-
-#     soup = BeautifulSoup(r.text, 'lxml')
-#     #bot.send_photo(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
-#     try:
-#         try:
-#             try:
-#                 page["image_url"] = soup.find("table", class_="infobox").find("td", class_="plainlist").span.a.img["srcset"].split()[2]
-#             except:
-#                 page["image_url"] = soup.find("td", class_="infobox-image").span.a.img["srcset"].split()[2]
-#             #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
-
-#             bot.send_photo(message.chat.id,
-#                            "https:" + page["image_url"],
-#                            caption=page["page"],
-#                            parse_mode="HTML",
-#                            reply_to_message_id=message.message_id)
-#             #bot.reply_to(message, "https:" + page["image_url"], caption=page["page"], parse_mode="HTML")
-#         except:
-#             try:
-#                 page["image_url"] = soup.find("div", class_="mw-parser-output").find("img", class_="thumbimage").get("srcset").split()[0]
-#                 #print(f"{dir(image)=}")
-#                 #page["page"] = soup.find("div", id="mw-content-text").find("div", class_="mw-parser-output").find_all("p")[0].text
-
-#                 bot.send_photo(message.chat.id,
-#                                "https:" + page["image_url"],
-#                                caption=page["page"],
-#                                parse_mode="HTML",
-#                                reply_to_message_id=message.message_id)
-
-#             except Exception as e:
-#                 print(e)
-#                 #bot.send_message(message.chat.id, page["page"])
-#                 bot.reply_to(message, page["page"], parse_mode="HTML")
-#     except Exception as e:
-#         print(e)
-#         bot.reply_to(message, f"Такой статьи нет\n<code>{e}</code>", parse_mode="HTML")
-
-# @bot.message_handler(commands=["to_tree_my"])
-# def to_tree(message):
-#     bot.send_message(message.chat.id, "json\n" + dict_to_tree(json.loads(message.reply_to_message.text)), parse_mode="HTML")
-
-# @bot.message_handler(commands=["to_tree_my_info"])
-# def to_tree(message):
-#     bot.send_message(message.chat.id, message.reply_to_message)
-
 @bot.message_handler(commands=["github"])
 def github(message):
     try:
@@ -779,6 +644,7 @@ def github(message):
     except Exception as e:
         bot.reply_to(message, e)
 
+
 @bot.message_handler(commands=["lurk"])
 def lurk(message):
     try:
@@ -795,9 +661,6 @@ def lurk(message):
 
     soup = BeautifulSoup(r.text, 'lxml')
 
-    #print(dir(soup.find("div", id="mw-content-text").find("table")))
-    #soup.find("div", id="mw-content-text").find("table").remove()
-
     div = soup.find(id="mw-content-text")
 
     for t in div.findAll("table", {"class": "lm-plashka"}):
@@ -811,33 +674,6 @@ def lurk(message):
     except:
         bot.reply_to(message, "Не удалось найти статью")
         return
-
-
-    # for tag in soup.find(id="mw-content-text").find_all("p"):
-    #     if tag.get("class"):
-    #         pass
-    #     elif tag.parent.get("class") == ["gallerytext"]:
-    #         pass
-    #     elif re.search(".", tag.text) is None:
-    #         pass
-    #     else:
-    #         page = tag
-    #         break
-
-
-
-    # page_text = page.text.replace("<", "&lt;").replace(">", "&gt;")
-    # page_text = f'<b>{page_text.replace("(", "</b>(", 1)}'
-
-    # if page_text.find("</b>") == -1:
-    #     page = f'{page_text.replace("—", "</b>—", 1)}'
-    # if page_text.find("</b>") == -1:
-    #     try:
-    #         page = soup.find(id="mw-content-text").find("p").text
-    #     except:
-    #         pass
-
-    #center
 
     try:
         try:
@@ -879,6 +715,7 @@ def lurk(message):
 #     soup2 = BeautifulSoup(soup.find("div", class_="quote__body"), "lxml")
 #     bot.reply_to(message, soup2)
 
+
 @bot.message_handler(commands=["mrakopedia"])
 def pizdec(message):
     try:
@@ -910,9 +747,8 @@ def pizdec(message):
                 bot.reply_to(message, "Не получилось найти статью")
                 return
 
-
-    #print(dir(soup.find("div", id="mw-content-text").find("table")))
-    #soup.find("div", id="mw-content-text").find("table").remove()
+    # print(dir(soup.find("div", id="mw-content-text").find("table")))
+    # soup.find("div", id="mw-content-text").find("table").remove()
 
     div = soup.find(id="mw-content-text")
 
@@ -930,15 +766,10 @@ def pizdec(message):
         return
 
     try:
-        try:
-            path = f'{url}{div.find(id="fullResImage")["src"]}'
-        except:
-            path = f'{url}{div.find("a", class_="image").find("img")["src"]}'
-    except Exception as e:
-        # print(e)
-        # bot.reply_to(message, "Не удалось загрузить статью")
-        # return
-        pass
+        path = f'{url}{div.find(id="fullResImage")["src"]}'
+
+    except:
+        path = f'{url}{div.find("a", class_="image").find("img")["src"]}'
 
     try:
         try:
@@ -959,9 +790,11 @@ def pizdec(message):
     except Exception as e:
         bot.reply_to(message, f"Статья недоступна\n<code>{e}</code>", parse_mode="HTML")
 
+
 @bot.message_handler(commands=["to_json"])
 def to_json(message):
     bot.send_message(message.chat.id, message.reply_to_message.text.replace("'", "\"").replace("False", "false").replace("True", "true").replace("None", '"none"').replace("<", '"<').replace(">", '>"'))
+
 
 @bot.message_handler(commands=["sha256"])
 def sha(message):
@@ -978,12 +811,14 @@ def sha(message):
     except Exception as e:
         bot.reply_to(message, e)
 
+
 @bot.message_handler(commands=["sticker_id"])
 def get_sticker_id(message):
     try:
         bot.reply_to(message, message.reply_to_message.sticker.file_id)
     except Exception as e:
         bot.reply_to(f"Ответь на сообщение со стикером\n`{e}`", parse_mode="Markdown")
+
 
 @bot.message_handler(commands=["delete"])
 def delete(message):
@@ -1042,14 +877,13 @@ def password(message):
     data.extend(list("abcdefghijklmnopqrstuvwxyz".upper()))
     data.extend(list('~!@#$%^&*()_+-=`[]\\{}|;\':"<>,./?'))
     data.extend(list("0123456789"))
-    #bot.reply_to(message, f"<code>{json.dumps(data)}</code>", parse_mode="HTML")
-    #bot.reply_to(message, json.dumps(data))
 
     for num in range(0, crypto_type):
         password += choice(data)
 
     bot.reply_to(message, password)
-    #print(data)
+    # print(data)
+
 
 @bot.message_handler(commands=["start", "help"])
 def start(message):
@@ -1058,9 +892,10 @@ def start(message):
     # except:
     #     True
     try:
-        bot.send_message(message.chat.id, rules, reply_to_message_id=message.reply_to_message.message_id)
+        bot.send_message(message.chat.id, text.rules, reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_message(message.chat.id, rules)
+        bot.send_message(message.chat.id, text.rules)
+
 
 @bot.message_handler(commands=["ban"])
 def ban(message):
@@ -1073,6 +908,7 @@ def ban(message):
         bot.send_message(message.chat.id, "Бан" + msg, reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
         bot.send_message(message.chat.id, "Бан" + msg)
+
 
 @bot.message_handler(commands=["bylo"])
 def bylo(message):
@@ -1087,9 +923,9 @@ def bylo(message):
     except AttributeError:
         bot.send_message(message.chat.id, "Было")
 
+
 @bot.message_handler(commands=["ne_bylo"])
 def ne_bylo(message):
-    #print(message)
     try:
         bot.delete_message(message.chat.id, message.message_id)
     except:
@@ -1099,6 +935,7 @@ def ne_bylo(message):
         bot.send_message(message.chat.id, "Не было", reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
         bot.send_message(message.chat.id, "Не было")
+
 
 @bot.message_handler(commands=["pizda"])
 def pizda(message):
@@ -1137,6 +974,7 @@ def xui(message):
     except AttributeError:
         bot.send_sticker(message.chat.id, stid)
 
+
 @bot.message_handler(commands=["xui_pizda"])
 def xui_pizda(message):
     stid = choice(["CAACAgIAAx0CUDyGjwACAQ5fCFkeR-pVhI_PUTcTbDGUOgzwfAAC4QADlJlpL9ZRhbtO0tQzGgQ", "CAACAgIAAx0CUDyGjwACAQxfCFkaHE52VvWZzaEDQwUC8FYa-wAC3wADlJlpL5sCLYkiJrDFGgQ"])
@@ -1148,6 +986,7 @@ def xui_pizda(message):
         bot.send_sticker(message.chat.id, stid, reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
         bot.send_sticker(message.chat.id, stid)
+
 
 @bot.message_handler(commands=["net_xua"])
 def net_xua(message):
@@ -1161,6 +1000,7 @@ def net_xua(message):
     except AttributeError:
         bot.send_sticker(message.chat.id, stid)
 
+
 @bot.message_handler(commands=["fake"])
 def polak(message):
     try:
@@ -1172,46 +1012,49 @@ def polak(message):
     except AttributeError:
         bot.send_photo(message.chat.id, open("images/polak.jpg", "rb").read())
 
+
 @bot.message_handler(commands=["rzaka"])
 def rzaka(message):
-    #print(message)
     try:
         bot.delete_message(message.chat.id, message.message_id)
     except:
-        True
-
-    text = r"РЖАКА-СМЕЯКА 🤣🤣🤣🤣😋😋😋😋😋😋СРАЗУ ВИДНО РУССКОГО ЧЕЛОВЕКА😃😃😃😃😃🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺👍👍👍👍ТУПЫЕ ПЕНДОСЫ В СВОЕЙ ОМЕРИКЕ ДО ТАКОГО БЫ НЕ ДОДУМАЛИСЬ😡😡😡😡😡😡👎👎👎👎👎🇺🇸🇺🇸🇺🇸🇺🇸🇺🇸🇺🇸"
+        pass
 
     try:
-        bot.send_message(message.chat.id, text, reply_to_message_id=message.reply_to_message.message_id)
+        bot.send_message(message.chat.id,
+                         data.rzaka,
+                         reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_message(message.chat.id, text)
+        bot.send_message(message.chat.id, data.rzaka)
+
 
 @bot.message_handler(commands=["rzaka_full"])
 def rzaka_full(message):
-    #print(message)
     try:
         bot.delete_message(message.chat.id, message.message_id)
     except:
-        True
-
-    text = r"РЖАКА-СМЕЯКА 🤣🤣🤣🤣😋😋😋😋😋😋СРАЗУ ВИДНО РУССКОГО ЧЕЛОВЕКА😃😃😃😃😃🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺👍👍👍👍ТУПЫЕ ПЕНДОСЫ В СВОЕЙ ОМЕРИКЕ ДО ТАКОГО БЫ НЕ ДОДУМАЛИСЬ😡😡😡😡😡😡👎👎👎👎👎🇺🇸🇺🇸🇺🇸🇺🇸🇺🇸🇺🇸РОССИЯ ВПЕРЕД😊😊😊😊😊😊😃😃😃😃😃😃😋😋😋😋🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺АХАХАХАХАХ😃😃😃😃😃СМЕШНО ПОШУТИЛ ЧУВАЧОК👉👋👍👍👍👍👍ТАКОЕ МОЖНО УВИДЕТЬ ТОЛЬКО В РОССИИ ✌️✌️😲😲😲 ХААХАХА ВОТ УМОРА🤣🤣🤣🤣АЖ АМЕРИКА ВЗОРВАЛАСЬ ОТ СМЕХА😜😜😜😜😜😜😜ВСЯ ЕВРОПА В ШОКЕ🤙🤙🤙🤙🤙🤙🤙АХХАХАХАХА БЛИН НЕ МОГУ ОСТАНОВИТЬСЯ СМЕЮСЬ КАТАЮСЬ ПО ПОЛУ😬😬😬😵😵😵😵😵ВОТ ЭТО ШУТКА РЖАКА СМЕЯЛИСЬ ВСЕЙ МАРШРУТКОЙ РЖАЛА 848393938347292929647492918363739304964682010 ЧАСОВ РЖОМБА ПРЯМА НЕРЕАЛЬНАЯ РЖАКА ШУТКА 😂😂😂😂😂😂😂😂🤔😂😂😹😹😹😹😹😹😹😹😹😂😂😂😂👍👍👍👍👍👍👍👍👍👍АХАХА , КАК СМЕШНО !!!!! Я НЕ МОГУ, ПОМОГИТЕ , ЗАДЫХАЮСЬ ОТ СМЕХА 😂🤣🤣😄🤣😂🤣🤣🤣 СПАСИБО , ВЫ СДЕЛАЛИ МОЙ ДЕНЬ !!! КАК ЖЕ ОРИГИНАЛЬНО !!! Я В ВОСТОРГЕ!!!!!!😀😃😀😃🤣😁🤣🤣🤣🤣🤣😀🤣😀😀🤣🤣😀🤣😀🤣😀🤣😀🤣😀🤣😀😀🤣😀🤣😁🤣😁🤣😁🤣😁😁🤣😁"
+        pass
 
     try:
-        bot.send_message(message.chat.id, text, reply_to_message_id=message.reply_to_message.message_id)
+        bot.send_message(message.chat.id,
+                         data.rzaka_full,
+                         reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_message(message.chat.id, text)
+        bot.send_message(message.chat.id, data.rzaka_full)
+
 
 @bot.message_handler(commands=["detect"])
-def detect(message):
+def detect_boicot(message):
     if message.text.find("бойкот") != -1:
         bot.reply_to(message, "Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
     else:
         bot.reply_to(message, "Бойкот не обнаружен")
 
+
 @bot.message_handler(commands=["random_ban", "random"])
 def random(message):
     bot.reply_to(message, f"Лови бан на {randint(1, 100)} минут")
+
 
 @bot.message_handler(commands=["random_putin"])
 def random_putin(message):
@@ -1227,13 +1070,13 @@ def random_putin(message):
     elif date == "лет":
         true_date = prettyword(number, ["год", "года", "лет"])
 
-
     bot.reply_to(message, f'Путин уйдет через {number} {true_date}')
-    #bot.reply_to(message, bot.reply_to(message, f'Путин уйдет через {randint(1, 500)} {choice(["дней", "месяцев", "лет", "тысячелетий"])}').message_id)
+
 
 @bot.message_handler(commands=["da_net"])
 def da_net(message):
     bot.reply_to(message, choice(["Да", "Нет"]))
+
 
 @bot.message_handler(content_types=['text'])
 def detect(message):
@@ -1241,22 +1084,28 @@ def detect(message):
         bot.reply_to(message, "Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
 
     if message.text.find("когда уйдет путин") != -1:
-        #bot.reply_to(message, f'Путин уйдет через {randint(1, 500)} {choice(["дней", "месяцев", "лет", "тысячелетий"])}')
         random_putin(message)
+
 
 @bot.message_handler(content_types=["new_chat_members"])
 def john(message):
-    bot.reply_to(message, f'{choice(["Поляк", "Джон", "Александр Гомель", "Иван", "УберКац", "Яблочник", "Электрическая Говноварка"])}?')
+    bot.reply_to(message, f'{choice(data.greatings)}?')
 
-@bot.message_handler(content_types=['document', 'video'], func=lambda message: message.chat.id == -1001189395000)
+
+@bot.message_handler(content_types=['document', 'video'],
+                     func=lambda message: message.chat.id == -1001189395000)
 def delete_w10(message):
     try:
-        if message.video.file_size == 842295 or message.video.file_size == 912607:
+        if message.video.file_size == 842295 or \
+           message.video.file_size == 912607:
             bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
 
+
 try:
     bot.polling()
 except:
-    bot.send_message("795449748", f"`{str(traceback.format_exc())}`", parse_mode="Markdown")
+    bot.send_message("795449748",
+                     f"`{str(traceback.format_exc())}`",
+                     parse_mode="Markdown")
