@@ -571,8 +571,9 @@ def getWiki(message, lang="ru"):
 
     soup = BeautifulSoup(json.loads(r.text)["query"]["pages"][str(page_id)]["extract"], "lxml")
 
-    for tag in soup.find_all("p", class_="mv-empty-elt"):
-        tag.replace_with("")
+    for tag in soup.find_all("p"):
+        if re.match(r"\s", tag.text):
+            tag.replace_with("")
 
     p = soup.find_all("p")[0]
 
@@ -580,6 +581,8 @@ def getWiki(message, lang="ru"):
 
     for tag in p.find_all("b"):
         bold_text.append(tag.text)
+
+    #bot.reply_to(message, bold_text)
 
     text = re.sub(r"\[.{,}\]", "", p.text)
     text = text.replace("<", "&lt;").replace(">", "&gt;")
@@ -595,6 +598,7 @@ def getWiki(message, lang="ru"):
                          "titles": title,
                          "prop": "pageimages",
                          "pitnumbsize": 10000,
+                         "pilicense": "any",
                          "format": "json"
                      })
 
@@ -611,6 +615,7 @@ def getWiki(message, lang="ru"):
                              "titles": "File:" + imagename,
                              "prop": "imageinfo",
                              "iiprop": "url",
+                             "pilicense": "any",
                              "format": "json"
                          })
 
