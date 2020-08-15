@@ -616,13 +616,18 @@ def getWiki(message, lang="ru"):
 
         data = json.loads(r.text)
 
-        image = urllib.parse.unquote(data["query"]["pages"][str(-1)]["imageinfo"][0]["url"])
+        if title == "Кац, Максим Евгеньевич":
+            image = "https://upload.wikimedia.org/wikipedia/commons/b/b7/Maxim_Katz_reading_resolution_of_the_manifestation_on_Triumfalnaya_square.jpg"
+        else:
+            image = data["query"]["pages"][str(-1)]["imageinfo"][0]["url"]
 
         bot.send_photo(message.chat.id,
                        image,
                        caption=text,
                        parse_mode="HTML",
                        reply_to_message_id=message.message_id)
+
+        # https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=Albert%20Einstein&format=json
 
     except:
         print(traceback.format_exc())
