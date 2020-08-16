@@ -579,7 +579,7 @@ def getWiki(message, lang="ru"):
                .replace(" )", ")")
 
     for bold in bold_text:
-        text = text.replace(bold, f"<b>{bold}</b>")
+        text = re.sub(bold, f"<b>{bold}</b>", text, 1)
 
     # https://ru.wikipedia.org/w/api.php?action=query&titles=%D0%9A%D0%B0%D1%86,%20%D0%9C%D0%B0%D0%BA%D1%81%D0%B8%D0%BC%20%D0%95%D0%B2%D0%B3%D0%B5%D0%BD%D1%8C%D0%B5%D0%B2%D0%B8%D1%87&prop=pageimages&format=json&pithumbsize=100
 
@@ -608,7 +608,7 @@ def getWiki(message, lang="ru"):
         if photo == "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Flag_of_Belarus.svg/1000px-Flag_of_Belarus.svg.png":
             photo = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg/1000px-Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg.png"
 
-        #bot.reply_to(message, photo)
+        # bot.reply_to(message, photo)
 
         bot.send_photo(message.chat.id,
                        photo,
