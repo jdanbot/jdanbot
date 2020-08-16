@@ -57,6 +57,7 @@ def upper(message):
     else:
         bot.reply_to(message, "Ответь на сообщение")
         return
+
     bot.reply_to(message, text.upper())
 
 
@@ -131,6 +132,7 @@ def if_(message):
 #         video = ydl.download([message.reply_to_message.text])
 #     print(src + "M1a2JBhacz8.mp4")
 #     bot.send_video(message.chat.id, open(src + "M1a2JBhacz8.mp4" , "rb"))
+
 
 @bot.message_handler(commands=["preview"])
 def preview(message):
@@ -534,9 +536,9 @@ def getWiki(message, lang="ru"):
     title = data["query"]["search"][0]["title"]
     page_id = data["query"]["search"][0]["pageid"]
 
-    #https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=Albert%20Einstein&format=json
+    # https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=Albert%20Einstein&format=json
 
-    #r = requests.get(page_url)
+    # r = requests.get(page_url)
 
     r = requests.get(url + "/w/api.php",
                      params={
@@ -566,8 +568,15 @@ def getWiki(message, lang="ru"):
 
     # bot.reply_to(message, bold_text)
 
-    text = re.sub(r"\[.{,}\]", "", p.text)
-    text = text.replace("<", "&lt;").replace(">", "&gt;")
+    text = re.sub(r"\[.{,}\] ", "", p.text)
+
+    if text == "":
+        bot.reply_to(message, "Не получилось найти статью")
+        return
+
+    text = text.replace("<", "&lt;") \
+               .replace(">", "&gt;") \
+               .replace(" )", ")")
 
     for bold in bold_text:
         text = text.replace(bold, f"<b>{bold}</b>")
@@ -603,7 +612,7 @@ def getWiki(message, lang="ru"):
 
         data = json.loads(r.text)
 
-        if title == "Кац, Максим Евгеньевич":
+        if title == "Кац, Максим Евгеньеви":
             image = "https://upload.wikimedia.org/wikipedia/commons/b/b7/Maxim_Katz_reading_resolution_of_the_manifestation_on_Triumfalnaya_square.jpg"
         else:
             image = data["query"]["pages"][str(-1)]["imageinfo"][0]["url"]
@@ -617,7 +626,37 @@ def getWiki(message, lang="ru"):
         # https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=Albert%20Einstein&format=json
 
     except:
-        print(traceback.format_exc())
+        """
+        try:
+            ""1"
+
+            https://ru.wikipedia.org/w/api.php?action=query&prop=images&titles=%D0%A3%D0%BA%D1%80%D0%B0%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F%20%D0%9D%D0%B0%D1%80%D0%BE%D0%B4%D0%BD%D0%B0%D1%8F%20%D0%A0%D0%B5%D1%81%D0%BF%D1%83%D0%B1%D0%BB%D0%B8%D0%BA%D0%B0&format=json
+
+            ""1"
+
+            r = requests.get(url + "/w/api.php",
+                             params={
+                                "action": "query",
+                                "prop": "images",
+                                "titles": title,
+                                "format": "json"
+                             })
+
+            bot.reply_to(message, r.url)
+
+            data = json.loads(r.text)
+
+            print()
+
+            list = ""
+
+            for image in data["query"]["pages"][str(page_id)]["images"]:
+                list += image["title"] + "\n"
+
+            bot.reply_to(message, list)
+        """
+
+        #except:
         bot.reply_to(message, text, parse_mode="HTML")
 
 
@@ -625,22 +664,27 @@ def getWiki(message, lang="ru"):
 def github(message):
     try:
         url = message.text.split(maxsplit=1)[1]
+
     except:
         bot.reply_to(message, "Введи название аккаунта")
         return
+
     try:
         r = requests.get(f"https://api.github.com/users/{url}")
         repos = requests.get(f"https://api.github.com/users/{url}/repos")
         data = json.loads(r.text)
         repos_list = json.loads(repos.text)
         text = f'*{data["name"]}*\nFollowers `{data["followers"]}` Following `{data["following"]}`\n\n__{data["bio"]}__\n\nRepositories:'
+
         for repo in repos_list:
             print(repo["full_name"])
             text += f'\n[{repo["full_name"]}]({repo["html_url"]})'
+
         bot.send_photo(message.chat.id,
                        data["avatar_url"],
                        caption=text,
                        parse_mode="Markdown")
+
     except Exception as e:
         bot.reply_to(message, e)
 
@@ -692,6 +736,7 @@ def lurk(message):
                            caption=page_text,
                            parse_mode="HTML",
                            reply_to_message_id=message.message_id)
+
         except:
             try:
                 bot.send_photo(message.chat.id,
@@ -699,21 +744,30 @@ def lurk(message):
                                caption=page_text,
                                parse_mode="HTML",
                                reply_to_message_id=message.message_id)
+
             except:
-                bot.send_message(message.chat.id, page_text, parse_mode="HTML", reply_to_message_id=message.message_id)
+                bot.send_message(message.chat.id,
+                                 page_text,
+                                 parse_mode="HTML",
+                                 reply_to_message_id=message.message_id)
     except Exception as e:
-        bot.reply_to(message, f"Статья недоступна\n<code>{e}</code>", parse_mode="HTML")
+        bot.reply_to(message,
+                     f"Статья недоступна\n<code>{e}</code>",
+                     parse_mode="HTML")
 
-# @bot.message_handler(commands=["bashorg"])
-# def bashorg(message):
-#     num = int(message.text.replace("/bashorg@jDan734_bot ", "").replace("/bashorg ", ""))
-#     r = requests.get(f"https://bash.im/quote/{num}")
-#     soup = BeautifulSoup(r.text.replace("<br>", "БАН").replace("<br\\>", "БАН"), 'html.parser')
 
-#     print(soup.find("div", class_="quote__body").text.replace('<div class="quote__body">', "").replace("</div>", "").replace("<br\\>", "\n"))
+"""
+@bot.message_handler(commands=["bashorg"])
+def bashorg(message):
+    num = int(message.text.replace("/bashorg@jDan734_bot ", "").replace("/bashorg ", ""))
+    r = requests.get(f"https://bash.im/quote/{num}")
+    soup = BeautifulSoup(r.text.replace("<br>", "БАН").replace("<br\\>", "БАН"), 'html.parser')
 
-#     soup2 = BeautifulSoup(soup.find("div", class_="quote__body"), "lxml")
-#     bot.reply_to(message, soup2)
+    print(soup.find("div", class_="quote__body").text.replace('<div class="quote__body">', "").replace("</div>", "").replace("<br\\>", "\n"))
+
+    soup2 = BeautifulSoup(soup.find("div", class_="quote__body"), "lxml")
+    bot.reply_to(message, soup2)
+"""
 
 
 @bot.message_handler(commands=["mrakopedia"])
@@ -730,11 +784,11 @@ def pizdec(message):
     r = requests.get(url + "/w/index.php",
                      params={"search": name})
 
-    #print(r.text)
+    # print(r.text)
 
     soup = BeautifulSoup(r.text, 'lxml')
 
-    if soup.find("div", class_="searchresults") == None:
+    if soup.find("div", class_="searchresults") is None:
         pass
     else:
         div = soup.find("div", class_="searchresults")
@@ -762,7 +816,7 @@ def pizdec(message):
         page_text = first if (first := div.find("p").text.strip()) else div.findAll("p", recursive=False)[1].text.strip()
     except Exception as e:
         bot.reply_to(message, "Не удалось найти статью")
-        #bot.reply_to(message, e)
+        # bot.reply_to(message, e)
         return
 
     try:
@@ -793,7 +847,13 @@ def pizdec(message):
 
 @bot.message_handler(commands=["to_json"])
 def to_json(message):
-    bot.send_message(message.chat.id, message.reply_to_message.text.replace("'", "\"").replace("False", "false").replace("True", "true").replace("None", '"none"').replace("<", '"<').replace(">", '>"'))
+    bot.send_message(message.chat.id,
+                     message.reply_to_message.text.replace("'", "\"")
+                                                  .replace("False", "false")
+                                                  .replace("True", "true")
+                                                  .replace("None", '"none"')
+                                                  .replace("<", '"<')
+                                                  .replace(">", '>"'))
 
 
 @bot.message_handler(commands=["sha256"])
@@ -816,8 +876,9 @@ def sha(message):
 def get_sticker_id(message):
     try:
         bot.reply_to(message, message.reply_to_message.sticker.file_id)
-    except Exception as e:
-        bot.reply_to(f"Ответь на сообщение со стикером\n`{e}`", parse_mode="Markdown")
+
+    except:
+        bot.reply_to(message, "Ответь на сообщение со стикером")
 
 
 @bot.message_handler(commands=["delete"])
@@ -826,23 +887,25 @@ def delete(message):
         bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
+
     try:
-        #bot.send_message(message.chat.id, message.reply_to_message)
-        print(message.reply_to_message.from_user.id)
-        print(message.reply_to_message.message_id)
+        # bot.send_message(message.chat.id, message.reply_to_message)
         if message.reply_to_message.from_user.id == "1121412322":
             bot.delete_message(message.chat.id, message.reply_to_message.message_id)
     except:
         pass
 
-# @bot.message_handler(commands=["delete_message"])
-# def delete(message):
-#     try:
-#         msgid = int(message.text.split(maxsplit=1)[1])
-#         bot.delete_message(message.chat.id, msgid)
-#         bot.reply_to(message, "Удалил")
-#     except:
-#         bot.reply_to(message, "Бан))")
+
+"""
+@bot.message_handler(commands=["delete_message"])
+def delete(message):
+    try:
+        msgid = int(message.text.split(maxsplit=1)[1])
+        bot.delete_message(message.chat.id, msgid)
+        bot.reply_to(message, "Удалил")
+    except:
+        bot.reply_to(message, "Бан))")
+"""
 
 
 @bot.message_handler(commands=["generate_password"])
@@ -912,11 +975,10 @@ def ban(message):
 
 @bot.message_handler(commands=["bylo"])
 def bylo(message):
-    #print(message)
     try:
         bot.delete_message(message.chat.id, message.message_id)
     except:
-        True
+        pass
 
     try:
         bot.send_message(message.chat.id, "Было", reply_to_message_id=message.reply_to_message.message_id)
@@ -939,66 +1001,45 @@ def ne_bylo(message):
 
 @bot.message_handler(commands=["pizda"])
 def pizda(message):
-    stid = "CAACAgIAAx0CUDyGjwACAQxfCFkaHE52VvWZzaEDQwUC8FYa-wAC3wADlJlpL5sCLYkiJrDFGgQ"
-    try:
-        bot.delete_message(message.chat.id, message.message_id)
-    except:
-        pass
-    try:
-        bot.send_sticker(message.chat.id, stid, reply_to_message_id=message.reply_to_message.message_id)
-    except AttributeError:
-        bot.send_sticker(message.chat.id, stid)
+    sendSticker(message,
+                "CAACAgIAAx0CUDyGjwACAQxfCFkaHE52VvWZzaEDQwUC8FYa-wAC3wADlJlpL5sCLYkiJrDFGgQ")
 
 
 @bot.message_handler(commands=["net_pizdy"])
 def net_pizdy(message):
-    stid = "CAACAgIAAx0CUDyGjwACAQ1fCFkcDHIDN_h0qHDu7LgvS8SBIgAC4AADlJlpL8ZF00AlPORXGgQ"
-    try:
-        bot.delete_message(message.chat.id, message.message_id)
-    except:
-        pass
-    try:
-        bot.send_sticker(message.chat.id, stid, reply_to_message_id=message.reply_to_message.message_id)
-    except AttributeError:
-        bot.send_sticker(message.chat.id, stid)
+    sendSticker(message,
+                "CAACAgIAAx0CUDyGjwACAQ1fCFkcDHIDN_h0qHDu7LgvS8SBIgAC4AADlJlpL8ZF00AlPORXGgQ")
+
 
 @bot.message_handler(commands=["xui"])
 def xui(message):
-    stid = "CAACAgIAAx0CUDyGjwACAQ5fCFkeR-pVhI_PUTcTbDGUOgzwfAAC4QADlJlpL9ZRhbtO0tQzGgQ"
-    try:
-        bot.delete_message(message.chat.id, message.message_id)
-    except:
-        pass
-    try:
-        bot.send_sticker(message.chat.id, stid, reply_to_message_id=message.reply_to_message.message_id)
-    except AttributeError:
-        bot.send_sticker(message.chat.id, stid)
-
-
-@bot.message_handler(commands=["xui_pizda"])
-def xui_pizda(message):
-    stid = choice(["CAACAgIAAx0CUDyGjwACAQ5fCFkeR-pVhI_PUTcTbDGUOgzwfAAC4QADlJlpL9ZRhbtO0tQzGgQ", "CAACAgIAAx0CUDyGjwACAQxfCFkaHE52VvWZzaEDQwUC8FYa-wAC3wADlJlpL5sCLYkiJrDFGgQ"])
-    try:
-        bot.delete_message(message.chat.id, message.message_id)
-    except:
-        pass
-    try:
-        bot.send_sticker(message.chat.id, stid, reply_to_message_id=message.reply_to_message.message_id)
-    except AttributeError:
-        bot.send_sticker(message.chat.id, stid)
+    sendSticker(message,
+                "CAACAgIAAx0CUDyGjwACAQ5fCFkeR-pVhI_PUTcTbDGUOgzwfAAC4QADlJlpL9ZRhbtO0tQzGgQ")
 
 
 @bot.message_handler(commands=["net_xua"])
 def net_xua(message):
-    stid = "CAACAgIAAx0CUDyGjwACAQ9fCFkfgfI9pH9Hr96q7dH0biVjEwAC4gADlJlpL_foG56vPzRPGgQ"
+    sendSticker(message,
+                "CAACAgIAAx0CUDyGjwACAQ9fCFkfgfI9pH9Hr96q7dH0biVjEwAC4gADlJlpL_foG56vPzRPGgQ")
+
+@bot.message_handler(commands=["xui_pizda"])
+def xui_pizda(message):
+    sendSticker(message,
+                choice(["CAACAgIAAx0CUDyGjwACAQ5fCFkeR-pVhI_PUTcTbDGUOgzwfAAC4QADlJlpL9ZRhbtO0tQzGgQ", "CAACAgIAAx0CUDyGjwACAQxfCFkaHE52VvWZzaEDQwUC8FYa-wAC3wADlJlpL5sCLYkiJrDFGgQ"]))
+
+
+def sendSticker(message, sticker_id):
     try:
         bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
+
     try:
-        bot.send_sticker(message.chat.id, stid, reply_to_message_id=message.reply_to_message.message_id)
+        bot.send_sticker(message.chat.id,
+                         sticker_id,
+                         reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_sticker(message.chat.id, stid)
+        bot.send_sticker(message.chat.id, sticker_id)
 
 
 @bot.message_handler(commands=["fake"])
