@@ -588,37 +588,30 @@ def getWiki(message, lang="ru"):
                          "action": "query",
                          "titles": title,
                          "prop": "pageimages",
-                         "pitnumbsize": 10000,
+                         "pithumbsize": 1000,
                          "pilicense": "any",
                          "format": "json"
                      })
 
-    try:
-        image_info = json.loads(r.text)
+    if not r.status_code == 200:
+        bot.reply_to(message, "Не удалось загрузить статью")
+        return
 
-        imagename = image_info["query"]["pages"][str(page_id)]["pageimage"]
+    image_info = json.loads(r.text)
+
+    try:
 
         # https://en.wikipedia.org/w/api.php?action=query&titles=File:Albert_Einstein_(Nobel).png&prop=imageinfo&iiprop=url&format=json
 
-        r = requests.get(url + "/w/api.php",
-                         params={
-                             "action": "query",
-                             "titles": "File:" + imagename,
-                             "prop": "imageinfo",
-                             "iiprop": "url",
-                             "pilicense": "any",
-                             "format": "json"
-                         })
+        photo = image_info["query"]["pages"][str(page_id)]["thumbnail"]["source"]
 
-        data = json.loads(r.text)
+        if photo == "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Flag_of_Belarus.svg/1000px-Flag_of_Belarus.svg.png":
+            photo = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg/1000px-Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg.png"
 
-        if title == "Кац, Максим Евгеньеви":
-            image = "https://upload.wikimedia.org/wikipedia/commons/b/b7/Maxim_Katz_reading_resolution_of_the_manifestation_on_Triumfalnaya_square.jpg"
-        else:
-            image = data["query"]["pages"][str(-1)]["imageinfo"][0]["url"]
+        #bot.reply_to(message, photo)
 
         bot.send_photo(message.chat.id,
-                       image,
+                       photo,
                        caption=text,
                        parse_mode="HTML",
                        reply_to_message_id=message.message_id)
