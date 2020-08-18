@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 import telebot
 
 from prettyword import prettyword
-import data
+import data as texts
 
 if "TOKEN_HEROKU" in os.environ:
     bot = telebot.TeleBot(os.environ["TOKEN_HEROKU"])
@@ -511,7 +511,7 @@ def getWiki(message, lang="ru"):
 
     url = f"https://{lang}.wikipedia.org"
 
-    #https://ru.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=%D0%BA%D0%B0%D1%86&srlimit=1&srsort=relevance
+    # https://ru.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=%D0%BA%D0%B0%D1%86&srlimit=1&srsort=relevance
 
     r = requests.get(f"{url}/w/api.php",
                      params={
@@ -559,7 +559,11 @@ def getWiki(message, lang="ru"):
         if re.match(r"\s", tag.text):
             tag.replace_with("")
 
-    p = soup.find_all("p")[0]
+    if len(soup.find_all("p")) == 0:
+        bot.reply_to(message, "Не получилось найти статью")
+        return
+    else:
+        p = soup.find_all("p")[0]
 
     bold_text = []
 
@@ -568,7 +572,22 @@ def getWiki(message, lang="ru"):
 
     # bot.reply_to(message, bold_text)
 
-    text = re.sub(r"\[.{,}\] ", "", p.text)
+    #bot.reply_to(message, p.text.find(":"))
+    #bot.reply_to(message, soup)
+
+    text = ""
+
+    if p.text.find("означать:") != -1:
+        for tag in soup.find_all("p"):
+            text += tag.text
+
+        text += "\n"
+
+        for tag in soup.find_all("li"):
+            text += str(soup.find_all("li").index(tag) + 1) + ". " + tag.text + "\n"
+
+    else:
+        text = re.sub(r"\[.{,}\] ", "", p.text)
 
     if text == "":
         bot.reply_to(message, "Не получилось найти статью")
@@ -576,7 +595,8 @@ def getWiki(message, lang="ru"):
 
     text = text.replace("<", "&lt;") \
                .replace(">", "&gt;") \
-               .replace(" )", ")")
+               .replace(" )", ")") \
+               .replace("  ", " ")
 
     for bold in bold_text:
         text = re.sub(bold, f"<b>{bold}</b>", text, 1)
@@ -948,9 +968,9 @@ def start(message):
     # except:
     #     True
     try:
-        bot.send_message(message.chat.id, text.rules, reply_to_message_id=message.reply_to_message.message_id)
+        bot.send_message(message.chat.id, texts.rules, reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_message(message.chat.id, text.rules)
+        bot.send_message(message.chat.id, texts.rules)
 
 
 @bot.message_handler(commands=["ban"])
@@ -1015,6 +1035,7 @@ def net_xua(message):
     sendSticker(message,
                 "CAACAgIAAx0CUDyGjwACAQ9fCFkfgfI9pH9Hr96q7dH0biVjEwAC4gADlJlpL_foG56vPzRPGgQ")
 
+
 @bot.message_handler(commands=["xui_pizda"])
 def xui_pizda(message):
     sendSticker(message,
@@ -1056,10 +1077,10 @@ def rzaka(message):
 
     try:
         bot.send_message(message.chat.id,
-                         data.rzaka,
+                         texts.rzaka,
                          reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_message(message.chat.id, data.rzaka)
+        bot.send_message(message.chat.id, texts.rzaka)
 
 
 @bot.message_handler(commands=["rzaka_full"])
@@ -1071,10 +1092,10 @@ def rzaka_full(message):
 
     try:
         bot.send_message(message.chat.id,
-                         data.rzaka_full,
+                         texts.rzaka_full,
                          reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_message(message.chat.id, data.rzaka_full)
+        bot.send_message(message.chat.id, texts.rzaka_full)
 
 
 @bot.message_handler(commands=["detect"])
@@ -1123,7 +1144,7 @@ def detect(message):
 
 @bot.message_handler(content_types=["new_chat_members"])
 def john(message):
-    bot.reply_to(message, f'{choice(data.greatings)}?')
+    bot.reply_to(message, f'{choice(texts.greatings)}?')
 
 
 @bot.message_handler(content_types=['document', 'video'],
