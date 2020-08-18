@@ -572,8 +572,8 @@ def getWiki(message, lang="ru"):
 
     # bot.reply_to(message, bold_text)
 
-    #bot.reply_to(message, p.text.find(":"))
-    #bot.reply_to(message, soup)
+    # bot.reply_to(message, p.text.find(":"))
+    # bot.reply_to(message, soup)
 
     text = ""
 
@@ -588,6 +588,17 @@ def getWiki(message, lang="ru"):
 
     else:
         text = re.sub(r"\[.{,}\] ", "", p.text)
+
+    for bold in bold_text:
+        if text == f"{bold}:\n":
+            text = ""
+            for tag in soup.find_all("p"):
+                text += tag.text
+
+            text += "\n"
+
+            for tag in soup.find_all("li"):
+                text += str(soup.find_all("li").index(tag) + 1) + ". " + tag.text + "\n"
 
     if text == "":
         bot.reply_to(message, "Не получилось найти статью")
