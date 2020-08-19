@@ -2,21 +2,22 @@
 
 import json
 import re
-from random import choice, randint
 import hashlib
 import requests
 import math
 import os
 import traceback
 import urllib
+from random import choice, randint
+from time import sleep
 
+import telebot
 from decimal import Decimal, getcontext
 from PIL import Image, ImageDraw, ImageFont
 from bs4 import BeautifulSoup
-import telebot
 
-from prettyword import prettyword
 import data as texts
+from prettyword import prettyword
 
 if "TOKEN_HEROKU" in os.environ:
     bot = telebot.TeleBot(os.environ["TOKEN_HEROKU"])
@@ -520,7 +521,7 @@ def getWiki(message, lang="ru"):
                         "list": "search",
                         "srsearch": query,
                         "srlimit": 1,
-                        "srsort": "relevance"
+                        "sprop": "size"
                      })
 
     if not r.status_code == 200:
@@ -584,7 +585,20 @@ def getWiki(message, lang="ru"):
         text += "\n"
 
         for tag in soup.find_all("li"):
-            text += str(soup.find_all("li").index(tag) + 1) + ". " + tag.text + "\n"
+            ind = str(soup.find_all("li").index(tag) + 1)
+
+            ind = ind.replace("0", "0️⃣") \
+                     .replace("1", "1️⃣") \
+                     .replace("2", "2️⃣") \
+                     .replace("3", "3️⃣") \
+                     .replace("4", "4️⃣") \
+                     .replace("5", "5️⃣") \
+                     .replace("6", "6️⃣") \
+                     .replace("7", "7️⃣") \
+                     .replace("8", "8️⃣") \
+                     .replace("9", "9️⃣")
+
+            text += ind + " " + tag.text + "\n"
 
     else:
         text = re.sub(r"\[.{,}\] ", "", p.text)
@@ -598,7 +612,20 @@ def getWiki(message, lang="ru"):
             text += "\n"
 
             for tag in soup.find_all("li"):
-                text += str(soup.find_all("li").index(tag) + 1) + ". " + tag.text + "\n"
+                ind = str(soup.find_all("li").index(tag) + 1)
+
+                ind = ind.replace("0", "0️⃣") \
+                         .replace("1", "1️⃣") \
+                         .replace("2", "2️⃣") \
+                         .replace("3", "3️⃣") \
+                         .replace("4", "4️⃣") \
+                         .replace("5", "5️⃣") \
+                         .replace("6", "6️⃣") \
+                         .replace("7", "7️⃣") \
+                         .replace("8", "8️⃣") \
+                         .replace("9", "9️⃣")
+
+                text += ind + " " + tag.text + "\n"
 
     if text == "":
         bot.reply_to(message, "Не получилось найти статью")
@@ -713,6 +740,17 @@ def github(message):
         bot.reply_to(message, e)
 
 
+def getImageInfo(url, filename):
+    r = requests.get(url + "index.php",
+                     params={
+                         "search": f"Файл:{filename}"
+                     })
+
+    soup = BeautifulSoup(r.text, 'lxml')
+
+    return "https:" + soup.find("div", id="file").a.img["src"]
+
+
 @bot.message_handler(commands=["lurk"])
 def lurk(message):
     try:
@@ -723,23 +761,114 @@ def lurk(message):
 
     print(f"[Lurkmore] {name}")
 
-    url = "https://lurkmore.to/"
-    r = requests.get(url + "index.php",
-                     params={"search": name})
+    url = "https://ipv6.lurkmo.re/"
+    # r = requests.get(url + "index.php",
+    #                  params={"search": name})
 
-    soup = BeautifulSoup(r.text, 'lxml')
+    # https://lurkmo.re/api.php?action=query&format=json&list=search&srsearch=%D0%B1%D0%B0%D1%82%D1%8C%D0%BA%D0%B0&srprop=size
 
-    div = soup.find(id="mw-content-text")
+    r = requests.get(f"{url}api.php",
+                     params={
+                        "action": "query",
+                        "format": "json",
+                        "list": "search",
+                        "srsearch": name,
+                        "srlimit": 1,
+                        "sprop": "size"
+                     })
+
+    data = json.loads(r.text)
+
+    if len(data["query"]["search"]) == 0:
+        bot.reply_to(message, "Не удалось найти ничего по вашему запросу")
+        return
+
+    name = data["query"]["search"][0]["title"]
+
+    r = requests.get(url + "api.php",
+                     params={
+                        "action": "parse",
+                        "format": "json",
+                        "page": name,
+                        "prop": "text|images"
+                     })
+
+    parse = json.loads(r.text)["parse"]
+    soup = BeautifulSoup(parse["text"]["*"], 'lxml')
+
+    div = soup
+
+    if len(div.findAll("p")) == 0:
+        redirect = soup.ol.li.a["title"]
+        r = requests.get(url + "api.php",
+                         params={
+                             "action": "parse",
+                             "format": "json",
+                             "page": redirect,
+                             "prop": "text|images"
+                         })
+
+        soup = BeautifulSoup(json.loads(r.text)["parse"]["text"]["*"], 'lxml')
+        div = soup
 
     for t in div.findAll("table", {"class": "lm-plashka"}):
+        t.replace_with("")
+
+    for t in div.findAll("table", {"class": "lm-plashka-tiny"}):
         t.replace_with("")
 
     for t in div.findAll("table", {"class": "tpl-quote-tiny"}):
         t.replace_with("")
 
+    for t in div.findAll("div", {"class": "gallerytext"}):
+        t.replace_with("")
+
+    bold_text = []
+
+    for tag in div.findAll("b"):
+        bold_text.append(tag.text)
+
+    url_list = []
+
+    for img in div.find_all("img"):
+        if img["src"].find("/skins/") != -1:
+            pass
+        elif img["src"] == "//lurkmore.so/images/6/6b/Magnify-clip.png":
+            pass
+        else:
+            url_list.append("https:" + img["src"])
+
+    # for img in url_list:
+    #     print(img)
+    #     try:
+    #         bot.send_photo(message.chat.id, f'https:{img}')
+    #     except Exception as e:
+    #         bot.reply_to(message, img)
+    #     sleep(1)
+
+    # bot.send_media_group(message.chat.id, [url_list[0], url_list[1], url_list[2], url_list[3], url_list[4], url_list[5]])
+    # bot.send_media_group(message.chat.id, [telebot.types.InputMediaPhoto(url_list[0], "1"),
+    #                                       telebot.types.InputMediaPhoto(url_list[1], "2")])
+
+    # print(soup)
+    # print(div.findAll("p", recursive=False))
+
     try:
-        page_text = first if (first := div.find("p").text.strip()) else div.findAll("p", recursive=False)[1].text.strip()
-    except:
+        page_text = first if (first := div.find("p").text.strip()) \
+                          else div.findAll("p", recursive=False)[1] \
+                                  .text \
+                                  .strip()
+
+        page_text = page_text.replace("<", "&lt;") \
+                             .replace(">", "&gt;") \
+                             .replace(" )", ")") \
+                             .replace("  ", " ")
+
+        for bold in bold_text:
+            page_text = re.sub(bold, f"<b>{bold}</b>", page_text, 1)
+
+    except Exception as e:
+        bot.reply_to(message, e)
         bot.reply_to(message, "Не удалось найти статью")
         return
 
@@ -747,11 +876,23 @@ def lurk(message):
         try:
             path = f'https:{div.find(id="fullResImage")["src"]}'
         except:
-            path = f'https:{div.find("div", class_="thumb").find("img")["src"]}'
+            path = url_list[0]
+
+            try:
+                img = div.find_all("img")[0]
+                filename = img["src"].split("/")[-1].replace(f'{img["width"]}px-', "")
+                path = getImageInfo(url, filename)
+
+            except:
+                filename = parse["images"][0]
+                path = getImageInfo(url, filename)
+
     except Exception as e:
+        # print(e)
+        # bot.reply_to(message, e)
+        # bot.reply_to(message, "Не удалось загрузить статью")
         print(e)
-        bot.reply_to(message, "Не удалось загрузить статью")
-        return
+        path = ""
 
     try:
         try:
