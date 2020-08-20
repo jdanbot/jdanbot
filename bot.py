@@ -1280,6 +1280,25 @@ def random_putin(message):
     bot.reply_to(message, f'Путин уйдет через {number} {true_date}')
 
 
+@bot.message_handler(commands=["random_lukash", "luk"])
+def random_lukash(message):
+    number = randint(0, 500)
+
+    if number == 0:
+        bot.reply_to(message, "Иди нахуй))")
+
+    else:
+        date = choice(["дней", "месяцев"])
+
+        if date == "дней":
+            true_date = prettyword(number, ["день", "дня", "дней"])
+
+        elif date == "месяцев":
+            true_date = prettyword(number, ["месяц", "месяца", "месяцев"])
+
+        bot.reply_to(message, f'Лукашенко уйдет через {number} {true_date}')
+
+
 @bot.message_handler(commands=["da_net"])
 def da_net(message):
     bot.reply_to(message, choice(["Да", "Нет"]))
