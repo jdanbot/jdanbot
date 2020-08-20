@@ -465,7 +465,7 @@ def math_command(message):
 # TODO: REWRITE
 
 
-@bot.message_handler(commands=["wikiru", "wikiru2"])
+@bot.message_handler(commands=["wikiru", "wikiru2", "wru", "wiki"])
 def wikiru(message):
     getWiki(message, "ru")
 
@@ -521,7 +521,7 @@ def getWiki(message, lang="ru"):
                         "list": "search",
                         "srsearch": query,
                         "srlimit": 1,
-                        "sprop": "size"
+                        "srprop": "size"
                      })
 
     if not r.status_code == 200:
@@ -559,6 +559,14 @@ def getWiki(message, lang="ru"):
     for tag in soup.find_all("p"):
         if re.match(r"\s", tag.text):
             tag.replace_with("")
+
+    # semantics
+
+    for t in soup.findAll("math"):
+        t.replace_with("")
+
+    for t in soup.findAll("semantics"):
+        t.replace_with("")
 
     if len(soup.find_all("p")) == 0:
         bot.reply_to(message, "Не получилось найти статью")
@@ -1263,6 +1271,15 @@ def random(message):
     bot.reply_to(message, f"Лови бан на {randint(1, 100)} минут")
 
 
+@bot.message_handler(commands=["random_color", "color"])
+def random_color(message):
+    randlist = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F"]
+    color = ""
+    for i in range(0, 6):
+        color += str(choice(randlist))
+    bot.reply_to(message, f"`#{color}`", parse_mode="Markdown")
+
+
 @bot.message_handler(commands=["random_putin"])
 def random_putin(message):
     number = randint(1, 500)
@@ -1288,6 +1305,7 @@ def random_lukash(message):
         bot.reply_to(message, "Иди нахуй))")
 
     else:
+        nedeli = number / 7
         date = choice(["дней", "месяцев"])
 
         if date == "дней":
@@ -1296,7 +1314,11 @@ def random_lukash(message):
         elif date == "месяцев":
             true_date = prettyword(number, ["месяц", "месяца", "месяцев"])
 
-        bot.reply_to(message, f'Лукашенко уйдет через {number} {true_date}')
+        if number % 7 == 0:
+            bot.reply_to(message, f'Лукашенко уйдет через {int(nedeli)} {prettyword(int(nedeli), ["неделя", "недели", "недель"])}')
+        else:
+            print(number % 7)
+            bot.reply_to(message, f'Лукашенко уйдет через {int(nedeli)} {prettyword(int(nedeli), ["неделя", "недели", "недель"])} и {int(number % 7)} {prettyword(int(number % 7), ["день", "дня", "дней"])}')    
 
 
 @bot.message_handler(commands=["da_net"])
