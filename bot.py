@@ -543,7 +543,7 @@ def getWiki(message, lang="ru"):
         query = message.text.split(maxsplit=1)[1]
 
     else:
-        bot.reply_to(message, f"Пожалуйста напишите название статьи\nНапример так: `/wiki{lang} Название Статьи`", parse_mode="Markdown")
+        bot.reply_to(message, f"Пожалуйста, напишите название статьи\nНапример так: `/wiki{lang} Название Статьи`", parse_mode="Markdown")
         return
 
     print(f"[Wikipedia {lang.upper()}] {query}")
@@ -1060,10 +1060,13 @@ def pizdec(message):
         return
 
     try:
-        path = f'{url}{div.find(id="fullResImage")["src"]}'
+        try:
+            path = f'{url}{div.find(id="fullResImage")["src"]}'
 
+        except:
+            path = f'{url}{div.find("a", class_="image").find("img")["src"]}'
     except:
-        path = f'{url}{div.find("a", class_="image").find("img")["src"]}'
+        pass
 
     try:
         try:
