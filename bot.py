@@ -9,7 +9,7 @@ import os
 import traceback
 import urllib
 from random import choice, randint
-from time import sleep
+from datetime import datetime
 
 import telebot
 from decimal import Decimal, getcontext
@@ -21,15 +21,53 @@ from prettyword import prettyword
 
 if "TOKEN_HEROKU" in os.environ:
     bot = telebot.TeleBot(os.environ["TOKEN_HEROKU"])
+    heroku = True
 
 elif "TOKEN" in os.environ:
     bot = telebot.TeleBot(os.environ["TOKEN"])
+    heroku = True
 
 else:
     with open("./token.txt") as token:
+        heroku = False
         bot = telebot.TeleBot(token.read())
 
 separator = "/" if os.name == "posix" or os.name == "macos" else "\\"
+start_time = datetime.now()
+
+
+@bot.message_handler(["status"])
+def status(message):
+    uptime = str(datetime.now() - start_time)
+    wikiurl = ".wikipedia.org/w/api.php?action=query"
+    uk = requests.get(f"https://uk{wikiurl}").status_code
+    ru = requests.get(f"https://ru{wikiurl}").status_code
+    de = requests.get(f"https://de{wikiurl}").status_code
+    en = requests.get(f"https://en{wikiurl}").status_code
+    lurkstatus = requests.get("https://ipv6.lurkmo.re").status_code
+
+    s = "    "
+
+    text = ""
+    text += "status: work\n"
+    text += f"uptime: {uptime}\n"
+    text += f"heroku: {heroku}\n"
+    text += f"osname: {os.name}\n"
+    text += "services:\n"
+    text += f"{s}wikipedia.org:\n"
+    text += f"{s*2}uk: {uk}\n"
+    text += f"{s*2}ru: {ru}\n"
+    text += f"{s*2}en: {en}\n"
+    text += f"{s*2}de: {de}\n"
+    text += f"{s}lurkmo.re:\n"
+    text += f"{s*2}ru: {lurkstatus}"
+
+    text = text.replace("False", "❌") \
+               .replace("True", "✅")
+
+    bot.reply_to(message,
+                 f"`{text}`",
+                 parse_mode="Markdown")
 
 
 @bot.message_handler(["title"])
@@ -760,7 +798,7 @@ def getImageInfo(url, filename):
 
 
 @bot.message_handler(commands=["lurk"])
-def lurk(message):
+def lurk(message, logs=False):
     try:
         name = message.text.split(maxsplit=1)[1]
     except:
@@ -775,6 +813,9 @@ def lurk(message):
 
     # https://lurkmo.re/api.php?action=query&format=json&list=search&srsearch=%D0%B1%D0%B0%D1%82%D1%8C%D0%BA%D0%B0&srprop=size
 
+    timedata = ""
+    time = datetime.now()
+
     r = requests.get(f"{url}api.php",
                      params={
                         "action": "query",
@@ -785,6 +826,10 @@ def lurk(message):
                         "sprop": "size"
                      })
 
+    if logs:
+        timedata = str(datetime.now() - time) + "\n"
+        # bot.reply_to(message, datetime.now() - time)
+
     data = json.loads(r.text)
 
     if len(data["query"]["search"]) == 0:
@@ -792,6 +837,8 @@ def lurk(message):
         return
 
     name = data["query"]["search"][0]["title"]
+
+    time = datetime.now()
 
     r = requests.get(url + "api.php",
                      params={
@@ -801,6 +848,10 @@ def lurk(message):
                         "prop": "text|images"
                      })
 
+    if logs:
+        timedata += str(datetime.now() - time) + "\n"
+        # bot.reply_to(message, datetime.now() - time)
+
     parse = json.loads(r.text)["parse"]
     soup = BeautifulSoup(parse["text"]["*"], 'lxml')
 
@@ -808,6 +859,9 @@ def lurk(message):
 
     if len(div.findAll("p")) == 0:
         redirect = soup.ol.li.a["title"]
+
+        time = datetime.now()
+
         r = requests.get(url + "api.php",
                          params={
                              "action": "parse",
@@ -815,6 +869,10 @@ def lurk(message):
                              "page": redirect,
                              "prop": "text|images"
                          })
+
+        if logs:
+            timedata += str(datetime.now() - time) + "\n"
+            # bot.reply_to(message, datetime.now() - time)
 
         soup = BeautifulSoup(json.loads(r.text)["parse"]["text"]["*"], 'lxml')
         div = soup
@@ -860,6 +918,10 @@ def lurk(message):
 
     # print(soup)
     # print(div.findAll("p", recursive=False))
+
+    if logs:
+        bot.reply_to(message, f"`{timedata}`", parse_mode="Markdown")
+        return
 
     try:
         page_text = first if (first := div.find("p").text.strip()) \
@@ -927,6 +989,11 @@ def lurk(message):
         bot.reply_to(message,
                      f"Статья недоступна\n<code>{e}</code>",
                      parse_mode="HTML")
+
+
+@bot.message_handler(commands=["speedlurk"])
+def speedlurk(message):
+    lurk(message, True)
 
 
 """
@@ -1274,9 +1341,11 @@ def random(message):
 @bot.message_handler(commands=["random_color", "color"])
 def random_color(message):
     randlist = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F"]
+
     color = ""
     for i in range(0, 6):
         color += str(choice(randlist))
+
     bot.reply_to(message, f"`#{color}`", parse_mode="Markdown")
 
 
