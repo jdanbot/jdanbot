@@ -538,7 +538,7 @@ def wikies(message):
     getWiki(message, "es")
 
 
-def getWiki(message, lang="ru"):
+def getWiki(message, lang="ru", logs=False):
     if len(message.text.split(maxsplit=1)) == 2:
         query = message.text.split(maxsplit=1)[1]
 
@@ -552,6 +552,9 @@ def getWiki(message, lang="ru"):
 
     # https://ru.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=%D0%BA%D0%B0%D1%86&srlimit=1&srsort=relevance
 
+    timedata = ""
+    time = datetime.now()
+
     r = requests.get(f"{url}/w/api.php",
                      params={
                         "action": "query",
@@ -561,6 +564,10 @@ def getWiki(message, lang="ru"):
                         "srlimit": 1,
                         "srprop": "size"
                      })
+
+    if logs:
+        timedata = str(datetime.now() - time) + "\n"
+        # bot.reply_to(message, datetime.now() - time)
 
     if not r.status_code == 200:
         bot.reply_to(message, "Сервер не отвечает")
@@ -579,6 +586,8 @@ def getWiki(message, lang="ru"):
 
     # r = requests.get(page_url)
 
+    time = datetime.now()
+
     r = requests.get(url + "/w/api.php",
                      params={
                         "action": "query",
@@ -587,6 +596,10 @@ def getWiki(message, lang="ru"):
                         "format": "json",
                         "exintro": " "
                      })
+
+    if logs:
+        timedata += str(datetime.now() - time) + "\n"
+        # bot.reply_to(message, datetime.now() - time)
 
     if not r.status_code == 200:
         bot.reply_to(message, "Не удалось загрузить статью")
@@ -687,6 +700,8 @@ def getWiki(message, lang="ru"):
 
     # https://ru.wikipedia.org/w/api.php?action=query&titles=%D0%9A%D0%B0%D1%86,%20%D0%9C%D0%B0%D0%BA%D1%81%D0%B8%D0%BC%20%D0%95%D0%B2%D0%B3%D0%B5%D0%BD%D1%8C%D0%B5%D0%B2%D0%B8%D1%87&prop=pageimages&format=json&pithumbsize=100
 
+    time = datetime.now()
+
     r = requests.get(url + "/w/api.php",
                      params={
                          "action": "query",
@@ -696,6 +711,12 @@ def getWiki(message, lang="ru"):
                          "pilicense": "any",
                          "format": "json"
                      })
+
+    if logs:
+        timedata += str(datetime.now() - time) + "\n"
+        # bot.reply_to(message, datetime.now() - time)
+        bot.reply_to(message, f"`{timedata}`", parse_mode="Markdown")
+        return
 
     if not r.status_code == 200:
         bot.reply_to(message, "Не удалось загрузить статью")
@@ -994,6 +1015,11 @@ def lurk(message, logs=False):
 @bot.message_handler(commands=["speedlurk"])
 def speedlurk(message):
     lurk(message, True)
+
+
+@bot.message_handler(commands=["speedwiki"])
+def speedwiki(message):
+    getWiki(message, "ru", True)
 
 
 """
