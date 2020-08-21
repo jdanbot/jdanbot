@@ -38,7 +38,11 @@ start_time = datetime.now()
 
 @bot.message_handler(["status"])
 def status(message):
+
     uptime = str(datetime.now() - start_time)
+    main = uptime.split(".")[0].split(":")
+    second = uptime.split(".")[1]
+
     wikiurl = ".wikipedia.org/w/api.php?action=query"
     uk = requests.get(f"https://uk{wikiurl}").status_code
     ru = requests.get(f"https://ru{wikiurl}").status_code
@@ -46,21 +50,23 @@ def status(message):
     en = requests.get(f"https://en{wikiurl}").status_code
     lurkstatus = requests.get("https://ipv6.lurkmo.re").status_code
 
-    s = "    "
-
-    text = ""
-    text += "status: work\n"
-    text += f"uptime: {uptime}\n"
-    text += f"heroku: {heroku}\n"
-    text += f"osname: {os.name}\n"
-    text += "services:\n"
-    text += f"{s}wikipedia.org:\n"
-    text += f"{s*2}uk: {uk}\n"
-    text += f"{s*2}ru: {ru}\n"
-    text += f"{s*2}en: {en}\n"
-    text += f"{s*2}de: {de}\n"
-    text += f"{s}lurkmo.re:\n"
-    text += f"{s*2}ru: {lurkstatus}"
+    text =  f"bot:\n"
+    text += f"├─status: work\n"
+    text += f"├─uptime:\n"
+    text += f"│⠀├─hours: {main[0]}\n"
+    text += f"│⠀├─minute: {main[1]}\n"
+    text += f"│⠀├─seconds: {main[2]}\n"
+    text += f"│⠀└─microseconds: {second}\n"
+    text += f"├─heroku: {heroku}\n"
+    text += f"└─osname: {os.name}\n\n"
+    text += f"services:\n"
+    text += f"├─wikipedia.org:\n"
+    text += f"│⠀├─uk: {uk}\n"
+    text += f"│⠀├─ru: {ru}\n"
+    text += f"│⠀├─en: {en}\n"
+    text += f"│⠀└─de: {de}\n"
+    text += f"└─lurkmo.re:\n"
+    text += f" ⠀└─ru: {lurkstatus}"
 
     text = text.replace("False", "❌") \
                .replace("True", "✅")
@@ -83,6 +89,22 @@ def title(message):
         return
 
     bot.reply_to(message, text.title())
+
+
+@bot.message_handler(["wget"])
+def wget(message):
+    if len(message.text.split(maxsplit=1)) == 1:
+        bot.reply_to(message, "Напиши ссылку")
+        return
+
+    time = datetime.now()
+    try:
+        r = requests.get(message.text.split(maxsplit=1)[1])
+    except Exception as e:
+        bot.reply_to(message, e)
+        return
+
+    bot.reply_to(message, f"`{datetime.now() - time}`", parse_mode="Markdown")
 
 
 @bot.message_handler(["upper"])
@@ -1020,6 +1042,13 @@ def speedlurk(message):
 @bot.message_handler(commands=["speedwiki"])
 def speedwiki(message):
     getWiki(message, "ru", True)
+
+
+@bot.message_handler(commands=["speedtest"])
+def speedtest(message):
+    bot.reply_to(message, "1. wiki\n2. lurk")
+    getWiki(message, "ru", True)
+    lurk(message, True)
 
 
 """
