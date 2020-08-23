@@ -8,6 +8,7 @@ import math
 import os
 import traceback
 import urllib
+import time
 from random import choice, randint
 from datetime import datetime
 
@@ -28,7 +29,7 @@ elif "TOKEN" in os.environ:
     heroku = True
 
 else:
-    with open("./token.txt") as token:
+    with open("./token2.txt") as token:
         heroku = False
         bot = telebot.TeleBot(token.read())
 
@@ -36,37 +37,42 @@ separator = "/" if os.name == "posix" or os.name == "macos" else "\\"
 start_time = datetime.now()
 
 
+# @bot.message_handler(content_types=["text"])
+# def abc(message):
+#     if message.text.find("/") != -1:
+#         getWiki(message, "en", abc=message.text.replace("/", ""))
+
+
 @bot.message_handler(["status"])
 def status(message):
 
     uptime = str(datetime.now() - start_time)
     main = uptime.split(".")[0].split(":")
-    second = uptime.split(".")[1]
+    # second = uptime.split(".")[1]
 
-    wikiurl = ".wikipedia.org/w/api.php?action=query"
-    uk = requests.get(f"https://uk{wikiurl}").status_code
-    ru = requests.get(f"https://ru{wikiurl}").status_code
-    de = requests.get(f"https://de{wikiurl}").status_code
-    en = requests.get(f"https://en{wikiurl}").status_code
-    lurkstatus = requests.get("https://ipv6.lurkmo.re").status_code
+    # wikiurl = ".wikipedia.org/w/api.php?action=query"
+    # uk = requests.get(f"https://uk{wikiurl}").status_code
+    # ru = requests.get(f"https://ru{wikiurl}").status_code
+    # de = requests.get(f"https://de{wikiurl}").status_code
+    # en = requests.get(f"https://en{wikiurl}").status_code
+    # lurkstatus = requests.get("https://ipv6.lurkmo.re").status_code
 
     text =  f"bot:\n"
     text += f"├─status: work\n"
     text += f"├─uptime:\n"
     text += f"│⠀├─hours: {main[0]}\n"
     text += f"│⠀├─minute: {main[1]}\n"
-    text += f"│⠀├─seconds: {main[2]}\n"
-    text += f"│⠀└─microseconds: {second}\n"
+    text += f"│⠀└─seconds: {main[2]}\n"
     text += f"├─heroku: {heroku}\n"
-    text += f"└─osname: {os.name}\n\n"
-    text += f"services:\n"
-    text += f"├─wikipedia.org:\n"
-    text += f"│⠀├─uk: {uk}\n"
-    text += f"│⠀├─ru: {ru}\n"
-    text += f"│⠀├─en: {en}\n"
-    text += f"│⠀└─de: {de}\n"
-    text += f"└─lurkmo.re:\n"
-    text += f" ⠀└─ru: {lurkstatus}"
+    text += f"└─osname: {os.name}\n"
+    # text += f"services:\n"
+    # text += f"├─wikipedia.org:\n"
+    # text += f"│⠀├─uk: {uk}\n"
+    # text += f"│⠀├─ru: {ru}\n"
+    # text += f"│⠀├─en: {en}\n"
+    # text += f"│⠀└─de: {de}\n"
+    # text += f"└─lurkmo.re:\n"
+    # text += f" ⠀└─ru: {lurkstatus}"
 
     text = text.replace("False", "❌") \
                .replace("True", "✅")
@@ -525,7 +531,7 @@ def math_command(message):
 # TODO: REWRITE
 
 
-@bot.message_handler(commands=["wikiru", "wikiru2", "wru", "wiki"])
+@bot.message_handler(commands=["wikiru", "wikiru2", "wru", "wiki", "w"])
 def wikiru(message):
     getWiki(message, "ru")
 
@@ -659,7 +665,7 @@ def getWiki(message, lang="ru", logs=False):
 
     text = ""
 
-    if p.text.find("означать:") != -1:
+    if p.text.find("означать:") != -1 or p.text.find(f"{title}:") != -1:
         for tag in soup.find_all("p"):
             text += tag.text
 
@@ -714,8 +720,9 @@ def getWiki(message, lang="ru", logs=False):
 
     text = text.replace("<", "&lt;") \
                .replace(">", "&gt;") \
+               .replace("  ", " ") \
                .replace(" )", ")") \
-               .replace("  ", " ")
+               .replace(" )", ")")
 
     for bold in bold_text:
         text = re.sub(bold, f"<b>{bold}</b>", text, 1)
@@ -1050,6 +1057,12 @@ def speedtest(message):
     getWiki(message, "ru", True)
     lurk(message, True)
 
+
+@bot.message_handler(commands=["test"])
+def test(message):
+    message_id = bot.reply_to(message, "test").message_id
+    time.sleep(1)
+    bot.delete_message(message.chat.id, message_id)
 
 """
 @bot.message_handler(commands=["bashorg"])
@@ -1476,7 +1489,6 @@ def delete_w10(message):
             bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
-
 
 try:
     bot.polling()
