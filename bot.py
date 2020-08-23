@@ -9,6 +9,7 @@ import os
 import traceback
 import urllib
 import time
+import sys
 from random import choice, randint
 from datetime import datetime
 
@@ -29,7 +30,7 @@ elif "TOKEN" in os.environ:
     heroku = True
 
 else:
-    with open("./token2.txt") as token:
+    with open("./token.txt") as token:
         heroku = False
         bot = telebot.TeleBot(token.read())
 
@@ -97,20 +98,30 @@ def title(message):
     bot.reply_to(message, text.title())
 
 
-@bot.message_handler(["wget"])
+@bot.message_handler(["wget", "r", "request"])
 def wget(message):
     if len(message.text.split(maxsplit=1)) == 1:
         bot.reply_to(message, "Напиши ссылку")
         return
 
     time = datetime.now()
+    url = message.text.split(maxsplit=1)[1]
     try:
-        r = requests.get(message.text.split(maxsplit=1)[1])
+        r = requests.get(url)
     except Exception as e:
-        bot.reply_to(message, e)
+        bot.reply_to(message, f"`{str(e)}`")
         return
 
-    bot.reply_to(message, f"`{datetime.now() - time}`", parse_mode="Markdown")
+    text = "request\n"
+
+    text += f"├─url: {url}\n"
+    text += f"├─status_code: {r.status_code}\n"
+    text += f"├─size:\n"
+    text += f"│⠀├─bytes: {sys.getsizeof(r.text)}\n"
+    text += f"│⠀└─megabytes: {str(sys.getsizeof(r.text) * (10**-6))}\n"
+    text += f"└─time: {datetime.now() - time}\n"
+
+    bot.reply_to(message, f"`{text}`", parse_mode="Markdown")
 
 
 @bot.message_handler(["upper"])
@@ -536,27 +547,27 @@ def wikiru(message):
     getWiki(message, "ru")
 
 
-@bot.message_handler(commands=["wikien"])
+@bot.message_handler(commands=["wikien", "van", "wen"])
 def wikien(message):
     getWiki(message, "en")
 
 
-@bot.message_handler(commands=["wikide"])
+@bot.message_handler(commands=["wikide", "wde"])
 def wikide(message):
     getWiki(message, "de")
 
 
-@bot.message_handler(commands=["wikipl"])
+@bot.message_handler(commands=["wikipl", "wpl"])
 def wikipl(message):
     getWiki(message, "pl")
 
 
-@bot.message_handler(commands=["wikiua", "wikiuk"])
+@bot.message_handler(commands=["wikiua", "wikiuk", "wuk", "pawuk"])
 def wikiua(message):
     getWiki(message, "uk")
 
 
-@bot.message_handler(commands=["wikibe"])
+@bot.message_handler(commands=["wikibe", "taranwiki", "lukaswiki", "potato", "potatowiki"])
 def wikibe(message):
     getWiki(message, "be")
 
@@ -1470,6 +1481,13 @@ def da_net(message):
 def detect(message):
     if message.text.find("бойкот") != -1:
         bot.reply_to(message, "Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
+
+    elif message.text.lower().find("бан") != -1:
+        try:
+            bot.restrict_chat_member(message.chat.id, message.from_user.id, until_date=600)
+            bot.reply_to(message, "Вы запостили информацию о бане, если вы забаненны, то к вам приедут с [ДАННЫЕ ЗАБАНЕННЫ] сроком на 1 минуту")
+        except:
+            bot.reply_to(message, "Одмен не пости хуйню, спасибо")
 
     if message.text.find("когда уйдет путин") != -1:
         random_putin(message)
