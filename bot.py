@@ -112,6 +112,10 @@ def wget(message):
         bot.reply_to(message, f"`{str(e)}`")
         return
 
+    load_time = datetime.now() - time
+
+    main = str(load_time).split(".")[0].split(":")
+
     text = "request\n"
 
     text += f"├─url: {url}\n"
@@ -119,7 +123,9 @@ def wget(message):
     text += f"├─size:\n"
     text += f"│⠀├─bytes: {sys.getsizeof(r.text)}\n"
     text += f"│⠀└─megabytes: {str(sys.getsizeof(r.text) * (10**-6))}\n"
-    text += f"└─time: {datetime.now() - time}\n"
+    text += f"└─time:\n"
+    text += f" ⠀├─minute: {main[1]}\n"
+    text += f" ⠀└─seconds: {main[2]}\n"
 
     bot.reply_to(message, f"`{text}`", parse_mode="Markdown")
 
@@ -567,7 +573,7 @@ def wikiua(message):
     getWiki(message, "uk")
 
 
-@bot.message_handler(commands=["wikibe", "taranwiki", "lukaswiki", "potato", "potatowiki"])
+@bot.message_handler(commands=["wikibe", "tarakanwiki", "lukaswiki", "potato", "potatowiki"])
 def wikibe(message):
     getWiki(message, "be")
 
@@ -1479,18 +1485,19 @@ def da_net(message):
 
 @bot.message_handler(content_types=['text'])
 def detect(message):
-    if message.text.find("бойкот") != -1:
-        bot.reply_to(message, "Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
+    if message.chat.id == -1001335444502:
+        if message.text.find("бойкот") != -1:
+            bot.reply_to(message, "Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
 
-    elif message.text.lower().find("бан") != -1:
-        try:
-            bot.restrict_chat_member(message.chat.id, message.from_user.id, until_date=600)
-            bot.reply_to(message, "Вы запостили информацию о бане, если вы забаненны, то к вам приедут с [ДАННЫЕ ЗАБАНЕННЫ] сроком на 1 минуту")
-        except:
-            bot.reply_to(message, "Одмен не пости хуйню, спасибо")
+        elif message.text.lower().find("бан") != -1:
+            try:
+                bot.restrict_chat_member(message.chat.id, message.from_user.id, until_date=600)
+                bot.reply_to(message, "Вы запостили информацию о бане, если вы забаненны, то к вам приедут с [ДАННЫЕ ЗАБАНЕННЫ] сроком на 1 минуту")
+            except Exception as e:
+                bot.reply_to(message, f"Не получилось выдать бан, однако знайте что ошибка (`{e}`) будет исправлена",parse_mode="Markdown")
 
-    if message.text.find("когда уйдет путин") != -1:
-        random_putin(message)
+        if message.text.find("когда уйдет путин") != -1:
+            random_putin(message)
 
 
 @bot.message_handler(content_types=["new_chat_members"])
