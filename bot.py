@@ -1075,7 +1075,7 @@ def lurk(message, logs=False):
             page_text = re.sub(bold, f"<b>{bold}</b>", page_text, 1)
 
     except Exception as e:
-        bot.reply_to(message, e)
+        bot.reply_to(message, f"`{str(traceback.format_exc())}`", parse_mode="Markdown")
         bot.reply_to(message, "Не удалось найти статью")
         return
 
@@ -1558,21 +1558,31 @@ def da_net(message):
     bot.reply_to(message, choice(["Да", "Нет"]))
 
 
+@bot.message_handler(commands=["message"])
+def msg(message):
+    if message.chat.id == 795449748:
+        try:
+            params = message.text.split(maxsplit=2)
+            bot.send_message(params[1], params[2])
+        except Exception as e:
+            bot.reply_to(message, f"`e`", parse_mode="Markdown")
+
+
 @bot.message_handler(content_types=['text'])
 def detect(message):
     if message.chat.id == -1001335444502 or message.chat.id == -1001176998310:
         if message.text.find("бойкот") != -1:
             bot.reply_to(message, "Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
 
-        elif message.text.lower().find("бан") != -1:
+        elif re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нn]([^a-zа-яё\d]|$)", message.text.lower()):
             try:
-                bot.restrict_chat_member(message.chat.id, 
+                bot.restrict_chat_member(message.chat.id,
                                          message.from_user.id,
                                          until_date=time.time()+60)
 
                 bot.reply_to(message, "Вы запостили информацию о бане, если вы не забаненны, то к вам приедут с [ДАННЫЕ ЗАБАНЕННЫ] сроком на 1 минуту")
-            except Exception as e:
-                bot.reply_to(message, f"Не получилось выдать бан, однако знайте что ошибка (`{e}`) будет исправлена",parse_mode="Markdown")
+            except:
+                pass
 
         if message.text.find("когда уйдет путин") != -1:
             random_putin(message)
@@ -1592,6 +1602,7 @@ def delete_w10(message):
             bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
+
 
 try:
     bot.polling()
