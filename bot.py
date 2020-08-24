@@ -583,12 +583,22 @@ def wikies(message):
     getWiki(message, "es")
 
 
+@bot.message_handler(commands=[" /wikibe-tarask", "wikibet", "wbet", "xbet"])
+def wikies(message):
+    getWiki(message, "be-tarask")
+
+
+@bot.message_handler(commands=["langs", "wikilangs"])
+def wiki_langs(message):
+    bot.reply_to(message, texts.langs, parse_mode="Markdown")
+
+
 def getWiki(message, lang="ru", logs=False):
     if len(message.text.split(maxsplit=1)) == 2:
         query = message.text.split(maxsplit=1)[1]
 
     else:
-        bot.reply_to(message, f"Пожалуйста, напишите название статьи\nНапример так: `/wiki{lang} Название Статьи`", parse_mode="Markdown")
+        bot.reply_to(message, f"Пожалуйста, напишите название статьи\nНапример так: `{message.text.split(maxsplit=1)[0]} Название Статьи`", parse_mode="Markdown")
         return
 
     if logs:
