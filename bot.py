@@ -1560,14 +1560,14 @@ def da_net(message):
 
 @bot.message_handler(content_types=['text'])
 def detect(message):
-    if message.chat.id == -1001335444502:
+    if message.chat.id == -1001335444502 or message.chat.id == -1001176998310:
         if message.text.find("бойкот") != -1:
             bot.reply_to(message, "Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
 
         elif message.text.lower().find("бан") != -1:
             try:
                 bot.restrict_chat_member(message.chat.id, message.from_user.id, until_date=600)
-                bot.reply_to(message, "Вы запостили информацию о бане, если вы забаненны, то к вам приедут с [ДАННЫЕ ЗАБАНЕННЫ] сроком на 1 минуту")
+                bot.reply_to(message, "Вы запостили информацию о бане, если вы не забаненны, то к вам приедут с [ДАННЫЕ ЗАБАНЕННЫ] сроком на 1 минуту")
             except Exception as e:
                 bot.reply_to(message, f"Не получилось выдать бан, однако знайте что ошибка (`{e}`) будет исправлена",parse_mode="Markdown")
 
