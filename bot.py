@@ -1566,7 +1566,10 @@ def detect(message):
 
         elif message.text.lower().find("бан") != -1:
             try:
-                bot.restrict_chat_member(message.chat.id, message.from_user.id, until_date=600)
+                bot.restrict_chat_member(message.chat.id, 
+                                         message.from_user.id,
+                                         until_date=time.time()+600)
+                
                 bot.reply_to(message, "Вы запостили информацию о бане, если вы не забаненны, то к вам приедут с [ДАННЫЕ ЗАБАНЕННЫ] сроком на 1 минуту")
             except Exception as e:
                 bot.reply_to(message, f"Не получилось выдать бан, однако знайте что ошибка (`{e}`) будет исправлена",parse_mode="Markdown")
