@@ -109,7 +109,7 @@ def wget(message):
     try:
         r = requests.get(url)
     except Exception as e:
-        bot.reply_to(message, f"`{str(e)}`")
+        bot.reply_to(message, f"`{str(e)}`", parse_mode="Markdown")
         return
 
     load_time = datetime.now() - time
@@ -591,13 +591,15 @@ def getWiki(message, lang="ru", logs=False):
         bot.reply_to(message, f"Пожалуйста, напишите название статьи\nНапример так: `/wiki{lang} Название Статьи`", parse_mode="Markdown")
         return
 
-    print(f"[Wikipedia {lang.upper()}] {query}")
+    if logs:
+        print(f"[TEST] [Wikipedia {lang.upper()}] {query}")
+    else:
+        print(f"[Wikipedia {lang.upper()}] {query}")
 
     url = f"https://{lang}.wikipedia.org"
 
     # https://ru.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=%D0%BA%D0%B0%D1%86&srlimit=1&srsort=relevance
 
-    timedata = ""
     time = datetime.now()
 
     r = requests.get(f"{url}/w/api.php",
@@ -610,8 +612,16 @@ def getWiki(message, lang="ru", logs=False):
                         "srprop": "size"
                      })
 
+    timedata = "speedwiki\n"
+
     if logs:
-        timedata = str(datetime.now() - time) + "\n"
+        timedata += "├─text:\n"
+        loadtime = str(datetime.now() - time).split(".")
+        main = loadtime[0].split(":")
+        second = loadtime[1]
+
+        timedata += f"│⠀├─seconds: {main[2]}\n"
+        timedata += f"│⠀└─ms: {second}\n"
         # bot.reply_to(message, datetime.now() - time)
 
     if not r.status_code == 200:
@@ -643,7 +653,14 @@ def getWiki(message, lang="ru", logs=False):
                      })
 
     if logs:
-        timedata += str(datetime.now() - time) + "\n"
+        timedata += "├─images_list:\n"
+
+        loadtime = str(datetime.now() - time).split(".")
+        main = loadtime[0].split(":")
+        second = loadtime[1]
+
+        timedata += f"│⠀├─seconds: {main[2]}\n"
+        timedata += f"│⠀└─ms: {second}\n"
         # bot.reply_to(message, datetime.now() - time)
 
     if not r.status_code == 200:
@@ -759,7 +776,14 @@ def getWiki(message, lang="ru", logs=False):
                      })
 
     if logs:
-        timedata += str(datetime.now() - time) + "\n"
+        timedata += "└─image:\n"
+
+        loadtime = str(datetime.now() - time).split(".")
+        main = loadtime[0].split(":")
+        second = loadtime[1]
+
+        timedata += f"⠀ ├─seconds: {main[2]}\n"
+        timedata += f"⠀ └─ms: {second}\n"
         # bot.reply_to(message, datetime.now() - time)
         bot.reply_to(message, f"`{timedata}`", parse_mode="Markdown")
         return
@@ -872,7 +896,10 @@ def lurk(message, logs=False):
         bot.reply_to(message, "Введите название статьи")
         return
 
-    print(f"[Lurkmore] {name}")
+    if logs:
+        print(f"[TEST] [Lurkmore] {name}")
+    else:
+        print(f"[Lurkmore] {name}")
 
     url = "https://ipv6.lurkmo.re/"
     # r = requests.get(url + "index.php",
@@ -880,7 +907,7 @@ def lurk(message, logs=False):
 
     # https://lurkmo.re/api.php?action=query&format=json&list=search&srsearch=%D0%B1%D0%B0%D1%82%D1%8C%D0%BA%D0%B0&srprop=size
 
-    timedata = ""
+    timedata = "speedlurk\n"
     time = datetime.now()
 
     r = requests.get(f"{url}api.php",
@@ -894,7 +921,14 @@ def lurk(message, logs=False):
                      })
 
     if logs:
-        timedata = str(datetime.now() - time) + "\n"
+        #timedata = str(datetime.now() - time) + "\n"
+        timedata += "├─find:\n"
+        loadtime = str(datetime.now() - time).split(".")
+        main = loadtime[0].split(":")
+        second = loadtime[1]
+
+        timedata += f"│⠀├─seconds: {main[2]}\n"
+        timedata += f"│⠀└─ms: {second}\n"
         # bot.reply_to(message, datetime.now() - time)
 
     data = json.loads(r.text)
@@ -916,7 +950,15 @@ def lurk(message, logs=False):
                      })
 
     if logs:
-        timedata += str(datetime.now() - time) + "\n"
+        #timedata += str(datetime.now() - time) + "\n"
+
+        timedata += "├─text:\n"
+        loadtime = str(datetime.now() - time).split(".")
+        main = loadtime[0].split(":")
+        second = loadtime[1]
+
+        timedata += f"│⠀├─seconds: {main[2]}\n"
+        timedata += f"│⠀└─ms: {second}\n"
         # bot.reply_to(message, datetime.now() - time)
 
     parse = json.loads(r.text)["parse"]
@@ -938,7 +980,14 @@ def lurk(message, logs=False):
                          })
 
         if logs:
-            timedata += str(datetime.now() - time) + "\n"
+            #timedata += str(datetime.now() - time) + "\n"
+            timedata += "└─image:\n"
+            loadtime = str(datetime.now() - time).split(".")
+            main = loadtime[0].split(":")
+            second = loadtime[1]
+
+            timedata += f" ⠀├─seconds: {main[2]}\n"
+            timedata += f"⠀ └─ms: {second}\n"
             # bot.reply_to(message, datetime.now() - time)
 
         soup = BeautifulSoup(json.loads(r.text)["parse"]["text"]["*"], 'lxml')
@@ -987,6 +1036,12 @@ def lurk(message, logs=False):
     # print(div.findAll("p", recursive=False))
 
     if logs:
+        if timedata.find("image") == -1:
+
+            timedata += "└─image:\n"
+            timedata += " ⠀├─seconds: None\n"
+            timedata += "⠀ └─ms: None\n"
+
         bot.reply_to(message, f"`{timedata}`", parse_mode="Markdown")
         return
 
@@ -1058,6 +1113,11 @@ def lurk(message, logs=False):
                      parse_mode="HTML")
 
 
+@bot.message_handler(commands=["list"])
+def list(message):
+    bot.reply_to(message, "/w, /van, /potatowiki, /speedlurk, /speedwiki, /speedtest, /wget")
+
+
 @bot.message_handler(commands=["speedlurk"])
 def speedlurk(message):
     lurk(message, True)
@@ -1070,7 +1130,6 @@ def speedwiki(message):
 
 @bot.message_handler(commands=["speedtest"])
 def speedtest(message):
-    bot.reply_to(message, "1. wiki\n2. lurk")
     getWiki(message, "ru", True)
     lurk(message, True)
 
@@ -1080,6 +1139,7 @@ def test(message):
     message_id = bot.reply_to(message, "test").message_id
     time.sleep(1)
     bot.delete_message(message.chat.id, message_id)
+
 
 """
 @bot.message_handler(commands=["bashorg"])
