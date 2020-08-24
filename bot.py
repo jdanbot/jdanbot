@@ -573,14 +573,19 @@ def wikiua(message):
     getWiki(message, "uk")
 
 
-@bot.message_handler(commands=["wikibe", "tarakanwiki", "lukaswiki", "potato", "potatowiki"])
+@bot.message_handler(commands=["wikibe", "wbe", "tarakanwiki", "lukaswiki", "potato", "potatowiki"])
 def wikibe(message):
     getWiki(message, "be")
 
 
-@bot.message_handler(commands=["wikies"])
+@bot.message_handler(commands=["wikies", "wes"])
 def wikies(message):
     getWiki(message, "es")
+
+
+@bot.message_handler(commands=["wikihe", "whe"])
+def wikies(message):
+    getWiki(message, "he")
 
 
 @bot.message_handler(commands=[" /wikibe-tarask", "wikibet", "wbet", "xbet"])
