@@ -1609,9 +1609,9 @@ def detect(message):
                 )
 
             elif message.from_user.id == 340945249:
-                bot.reply_to(message, 
-                                 "Теперь админы с <s>народом</s> баном", 
-                                 parse_mode="HTML")
+                bot.reply_to(message,
+                             "Теперь админы с <s>народом</s> баном", 
+                             parse_mode="HTML")
 
             elif message.from_user.id == 207305797:
                 bot.reply_to(message, "Не фальсифицируй бота)))")
@@ -1622,7 +1622,7 @@ def detect(message):
                                              message.from_user.id,
                                              until_date=time.time()+60)
 
-                    bot.reply_to(message, "Вы запостили информацию о бане, если вы не забаненны, то к вам приедут с [ДАННЫЕ ЗАБАНЕННЫ] сроком на 1 минуту")
+                    bot.reply_to(message, choice(texts.ban_list))
                 except:
                     pass
 
