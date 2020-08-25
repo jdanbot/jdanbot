@@ -1129,7 +1129,7 @@ def lurk(message, logs=False):
 
 
 @bot.message_handler(commands=["list"])
-def list(message):
+def commandslist(message):
     bot.reply_to(message, "/w, /van, /potatowiki, /speedlurk, /speedwiki, /speedtest, /wget")
 
 
@@ -1578,10 +1578,18 @@ def msg(message):
 @bot.message_handler(content_types=['text'])
 def detect(message):
     if message.chat.id == -1001335444502 or message.chat.id == -1001176998310:
-        if message.text.find("бойкот") != -1:
+        if message.text.lower().find("бот, ") != -1:
+            bot.reply_to(message, choice(["Да", "Нет"]))
+
+        if message.text.lower().find("бойкот") != -1:
             bot.reply_to(message, "Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
 
-        if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нn]([^a-zа-яё\d]|$)", message.text.lower()):
+        if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нn]([^a-zа-яё\d]|$)",
+                     message.text
+                     .replace("@", "а")
+                     .replace("🅰️", "а")
+                     .replace("🅱️", "б")
+                     .lower()):
             try:
                 bot.restrict_chat_member(message.chat.id,
                                          message.from_user.id,
