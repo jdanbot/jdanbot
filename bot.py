@@ -1590,14 +1590,41 @@ def detect(message):
                      .replace("🅰️", "а")
                      .replace("🅱️", "б")
                      .lower()):
-            try:
-                bot.restrict_chat_member(message.chat.id,
-                                         message.from_user.id,
-                                         until_date=time.time()+60)
+            if message.from_user.id == 332052812:
+                bot.reply_to(message, "В ГрОбу я видел эти ваши баны!")
 
-                bot.reply_to(message, "Вы запостили информацию о бане, если вы не забаненны, то к вам приедут с [ДАННЫЕ ЗАБАНЕННЫ] сроком на 1 минуту")
-            except:
-                pass
+            elif message.from_user.id == 795449748:
+                bot.reply_to(message, "Бота фикси! Фикси, фикси, фикси)))")
+
+                bot.send_sticker(
+                    message.chat.id,
+                    "CAACAgIAAx0CT5lEFgACSRpfRVIg31aW6SvtFAlEo_yvKr_cHAACBAIAApSZaS9-0IPui2d2SBsE"
+                )
+
+            elif message.from_user.id == 319384276:
+                bot.reply_to(message, "ДИКтаторов не обслуживаю")
+                bot.send_sticker(
+                    message.chat.id,
+                    "CAACAgIAAx0CT5lEFgACSRZfRVIL4Tbw5VUWeOMiwuvnzyzgxAAC3wEAApSZaS95fMgpAr5gbhsE"
+                )
+
+            elif message.from_user.id == 340945249:
+                bot.reply_to(message, 
+                                 "Теперь админы с <s>народом</s> баном", 
+                                 parse_mode="HTML")
+
+            elif message.from_user.id == 207305797:
+                bot.reply_to(message, "Не фальсифицируй бота)))")
+
+            else:
+                try:
+                    bot.restrict_chat_member(message.chat.id,
+                                             message.from_user.id,
+                                             until_date=time.time()+60)
+
+                    bot.reply_to(message, "Вы запостили информацию о бане, если вы не забаненны, то к вам приедут с [ДАННЫЕ ЗАБАНЕННЫ] сроком на 1 минуту")
+                except:
+                    pass
 
         if message.text.find("когда уйдет путин") != -1:
             random_putin(message)
