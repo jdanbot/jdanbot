@@ -1553,9 +1553,16 @@ def random_lukash(message):
             bot.reply_to(message, f'Лукашенко уйдет через {int(nedeli)} {prettyword(int(nedeli), ["неделя", "недели", "недель"])} и {int(number % 7)} {prettyword(int(number % 7), ["день", "дня", "дней"])}')    
 
 
-@bot.message_handler(commands=["da_net"])
+@bot.message_handler(commands=["da_net", "r"])
 def da_net(message):
-    bot.reply_to(message, choice(["Да", "Нет"]))
+    try:
+        bot.delete_message(message.chat.id, message.message_id)
+    except:
+        pass
+    try:
+        bot.send_message(message.chat.id, choice(["Да", "Нет"]), reply_to_message_id=message.reply_to_message.message_id)
+    except AttributeError:
+        bot.send_message(message.chat.id, choice(["Да", "Нет"]))
 
 
 @bot.message_handler(commands=["message"])
