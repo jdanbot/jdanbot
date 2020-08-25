@@ -473,72 +473,90 @@ def sqrt(message):
         bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
 
 
-@bot.message_handler(commands=["calc"])
-def calc(message):
-    options = message.text.split(maxsplit=1)[1].replace(" ", "").replace(",", ".").replace("pi", "3.141592653589793238462643383279")
-    getcontext().prec = 25
+@bot.message_handler(commands=["eval", "calc"])
+def calc_eval(message):
+    if len(str(message.text).split(maxsplit=1)) == 1:
+        bot.reply_to(message, "Введи запрос для вычисления")
+        return
 
-    try:
-        nums = re.split(r"\+", options)
-        result = Decimal(nums[0]) + Decimal(nums[1])
-    except:
-        pass
+    op = message.text.split(maxsplit=1)[1].replace(" ", "") \
+                                          .replace(",", ".") \
+                                          .replace("pi", "3.1415926558")
 
-    try:
-        nums = re.split(r"/", options)
-        result = Decimal(nums[0]) / Decimal(nums[1])
-    except:
-        pass
+    if re.search(r"[а-яА-ЯёЁa-zA-Z]", op):
+        bot.reply_to(message, "Необходимая переменная не найдена")
+        return
 
-    try:
-        nums = re.split(r"-", options)
-        result = Decimal(nums[0]) - Decimal(nums[1])
-    except:
-        pass
+    result = eval(op)
+    bot.reply_to(message, f"`{str(result)}`", parse_mode="Markdown")
 
-    try:
-        nums = re.split(r"\*", options)
-        result = Decimal(nums[0]) * Decimal(nums[1])
-    except:
-        pass
 
-    try:
-        nums = re.split(r"%", options)
-        result = Decimal(nums[0]) % Decimal(nums[1])
-    except:
-        pass
+# @bot.message_handler(commands=["calc"])
+# def calc(message):
+#     options = message.text.split(maxsplit=1)[1].replace(" ", "").replace(",", ".").replace("pi", "3.141592653589793238462643383279")
+#     getcontext().prec = 25
 
-    try:
-        nums = re.split(r"\*\*", options)
-        result = Decimal(nums[0]) ** Decimal(nums[1])
-    except:
-        pass
+#     try:
+#         nums = re.split(r"\+", options)
+#         result = Decimal(nums[0]) + Decimal(nums[1])
+#     except:
+#         pass
 
-    try:
-        nums = re.split(r"\^", options)
-        result = Decimal(nums[0]) ** Decimal(nums[1])
-    except:
-        pass
+#     try:
+#         nums = re.split(r"/", options)
+#         result = Decimal(nums[0]) / Decimal(nums[1])
+#     except:
+#         pass
 
-    try:
-        # if int(result) == float(result):
-        #     result = int(result)
-        # else:
-        #     result = float(result)
+#     try:
+#         nums = re.split(r"-", options)
+#         result = Decimal(nums[0]) - Decimal(nums[1])
+#     except:
+#         pass
 
-        bot.reply_to(message, f"`{str(result)}`", parse_mode="Markdown")
+#     try:
+#         nums = re.split(r"\*", options)
+#         result = Decimal(nums[0]) * Decimal(nums[1])
+#     except:
+#         pass
 
-        # except Exception as e:
-        #     operator = options[1]
-        #     num = float(operator.replace("sqrt(", "").replace(")", ""))
+#     try:
+#         nums = re.split(r"%", options)
+#         result = Decimal(nums[0]) % Decimal(nums[1])
+#     except:
+#         pass
 
-        #     if num:
-        #         bot.reply_to(message, math.sqrt(num))
+#     try:
+#         nums = re.split(r"\*\*", options)
+#         result = Decimal(nums[0]) ** Decimal(nums[1])
+#     except:
+#         pass
 
-        #     if
+#     try:
+#         nums = re.split(r"\^", options)
+#         result = Decimal(nums[0]) ** Decimal(nums[1])
+#     except:
+#         pass
 
-    except Exception as e:
-        bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
+#     try:
+#         # if int(result) == float(result):
+#         #     result = int(result)
+#         # else:
+#         #     result = float(result)
+
+#         bot.reply_to(message, f"`{str(result)}`", parse_mode="Markdown")
+
+#         # except Exception as e:
+#         #     operator = options[1]
+#         #     num = float(operator.replace("sqrt(", "").replace(")", ""))
+
+#         #     if num:
+#         #         bot.reply_to(message, math.sqrt(num))
+
+#         #     if
+
+#     except Exception as e:
+#         bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
 
 
 @bot.message_handler(["Math"])
@@ -548,7 +566,7 @@ def math_command(message):
 # TODO: REWRITE
 
 
-@bot.message_handler(commands=["wikiru", "wikiru2", "wru", "wiki", "w"])
+@bot.message_handler(commands=["wikiru", "wikiru2", "wru", "w"])
 def wikiru(message):
     getWiki(message, "ru")
 
@@ -561,6 +579,21 @@ def wikien(message):
 @bot.message_handler(commands=["wikide", "wde"])
 def wikide(message):
     getWiki(message, "de")
+
+
+@bot.message_handler(commands=["wikice", "wce"])
+def wikide(message):
+    getWiki(message, "ce")
+
+
+@bot.message_handler(commands=["wikitt", "wtt"])
+def wikide(message):
+    getWiki(message, "tt")
+
+
+@bot.message_handler(commands=["wikiba", "wba"])
+def wikide(message):
+    getWiki(message, "ba")
 
 
 @bot.message_handler(commands=["wikipl", "wpl"])
@@ -588,14 +621,22 @@ def wikies(message):
     getWiki(message, "he")
 
 
-@bot.message_handler(commands=[" /wikibe-tarask", "wikibet", "wbet", "xbet"])
+@bot.message_handler(commands=["/wikibe-tarask", "wikibet", "wbet", "xbet"])
 def wikies(message):
     getWiki(message, "be-tarask")
 
 
-@bot.message_handler(commands=["langs", "wikilangs"])
-def wiki_langs(message):
+@bot.message_handler(commands=["wiki_usage", "wiki2", "wiki"])
+def wiki_usage(message):
     bot.reply_to(message, texts.langs, parse_mode="Markdown")
+
+
+@bot.message_handler(commands=["langs", "wikilangs", "wiki_langs"])
+def wiki_langs(message):
+    bot.reply_to(message,
+                 texts.langs_list,
+                 parse_mode="Markdown",
+                 disable_web_page_preview=True)
 
 
 def getWiki(message, lang="ru", logs=False):
