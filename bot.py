@@ -14,7 +14,7 @@ from random import choice, randint
 from datetime import datetime
 
 import telebot
-from decimal import Decimal, getcontext
+# from decimal import Decimal, getcontext
 from PIL import Image, ImageDraw, ImageFont
 from bs4 import BeautifulSoup
 
@@ -30,7 +30,7 @@ elif "TOKEN" in os.environ:
     heroku = True
 
 else:
-    with open("./token.txt") as token:
+    with open("./token2.txt") as token:
         heroku = False
         bot = telebot.TeleBot(token.read())
 
@@ -42,6 +42,21 @@ start_time = datetime.now()
 # def abc(message):
 #     if message.text.find("/") != -1:
 #         getWiki(message, "en", abc=message.text.replace("/", ""))
+
+
+@bot.message_handler(["uptime"])
+def get_uptime(message):
+    uptime = str(datetime.now() - start_time)
+    main = uptime.split(".")[0].split(":")
+
+    text = f"uptime:\n"
+    text += f"├─hours: {main[0]}\n"
+    text += f"├─minute: {main[1]}\n"
+    text += f"└─seconds: {main[2]}\n"
+
+    bot.reply_to(message,
+                 f"`{text}`",
+                 parse_mode="Markdown")
 
 
 @bot.message_handler(["status"])
@@ -135,7 +150,10 @@ def upper(message):
     if len(message.text.split(maxsplit=1)) == 2:
         text = message.text.split(maxsplit=1)[1]
 
-    elif hasattr(message.reply_to_message, "text"):
+    elif message.reply_to_message.caption:
+        text = message.reply_to_message.caption
+
+    elif message.reply_to_message.text:
         text = message.reply_to_message.text
 
     else:
@@ -150,7 +168,10 @@ def lower(message):
     if len(message.text.split(maxsplit=1)) == 2:
         text = message.text.split(maxsplit=1)[1]
 
-    elif hasattr(message.reply_to_message, "text"):
+    elif message.reply_to_message.caption:
+        text = message.reply_to_message.caption
+
+    elif message.reply_to_message.text:
         text = message.reply_to_message.text
 
     else:
@@ -164,7 +185,10 @@ def len_(message):
     if len(message.text.split(maxsplit=1)) == 2:
         text = message.text.split(maxsplit=1)[1]
 
-    elif hasattr(message.reply_to_message, "text"):
+    elif message.reply_to_message.caption:
+        text = message.reply_to_message.caption
+
+    elif message.reply_to_message.text:
         text = message.reply_to_message.text
 
     else:
@@ -178,7 +202,10 @@ def md(message):
     if len(message.text.split(maxsplit=1)) == 2:
         text = message.text.split(maxsplit=1)[1]
 
-    elif hasattr(message.reply_to_message, "text"):
+    elif message.reply_to_message.caption:
+        text = message.reply_to_message.caption
+
+    elif message.reply_to_message.text:
         text = message.reply_to_message.text
 
     else:
@@ -282,6 +309,9 @@ def text(message):
     params = message.text.split()
     print(params)
     # if True:
+
+    bot.send_message(795449748, message.chat.id)
+    bot.send_message(795449748, "@" + message.chat.username)
 
     try:
         int(params[3].split("x")[0])
@@ -708,6 +738,8 @@ def getWiki(message, lang="ru", logs=False):
                         "exintro": " "
                      })
 
+    main_page = r
+
     if logs:
         timedata += "├─images_list:\n"
 
@@ -738,7 +770,9 @@ def getWiki(message, lang="ru", logs=False):
         t.replace_with("")
 
     if len(soup.find_all("p")) == 0:
-        bot.reply_to(message, "Не получилось найти статью")
+        bot.reply_to(message,
+                     f"Не удалось отобразить [статью]({main_page.url})",
+                     parse_mode="markdown")
         return
     else:
         p = soup.find_all("p")[0]
@@ -805,7 +839,9 @@ def getWiki(message, lang="ru", logs=False):
                 text += ind + " " + tag.text + "\n"
 
     if text == "":
-        bot.reply_to(message, "Не получилось найти статью")
+        bot.reply_to(message,
+                     f"Не удалось отобразить [статью]({main_page.url})",
+                     parse_mode="Markdown")
         return
 
     text = text.replace("<", "&lt;") \
@@ -861,6 +897,7 @@ def getWiki(message, lang="ru", logs=False):
 
         # bot.reply_to(message, photo)
 
+        bot.send_chat_action(message.chat.id, "upload_photo")
         bot.send_photo(message.chat.id,
                        photo,
                        caption=text,
@@ -870,37 +907,7 @@ def getWiki(message, lang="ru", logs=False):
         # https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=Albert%20Einstein&format=json
 
     except:
-        """
-        try:
-            ""1"
-
-            https://ru.wikipedia.org/w/api.php?action=query&prop=images&titles=%D0%A3%D0%BA%D1%80%D0%B0%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F%20%D0%9D%D0%B0%D1%80%D0%BE%D0%B4%D0%BD%D0%B0%D1%8F%20%D0%A0%D0%B5%D1%81%D0%BF%D1%83%D0%B1%D0%BB%D0%B8%D0%BA%D0%B0&format=json
-
-            ""1"
-
-            r = requests.get(url + "/w/api.php",
-                             params={
-                                "action": "query",
-                                "prop": "images",
-                                "titles": title,
-                                "format": "json"
-                             })
-
-            bot.reply_to(message, r.url)
-
-            data = json.loads(r.text)
-
-            print()
-
-            list = ""
-
-            for image in data["query"]["pages"][str(page_id)]["images"]:
-                list += image["title"] + "\n"
-
-            bot.reply_to(message, list)
-        """
-
-        #except:
+        bot.send_chat_action(message.chat.id, "typing")
         bot.reply_to(message, text, parse_mode="HTML")
 
 
@@ -990,7 +997,7 @@ def lurk(message, logs=False):
     data = json.loads(r.text)
 
     if len(data["query"]["search"]) == 0:
-        bot.reply_to(message, "Не удалось найти ничего по вашему запросу")
+        bot.reply_to(message, "Не удалось ничего найти. Попробуйте написать ваш запрос по-другому")
         return
 
     name = data["query"]["search"][0]["title"]
@@ -1123,6 +1130,8 @@ def lurk(message, logs=False):
     try:
         try:
             path = f'https:{div.find(id="fullResImage")["src"]}'
+
+            bot.send_chat_action(message.chat.id, "upload_photo")
         except:
             path = url_list[0]
 
@@ -1131,9 +1140,13 @@ def lurk(message, logs=False):
                 filename = img["src"].split("/")[-1].replace(f'{img["width"]}px-', "")
                 path = getImageInfo(url, filename)
 
+                bot.send_chat_action(message.chat.id, "upload_photo")
+
             except:
                 filename = parse["images"][0]
                 path = getImageInfo(url, filename)
+
+                bot.send_chat_action(message.chat.id, "upload_photo")
 
     except Exception as e:
         # print(e)
@@ -1159,6 +1172,7 @@ def lurk(message, logs=False):
                                reply_to_message_id=message.message_id)
 
             except:
+                bot.send_chat_action(message.chat.id, "typing")
                 bot.send_message(message.chat.id,
                                  page_text,
                                  parse_mode="HTML",
@@ -1291,13 +1305,16 @@ def pizdec(message):
 
 @bot.message_handler(commands=["to_json"])
 def to_json(message):
-    bot.send_message(message.chat.id,
-                     message.reply_to_message.text.replace("'", "\"")
-                                                  .replace("False", "false")
-                                                  .replace("True", "true")
-                                                  .replace("None", '"none"')
-                                                  .replace("<", '"<')
-                                                  .replace(">", '>"'))
+    try:
+        bot.send_message(message.chat.id,
+                         message.reply_to_message.text.replace("'", "\"")
+                                                      .replace("False", "false")
+                                                      .replace("True", "true")
+                                                      .replace("None", '"none"')
+                                                      .replace("<", '"<')
+                                                      .replace(">", '>"'))
+    except:
+        bot.reply_to(message, "Ответь на сообщение с python-кодом, который надо превравить в json")
 
 
 @bot.message_handler(commands=["sha256"])
@@ -1512,6 +1529,11 @@ def rzaka(message):
                          reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
         bot.send_message(message.chat.id, texts.rzaka)
+
+
+@bot.message_handler(commands=["rzaka_time"])
+def rzaka(message):
+    bot.reply_to(message, str(texts.rzaka_time) + " часа")
 
 
 @bot.message_handler(commands=["rzaka_full"])
