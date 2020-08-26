@@ -30,7 +30,7 @@ elif "TOKEN" in os.environ:
     heroku = True
 
 else:
-    with open("./token2.txt") as token:
+    with open("./token.txt") as token:
         heroku = False
         bot = telebot.TeleBot(token.read())
 
@@ -310,8 +310,11 @@ def text(message):
     print(params)
     # if True:
 
-    bot.send_message(795449748, message.chat.id)
-    bot.send_message(795449748, "@" + message.chat.username)
+    if len(params) == 1:
+        bot.reply_to(message, "Напишите текст, а также ответьте на фото, на которое нужно нанести текст")
+        bot.send_message(795449748, message.chat.id)
+        bot.send_message(795449748, "@" + message.chat.username)
+        return
 
     try:
         int(params[3].split("x")[0])
