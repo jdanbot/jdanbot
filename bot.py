@@ -1699,6 +1699,18 @@ def detect(message):
 @bot.message_handler(content_types=["new_chat_members"])
 def john(message):
     bot.reply_to(message, f'{choice(texts.greatings)}?')
+    if message.chat.id == -1001335444502 or message.chat.id == -1001176998310:
+
+        bot.send_chat_action(message.chat.id, "typing")
+        
+        page_name = "Ustav-profsoyuza-Botov-Maksima-Kaca-08-15"
+        url = f"https://api.telegra.ph/getPage/{page_name}"
+        r = requests.get(url)
+
+        rules = json.loads(r.text)["result"]
+        bot.send_message(message.chat.id,
+                         f'<b>{rules["title"]}</b>\n\n{rules["description"]}',
+                         parse_mode="HTML")
 
 
 @bot.message_handler(content_types=['document', 'video'],
