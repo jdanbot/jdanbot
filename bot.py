@@ -669,6 +669,16 @@ def wikies(message):
     getWiki(message, "he")
 
 
+@bot.message_handler(commands=["wikixh", "wxh"])
+def wikies(message):
+    getWiki(message, "xh")
+
+
+@bot.message_handler(commands=["wikiab", "wab"])
+def wikies(message):
+    getWiki(message, "ab")
+
+
 @bot.message_handler(commands=["/wikibe-tarask", "wikibet", "wbet", "xbet"])
 def wikies(message):
     getWiki(message, "be-tarask")
