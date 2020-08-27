@@ -30,7 +30,7 @@ elif "TOKEN" in os.environ:
     heroku = True
 
 else:
-    with open("./token.txt") as token:
+    with open("./token2.txt") as token:
         heroku = False
         bot = telebot.TeleBot(token.read())
 
@@ -249,8 +249,12 @@ def if_(message):
 def preview(message):
     try:
         try:
+            bot.send_chat_action(message.chat.id, "upload_photo")
+
             bot.send_photo(message.chat.id, f"https://img.youtube.com/vi/{message.reply_to_message.text.replace('&feature=share', '').split('/')[-1]}/maxresdefault.jpg")
         except:
+            bot.send_chat_action(message.chat.id, "upload_photo")
+
             bot.send_photo(message.chat.id,
                            f'https://img.youtube.com/vi/{urllib.parse.parse_qs(urllib.parse.urlparse(message.reply_to_message.text).query)["v"][0]}/maxresdefault.jpg')
     except Exception as e:
@@ -514,14 +518,25 @@ def calc_eval(message):
 
     op = message.text.split(maxsplit=1)[1].replace(" ", "") \
                                           .replace(",", ".") \
-                                          .replace("pi", "3.1415926558")
+                                          .replace("pi", str(math.pi)) \
+                                          .replace("e", str(math.e))
 
     if re.search(r"[а-яА-ЯёЁa-zA-Z]", op):
         bot.reply_to(message, "Необходимая переменная не найдена")
         return
 
-    result = eval(op)
-    bot.reply_to(message, f"`{str(result)}`", parse_mode="Markdown")
+    try:
+        result = eval(op)
+
+        if int(result) == float(result):
+            text = int(result)
+        else:
+            text = float(result)
+
+    except ZeroDivisionError:
+        text = "Деление на ноль"
+
+    bot.reply_to(message, f"`{str(text)}`", parse_mode="Markdown")
 
 
 # @bot.message_handler(commands=["calc"])
