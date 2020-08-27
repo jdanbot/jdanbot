@@ -649,7 +649,7 @@ def wikipl(message):
     getWiki(message, "pl")
 
 
-@bot.message_handler(commands=["wikiua", "wikiuk", "wuk", "pawuk"])
+@bot.message_handler(commands=["wikiua", "wikiuk", "wuk", "wua", "pawuk"])
 def wikiua(message):
     getWiki(message, "uk")
 
