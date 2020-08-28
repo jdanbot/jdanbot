@@ -535,6 +535,9 @@ def calc_eval(message):
     except ZeroDivisionError:
         text = "Деление на ноль"
 
+    except Exception as e:
+        text = f"Некорректный запрос\n{e}"
+
     bot.reply_to(message, f"`{str(text)}`", parse_mode="Markdown")
 
 
