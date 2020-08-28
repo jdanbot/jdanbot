@@ -30,7 +30,7 @@ elif "TOKEN" in os.environ:
     heroku = True
 
 else:
-    with open("./token2.txt") as token:
+    with open("./token.txt") as token:
         heroku = False
         bot = telebot.TeleBot(token.read())
 
@@ -222,10 +222,18 @@ def md(message):
 @bot.message_handler(["if"])
 def if_(message):
     options = message.text.split()
-    try:
-        bot.reply_to(message, f"<code>{options[1]}</code> == <code>{options[2]}</code>: <b>{options[1] == options[2]}</b>", parse_mode="HTML")
-    except:
+
+    if len(options) < 3:
         bot.reply_to(message, "Напиши аргументы :/")
+
+    else:
+        result = options[1] == options[2]
+        t = "<code>"     # open code tag
+        tc = "</code>"   # close code tag
+
+        bot.reply_to(message,
+                     f"{t}{options[1]} == {options[2]}{tc}: <b>{result}</b>",
+                     parse_mode="HTML")
 
 
 # @bot.message_handler(["youtube"])
