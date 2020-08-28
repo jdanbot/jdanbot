@@ -517,7 +517,6 @@ def calc_eval(message):
         return
 
     op = message.text.split(maxsplit=1)[1].replace(" ", "") \
-                                          .replace(",", ".") \
                                           .replace("pi", str(math.pi)) \
                                           .replace("e", str(math.e))
 
