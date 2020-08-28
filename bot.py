@@ -1611,18 +1611,31 @@ def msg(message):
 @bot.message_handler(content_types=['text'])
 def detect(message):
     if message.chat.id == -1001335444502 or message.chat.id == -1001176998310:
-        if message.text.lower().find("бот, ") != -1:
+        msg = message.text.lower()
+
+        if msg.find("бот, сколько") != -1 and msg.find("?") != -1:
+            number = randint(0, 100000)
+            randnum = randint(0, 10000000)
+
+            if randnum == 34563:
+                bot.reply_to(message, "Столько")
+
+            else:
+                word = msg.replace("бот, сколько", "").split()[0]
+                bot.reply_to(message, f"{str(number)} {word}")
+
+        elif msg.find("бот,") != -1 and msg.find("?") != -1:
             bot.reply_to(message, choice(["Да", "Нет"]))
 
-        if message.text.lower().find("бойкот") != -1:
+        if msg.find("бойкот") != -1:
             bot.reply_to(message, "Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
 
         if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нn]([^a-zа-яё\d]|$)",
                      message.text
+                     .lower()
                      .replace("@", "а")
                      .replace("🅰️", "а")
-                     .replace("🅱️", "б")
-                     .lower()):
+                     .replace("🅱️", "б")):
             if message.from_user.id == 332052812:
                 bot.reply_to(message, "В ГрОбу я видел эти ваши баны!")
 
