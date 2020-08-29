@@ -14,7 +14,6 @@ from random import choice, randint
 from datetime import datetime
 
 import telebot
-# from decimal import Decimal, getcontext
 from PIL import Image, ImageDraw, ImageFont
 from bs4 import BeautifulSoup
 
