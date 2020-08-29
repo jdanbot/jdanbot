@@ -670,7 +670,7 @@ def getWiki(message, lang="ru", logs=False):
     timedata = "speedwiki\n"
 
     if logs:
-        timedata += "├─text:\n"
+        timedata += "├─search:\n"
         loadtime = str(datetime.now() - time).split(".")
         main = loadtime[0].split(":")
         second = loadtime[1]
@@ -704,14 +704,13 @@ def getWiki(message, lang="ru", logs=False):
                         "prop": "extracts",
                         "titles": title,
                         "format": "json",
-                        "exintro": " ",
-                        "exsentences": 1
+                        "exsentences": 3
                      })
 
     main_page = r
 
     if logs:
-        timedata += "├─images_list:\n"
+        timedata += "├─text:\n"
 
         loadtime = str(datetime.now() - time).split(".")
         main = loadtime[0].split(":")
