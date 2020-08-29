@@ -705,7 +705,8 @@ def getWiki(message, lang="ru", logs=False):
                         "prop": "extracts",
                         "titles": title,
                         "format": "json",
-                        "exintro": " "
+                        "exintro": " ",
+                        "exsentences": 1
                      })
 
     main_page = r
