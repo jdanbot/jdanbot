@@ -64,14 +64,6 @@ def status(message):
 
     uptime = str(datetime.now() - start_time)
     main = uptime.split(".")[0].split(":")
-    # second = uptime.split(".")[1]
-
-    # wikiurl = ".wikipedia.org/w/api.php?action=query"
-    # uk = requests.get(f"https://uk{wikiurl}").status_code
-    # ru = requests.get(f"https://ru{wikiurl}").status_code
-    # de = requests.get(f"https://de{wikiurl}").status_code
-    # en = requests.get(f"https://en{wikiurl}").status_code
-    # lurkstatus = requests.get("https://ipv6.lurkmo.re").status_code
 
     text =  f"bot:\n"
     text += f"├─status: work\n"
@@ -81,14 +73,6 @@ def status(message):
     text += f"│⠀└─seconds: {main[2]}\n"
     text += f"├─heroku: {heroku}\n"
     text += f"└─osname: {os.name}\n"
-    # text += f"services:\n"
-    # text += f"├─wikipedia.org:\n"
-    # text += f"│⠀├─uk: {uk}\n"
-    # text += f"│⠀├─ru: {ru}\n"
-    # text += f"│⠀├─en: {en}\n"
-    # text += f"│⠀└─de: {de}\n"
-    # text += f"└─lurkmo.re:\n"
-    # text += f" ⠀└─ru: {lurkstatus}"
 
     text = text.replace("False", "❌") \
                .replace("True", "✅")
@@ -753,7 +737,6 @@ def lurk(message, logs=False):
                      })
 
     if logs:
-        #timedata = str(datetime.now() - time) + "\n"
         timedata += "├─find:\n"
         loadtime = str(datetime.now() - time).split(".")
         main = loadtime[0].split(":")
@@ -761,7 +744,6 @@ def lurk(message, logs=False):
 
         timedata += f"│⠀├─seconds: {main[2]}\n"
         timedata += f"│⠀└─ms: {second}\n"
-        # bot.reply_to(message, datetime.now() - time)
 
     data = json.loads(r.text)
 
@@ -782,7 +764,6 @@ def lurk(message, logs=False):
                      })
 
     if logs:
-        #timedata += str(datetime.now() - time) + "\n"
 
         timedata += "├─text:\n"
         loadtime = str(datetime.now() - time).split(".")
@@ -791,7 +772,6 @@ def lurk(message, logs=False):
 
         timedata += f"│⠀├─seconds: {main[2]}\n"
         timedata += f"│⠀└─ms: {second}\n"
-        # bot.reply_to(message, datetime.now() - time)
 
     parse = json.loads(r.text)["parse"]
     soup = BeautifulSoup(parse["text"]["*"], 'lxml')
@@ -812,7 +792,6 @@ def lurk(message, logs=False):
                          })
 
         if logs:
-            #timedata += str(datetime.now() - time) + "\n"
             timedata += "└─image:\n"
             loadtime = str(datetime.now() - time).split(".")
             main = loadtime[0].split(":")
@@ -820,7 +799,6 @@ def lurk(message, logs=False):
 
             timedata += f" ⠀├─seconds: {main[2]}\n"
             timedata += f"⠀ └─ms: {second}\n"
-            # bot.reply_to(message, datetime.now() - time)
 
         soup = BeautifulSoup(json.loads(r.text)["parse"]["text"]["*"], 'lxml')
         div = soup
@@ -851,21 +829,6 @@ def lurk(message, logs=False):
             pass
         else:
             url_list.append("https:" + img["src"])
-
-    # for img in url_list:
-    #     print(img)
-    #     try:
-    #         bot.send_photo(message.chat.id, f'https:{img}')
-    #     except Exception as e:
-    #         bot.reply_to(message, img)
-    #     sleep(1)
-
-    # bot.send_media_group(message.chat.id, [url_list[0], url_list[1], url_list[2], url_list[3], url_list[4], url_list[5]])
-    # bot.send_media_group(message.chat.id, [telebot.types.InputMediaPhoto(url_list[0], "1"),
-    #                                       telebot.types.InputMediaPhoto(url_list[1], "2")])
-
-    # print(soup)
-    # print(div.findAll("p", recursive=False))
 
     if logs:
         if timedata.find("image") == -1:
@@ -918,9 +881,6 @@ def lurk(message, logs=False):
                 bot.send_chat_action(message.chat.id, "upload_photo")
 
     except Exception as e:
-        # print(e)
-        # bot.reply_to(message, e)
-        # bot.reply_to(message, "Не удалось загрузить статью")
         print(e)
         path = ""
 
@@ -1008,8 +968,6 @@ def pizdec(message):
     r = requests.get(url + "/w/index.php",
                      params={"search": name})
 
-    # print(r.text)
-
     soup = BeautifulSoup(r.text, 'lxml')
 
     if soup.find("div", class_="searchresults") is None:
@@ -1025,9 +983,6 @@ def pizdec(message):
                 bot.reply_to(message, "Не получилось найти статью")
                 return
 
-    # print(dir(soup.find("div", id="mw-content-text").find("table")))
-    # soup.find("div", id="mw-content-text").find("table").remove()
-
     div = soup.find(id="mw-content-text")
 
     for t in div.findAll("table", {"class": "lm-plashka"}):
@@ -1040,7 +995,6 @@ def pizdec(message):
         page_text = first if (first := div.find("p").text.strip()) else div.findAll("p", recursive=False)[1].text.strip()
     except Exception as e:
         bot.reply_to(message, "Не удалось найти статью")
-        # bot.reply_to(message, e)
         return
 
     try:
@@ -1119,7 +1073,6 @@ def delete(message):
         pass
 
     try:
-        # bot.send_message(message.chat.id, message.reply_to_message)
         if message.reply_to_message.from_user.id == "1121412322":
             bot.delete_message(message.chat.id, message.reply_to_message.message_id)
     except:
@@ -1175,15 +1128,10 @@ def password(message):
         password += choice(data)
 
     bot.reply_to(message, password)
-    # print(data)
 
 
 @bot.message_handler(commands=["start", "help"])
 def start(message):
-    # try:
-    #     bot.delete_message(message.chat.id, message.message_id)
-    # except:
-    #     True
     try:
         bot.send_message(message.chat.id, texts.rules, reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
