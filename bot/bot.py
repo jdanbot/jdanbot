@@ -19,6 +19,7 @@ from bs4 import BeautifulSoup
 
 import data as texts
 from prettyword import prettyword
+from wikipedia import Wikipedia
 
 if "TOKEN_HEROKU" in os.environ:
     bot = telebot.TeleBot(os.environ["TOKEN_HEROKU"])
@@ -571,17 +572,17 @@ def wikide(message):
 
 
 @bot.message_handler(commands=["wikice", "wce"])
-def wikide(message):
+def wikice(message):
     getWiki(message, "ce")
 
 
 @bot.message_handler(commands=["wikitt", "wtt"])
-def wikide(message):
+def wikitt(message):
     getWiki(message, "tt")
 
 
 @bot.message_handler(commands=["wikiba", "wba"])
-def wikide(message):
+def wikiba(message):
     getWiki(message, "ba")
 
 
@@ -595,7 +596,12 @@ def wikiua(message):
     getWiki(message, "uk")
 
 
-@bot.message_handler(commands=["wikibe", "wbe", "tarakanwiki", "lukaswiki", "potato", "potatowiki"])
+@bot.message_handler(commands=["wikibe",
+                               "wbe",
+                               "tarakanwiki",
+                               "lukaswiki",
+                               "potato",
+                               "potatowiki"])
 def wikibe(message):
     getWiki(message, "be")
 
@@ -606,23 +612,28 @@ def wikies(message):
 
 
 @bot.message_handler(commands=["wikihe", "whe"])
-def wikies(message):
+def wikihe(message):
     getWiki(message, "he")
 
 
 @bot.message_handler(commands=["wikixh", "wxh"])
-def wikies(message):
+def wikixh(message):
     getWiki(message, "xh")
 
 
 @bot.message_handler(commands=["wikiab", "wab"])
-def wikies(message):
+def wikiab(message):
     getWiki(message, "ab")
 
 
-@bot.message_handler(commands=["/wikibe-tarask", "wikibet", "wbet", "xbet"])
-def wikies(message):
+@bot.message_handler(commands=["wikibe-tarask", "wikibet", "wbet", "xbet"])
+def wikibet(message):
     getWiki(message, "be-tarask")
+
+
+@bot.message_handler(commands=["wtest"])
+def wikibanan(message):
+    getWiki2(message, "ru")
 
 
 @bot.message_handler(commands=["wiki_usage", "wiki2", "wiki"])
@@ -639,244 +650,34 @@ def wiki_langs(message):
 
 
 def getWiki(message, lang="ru", logs=False):
-    if len(message.text.split(maxsplit=1)) == 2:
-        query = message.text.split(maxsplit=1)[1]
-
-    else:
+    if len(message.text.split(maxsplit=1)) != 2:
         bot.reply_to(message, f"Пожалуйста, напишите название статьи\nНапример так: `{message.text.split(maxsplit=1)[0]} Название Статьи`", parse_mode="Markdown")
-        return
 
-    if logs:
-        print(f"[TEST] [Wikipedia {lang.upper()}] {query}")
-    else:
-        print(f"[Wikipedia {lang.upper()}] {query}")
+    query = message.text.split(maxsplit=1)[1]
+    print(f"[Wikipedia {lang.upper()}] {query}")
 
-    url = f"https://{lang}.wikipedia.org"
+    wiki = Wikipedia(lang)
 
-    # https://ru.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=%D0%BA%D0%B0%D1%86&srlimit=1&srsort=relevance
+    title = wiki.search(query, 1)[0][0]
+    page = wiki.getPage(title)
+    text = wiki.parsePage(page)
 
-    time = datetime.now()
+    image = wiki.getImageByPageName(title)
 
-    r = requests.get(f"{url}/w/api.php",
-                     params={
-                        "action": "query",
-                        "format": "json",
-                        "list": "search",
-                        "srsearch": query,
-                        "srlimit": 1,
-                        "srprop": "size"
-                     })
-
-    timedata = "speedwiki\n"
-
-    if logs:
-        timedata += "├─search:\n"
-        loadtime = str(datetime.now() - time).split(".")
-        main = loadtime[0].split(":")
-        second = loadtime[1]
-
-        timedata += f"│⠀├─seconds: {main[2]}\n"
-        timedata += f"│⠀└─ms: {second}\n"
-        # bot.reply_to(message, datetime.now() - time)
-
-    if not r.status_code == 200:
-        bot.reply_to(message, "Сервер не отвечает")
-        return
-
-    data = json.loads(r.text)
-
-    if len(data["query"]["search"]) == 0:
-        bot.reply_to(message, "Не удалось найти статью по вашему запросу")
-        return
-
-    title = data["query"]["search"][0]["title"]
-    page_id = data["query"]["search"][0]["pageid"]
-
-    # https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=Albert%20Einstein&format=json
-
-    # r = requests.get(page_url)
-
-    time = datetime.now()
-
-    r = requests.get(url + "/w/api.php",
-                     params={
-                        "action": "query",
-                        "prop": "extracts",
-                        "titles": title,
-                        "format": "json"
-                     })
-
-    main_page = r
-
-    if logs:
-        timedata += "├─text:\n"
-
-        loadtime = str(datetime.now() - time).split(".")
-        main = loadtime[0].split(":")
-        second = loadtime[1]
-
-        timedata += f"│⠀├─seconds: {main[2]}\n"
-        timedata += f"│⠀└─ms: {second}\n"
-        # bot.reply_to(message, datetime.now() - time)
-
-    if not r.status_code == 200:
-        bot.reply_to(message, "Не удалось загрузить статью")
-        return
-
-    soup = BeautifulSoup(json.loads(r.text)["query"]["pages"][str(page_id)]["extract"], "lxml")
-
-    for tag in soup.find_all("p"):
-        if re.match(r"\s", tag.text):
-            tag.replace_with("")
-
-    # semantics
-
-    for t in soup.findAll("math"):
-        t.replace_with("")
-
-    for t in soup.findAll("semantics"):
-        t.replace_with("")
-
-    if len(soup.find_all("p")) == 0:
-        bot.reply_to(message,
-                     f"Не удалось отобразить [статью]({main_page.url})",
-                     parse_mode="markdown")
-        return
-    else:
-        p = soup.find_all("p")[0]
-
-    bold_text = []
-
-    for tag in p.find_all("b"):
-        bold_text.append(tag.text)
-
-    # bot.reply_to(message, bold_text)
-
-    # bot.reply_to(message, p.text.find(":"))
-    # bot.reply_to(message, soup)
-
-    text = ""
-
-    if p.text.find("означать:") != -1 or p.text.find(f"{title}:") != -1:
-        for tag in soup.find_all("p"):
-            text += tag.text
-
-        text += "\n"
-
-        for tag in soup.find_all("li"):
-            ind = str(soup.find_all("li").index(tag) + 1)
-
-            ind = ind.replace("0", "0️⃣") \
-                     .replace("1", "1️⃣") \
-                     .replace("2", "2️⃣") \
-                     .replace("3", "3️⃣") \
-                     .replace("4", "4️⃣") \
-                     .replace("5", "5️⃣") \
-                     .replace("6", "6️⃣") \
-                     .replace("7", "7️⃣") \
-                     .replace("8", "8️⃣") \
-                     .replace("9", "9️⃣")
-
-            text += ind + " " + tag.text + "\n"
+    if image == "Not found image":
+        bot.send_chat_action(message.chat.id, "typing")
+        bot.reply_to(message, text, parse_mode="HTML")
 
     else:
-        text = re.sub(r"\[.{,}\] ", "", p.text)
-
-    for bold in bold_text:
-        if text == f"{bold}:\n":
-            text = ""
-            for tag in soup.find_all("p"):
-                text += tag.text
-
-            text += "\n"
-
-            for tag in soup.find_all("li"):
-                ind = str(soup.find_all("li").index(tag) + 1)
-
-                ind = ind.replace("0", "0️⃣") \
-                         .replace("1", "1️⃣") \
-                         .replace("2", "2️⃣") \
-                         .replace("3", "3️⃣") \
-                         .replace("4", "4️⃣") \
-                         .replace("5", "5️⃣") \
-                         .replace("6", "6️⃣") \
-                         .replace("7", "7️⃣") \
-                         .replace("8", "8️⃣") \
-                         .replace("9", "9️⃣")
-
-                text += ind + " " + tag.text + "\n"
-
-    if text == "":
-        bot.reply_to(message,
-                     f"Не удалось отобразить [статью]({main_page.url})",
-                     parse_mode="Markdown")
-        return
-
-    text = text.replace("<", "&lt;") \
-               .replace(">", "&gt;") \
-               .replace("  ", " ") \
-               .replace(" )", ")") \
-               .replace(" )", ")")
-
-    for bold in bold_text:
-        text = re.sub(bold, f"<b>{bold}</b>", text, 1)
-
-    # https://ru.wikipedia.org/w/api.php?action=query&titles=%D0%9A%D0%B0%D1%86,%20%D0%9C%D0%B0%D0%BA%D1%81%D0%B8%D0%BC%20%D0%95%D0%B2%D0%B3%D0%B5%D0%BD%D1%8C%D0%B5%D0%B2%D0%B8%D1%87&prop=pageimages&format=json&pithumbsize=100
-
-    time = datetime.now()
-
-    r = requests.get(url + "/w/api.php",
-                     params={
-                         "action": "query",
-                         "titles": title,
-                         "prop": "pageimages",
-                         "pithumbsize": 1000,
-                         "pilicense": "any",
-                         "format": "json"
-                     })
-
-    if logs:
-        timedata += "└─image:\n"
-
-        loadtime = str(datetime.now() - time).split(".")
-        main = loadtime[0].split(":")
-        second = loadtime[1]
-
-        timedata += f"⠀ ├─seconds: {main[2]}\n"
-        timedata += f"⠀ └─ms: {second}\n"
-        # bot.reply_to(message, datetime.now() - time)
-        bot.reply_to(message, f"`{timedata}`", parse_mode="Markdown")
-        return
-
-    if not r.status_code == 200:
-        bot.reply_to(message, "Не удалось загрузить статью")
-        return
-
-    image_info = json.loads(r.text)
-
-    try:
-
-        # https://en.wikipedia.org/w/api.php?action=query&titles=File:Albert_Einstein_(Nobel).png&prop=imageinfo&iiprop=url&format=json
-
-        photo = image_info["query"]["pages"][str(page_id)]["thumbnail"]["source"]
-
-        if photo == "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Flag_of_Belarus.svg/1000px-Flag_of_Belarus.svg.png":
-            photo = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg/1000px-Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg.png"
-
-        # bot.reply_to(message, photo)
+        if image == "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Flag_of_Belarus.svg/1000px-Flag_of_Belarus.svg.png":
+            image = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg/1000px-Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg.png"
 
         bot.send_chat_action(message.chat.id, "upload_photo")
         bot.send_photo(message.chat.id,
-                       photo,
+                       image,
                        caption=text,
                        parse_mode="HTML",
                        reply_to_message_id=message.message_id)
-
-        # https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=Albert%20Einstein&format=json
-
-    except:
-        bot.send_chat_action(message.chat.id, "typing")
-        bot.reply_to(message, text, parse_mode="HTML")
 
 
 @bot.message_handler(commands=["github"])
