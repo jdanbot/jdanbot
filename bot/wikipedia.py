@@ -6,9 +6,10 @@ from bs4 import BeautifulSoup
 
 
 class Wikipedia:
-    def __init__(self, lang):
+    def __init__(self, lang, test=False):
         self.lang = lang
         self.url = f"https://{lang}.wikipedia.org"
+        self.test = test
 
     def _getLastItem(self, page):
         item = ""
@@ -29,12 +30,12 @@ class Wikipedia:
                          })
 
         if not r.status_code == 200:
-            return "404"
+            return 404
 
         data = json.loads(r.text)
 
         if len(data["query"]["search"]) == 0:
-            return "Not found"
+            return -1
 
         responce = data["query"]["search"]
 
@@ -60,7 +61,7 @@ class Wikipedia:
         result = json.loads(r.text)["query"]["pages"]
 
         if "-1" in result:
-            return f"Не удалось получить статью {title}"
+            return -1
 
         soup = BeautifulSoup(result[self._getLastItem(result)]["extract"], "lxml")
 
@@ -84,7 +85,7 @@ class Wikipedia:
             return image_info[pageid]["thumbnail"]["source"]
 
         except KeyError:
-            return "Not found image"
+            return -1
 
     def parsePage(self, soup):
         title = "Бан"

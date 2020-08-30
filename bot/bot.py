@@ -636,19 +636,30 @@ def wiki_langs(message):
 def getWiki(message, lang="ru", logs=False):
     if len(message.text.split(maxsplit=1)) != 2:
         bot.reply_to(message, f"Пожалуйста, напишите название статьи\nНапример так: `{message.text.split(maxsplit=1)[0]} Название Статьи`", parse_mode="Markdown")
+        return
 
     query = message.text.split(maxsplit=1)[1]
     print(f"[Wikipedia {lang.upper()}] {query}")
 
     wiki = Wikipedia(lang)
 
-    title = wiki.search(query, 1)[0][0]
-    page = wiki.getPage(title)
-    text = wiki.parsePage(page)
+    title = wiki.search(query, 1)
 
-    image = wiki.getImageByPageName(title)
+    if title == -1:
+        bot.reply_to(message, "Ничего не найдено")
+        return
+    else:
+        page = wiki.getPage(title[0][0])
 
-    if image == "Not found image":
+        if page == -1:
+            bot.reply_to(message, "Не удалось загрузить статью")
+            return
+        else:
+            text = wiki.parsePage(page)
+
+    image = wiki.getImageByPageName(title[0][0])
+
+    if type(image) is int:
         bot.send_chat_action(message.chat.id, "typing")
         bot.reply_to(message, text, parse_mode="HTML")
 
@@ -1041,7 +1052,7 @@ def to_json(message):
 
 
 @bot.message_handler(commands=["sha256"])
-def sha(message):
+def sha256(message):
     try:
         if message.reply_to_message.text:
             bot.reply_to(message, hashlib.sha256(bytearray(message.reply_to_message.text.encode("utf-8"))).hexdigest())
