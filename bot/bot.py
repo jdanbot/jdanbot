@@ -1305,24 +1305,16 @@ def random_color(message):
 
 @bot.message_handler(commands=["random_putin"])
 def random_putin(message):
-    number = randint(1, 500)
-    date = choice(["дней", "месяцев", "лет"])
-
-    if date == "дней":
-        true_date = prettyword(number, ["день", "дня", "дней"])
-
-    elif date == "месяцев":
-        true_date = prettyword(number, ["месяц", "месяца", "месяцев"])
-
-    elif date == "лет":
-        true_date = prettyword(number, ["год", "года", "лет"])
-
-    bot.reply_to(message, f'Путин уйдет через {number} {true_date}')
+    random_putin(message, choice(["Обнуленец", "Путин", "Путен"]))
 
 
-@bot.message_handler(commands=["random_lukash", "luk"])
+@bot.message_handler(commands=["random_lukash", "luk", "lukash"])
 def random_lukash(message):
-    number = randint(0, 500)
+    random_person(message, choice(["Лукашенко", "Лукашеску", "3%", "Саша", "Саня"]))
+
+
+def random_person(message, name):
+    number = randint(0, 200)
 
     if number == 0:
         bot.reply_to(message, "Иди нахуй))")
@@ -1338,10 +1330,10 @@ def random_lukash(message):
             true_date = prettyword(number, ["месяц", "месяца", "месяцев"])
 
         if number % 7 == 0:
-            bot.reply_to(message, f'Лукашенко уйдет через {int(nedeli)} {prettyword(int(nedeli), ["неделя", "недели", "недель"])}')
+            bot.reply_to(message, f'{name} уйдет через {int(nedeli)} {prettyword(int(nedeli), ["неделя", "недели", "недель"])}')
         else:
             print(number % 7)
-            bot.reply_to(message, f'Лукашенко уйдет через {int(nedeli)} {prettyword(int(nedeli), ["неделя", "недели", "недель"])} и {int(number % 7)} {prettyword(int(number % 7), ["день", "дня", "дней"])}')    
+            bot.reply_to(message, f'{name} уйдет через {int(nedeli)} {prettyword(int(nedeli), ["неделя", "недели", "недель"])} и {int(number % 7)} {prettyword(int(number % 7), ["день", "дня", "дней"])}')    
 
 
 @bot.message_handler(commands=["da_net", "r"])
@@ -1455,6 +1447,9 @@ def detect(message):
 
         if message.text.find("когда уйдет путин") != -1:
             random_putin(message)
+
+        if message.text.find("когда уйдет лукашенко") != -1:
+            random_lukash(message)
 
 
 @bot.message_handler(content_types=["new_chat_members"])
