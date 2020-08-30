@@ -1368,7 +1368,9 @@ def msg(message):
 
 @bot.message_handler(content_types=['text'])
 def detect(message):
-    if message.chat.id == -1001335444502 or message.chat.id == -1001176998310:
+    if message.chat.id == -1001335444502 or \
+       message.chat.id == -1001189395000 or \
+       message.chat.id == -1001176998310:
         msg = message.text.lower()
 
         if msg.find("бот, сколько") != -1 and msg.find("?") != -1:
@@ -1414,11 +1416,32 @@ def detect(message):
 
             elif message.from_user.id == 340945249:
                 bot.reply_to(message,
-                             "Теперь админы с <s>народом</s> баном", 
+                             "Теперь админы с <s>народом</s> баном",
                              parse_mode="HTML")
 
             elif message.from_user.id == 207305797:
                 bot.reply_to(message, "Не фальсифицируй бота)))")
+
+            elif message.from_user.id == 388661254:
+                bot.reply_to(message, "Ну как там с <s>деньгами</s> фиксом?")
+
+            elif message.from_user.id == 714974074:
+                bot.reply_to(message, "Клоун.")
+
+            elif message.from_user.id == 583264555 or message.from_user.id == 1134491227:
+                bot.reply_to(message, "Произошел скам...")
+
+            elif message.from_user.id == 197416875:
+                bot.reply_to(message, "Где новый стикер?")
+
+            elif message.from_user.id == 1065896779:
+                bot.reply_to(message, "Иван, в бан))")
+
+            elif message.from_user.id == 1028275690:
+                bot.reply_to(message, "За императрицу!")
+
+            elif message.from_user.id == 619489012:
+                bot.reply_to(message, "Ура, председатель пришел))")
 
             else:
                 try:
@@ -1440,7 +1463,7 @@ def john(message):
     if message.chat.id == -1001335444502 or message.chat.id == -1001176998310:
 
         bot.send_chat_action(message.chat.id, "typing")
-        
+
         page_name = "Ustav-profsoyuza-Botov-Maksima-Kaca-08-15"
         url = f"https://api.telegra.ph/getPage/{page_name}"
         r = requests.get(url)
