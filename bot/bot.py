@@ -1305,7 +1305,7 @@ def random_color(message):
 
 @bot.message_handler(commands=["random_putin"])
 def random_putin(message):
-    random_putin(message, choice(["Обнуленец", "Путин", "Путен"]))
+    random_person(message, choice(["Обнуленец", "Путин", "Путен"]))
 
 
 @bot.message_handler(commands=["random_lukash", "luk", "lukash"])
