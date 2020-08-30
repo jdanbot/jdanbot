@@ -29,7 +29,7 @@ elif "TOKEN" in os.environ:
     heroku = True
 
 else:
-    with open("./token.txt") as token:
+    with open("../token.txt") as token:
         heroku = False
         bot = telebot.TeleBot(token.read())
 
@@ -703,8 +703,7 @@ def getWiki(message, lang="ru", logs=False):
                         "action": "query",
                         "prop": "extracts",
                         "titles": title,
-                        "format": "json",
-                        "exsentences": 3
+                        "format": "json"
                      })
 
     main_page = r

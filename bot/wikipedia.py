@@ -54,10 +54,13 @@ class Wikipedia:
                             "prop": "extracts",
                             "titles": title,
                             "format": "json",
-                            "exsentences": 3
+                            "exsentences": 5
                          })
 
         result = json.loads(r.text)["query"]["pages"]
+
+        if "-1" in result:
+            return f"Не удалось получить статью {title}"
 
         soup = BeautifulSoup(result[self._getLastItem(result)]["extract"], "lxml")
 
