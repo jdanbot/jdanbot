@@ -45,6 +45,20 @@ start_time = datetime.now()
 #         getWiki(message, "en", abc=message.text.replace("/", ""))
 
 
+@bot.message_handler(commands=["rules"])
+def chat_rules(message, reply=True):
+    rules = getRules("Ustav-profsoyuza-Botov-Maksima-Kaca-08-15")
+    bot.send_chat_action(message.chat.id, "typing")
+    if reply:
+        bot.reply_to(message,
+                     f'<b>{rules["title"]}</b>\n\n{rules["description"]}',
+                     parse_mode="HTML")
+    else:
+        bot.send_message(message.chat.id,
+                         f'<b>{rules["title"]}</b>\n\n{rules["description"]}',
+                         parse_mode="HTML")
+
+
 @bot.message_handler(["uptime"])
 def get_uptime(message):
     uptime = str(datetime.now() - start_time)
@@ -1455,20 +1469,12 @@ def detect(message):
             random_lukash(message)
 
 
-@bot.message_handler(["rules"])
-def rules(message):
-    rules = getRules("Ustav-profsoyuza-Botov-Maksima-Kaca-08-15")
-    bot.send_chat_action(message.chat.id, "typing")
-    bot.send_message(message.chat.id,
-                     f'<b>{rules["title"]}</b>\n\n{rules["description"]}',
-                     parse_mode="HTML")
-
-
 @bot.message_handler(content_types=["new_chat_members"])
 def john(message):
-    bot.reply_to(message, f'{choice(texts.greatings)}?')
+    if message.chat.id != -1001319828458:
+        bot.reply_to(message, f'{choice(texts.greatings)}?')
     if message.chat.id == -1001335444502 or message.chat.id == -1001176998310:
-        rules(message)
+        chat_rules(message, False)
 
 
 @bot.message_handler(content_types=['document', 'video'],
@@ -1484,6 +1490,7 @@ def delete_w10(message):
 
 try:
     bot.polling()
+
 except:
     bot.send_message("795449748",
                      f"`{str(traceback.format_exc())}`",
