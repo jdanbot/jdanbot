@@ -20,6 +20,7 @@ from bs4 import BeautifulSoup
 import data as texts
 from prettyword import prettyword
 from wikipedia import Wikipedia
+from rules import getRules
 
 if "TOKEN_HEROKU" in os.environ:
     bot = telebot.TeleBot(os.environ["TOKEN_HEROKU"])
@@ -1454,21 +1455,24 @@ def detect(message):
             random_lukash(message)
 
 
+@bot.message_handler(["rules"])
+def rules(message):
+    rules = getRules("Ustav-profsoyuza-Botov-Maksima-Kaca-08-15")
+    bot.send_chat_action(message.chat.id, "typing")
+    bot.send_message(message.chat.id,
+                     f'<b>{rules["title"]}</b>\n\n{rules["description"]}',
+                     parse_mode="HTML")
+
+
 @bot.message_handler(content_types=["new_chat_members"])
 def john(message):
     bot.reply_to(message, f'{choice(texts.greatings)}?')
     if message.chat.id == -1001335444502 or message.chat.id == -1001176998310:
 
+        rules = getRules("Ustav-profsoyuza-Botov-Maksima-Kaca-08-15")
+
         bot.send_chat_action(message.chat.id, "typing")
-
-        page_name = "Ustav-profsoyuza-Botov-Maksima-Kaca-08-15"
-        url = f"https://api.telegra.ph/getPage/{page_name}"
-        r = requests.get(url)
-
-        rules = json.loads(r.text)["result"]
-        bot.send_message(message.chat.id,
-                         f'<b>{rules["title"]}</b>\n\n{rules["description"]}',
-                         parse_mode="HTML")
+        rules(message)
 
 
 @bot.message_handler(content_types=['document', 'video'],
