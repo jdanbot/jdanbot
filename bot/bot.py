@@ -1468,10 +1468,6 @@ def rules(message):
 def john(message):
     bot.reply_to(message, f'{choice(texts.greatings)}?')
     if message.chat.id == -1001335444502 or message.chat.id == -1001176998310:
-
-        rules = getRules("Ustav-profsoyuza-Botov-Maksima-Kaca-08-15")
-
-        bot.send_chat_action(message.chat.id, "typing")
         rules(message)
 
 
