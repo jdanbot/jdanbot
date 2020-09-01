@@ -1385,6 +1385,8 @@ def detect(message):
         if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нn]([^a-zа-яё\d]|$)",
                      message.text
                      .lower()
+                     .replace("H", "н")
+                     .replace("α", "а")
                      .replace("@", "а")
                      .replace("🅰️", "а")
                      .replace("🅱️", "б")):
