@@ -1370,7 +1370,7 @@ def msg(message):
             params = message.text.split(maxsplit=2)
             bot.send_message(params[1], params[2])
         except Exception as e:
-            bot.reply_to(message, f"`e`", parse_mode="Markdown")
+            bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
 
 
 @bot.message_handler(content_types=['text'])
@@ -1391,6 +1391,19 @@ def detect(message):
             else:
                 word = msg.replace("бот, сколько", "").split()[0]
                 bot.reply_to(message, f"{str(number)} {word}")
+
+        elif msg.find("бот, спасибо") != -1 or \
+             msg.find("бот, ты крутой") != -1 or \
+             msg.find("бот, ты молодец") != -1 or \
+             msg.find("бот, ты хороший") != -1:
+            bot.send_sticker(
+                message.chat.id,
+                "CAACAgIAAx0CRieRpgABA7bCX1aW70b_1a0OspsDDXYk8iPACEkAArwBAAKUmWkvXbzmLd8q5dcbBA",
+                reply_to_message_id=message.message_id
+            )
+
+        elif msg.find("бот, почему") != -1 and msg.find("?") != -1:
+            bot.reply_to(message, choice(["Лень", "Омерика виновата", "Кац ролик не выпустил", "Интернета не было", "Не знаю", "Германия замешана", "Диды ваевали!!!", "Не было денег", "Так исторически сложилось", "Так надо", "Лучше забыть то, о чем тут говорилось", "Не скажу"]))
 
         elif msg.find("бот,") != -1 and msg.find("?") != -1:
             bot.reply_to(message, choice(["Да", "Нет", "Возможно", "Не скажу", "Не знаю"]))
