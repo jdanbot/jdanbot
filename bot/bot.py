@@ -1348,7 +1348,7 @@ def random_person(message, name):
             bot.reply_to(message, f'{name} уйдет через {int(nedeli)} {prettyword(int(nedeli), ["неделя", "недели", "недель"])}')
         else:
             print(number % 7)
-            bot.reply_to(message, f'{name} уйдет через {int(nedeli)} {prettyword(int(nedeli), ["неделя", "недели", "недель"])} и {int(number % 7)} {prettyword(int(number % 7), ["день", "дня", "дней"])}')    
+            bot.reply_to(message, f'{name} уйдет через {int(nedeli)} {prettyword(int(nedeli), ["неделя", "недели", "недель"])} и {int(number % 7)} {prettyword(int(number % 7), ["день", "дня", "дней"])}')
 
 
 @bot.message_handler(commands=["da_net", "r"])
@@ -1395,7 +1395,9 @@ def detect(message):
         elif msg.find("бот, спасибо") != -1 or \
              msg.find("бот, ты крутой") != -1 or \
              msg.find("бот, ты молодец") != -1 or \
-             msg.find("бот, ты хороший") != -1:
+             msg.find("бот, ты хороший") != -1 or \
+             msg.find("бот, ты красавчик") != -1 or \
+             msg.find("бот, красавчик") != -1:
             bot.send_sticker(
                 message.chat.id,
                 "CAACAgIAAx0CRieRpgABA7bCX1aW70b_1a0OspsDDXYk8iPACEkAArwBAAKUmWkvXbzmLd8q5dcbBA",
