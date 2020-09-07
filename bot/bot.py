@@ -1393,7 +1393,7 @@ def detect(message):
                 bot.reply_to(message, f"{str(number)} {word}")
 
         elif msg.find("бот,") != -1 and msg.find("?") != -1:
-            bot.reply_to(message, choice(["Да", "Нет"]))
+            bot.reply_to(message, choice(["Да", "Нет", "Возможно", "Не скажу", "Не знаю"]))
 
         if msg.find("бойкот") != -1:
             bot.reply_to(message, "Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
