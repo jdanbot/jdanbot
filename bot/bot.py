@@ -1378,7 +1378,8 @@ def detect(message):
     if message.chat.id == -1001335444502 or \
        message.chat.id == -1001189395000 or \
        message.chat.id == -1001176998310:
-        msg = message.text.lower()
+        msg = message.text.lower().replace("_", "") \
+                                  .replace("-", "")
 
         if msg.find("бот, сколько") != -1 and msg.find("?") != -1:
             number = randint(0, 100000)
@@ -1396,6 +1397,9 @@ def detect(message):
 
         if msg.find("бойкот") != -1:
             bot.reply_to(message, "Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
+
+        if msg.find("яблоко") != -1:
+            bot.reply_to(message, "Вы запостили информацию о яблоке, если вы в яблоке, то к вам приедут с паяльником")
 
         if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нn]([^a-zа-яё\d]|$)",
                      message.text
