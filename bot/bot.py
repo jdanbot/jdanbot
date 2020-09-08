@@ -560,7 +560,7 @@ def wikiru(message):
     getWiki(message, "ru")
 
 
-@bot.message_handler(commands=["wikien", "van", "wen"])
+@bot.message_handler(commands=["wikien", "van", "wen", "v"])
 def wikien(message):
     getWiki(message, "en")
 
