@@ -565,6 +565,11 @@ def wikien(message):
     getWiki(message, "en")
 
 
+@bot.message_handler(commands=["wikisv", "wsv"])
+def wikisv(message):
+    getWiki(message, "sv")
+
+
 @bot.message_handler(commands=["wikide", "wde"])
 def wikide(message):
     getWiki(message, "de")
