@@ -149,10 +149,7 @@ def upper(message):
     if len(message.text.split(maxsplit=1)) == 2:
         text = message.text.split(maxsplit=1)[1]
 
-    elif message.reply_to_message.caption:
-        text = message.reply_to_message.caption
-
-    elif message.reply_to_message.text:
+    elif hasattr(message.reply_to_message, "text"):
         text = message.reply_to_message.text
 
     else:
@@ -167,32 +164,28 @@ def lower(message):
     if len(message.text.split(maxsplit=1)) == 2:
         text = message.text.split(maxsplit=1)[1]
 
-    elif message.reply_to_message.caption:
-        text = message.reply_to_message.caption
-
-    elif message.reply_to_message.text:
+    elif hasattr(message.reply_to_message, "text"):
         text = message.reply_to_message.text
 
     else:
         bot.reply_to(message, "Ответь на сообщение")
         return
+
     bot.reply_to(message, text.lower())
 
 
-@bot.message_handler(["len"])
-def len_(message):
+@bot.message_handler(["title"])
+def title(message):
     if len(message.text.split(maxsplit=1)) == 2:
         text = message.text.split(maxsplit=1)[1]
 
-    elif message.reply_to_message.caption:
-        text = message.reply_to_message.caption
-
-    elif message.reply_to_message.text:
+    elif hasattr(message.reply_to_message, "text"):
         text = message.reply_to_message.text
 
     else:
         bot.reply_to(message, "Ответь на сообщение")
         return
+
     bot.reply_to(message, len(text))
 
 
@@ -201,15 +194,14 @@ def md(message):
     if len(message.text.split(maxsplit=1)) == 2:
         text = message.text.split(maxsplit=1)[1]
 
-    elif message.reply_to_message.caption:
-        text = message.reply_to_message.caption
-
-    elif message.reply_to_message.text:
+    elif hasattr(message.reply_to_message, "text"):
         text = message.reply_to_message.text
 
     else:
         bot.reply_to(message, "Ответь на сообщение")
         return
+
+    bot.reply_to(message, text.title())
 
     try:
         bot.reply_to(message, text, parse_mode="Markdown")
