@@ -635,11 +635,6 @@ def wikibet(message):
     getWiki(message, "be-tarask")
 
 
-@bot.message_handler(commands=["wtest"])
-def wikibanan(message):
-    getWiki2(message, "ru")
-
-
 @bot.message_handler(commands=["wiki_usage", "wiki2", "wiki"])
 def wiki_usage(message):
     bot.reply_to(message, texts.langs, parse_mode="Markdown")
