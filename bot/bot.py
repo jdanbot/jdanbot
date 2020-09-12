@@ -47,7 +47,7 @@ start_time = datetime.now()
 
 
 @bot.message_handler(["e"])
-def supereval2(message):
+def supereval(message):
     command = message.text.split(maxsplit=1)
     if len(command) == 1:
         bot.reply_to(message, "Введи команду для выполнения)")
@@ -59,7 +59,8 @@ def supereval2(message):
         bot.reply_to(message, "Импортов не будет))")
         return
 
-    popen = subprocess.run(["python", "-c", command], capture_output=True)
+    popen = subprocess.run(["python", "-c", command],
+                           capture_output=True)
 
     if popen.stderr == b"":
         text = popen.stdout.decode("utf-8")
@@ -74,6 +75,9 @@ def supereval2(message):
                                capture_output=True)
         if popen.stderr == b"":
             text = popen.stdout.decode("utf-8")
+
+        if text == "":
+            text = "Not found stdout and stderr"
 
     if len(text) > 4096:
         text = "Не получилось отправить сообщение, так как ответ занимает больше 4096 символов(("
