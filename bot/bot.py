@@ -75,6 +75,9 @@ def supereval2(message):
         if popen.stderr == b"":
             text = popen.stdout.decode("utf-8")
 
+    if len(text) > 4096:
+        text = "Не получилось отправить сообщение, так как ответ занимает больше 4096 символов(("
+
     bot.reply_to(message,
                  f'<code>{text.replace("<", "&lt;").replace(">", "&gt;")}</code>',
                  parse_mode="HTML")
