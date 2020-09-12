@@ -54,6 +54,11 @@ def supereval2(message):
         return
 
     command = command[1]
+
+    if command.find("import") != -1:
+        bot.reply_to(message, "Импортов не будет))")
+        return
+
     popen = subprocess.run(["python", "-c", command], capture_output=True)
 
     if popen.stderr == b"":
