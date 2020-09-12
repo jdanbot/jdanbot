@@ -48,7 +48,12 @@ start_time = datetime.now()
 
 @bot.message_handler(["e"])
 def supereval2(message):
-    command = message.text.split(maxsplit=1)[1]
+    command = message.text.split(maxsplit=1)
+    if len(command) == 1:
+        bot.reply_to(message, "Введи команду для выполнения)")
+        return
+
+    command = command[1]
     popen = subprocess.run(["python", "-c", command], capture_output=True)
 
     if popen.stderr == b"":
