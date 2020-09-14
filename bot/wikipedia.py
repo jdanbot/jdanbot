@@ -6,10 +6,9 @@ from bs4 import BeautifulSoup
 
 
 class Wikipedia:
-    def __init__(self, lang, test=False):
+    def __init__(self, lang):
         self.lang = lang
         self.url = f"https://{lang}.wikipedia.org"
-        self.test = test
 
     def _getLastItem(self, page):
         item = ""
@@ -34,7 +33,12 @@ class Wikipedia:
 
         data = json.loads(r.text)
 
-        if len(data["query"]["search"]) == 0:
+        print(r.url)
+
+        try:
+            if len(data["query"]["search"]) == 0:
+                return -1
+        except:
             return -1
 
         responce = data["query"]["search"]
@@ -118,7 +122,7 @@ class Wikipedia:
 
         text = ""
 
-        if p.text.find("означать:") != -1 or p.text.find(f"{title}:") != -1:
+        if len(soup.find_all("li")) != -1:
             for tag in soup.find_all("p"):
                 text += tag.text
 
