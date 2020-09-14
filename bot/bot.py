@@ -32,7 +32,7 @@ elif "TOKEN" in os.environ:
     heroku = True
 
 else:
-    with open("../token.txt") as token:
+    with open("../token2.txt") as token:
         heroku = False
         bot = telebot.TeleBot(token.read())
 
@@ -373,6 +373,10 @@ def text(message):
     src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}cache{separator}"
 
     try:
+        if message.reply_to_message is None:
+            bot.reply_to(message, "Ответьте на фото")
+            return
+
         try:
             photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
             file_id = message.reply_to_message.photo[-1].file_id
@@ -473,7 +477,7 @@ def text(message):
         os.remove(src + file_id + ".jpg")
 
     except Exception as e:
-        bot.reply_to(message, e)
+        bot.reply_to(message, f"`{str(traceback.format_exc())}`", parse_mode="Markdown")
 
 
 @bot.message_handler(commands=["rectangle"])

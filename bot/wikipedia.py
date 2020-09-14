@@ -33,8 +33,6 @@ class Wikipedia:
 
         data = json.loads(r.text)
 
-        print(r.url)
-
         try:
             if len(data["query"]["search"]) == 0:
                 return -1
@@ -122,9 +120,8 @@ class Wikipedia:
 
         text = ""
 
-        if len(soup.find_all("li")) != -1:
-            for tag in soup.find_all("p"):
-                text += tag.text
+        if len(soup.find_all("li")) != -1 or len(soup.find_all("li")) != 0:
+            text = soup.find_all("p")[0].text
 
             text += "\n"
 
