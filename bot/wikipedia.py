@@ -59,7 +59,7 @@ class Wikipedia:
                             "prop": "extracts",
                             "titles": title,
                             "format": "json",
-                            "exsentences": 5
+                            "exintro": ""
                          })
 
         result = json.loads(r.text)["query"]["pages"]
