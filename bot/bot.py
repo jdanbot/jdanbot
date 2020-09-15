@@ -117,7 +117,7 @@ def callback_worker(call):
 
 
 @bot.message_handler(["e"])
-def supereval(message):
+def eval(message):
     command = message.text.split(maxsplit=1)
     if len(command) == 1:
         bot.reply_to(message, "Введи команду для выполнения)")
@@ -155,6 +155,22 @@ def supereval(message):
     bot.reply_to(message,
                  f'<code>{text.replace("<", "&lt;").replace(">", "&gt;")}</code>',
                  parse_mode="HTML")
+
+
+@bot.message_handler(["se"])
+def supereval(message):
+    if message.from_user.id == 795449748:
+        command = message.text.split(maxsplit=1)[1]
+        try:
+            output = str(eval(command)).replace("<", "&lt;") \
+                                       .replace(">", "&gt;")
+        except:
+            output = str(traceback.format_exc()).replace("<", "&lt;") \
+                                                .replace(">", "&gt;")
+
+        bot.reply_to(message,
+                     f"<code>{str(output)}</code>",
+                     parse_mode="HTML")
 
 
 @bot.message_handler(commands=["rules"])
