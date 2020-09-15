@@ -18,16 +18,13 @@ import telebot
 from PIL import Image, ImageDraw, ImageFont
 from bs4 import BeautifulSoup
 
+import menu
 import data as texts
 from prettyword import prettyword
 from wikipedia import Wikipedia
 from rules import getRules
 
-if "TOKEN_HEROKU" in os.environ:
-    bot = telebot.TeleBot(os.environ["TOKEN_HEROKU"])
-    heroku = True
-
-elif "TOKEN" in os.environ:
+if "TOKEN" in os.environ:
     bot = telebot.TeleBot(os.environ["TOKEN"])
     heroku = True
 
