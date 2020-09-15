@@ -117,7 +117,7 @@ def callback_worker(call):
 
 
 @bot.message_handler(["e"])
-def eval(message):
+def eval2(message):
     command = message.text.split(maxsplit=1)
     if len(command) == 1:
         bot.reply_to(message, "Введи команду для выполнения)")
