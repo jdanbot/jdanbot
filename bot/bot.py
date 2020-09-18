@@ -115,7 +115,7 @@ def callback_worker(call):
 
 
 @bot.message_handler(["e"])
-def eval2(message):
+def eval_(message):
     command = message.text.split(maxsplit=1)
     if len(command) == 1:
         bot.reply_to(message, "Введи команду для выполнения)")
@@ -139,10 +139,22 @@ def eval2(message):
                            capture_output=True)
 
     if popen.stderr == b"":
-        text = popen.stdout.decode("utf-8")
+        try:
+            text = popen.stdout.decode("utf-8")
+        except UnicodeDecodeError:
+            bot.reply_to(message, "Не удалось раскодировать stdout")
 
     if popen.stdout == b"":
-        text = popen.stderr.decode("utf-8")
+        try:
+            text = popen.stderr.decode("utf-8")
+        except UnicodeDecodeError:
+            bot.reply_to(message, "Не удалось раскодировать stderr")
+
+    try:
+        text == ""
+    except UnboundLocalError:
+        bot.reply_to(message, "Беды с башкой")
+        return
 
     if text == "":
         text = "Not found stdout and stderr"
