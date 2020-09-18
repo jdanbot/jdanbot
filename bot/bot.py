@@ -796,9 +796,18 @@ def getWiki(message, lang="ru", logs=False):
     else:
         page = wiki.getPage(title[0][0])
 
-        if page == -1 or str(page) == "":
+        if page == -1:
             bot.reply_to(message, "Не удалось загрузить статью")
             return
+
+        elif str(page) == "":
+            bot.reply_to(message, "Не удалось загрузить статью")
+            return
+
+        elif str(page) == " ":
+            bot.reply_to(message, "Не удалось загрузить статью")
+            return
+
         else:
             text = wiki.parsePage(page)
 
