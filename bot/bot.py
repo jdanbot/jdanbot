@@ -143,6 +143,10 @@ def eval_(message):
         bot.reply_to(message, "Токена не будет))")
         return
 
+    elif command.find("open") != -1:
+        bot.reply_to(message, "Файлов не будет не будет))")
+        return
+
     try:
         popen = subprocess.run(["python", "-c", command],
                                capture_output=True)
