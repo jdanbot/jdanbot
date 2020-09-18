@@ -129,6 +129,14 @@ def eval2(message):
         bot.reply_to(message, "Импортов не будет))")
         return
 
+    elif command.find("exec") != -1:
+        bot.reply_to(message, "Exec'ов не будет))")
+        return
+
+    elif command.find("eval") != -1:
+        bot.reply_to(message, "Eval'ов не будет))")
+        return
+
     popen = subprocess.run(["python", "-c", command],
                            capture_output=True)
 
