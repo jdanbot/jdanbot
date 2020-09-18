@@ -90,7 +90,6 @@ class Wikipedia:
             return -1
 
     def parsePage(self, soup):
-        title = "Бан"
         for tag in soup.find_all("p"):
             if re.match(r"\s", tag.text):
                 tag.replace_with("")

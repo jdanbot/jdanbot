@@ -31,8 +31,6 @@ else:
     with open("../token2.txt") as token:
         heroku = False
         bot = telebot.TeleBot(token.read())
-        print("Token OK")
-
 
 separator = "/" if os.name == "posix" or os.name == "macos" else "\\"
 start_time = datetime.now()
@@ -798,7 +796,7 @@ def getWiki(message, lang="ru", logs=False):
     else:
         page = wiki.getPage(title[0][0])
 
-        if page == -1:
+        if page == -1 or str(page) == "":
             bot.reply_to(message, "Не удалось загрузить статью")
             return
         else:
