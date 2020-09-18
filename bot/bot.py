@@ -135,8 +135,19 @@ def eval_(message):
         bot.reply_to(message, "Eval'ов не будет))")
         return
 
-    popen = subprocess.run(["python", "-c", command],
-                           capture_output=True)
+    elif command.find("__") != -1:
+        bot.reply_to(message, "Двойных подчеркиваний не будет))")
+        return
+
+    elif command.find("token") != -1:
+        bot.reply_to(message, "Токена не будет))")
+        return
+
+    try:
+        popen = subprocess.run(["python", "-c", command],
+                               capture_output=True)
+    except:
+        bot.reply_to(message, "При выполнении запроса произошла ошибка")
 
     if popen.stderr == b"":
         try:
@@ -827,18 +838,26 @@ def getWiki(message, lang="ru", logs=False):
 
     if type(image) is int:
         bot.send_chat_action(message.chat.id, "typing")
-        bot.reply_to(message, text, parse_mode="HTML")
+        try:
+            bot.reply_to(message, text, parse_mode="HTML")
+
+        except:
+            bot.send_message(795449748, text)
+            bot.reply_to(message, "Не удалось отправить статью")
 
     else:
         if image == "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Flag_of_Belarus.svg/1000px-Flag_of_Belarus.svg.png":
             image = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg/1000px-Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg.png"
 
         bot.send_chat_action(message.chat.id, "upload_photo")
-        bot.send_photo(message.chat.id,
-                       image,
-                       caption=text,
-                       parse_mode="HTML",
-                       reply_to_message_id=message.message_id)
+        try:
+            bot.send_photo(message.chat.id,
+                           image,
+                           caption=text,
+                           parse_mode="HTML",
+                           reply_to_message_id=message.message_id)
+        except:
+            bot.reply_to(message, "Не удалось отправить статью")
 
 
 @bot.message_handler(commands=["github"])
