@@ -15,6 +15,7 @@ from random import choice, randint
 from datetime import datetime
 
 import telebot
+from art import text2art
 from PIL import Image, ImageDraw, ImageFont
 from bs4 import BeautifulSoup
 
@@ -23,14 +24,15 @@ from prettyword import prettyword
 from wikipedia import Wikipedia
 from rules import getRules
 
+
 if "TOKEN" in os.environ:
     bot = telebot.TeleBot(os.environ["TOKEN"])
     heroku = True
 
 else:
-    with open("../token2.txt") as token:
+    with open("../token.json") as token:
         heroku = False
-        bot = telebot.TeleBot(token.read())
+        bot = telebot.TeleBot(json.loads(token.read())["token"])
 
 separator = "/" if os.name == "posix" or os.name == "macos" else "\\"
 start_time = datetime.now()
@@ -59,6 +61,31 @@ for ind, button in enumerate(buttons):
     except:
         pass
     keyboard.add(*a)
+
+
+def fixHTML(code):
+    return code.replace("<", "&lt;").replace(">", "&gt;")
+
+
+@bot.message_handler(["art"])
+def art(message):
+    options = message.text.split(maxsplit=1)
+    if len(options) == 1:
+        bot.reply_to(message, "Введи текст на английском для получения арта")
+        return
+
+    try:
+        if len(options[1]) > 20:
+            bot.reply_to(message, "Ты шизик.")
+            return
+
+        art = text2art(options[1], chr_ignore=True).replace("<", "&lt;") \
+                                                   .replace(">", "&gt;")
+        bot.reply_to(message,
+                     f"<code>{art}</code>",
+                     parse_mode="HTML")
+    except:
+        bot.reply_to(message, "Не получилось сделать арт")
 
 
 @bot.message_handler(["new_menu"])
@@ -197,6 +224,34 @@ def title(message):
     bot.reply_to(message, text.title())
 
 
+@bot.message_handler(["d"])
+def download(message):
+    if not message.from_user.id == 795449748:
+        return
+
+    options = message.text.split(maxsplit=1)
+
+    if len(options) == 1:
+        bot.reply_to(message, "Напиши ссылку")
+        return
+
+    try:
+        try:
+            r = requests.get(options[1])
+
+        except requests.exceptions.MissingSchema:
+            r = requests.get(f"https://{options[1]}")
+
+        bot.reply_to(message,
+                     f'<code>{fixHTML(r.text)[:4096]}</code>',
+                     parse_mode="HTML")
+
+    except Exception as e:
+        bot.reply_to(message,
+                     f'<code>Ошибка, тебе бан))))</code>',
+                     parse_mode="HTML")
+
+
 @bot.message_handler(["wget", "r", "request"])
 def wget(message):
     if len(message.text.split(maxsplit=1)) == 1:
@@ -205,8 +260,28 @@ def wget(message):
 
     time = datetime.now()
     url = message.text.split(maxsplit=1)[1]
+
+    blacklist = ["mb", ".zip", ".7", ".dev", ".gz", "98.145.185.175", ".avi", "movie", "release",".dll", "localhost", ".bin", "0.0.0.1", "repack", "download"]
+
+    if url.find("?") != -1: 
+        if url.split("/")[-1][:url.find("?")].find(".") != -1:
+            bot.reply_to(message, "Бан")
+            return
+
+    for word in blacklist:
+        if url.lower().find(word) != -1:
+            bot.reply_to(message, "Ваша ссылка в черном списке")
+            return
+
     try:
         r = requests.get(url)
+    except requests.exceptions.MissingSchema:
+        try:
+            r = requests.get(f"https://{url}")
+
+        except Exception as e:
+            bot.reply_to(message, f"`{str(e)}`", parse_mode="Markdown")
+            return
     except Exception as e:
         bot.reply_to(message, f"`{str(e)}`", parse_mode="Markdown")
         return
@@ -215,16 +290,13 @@ def wget(message):
 
     main = str(load_time).split(".")[0].split(":")
 
-    text = "request\n"
+    text = f"{url}\n"
 
-    text += f"├─url: {url}\n"
     text += f"├─status_code: {r.status_code}\n"
     text += f"├─size:\n"
     text += f"│⠀├─bytes: {sys.getsizeof(r.text)}\n"
     text += f"│⠀└─megabytes: {str(sys.getsizeof(r.text) * (10**-6))}\n"
-    text += f"└─time:\n"
-    text += f" ⠀├─minute: {main[1]}\n"
-    text += f" ⠀└─seconds: {main[2]}\n"
+    text += f"└─time: {main[1]}:{main[2]}"
 
     bot.reply_to(message, f"`{text}`", parse_mode="Markdown")
 
