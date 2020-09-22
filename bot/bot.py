@@ -88,7 +88,7 @@ def art(message):
         bot.reply_to(message, "Не получилось сделать арт")
 
 
-@bot.message_handler(["new_menu"])
+@bot.message_handler(["new_menu", "start", "help"])
 def menu(message):
     bot.reply_to(message, texts.main, parse_mode="HTML", reply_markup=keyboard)
 
@@ -1326,7 +1326,7 @@ def password(message):
     bot.reply_to(message, password)
 
 
-@bot.message_handler(commands=["start", "help"])
+@bot.message_handler(commands=["ban"])
 def start(message):
     try:
         bot.send_message(message.chat.id, texts.rules, reply_to_message_id=message.reply_to_message.message_id)
@@ -1377,6 +1377,12 @@ def ne_bylo(message):
 def pizda(message):
     sendSticker(message,
                 "CAACAgIAAx0CUDyGjwACAQxfCFkaHE52VvWZzaEDQwUC8FYa-wAC3wADlJlpL5sCLYkiJrDFGgQ")
+
+
+@bot.message_handler(commands=["tebe_pizda"])
+def tebe_pizda(message):
+    sendSticker(message,
+                "CAACAgIAAxkBAAILHV9qcv047Lzwp_B64lDlhtOD-2RGAAIgAgAClJlpL5VCBwPTI85YGwQ")
 
 
 @bot.message_handler(commands=["net_pizdy"])
