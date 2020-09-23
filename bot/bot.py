@@ -1429,10 +1429,14 @@ def polak(message):
         bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
+
+    path = "/bot/images/polak.jpg" if heroku else "images/polak.jpg"
+
     try:
-        bot.send_photo(message.chat.id, open("images/polak.jpg", "rb"), reply_to_message_id=message.reply_to_message.message_id)
+        bot.send_photo(message.chat.id, open(path, "rb"),
+                       reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_photo(message.chat.id, open("images/polak.jpg", "rb").read())
+        bot.send_photo(message.chat.id, open(path, "rb").read())
 
 
 @bot.message_handler(commands=["rzaka"])
