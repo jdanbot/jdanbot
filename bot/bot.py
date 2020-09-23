@@ -1430,7 +1430,7 @@ def polak(message):
     except:
         pass
 
-    path = "/bot/images/polak.jpg" if heroku else "images/polak.jpg"
+    path = "bot/images/polak.jpg" if heroku else "images/polak.jpg"
 
     try:
         bot.send_photo(message.chat.id, open(path, "rb"),
