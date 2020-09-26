@@ -1326,7 +1326,7 @@ def password(message):
     bot.reply_to(message, password)
 
 
-@bot.message_handler(commands=["ban"])
+@bot.message_handler(commands=["hided_menu"])
 def start(message):
     try:
         bot.send_message(message.chat.id, texts.rules, reply_to_message_id=message.reply_to_message.message_id)
