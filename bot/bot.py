@@ -1671,7 +1671,7 @@ def detect(message):
 
 @bot.message_handler(content_types=["new_chat_members"])
 def john(message):
-    if message.chat.id != -1001319828458:
+    if message.chat.id != -1001319828458 and message.chat.id != -1001189395000:
         bot.reply_to(message, f'{choice(texts.greatings)}?')
     if message.chat.id == -1001335444502 or message.chat.id == -1001176998310:
         chat_rules(message, False)
