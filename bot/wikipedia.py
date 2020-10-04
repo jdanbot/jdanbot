@@ -33,10 +33,7 @@ class Wikipedia:
 
         data = json.loads(r.text)
 
-        try:
-            if len(data["query"]["search"]) == 0:
-                return -1
-        except:
+        if len(data["query"]["search"]) == 0:
             return -1
 
         responce = data["query"]["search"]
@@ -50,15 +47,24 @@ class Wikipedia:
 
         return result
 
-    def getPage(self, title):
-        r = requests.get(f"{self.url}/w/api.php",
-                         params={
-                            "action": "query",
-                            "prop": "extracts",
-                            "titles": title,
-                            "format": "json",
-                            "exintro": ""
-                         })
+    def getPage(self, title, exsentences=5):
+        if exsentences == -1:
+            r = requests.get(f"{self.url}/w/api.php",
+                             params={
+                                "action": "query",
+                                "prop": "extracts",
+                                "titles": title,
+                                "format": "json"
+                             })
+        else:
+            r = requests.get(f"{self.url}/w/api.php",
+                             params={
+                                "action": "query",
+                                "prop": "extracts",
+                                "titles": title,
+                                "format": "json",
+                                "exsentences": exsentences
+                             })
 
         result = json.loads(r.text)["query"]["pages"]
 
@@ -69,13 +75,13 @@ class Wikipedia:
 
         return soup
 
-    def getImageByPageName(self, title):
+    def getImageByPageName(self, title, pithumbsize=1000):
         r = requests.get(self.url + "/w/api.php",
                          params={
                              "action": "query",
                              "titles": title,
                              "prop": "pageimages",
-                             "pithumbsize": 1000,
+                             "pithumbsize": pithumbsize,
                              "pilicense": "any",
                              "format": "json"
                          })
@@ -89,7 +95,22 @@ class Wikipedia:
         except KeyError:
             return -1
 
+    def getImagesByPageName(self, title):
+        r = requests.get(self.url + "/w/api.php",
+                         params={
+                             "action": "query",
+                             "titles": title,
+                             "prop": "pageimages",
+                             "piprop": "original",
+                             "format": "json"
+                         })
+
+        print(r.url)
+        data = json.loads(r.text)
+        return data
+
     def parsePage(self, soup):
+        title = "Бан"
         for tag in soup.find_all("p"):
             if re.match(r"\s", tag.text):
                 tag.replace_with("")
@@ -119,8 +140,10 @@ class Wikipedia:
 
         text = ""
 
-        if len(soup.find_all("li")) != -1 or len(soup.find_all("li")) != 0:
-            text = soup.find_all("p")[0].text
+        if p.text.find("означать:") != -1 or \
+           p.text.find(f"{title}:") != -1:
+            for tag in soup.find_all("p"):
+                text += tag.text
 
             text += "\n"
 
@@ -180,3 +203,8 @@ class Wikipedia:
             text = re.sub(bold, f"<b>{bold}</b>", text, 1)
 
         return text
+
+
+if __name__ == "__main__":
+    w = Wikipedia("ru")
+    print(w.parsePage(w.getPage("cron")))
