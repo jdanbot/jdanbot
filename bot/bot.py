@@ -30,7 +30,7 @@ if "TOKEN" in os.environ:
     heroku = True
 
 else:
-    with open("../token.json") as token:
+    with open("../token2.json") as token:
         heroku = False
         bot = telebot.TeleBot(json.loads(token.read())["token"])
 
@@ -708,6 +708,11 @@ def math_command(message):
 # TODO: REWRITE
 
 
+@bot.message_handler(commands=["sru", "s", "search"])
+def wikiru(message):
+    wikiSearch(message, "ru")
+
+
 @bot.message_handler(commands=["wikiru", "wikiru2", "wru", "w"])
 def wikiru(message):
     getWiki(message, "ru")
@@ -801,24 +806,58 @@ def wiki_langs(message):
                  disable_web_page_preview=True)
 
 
-def getWiki(message, lang="ru", logs=False):
+def wikiSearch(message, lang="ru", logs=False):
     if len(message.text.split(maxsplit=1)) != 2:
         bot.reply_to(message, f"Пожалуйста, напишите название статьи\nНапример так: `{message.text.split(maxsplit=1)[0]} Название Статьи`", parse_mode="Markdown")
         return
 
     query = message.text.split(maxsplit=1)[1]
-    print(f"[Wikipedia {lang.upper()}] {query}")
+    print(f"[Wikipedia Search {lang.upper()}] {query}")
 
     wiki = Wikipedia(lang)
 
-    title = wiki.search(query, 1)
+    r = wiki.search(query, 20)
 
-    if title == -1:
+    if r == -1:
         bot.reply_to(message, "Ничего не найдено")
         return
-    else:
-        page = wiki.getPage(title[0][0])
 
+    text = "<b>Результаты поиска:</b>\n\n"
+
+    for num, prop in enumerate(r):
+        text += f"{num + 1}. /w_{prop[1]} {prop[0]}\n"
+
+    bot.reply_to(message, text, parse_mode="HTML")
+
+
+def getWiki(message=None, lang="ru", logs=False, title=None):
+    wiki = Wikipedia(lang)
+
+    if title is None:
+        if len(message.text.split(maxsplit=1)) != 2:
+            bot.reply_to(message, f"Пожалуйста, напишите название статьи\nНапример так: `{message.text.split(maxsplit=1)[0]} Название Статьи`", parse_mode="Markdown")
+            return
+
+        query = message.text.split(maxsplit=1)[1]
+        print(f"[Wikipedia {lang.upper()}] {query}")
+
+        s = wiki.search(query, 1)
+
+        if s == -1:
+            bot.reply_to(message, "Ничего не найдено")
+            return
+
+        title = s[0][0]
+
+    page = wiki.getPage(title)
+
+    if page == -1:
+        text = ""
+
+    elif str(page) == "":
+        text = ""
+
+    else:
         for span in page.find_all("span"):
             span.name = "p"
 
@@ -826,18 +865,9 @@ def getWiki(message, lang="ru", logs=False):
             if p.text == "":
                 p.replace_with("")
 
-        if page == -1:
-            bot.reply_to(message, "Не удалось загрузить статью")
-            return
+        text = wiki.parsePage(page)
 
-        elif str(page) == "":
-            bot.reply_to(message, "Не удалось загрузить статью")
-            return
-
-        else:
-            text = wiki.parsePage(page)
-
-    image = wiki.getImageByPageName(title[0][0])
+    image = wiki.getImageByPageName(title)
 
     if type(image) is int:
         bot.send_chat_action(message.chat.id, "typing")
@@ -1558,6 +1588,27 @@ def msg(message):
 
 @bot.message_handler(content_types=['text'])
 def detect(message):
+    if message.text.startswith("/w_"):
+        text = message.text.replace("/w_", "")
+        if text.find("@") != -1:
+            text = text.split("@", maxsplit=1)[0]
+        w = Wikipedia("ru")
+
+        try:
+            id_ = int(text)
+
+        except Exception as e:
+            bot.reply_to(message, "id должен быть числом")
+            return
+
+        title = w.getPageNameById(id_)
+
+        if title == -1:
+            bot.reply_to(message, "Не получилось найти статью по айди")
+            return
+
+        getWiki(message, title=title)
+
     if message.chat.id == -1001335444502 or \
        message.chat.id == -1001189395000 or \
        message.chat.id == -1001176998310:

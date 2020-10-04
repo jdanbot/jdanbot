@@ -47,6 +47,19 @@ class Wikipedia:
 
         return result
 
+    def getPageNameById(self, id_):
+        r = requests.get(f"{self.url}/w/api.php",
+                         params={
+                            "action": "query",
+                            "pageids": id_,
+                            "format": "json"
+                         })
+
+        try:
+            return json.loads(r.text)["query"]["pages"][str(id_)]["title"]
+        except:
+            return -1
+
     def getPage(self, title, exsentences=5):
         if exsentences == -1:
             r = requests.get(f"{self.url}/w/api.php",
@@ -207,14 +220,14 @@ class Wikipedia:
 
 if __name__ == "__main__":
     w = Wikipedia("ru")
-    page = w.getPage("Аналог")
 
-    for span in page.find_all("span"):
-        span.name = "p"
+    import argparse
 
-    for p in page.find_all("p"):
-        if p.text == "":
-            p.replace_with("")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("ban", help="For version")
 
-    print(page)
-    print(w.parsePage(page))
+    args = parser.parse_args()
+
+    id_ = w.getPageNameById(args.ban)
+
+    print(w.getPage(id_))
