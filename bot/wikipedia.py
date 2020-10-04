@@ -207,4 +207,14 @@ class Wikipedia:
 
 if __name__ == "__main__":
     w = Wikipedia("ru")
-    print(w.parsePage(w.getPage("cron")))
+    page = w.getPage("Аналог")
+
+    for span in page.find_all("span"):
+        span.name = "p"
+
+    for p in page.find_all("p"):
+        if p.text == "":
+            p.replace_with("")
+
+    print(page)
+    print(w.parsePage(page))
