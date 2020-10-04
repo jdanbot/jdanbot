@@ -822,12 +822,13 @@ def wikiSearch(message, lang="ru", logs=False):
         bot.reply_to(message, "Ничего не найдено")
         return
 
-    text = "<b>Результаты поиска:</b>\n\n"
+    text = ""
 
-    for num, prop in enumerate(r):
-        text += f"{num + 1}. /w_{prop[1]} {prop[0]}\n"
+    for prop in r:
+        text += f"{prop[0]}\n"
+        text += f"└─/w_{prop[1]}\n"
 
-    bot.reply_to(message, text, parse_mode="HTML")
+    bot.reply_to(message, text)
 
 
 def getWiki(message=None, lang="ru", logs=False, title=None):
