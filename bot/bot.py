@@ -216,7 +216,7 @@ def toyaml(message):
         code = message.reply_to_message.text
         try:
             j = json.loads(code)
-            y = yaml.dump(j)
+            y = yaml.dump(j, allow_unicode=True)[:4096]
             bot.reply_to(message,
                          f"<code>{fixHTML(y)}</code>",
                          parse_mode="HTML")
