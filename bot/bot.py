@@ -1,6 +1,7 @@
 # -- coding: utf8 --
 
 import json
+import yaml
 import re
 import hashlib
 import requests
@@ -207,6 +208,23 @@ def status(message):
     bot.reply_to(message,
                  f"`{text}`",
                  parse_mode="Markdown")
+
+
+@bot.message_handler(["to_yaml"])
+def toyaml(message):
+    if message.reply_to_message:
+        code = message.reply_to_message.text
+        try:
+            j = json.loads(code)
+            y = yaml.dump(j)
+            bot.reply_to(message,
+                         f"<code>{fixHTML(y)}</code>",
+                         parse_mode="HTML")
+        except:
+            bot.reply_to(message, "Произошла ошибка при перекодировании")
+    else:
+        bot.reply_to(message, "Ответь на json")
+        return
 
 
 @bot.message_handler(["title"])
