@@ -213,7 +213,10 @@ class Wikipedia:
                    .replace(" )", ")")
 
         for bold in bold_text:
-            text = re.sub(bold, f"<b>{bold}</b>", text, 1)
+            try:
+                text = re.sub(bold, f"<b>{bold}</b>", text, 1)
+            except re.error:
+                text = text.replace(bold + " ", f"<b>{bold}</b> ")
 
         return text
 
