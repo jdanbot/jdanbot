@@ -31,7 +31,7 @@ if "TOKEN" in os.environ:
     heroku = True
 
 else:
-    with open("../token2.json") as token:
+    with open("../token.json") as token:
         heroku = False
         bot = telebot.TeleBot(json.loads(token.read())["token"])
 
@@ -1726,19 +1726,21 @@ def detect(message):
                 bot.reply_to(message, "Ура, председатель пришел))")
 
             else:
-                try:
-                    bot.restrict_chat_member(message.chat.id,
-                                             message.from_user.id,
-                                             until_date=time.time()+60)
+                bot.reply_to(message, choice(texts.ban_list))
 
-                    bot.reply_to(message, choice(texts.ban_list))
-                except:
-                    pass
+            try:
+                bot.restrict_chat_member(message.chat.id,
+                                         message.from_user.id,
+                                         until_date=time.time()+60)
+            except:
+                pass
+        if msg.find("секс") != -1:
+            bot.reply_to(message, "Кто?")
 
-        if message.text.find("когда уйдет путин") != -1:
+        if msg.find("когда уйдет путин") != -1:
             random_putin(message)
 
-        if message.text.find("когда уйдет лукашенко") != -1:
+        if msg.find("когда уйдет лукашенко") != -1:
             random_lukash(message)
 
 
