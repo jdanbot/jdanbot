@@ -22,8 +22,10 @@ from bs4 import BeautifulSoup
 
 import data as texts
 from prettyword import prettyword
-from wikipedia import Wikipedia
 from rules import getRules
+
+from lib.wikipedia import Wikipedia
+from lib.habr import Habr
 
 
 if "TOKEN" in os.environ:
@@ -31,7 +33,7 @@ if "TOKEN" in os.environ:
     heroku = True
 
 else:
-    with open("../token.json") as token:
+    with open("../token2.json") as token:
         heroku = False
         bot = telebot.TeleBot(json.loads(token.read())["token"])
 
@@ -66,6 +68,26 @@ for ind, button in enumerate(buttons):
 
 def fixHTML(code):
     return code.replace("<", "&lt;").replace(">", "&gt;")
+
+
+@bot.message_handler(["habr"])
+def habr(message):
+    options = message.text.split(maxsplit=1)
+    if len(options) == 1:
+        bot.reply_to(message, "Введи id поста из хабра")
+        return
+
+    try:
+        id_ = int(options[-1])
+
+    except:
+        bot.reply_to(message, "Введи валидный id поста")
+
+    h = Habr()
+    try:
+        bot.reply_to(message, h.page(id_)[:4096], parse_mode="HTML", disable_web_page_preview=True)
+    except Exception as e:
+        bot.reply_to(message, e)
 
 
 @bot.message_handler(["art"])
