@@ -11,13 +11,11 @@ import traceback
 import urllib
 import time
 import sys
-import subprocess
 from random import choice, randint
 from datetime import datetime
 
 import telebot
 from art import text2art
-from PIL import Image, ImageDraw, ImageFont
 from bs4 import BeautifulSoup
 
 import data as texts
@@ -497,7 +495,7 @@ def resize(message):
 def text(message):
     tg = Telegram(bot)
 
-    params = message.text.split(" ", maxsplit=5)
+    params = message.text.split(" ", maxsplit=4)
 
     if len(params) != 5:
         bot.reply_to(message,
