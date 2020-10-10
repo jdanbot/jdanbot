@@ -514,7 +514,7 @@ def text(message):
 
     img = Photo(photo[0] + ".jpg")
     try:
-        img.font("../OpenSans-Bold.ttf", int(params[1]))
+        img.font("OpenSans-Bold.ttf" if heroku else "../OpenSans-Bold.ttf", int(params[1]))
         img.text(params[2], img.parseXY(params[3]), params[4])
     except Exception as e:
         bot.reply_to(message,
@@ -547,7 +547,7 @@ def t(message):
 
     img = Photo(photo[0] + ".jpg")
     try:
-        img.font("../OpenSans-Bold.ttf", 75)
+        img.font("OpenSans-Bold.ttf" if heroku else "../OpenSans-Bold.ttf", 75)
         img.text("black", (50, 50), params[1])
     except Exception as e:
         bot.reply_to(message,
