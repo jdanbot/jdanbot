@@ -26,6 +26,8 @@ from rules import getRules
 
 from lib.wikipedia import Wikipedia
 from lib.habr import Habr
+from lib.photo import Photo
+from lib.telegram import Telegram
 
 
 if "TOKEN" in os.environ:
@@ -460,237 +462,134 @@ def preview(message):
 
 @bot.message_handler(commands=["resize"])
 def resize(message):
+    tg = Telegram(bot)
+
+    params = tg.parse(message, 3)
+
+    if params == 404:
+        bot.reply_to(message,
+                     "Недостаточное количество параметров: необходимо `3`",
+                     parse_mode="Markdown")
+        return
+
+    print(params)
+    photo = tg.photo(message)
+    file = bot.download_file(photo[1].file_path)
+
+    with open(photo[0] + ".jpg", "wb") as new_file:
+        new_file.write(file)
+
+    img = Photo(photo[0] + ".jpg")
+
     try:
-        options = message.text.split()
-
-        try:
-            int(options[1])
-
-        except ValueError:
-            options.extend([100000])
-
-        try:
-            int(options[2])
-        except ValueError:
-            options.extend([100000])
-
-        src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}cache{separator}"
-
-        try:
-            photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
-            file_id = message.reply_to_message.photo[-1].file_id
-
-        except:
-            photo = bot.get_file(message.reply_to_message.document.file_id)
-            file_id = message.reply_to_message.document.file_id
-
-        file = bot.download_file(photo.file_path)
-
-        try:
-            os.remove(src + file_id)
-        except FileNotFoundError:
-            pass
-
-        with open(src + file_id + ".jpg", "wb") as new_file:
-            new_file.write(file)
-        img = Image.open(src + file_id + ".jpg")
-        img.thumbnail((int(options[1]), int(options[1])))
-        img.save(src + file_id + "_saved.jpg")
-        bot.send_photo(message.chat.id, open(src + file_id + "_saved.jpg", "rb"))
-        os.remove(src + file_id + "_saved.jpg")
-        os.remove(src + file_id + ".jpg")
-
+        img.resize([int(params[1]), int(params[2])])
     except Exception as e:
-        bot.reply_to(message, f"`{e}`", parse_mode="Markdown")
+        bot.reply_to(message,
+                     f"Произошла ошибка\n<code>{e}</code>",
+                     parse_mode="HTML")
+        return
+
+    bot.send_photo(message.chat.id, img.save())
+    img.clean()
 
 
 @bot.message_handler(commands=["text"])
 def text(message):
-    params = message.text.split()
-    print(params)
-    # if True:
+    tg = Telegram(bot)
 
-    if len(params) == 1:
-        bot.reply_to(message, "Напишите текст, а также ответьте на фото, на которое нужно нанести текст")
-        bot.send_message(795449748, message.chat.id)
-        bot.send_message(795449748, "@" + message.chat.username)
+    params = message.text.split(" ", maxsplit=5)
+
+    if len(params) != 5:
+        bot.reply_to(message,
+                     "Недостаточное количество параметров: необходимо `5`",
+                     parse_mode="Markdown")
         return
 
+    print(params)
+    photo = tg.photo(message)
+    file = bot.download_file(photo[1].file_path)
+
+    with open(photo[0] + ".jpg", "wb") as new_file:
+        new_file.write(file)
+
+    img = Photo(photo[0] + ".jpg")
     try:
-        int(params[3].split("x")[0])
-        params = message.text.split(maxsplit=4)
-        text = params[len(params) - 1]
-
-    except (ValueError, IndexError):
-        params = message.text.split(maxsplit=1)
-        text = params[1]
-
-    src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}cache{separator}"
-
-    try:
-        if message.reply_to_message is None:
-            bot.reply_to(message, "Ответьте на фото")
-            return
-
-        try:
-            photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
-            file_id = message.reply_to_message.photo[-1].file_id
-
-        except:
-            photo = bot.get_file(message.reply_to_message.document.file_id)
-            file_id = message.reply_to_message.document.file_id
-
-        file = bot.download_file(photo.file_path)
-
-        try:
-            os.remove(src + file_id + ".jpg")
-
-        except FileNotFoundError:
-            pass
-
-        with open(src + file_id + "_copy.jpg", "wb") as new_file:
-            new_file.write(file)
-
-        with open(src + file_id + ".jpg", "wb") as new_file:
-            new_file.write(file)
-
-        img = Image.open(src + file_id + ".jpg")
-
-        idraw = ImageDraw.Draw(img)
-
-        # font = ImageFont.truetype("JetBrainsMono.ttf", size=28)
-        # idraw.text((4, 4), text, font=font)
-
-        # font = ImageFont.truetype("JetBrainsMono.ttf", size=27)
-        # idraw.text((6, 6), text, font=font)
-        try:
-            xy = params[3].split("x")
-        except IndexError:
-            xy = [100, 100]
-
-        try:
-            x = int(xy[0])
-        except IndexError:
-            x = 100
-
-        try:
-            y = int(xy[1])
-        except IndexError:
-            y = 100
-
-        try:
-            size = int(params[1])
-        except IndexError:
-            size = 100
-
-        if size > 1000:
-            size = 1000
-
-        # font = ImageFont.truetype("NotoSans-Regular.ttf", size=size)
-        # font = ImageFont.truetype("Apple Color Emoji.ttf", size=size)
-        # idraw.text((7, 10), text, font=font, fill=(0, 0, 0, 0))
-
-        shadowcolor = "white"
-
-        try:
-            try:
-                fillcolor = params[2].split(",")
-                fillcolor = fillcolor.extend(["0"])
-                fillcolor = [int(num) for num in fillcolor]
-                fillcolor = tuple(fillcolor)
-            except:
-                fillcolor = params[2]
-
-        except:
-            fillcolor = "black"
-
-        font = ImageFont.truetype("OpenSans-Bold.ttf", size=size)
-
-        p = 3
-
-        idraw.text((x-p, y), text, font=font, fill=shadowcolor)
-        idraw.text((x+p, y), text, font=font, fill=shadowcolor)
-        idraw.text((x, y-p), text, font=font, fill=shadowcolor)
-        idraw.text((x, y+p), text, font=font, fill=shadowcolor)
-
-        # thicker border
-        idraw.text((x-p, y-p), text, font=font, fill=shadowcolor)
-        idraw.text((x+p, y-p), text, font=font, fill=shadowcolor)
-        idraw.text((x-p, y+p), text, font=font, fill=shadowcolor)
-        idraw.text((x+p, y+p), text, font=font, fill=shadowcolor)
-
-        try:
-            idraw.text((x, y), text, font=font, fill=fillcolor)
-
-        except NameError:
-            idraw.text((x, y), text, font=font, fill="black")
-
-        img.save(src + file_id + "_text.png", "PNG", dpi=[300, 300], quality=100)
-        bot.send_photo(message.chat.id, open(src + file_id + "_text.png", "rb"))
-
-        os.remove(src + file_id + "_text.png")
-        os.remove(src + file_id + ".jpg")
-
+        img.font("../OpenSans-Bold.ttf", int(params[1]))
+        img.text(params[2], img.parseXY(params[3]), params[4])
     except Exception as e:
-        bot.reply_to(message, f"`{str(traceback.format_exc())}`", parse_mode="Markdown")
+        bot.reply_to(message,
+                     f"Произошла ошибка\n<code>{e}</code>",
+                     parse_mode="HTML")
+        return
+
+    bot.send_photo(message.chat.id, img.save())
+    img.clean()
+
+
+@bot.message_handler(commands=["t"])
+def t(message):
+    tg = Telegram(bot)
+
+    params = message.text.split(" ", maxsplit=1)
+
+    if len(params) == 1:
+        bot.reply_to(message,
+                     "Недостаточное количество параметров: необходимо `2`",
+                     parse_mode="Markdown")
+        return
+
+    print(params)
+    photo = tg.photo(message)
+    file = bot.download_file(photo[1].file_path)
+
+    with open(photo[0] + ".jpg", "wb") as new_file:
+        new_file.write(file)
+
+    img = Photo(photo[0] + ".jpg")
+    try:
+        img.font("../OpenSans-Bold.ttf", 75)
+        img.text("black", (50, 50), params[1])
+    except Exception as e:
+        bot.reply_to(message,
+                     f"Произошла ошибка\n<code>{e}</code>",
+                     parse_mode="HTML")
+        return
+
+    bot.send_photo(message.chat.id, img.save())
+    img.clean()
 
 
 @bot.message_handler(commands=["rectangle"])
 def rectangle(message):
-    params = message.text.split(maxsplit=4)
+    tg = Telegram(bot)
+
+    params = tg.parse(message, 4)
+
+    if params == 404:
+        bot.reply_to(message,
+                     "Недостаточное количество параметров: необходимо `4`",
+                     parse_mode="Markdown")
+        return
+
     print(params)
+    photo = tg.photo(message)
+    file = bot.download_file(photo[1].file_path)
+
+    with open(photo[0] + ".jpg", "wb") as new_file:
+        new_file.write(file)
+
+    img = Photo(photo[0] + ".jpg")
+
     try:
-        params[2]
-
-        src = f"{os.path.dirname(os.path.abspath(__file__))}{separator}cache{separator}"
-
-        try:
-            photo = bot.get_file(message.reply_to_message.photo[-1].file_id)
-        except:
-            photo = bot.get_file(message.reply_to_message.document.thumb.file_id)
-        file = bot.download_file(photo.file_path)
-
-        try:
-            os.remove(src + message.reply_to_message.photo[-1].file_id + ".jpg")
-        except:
-            pass
-
-        with open(src + message.reply_to_message.photo[-1].file_id + "_copy.jpg", "wb") as new_file:
-            new_file.write(file)
-
-        with open(src + message.reply_to_message.photo[-1].file_id + ".jpg", "wb") as new_file:
-            new_file.write(file)
-
-        img = Image.open(src + message.reply_to_message.photo[-1].file_id + ".jpg")
-
-        idraw = ImageDraw.Draw(img)
-
-        try:
-            optsize = params[2].split("x")
-            optsize1 = params[3].split("x")
-
-            size = (int(optsize[0]), int(optsize[1]))
-            size1 = (int(optsize1[0]), int(optsize1[0]))
-
-        except:
-            optsize = params[2].split(".")
-            optsize1 = params[3].split(".")
-
-            size = (int(optsize[0]), int(optsize[1]))
-            size1 = (int(optsize1[0]), int(optsize1[0]))
-
-        idraw.rectangle((size, size1), fill=params[1])
-        # except:
-        #    idraw.text((x, y), text, font=font, fill="black")
-
-        img.save(src + message.reply_to_message.photo[-1].file_id + "_text.png", "PNG", dpi=[300,300], quality=100)
-        bot.send_photo(message.chat.id, open(src + message.reply_to_message.photo[-1].file_id + "_text.png", "rb"))
-
-        os.remove(src + message.reply_to_message.photo[-1].file_id + "_text.png")
-        os.remove(src + message.reply_to_message.photo[-1].file_id + ".jpg")
-
+        img.rectangle(img.parseXY(params[2]), img.parseXY(params[3]), params[1])
     except Exception as e:
-        bot.reply_to(message, e)
+        bot.reply_to(message,
+                     f"Во время создания фото произошла ошибка\n<code>{e}</code>",
+                     parse_mode="HTML")
+        return
+
+    bot.send_photo(message.chat.id, img.save())
+    img.clean()
 
 
 @bot.message_handler(commands=["sqrt"])
