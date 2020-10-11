@@ -1482,7 +1482,8 @@ def random_color(message):
     try:
         img.rectangle((0, 0), (220, 220), color)
         img.rectangle((0, 159), (220, 220), "#282C34")
-        img.font(("" if heroku else "../") + "JetBrainsMono-Bold", 47)
+        font = "JetBrainsMono-Bold.ttf" if heroku else "../JetBrainsMono-Bold.ttf"
+        img.font(font, 47)
         img.text("#DB9D63", (13, 160), color, outline=False)
         img.text("#FFF", (13, 160), "#", outline=False)
     except Exception as e:
