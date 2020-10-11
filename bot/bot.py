@@ -1494,7 +1494,7 @@ def random_color(message):
     bot.send_photo(message.chat.id,
                    img.save(),
                    caption=f"`{color}`",
-                   reply_to_message_id=message.message_id
+                   reply_to_message_id=message.message_id,
                    parse_mode="Markdown")
     img.clean()
 
