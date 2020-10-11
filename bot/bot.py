@@ -201,7 +201,7 @@ def get_uptime(message):
 
     text = f"uptime:\n"
     text += f"├─hours: {main[0]}\n"
-    text += f"├─minute: {main[1]}\n"
+    text += f"├─minutes: {main[1]}\n"
     text += f"└─seconds: {main[2]}\n"
 
     bot.reply_to(message,
@@ -216,10 +216,10 @@ def status(message):
     main = uptime.split(".")[0].split(":")
 
     text =  f"bot:\n"
-    text += f"├─status: work\n"
+    text += f"├─status: working\n"
     text += f"├─uptime:\n"
     text += f"│⠀├─hours: {main[0]}\n"
-    text += f"│⠀├─minute: {main[1]}\n"
+    text += f"│⠀├─minutes: {main[1]}\n"
     text += f"│⠀└─seconds: {main[2]}\n"
     text += f"├─heroku: {heroku}\n"
     text += f"└─osname: {os.name}\n"
