@@ -1460,13 +1460,42 @@ def random(message):
 
 @bot.message_handler(commands=["random_color", "color"])
 def random_color(message):
-    randlist = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F"]
+    options = message.text.split(" ", maxsplit=1)
+    if len(options) == 1:
+        randlist = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F"]
 
-    color = ""
-    for i in range(0, 6):
-        color += str(choice(randlist))
+        color = ""
+        for i in range(0, 6):
+            color += str(choice(randlist))
 
-    bot.reply_to(message, f"`#{color}`", parse_mode="Markdown")
+        color = "#" + color
+
+    else:
+        if options[1].startswith("#"):
+            color = options[1]
+        else:
+            bot.reply_to(message, "Вводи цвет в формате hex")
+            return
+
+    img = Photo()
+
+    try:
+        img.rectangle((0, 0), (220, 220), color)
+        img.rectangle((0, 159), (220, 220), "#282C34")
+        img.font(("" if heroku else "../") + "JetBrainsMono-Bold", 47)
+        img.text("#DB9D63", (13, 160), color, outline=False)
+        img.text("#FFF", (13, 160), "#", outline=False)
+    except Exception as e:
+        bot.reply_to(message,
+                     f"Во время создания фото произошла ошибка\n<code>{e}</code>",
+                     parse_mode="HTML")
+        return
+
+    bot.send_photo(message.chat.id,
+                   img.save(),
+                   caption=f"`{color}`",
+                   parse_mode="Markdown")
+    img.clean()
 
 
 @bot.message_handler(commands=["random_putin"])
