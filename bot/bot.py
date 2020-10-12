@@ -216,11 +216,13 @@ def status(message):
     uptime = str(datetime.now() - start_time)
     main = uptime.split(".")[0].split(":")
 
+    h = main[0]
+    h = "0" + h if len(h) == 1 else h
+
     text =  f"status:\n"
-    text += f"├─user: {platform.node()}\n"
     text += f"├─status: 👍\n"
     text += f"├─heroku: {heroku}\n"
-    text += f"├─uptime: {main[0]}:{main[1]}:{main[2]}\n"
+    text += f"├─uptime: {h}:{main[1]}:{main[2]}\n"
     text += f"├─machine: {platform.machine()}\n"
     text += f"└─os: {platform.system()} {platform.release()}\n"
 
@@ -609,7 +611,6 @@ def sqrt(message):
 
 @bot.message_handler(commands=["eval", "calc"])
 def calc_eval(message):
-    bot.reply_to(message, "Бан")
     return
     if len(str(message.text).split(maxsplit=1)) == 1:
         bot.reply_to(message, "Введи запрос для вычисления")
