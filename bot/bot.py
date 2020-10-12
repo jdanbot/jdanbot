@@ -473,7 +473,13 @@ def resize(message):
         return
 
     print(params)
-    photo = tg.photo(message)
+
+    try:
+        photo = tg.photo(message)
+    except AttributeError:
+        bot.reply_to(message, "Ответьте на фото")
+        return
+
     file = bot.download_file(photo[1].file_path)
 
     with open(photo[0] + ".jpg", "wb") as new_file:
@@ -506,7 +512,13 @@ def text(message):
         return
 
     print(params)
-    photo = tg.photo(message)
+
+    try:
+        photo = tg.photo(message)
+    except AttributeError:
+        bot.reply_to(message, "Ответьте на фото")
+        return
+
     file = bot.download_file(photo[1].file_path)
 
     with open(photo[0] + ".jpg", "wb") as new_file:
@@ -539,7 +551,13 @@ def t(message):
         return
 
     print(params)
-    photo = tg.photo(message)
+
+    try:
+        photo = tg.photo(message)
+    except AttributeError:
+        bot.reply_to(message, "Ответьте на фото")
+        return
+
     file = bot.download_file(photo[1].file_path)
 
     with open(photo[0] + ".jpg", "wb") as new_file:
