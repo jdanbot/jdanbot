@@ -4,3 +4,4 @@ beautifulsoup4
 pillow
 art
 pyyaml
+pyscp
