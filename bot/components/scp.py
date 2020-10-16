@@ -14,13 +14,19 @@ def detectscp(message):
         bot.reply_to(message, "Напиши название scp")
         return
 
+    print(f"[SCP RU] {options[1]}")
+
     try:
         p = scp(options[1])
         p.title
 
     except:
-        bot.reply_to(message, "Не удалось найти scp")
-        return
+        try:
+            p = scp("scp-" + options[1])
+            p.title
+        except:
+            bot.reply_to(message, "Не удалось найти scp")
+            return
 
     text = p.text
 
@@ -37,23 +43,32 @@ def detectscp(message):
             if string.find("рейтинг:") != -1:
                 del(text[number])
 
+        for number, string in enumerate(text):
+            if string.startswith("Дополнение"):
+                del(text[number])
+
             if string.find("Особые условия содержания:") != -1:
                 del(text[number])
 
         for number, string in enumerate(text):
-            if "Объект №:" in string or \
-               "Класс объекта:" in string or \
-               "Примеры объектов:" in string or \
-               "Описание:" in string:
+            test = ["Объект №:", "Класс объекта:", "Примеры объектов:", "Описание:"]
+            for k in test:
+                if string.find(k) != -1:
                     o = string.split(":")[0]
-                    text[number] = text[number].replace(o, "<b>" + o + ":</b>")
-            else:
-                del(text[number])
+                    print(f"{o = }")
+                    text[number] = text[number].replace(o, "<b>" + o + "</b>")
 
             if "Описание:" in string:
                 u = number + 1
             else:
                 u = 6
+
+        for number, string in enumerate(text):
+            if string.startswith("Дополнение"):
+                del(text[number])
+
+        if text[0] == "":
+            del(text[0])
 
         if len(images) != 0:
             del(text[0])
@@ -65,8 +80,8 @@ def detectscp(message):
         text = "\n".join(text)
 
     title = fixHTML(p.title.replace('\n', ''))
-
     msg = f"<b>{title}</b>\n{text}"[:4096]
+    msg = msg.replace("</b>\n\n<b>", "</b>\n<b>")
     # print(msg)
 
     if len(images) != 0:
