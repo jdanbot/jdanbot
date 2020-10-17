@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 class Wikipedia:
     def __init__(self, lang):
         self.lang = lang
-        self.url = f"https://{lang}.wikipedia.org"
+        self.url = f"https://{lang}.wikipedia.org/w/api.php"
 
     def _getLastItem(self, page):
         item = ""
@@ -17,21 +17,24 @@ class Wikipedia:
 
         return item
 
-    def search(self, query, limit=1):
-        r = requests.get(f"{self.url}/w/api.php",
-                         params={
-                            "action": "query",
-                            "format": "json",
-                            "list": "search",
-                            "srsearch": query,
-                            "srlimit": limit,
-                            "srprop": "size"
-                         })
+    def _get(self, params):
+        self.params = {"format": "json", "action": "query"}
+        self.params = {**self.params, **params}
+
+        r = requests.get(self.url, self.params)
 
         if not r.status_code == 200:
             return 404
 
-        data = json.loads(r.text)
+        return json.loads(r.text)
+
+    def search(self, query, limit=1):
+        data = self._get({
+            "list": "search",
+            "srsearch": query,
+            "srlimit": limit,
+            "srprop": "size"
+        })
 
         if len(data["query"]["search"]) == 0:
             return -1
@@ -48,38 +51,27 @@ class Wikipedia:
         return result
 
     def getPageNameById(self, id_):
-        r = requests.get(f"{self.url}/w/api.php",
-                         params={
-                            "action": "query",
-                            "pageids": id_,
-                            "format": "json"
-                         })
+        data = self._get({"pageids": id_})
 
         try:
-            return json.loads(r.text)["query"]["pages"][str(id_)]["title"]
-        except:
+            return data["query"]["pages"][str(id_)]["title"]
+        except KeyError:
             return -1
 
     def getPage(self, title, exsentences=5):
         if exsentences == -1:
-            r = requests.get(f"{self.url}/w/api.php",
-                             params={
-                                "action": "query",
-                                "prop": "extracts",
-                                "titles": title,
-                                "format": "json"
-                             })
+            data = self._get({
+                "prop": "extracts",
+                "titles": title
+            })
         else:
-            r = requests.get(f"{self.url}/w/api.php",
-                             params={
-                                "action": "query",
-                                "prop": "extracts",
-                                "titles": title,
-                                "format": "json",
-                                "exsentences": exsentences
-                             })
+            data = self._get({
+                "prop": "extracts",
+                "titles": title,
+                "exsentences": exsentences
+            })
 
-        result = json.loads(r.text)["query"]["pages"]
+        result = data["query"]["pages"]
 
         if "-1" in result:
             return -1
@@ -89,17 +81,14 @@ class Wikipedia:
         return soup
 
     def getImageByPageName(self, title, pithumbsize=1000):
-        r = requests.get(self.url + "/w/api.php",
-                         params={
-                             "action": "query",
-                             "titles": title,
-                             "prop": "pageimages",
-                             "pithumbsize": pithumbsize,
-                             "pilicense": "any",
-                             "format": "json"
-                         })
+        data = self._get({
+            "titles": title,
+            "prop": "pageimages",
+            "pithumbsize": pithumbsize,
+            "pilicense": "any",
+        })
 
-        image_info = json.loads(r.text)["query"]["pages"]
+        image_info = data["query"]["pages"]
         pageid = self._getLastItem(image_info)
 
         try:
@@ -109,26 +98,17 @@ class Wikipedia:
             return -1
 
     def getImagesByPageName(self, title):
-        r = requests.get(self.url + "/w/api.php",
-                         params={
-                             "action": "query",
-                             "titles": title,
-                             "prop": "pageimages",
-                             "piprop": "original",
-                             "format": "json"
-                         })
-
-        print(r.url)
-        data = json.loads(r.text)
-        return data
+        return self._get({
+            "prop": "pageimages",
+            "piprop": "original",
+            "titles": title
+        })
 
     def parsePage(self, soup):
         title = "Бан"
         for tag in soup.find_all("p"):
             if re.match(r"\s", tag.text):
                 tag.replace_with("")
-
-        # semantics
 
         for t in soup.findAll("math"):
             t.replace_with("")
@@ -145,11 +125,6 @@ class Wikipedia:
 
         for tag in p.find_all("b"):
             bold_text.append(tag.text)
-
-        # bot.reply_to(message, bold_text)
-
-        # bot.reply_to(message, p.text.find(":"))
-        # bot.reply_to(message, soup)
 
         text = ""
 
