@@ -1,4 +1,7 @@
 import yaml
+from os import listdir
+
+print(listdir())
 
 try:
     with open("texts.yml", encoding="UTF-8") as file:
