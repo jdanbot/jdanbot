@@ -1,11 +1,7 @@
+from .token import heroku
 import yaml
-from os import listdir
 
-print(listdir())
+path = "bot/texts.yml" if heroku else "texts.yml"
 
-try:
-    with open("texts.yml", encoding="UTF-8") as file:
-        texts = yaml.safe_load(file.read())
-except FileNotFoundError:
-    with open("../texts.yml", encoding="UTF-8") as file:
-        texts = yaml.safe_load(file.read())
+with open(path, encoding="UTF-8") as file:
+    texts = yaml.safe_load(file.read())
