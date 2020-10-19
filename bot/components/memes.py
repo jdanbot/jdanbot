@@ -1,5 +1,5 @@
 from .token import bot, heroku
-from . import texts
+from .texts import texts
 
 
 @bot.message_handler(commands=["ban"])
@@ -66,15 +66,15 @@ def rzaka(message):
 
     try:
         bot.send_message(message.chat.id,
-                         texts.rzaka,
+                         texts["rzaka"],
                          reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_message(message.chat.id, texts.rzaka)
+        bot.send_message(message.chat.id, texts["rzaka"])
 
 
 @bot.message_handler(commands=["rzaka_time"])
 def rzaka(message):
-    bot.reply_to(message, str(texts.rzaka_time) + " часа")
+    bot.reply_to(message, str(texts["rzaka_time"]) + " часов")
 
 
 @bot.message_handler(commands=["rzaka_full"])
@@ -86,7 +86,7 @@ def rzaka_full(message):
 
     try:
         bot.send_message(message.chat.id,
-                         texts.rzaka_full,
+                         texts["rzaka_full"],
                          reply_to_message_id=message.reply_to_message.message_id)
     except AttributeError:
-        bot.send_message(message.chat.id, texts.rzaka_full)
+        bot.send_message(message.chat.id, texts["rzaka_full"])

@@ -35,7 +35,7 @@ def status(message):
     text += f"├─heroku: {heroku}\n"
     text += f"├─uptime: {h}:{main[1]}:{main[2]}\n"
     text += f"├─machine: {platform.machine()}\n"
-    text += f"└─os: {platform.system()} {platform.release()}\n"
+    text += f"└─os: {platform.system()}\n"
 
     text = text.replace("False", "❌") \
                .replace("True", "✅")

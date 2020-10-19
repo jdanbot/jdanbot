@@ -1,5 +1,5 @@
 from .token import bot
-from . import texts
+from .texts import texts
 
 import telebot
 
@@ -18,7 +18,8 @@ buttons = [
 ]
 
 for ind, button in enumerate(buttons):
-    buttons[ind] = telebot.types.InlineKeyboardButton(text=button[0], callback_data=button[1])
+    buttons[ind] = telebot.types.InlineKeyboardButton(text=button[0],
+                                                      callback_data=button[1])
 
 for ind, button in enumerate(buttons):
     a = buttons[ind:ind + 2]
@@ -31,37 +32,40 @@ for ind, button in enumerate(buttons):
 
 @bot.message_handler(["new_menu", "start", "help"])
 def menu(message):
-    bot.reply_to(message, texts.main, parse_mode="HTML", reply_markup=keyboard)
+    bot.reply_to(message,
+                 texts["menu"]["main"],
+                 parse_mode="HTML",
+                 reply_markup=keyboard)
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
     if call.data == "main":
-        edit(call, texts.main)
+        edit(call, texts["menu"]["main"])
 
     if call.data == "math":
-        edit(call, texts.math)
+        edit(call, texts["menu"]["math"])
 
     if call.data == "text":
-        edit(call, texts.text)
+        edit(call, texts["menu"]["text"])
 
     if call.data == "network":
-        edit(call, texts.network)
+        edit(call, texts["menu"]["network"])
 
     if call.data == "math":
-        edit(call, texts.math)
+        edit(call, texts["menu"]["math"])
 
     if call.data == "images":
-        edit(call, texts.images)
+        edit(call, texts["menu"]["images"])
 
     if call.data == "commands":
-        edit(call, texts.commands)
+        edit(call, texts["menu"]["commands"])
 
     if call.data == "crypt":
-        edit(call, texts.crypt)
+        edit(call, texts["menu"]["crypt"])
 
     if call.data == "memes":
-        edit(call, texts.memes)
+        edit(call, texts["menu"]["memes"])
 
 
 def edit(call, text):

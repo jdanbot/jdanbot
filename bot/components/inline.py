@@ -26,13 +26,10 @@ def query_text(query):
             img = wiki.getImageByPageName(page[0], 75)
             full_img = wiki.getImageByPageName(page[0])
             t1 = re.sub("<b>", f'<a href="{full_img}">', wiki.parsePage(p), 1)
-
             t2 = re.sub("</b>", "</a>", t1, 1)
             if img != -1 and full_img != -1:
                 btns.append(telebot.types.InlineQueryResultArticle(
                         id=page[1], title=page[0],
-                        # Описание отображается в подсказке,
-                        # message_text - то, что будет отправлено в виде сообщения
                         description=p.text[:100],
                         input_message_content=telebot.types.InputTextMessageContent(
                         message_text=t2,
@@ -42,8 +39,6 @@ def query_text(query):
             else:
                 btns.append(telebot.types.InlineQueryResultArticle(
                         id=page[1], title=page[0],
-                        # Описание отображается в подсказке,
-                        # message_text - то, что будет отправлено в виде сообщения
                         description=p.text[:100],
                         input_message_content=telebot.types.InputTextMessageContent(
                         message_text=wiki.parsePage(p),

@@ -1,6 +1,6 @@
 from .token import bot
 from .lib.wikipedia import Wikipedia
-from . import texts
+from .texts import texts
 
 
 def wikiSearch(message, lang="ru", logs=False):
@@ -178,12 +178,12 @@ def wikibet(message):
 
 @bot.message_handler(commands=["wiki_usage", "wiki2", "wiki"])
 def wiki_usage(message):
-    bot.reply_to(message, texts.langs, parse_mode="Markdown")
+    bot.reply_to(message, texts["wiki_query_example"], parse_mode="Markdown")
 
 
 @bot.message_handler(commands=["langs", "wikilangs", "wiki_langs"])
 def wiki_langs(message):
     bot.reply_to(message,
-                 texts.langs_list,
+                 texts["langs"],
                  parse_mode="Markdown",
                  disable_web_page_preview=True)
