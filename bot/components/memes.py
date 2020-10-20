@@ -56,6 +56,16 @@ def ban(message):
 
 
 @bot.message_handler(commands=["fake"])
-def fake(message):
+def polak(message):
+    try:
+        bot.delete_message(message.chat.id, message.message_id)
+    except:
+        pass
+
     path = "bot/images/polak.jpg" if heroku else "../images/polak.jpg"
-    send_meme(message, open(path, "rb"))
+
+    try:
+        bot.send_photo(message.chat.id, open(path, "rb"),
+                       reply_to_message_id=message.reply_to_message.message_id)
+    except AttributeError:
+        bot.send_photo(message.chat.id, open(path, "rb").read())
