@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 
 
-@bot.message_handler(commands=["bashorg", "bash", "b"])
+@bot.message_handler(commands=["bashorg", "bashim", "b"])
 def bashorg(message):
     params = message.text.split(maxsplit=2)
     if len(params) == 1:
