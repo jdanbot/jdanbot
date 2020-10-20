@@ -1,5 +1,4 @@
 def prettyword(n, forms):
-
     if n % 100 in [11, 12, 13, 14]:
         return forms[2]
 
