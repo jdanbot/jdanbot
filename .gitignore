@@ -3,6 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
-token.txt
-token2.txt
+token.json
+token2.json
 *.txt
