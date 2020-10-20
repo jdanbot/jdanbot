@@ -58,4 +58,4 @@ def ban(message):
 @bot.message_handler(commands=["fake"])
 def fake(message):
     path = "bot/images/polak.jpg" if heroku else "../images/polak.jpg"
-    send_meme(message, open(path, "rb").read())
+    send_meme(message, open(path, "rb"))
