@@ -1,5 +1,5 @@
 # 🤖 jdan734-bot
-Multifunctional telegram bot for banning and stuff)))
+Multifunctional telegram bot for banning and stuff.
 
 ## 🚀 Start
 To start, clone this repo and run this code:
@@ -13,12 +13,12 @@ python bot/bot.py
 ```
 
 ## 🔑 Token
-You can get token from t.me/BotFather
+You can get token from [BotFather](t.me/BotFather).
 After you must create file `token.json` in `/` if you not use environ:
 ```json
 {"token": "XXXXXXX"}
 ```
-Else you must create `"Token"` in environ with your token
+Else you must create `Token` in environ with your token.
 
 ## 🔨 Dependencies
 ### ✈️ [PyTelegramBotAPI](https://github.com/eternnoir/pyTelegramBotAPI)
@@ -34,4 +34,4 @@ ASCII art is also known as "computer text art". It involves the smart placement 
 ### 📄 [pyyaml](https://github.com/yaml/pyyaml)
 The next generation YAML parser and emitter for Python.
 ### 👻 [pyscp](https://github.com/anqxyr/pyscp)
-pyscp is a python library for interacting with wikidot-hosted websites. The library is mainly intended for use by the administrative staff of the www.scp-wiki.net website, and has a host of feature exclusive to it. However, the majority of the core functionality should be applicalbe to any wikidot-based site.
+pyscp is a python library for interacting with wikidot-hosted websites. The library is mainly intended for use by the administrative staff of the www.scp-wiki.net website, and has a host of feature exclusive to it.
