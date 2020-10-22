@@ -3,12 +3,12 @@ Multifunctional telegram bot for banning and stuff.
 
 ## 🚀 Start
 To start, clone this repo and run this code:
-```
+```sh
 cd bot
 python bot.py
 ```
 or you can start bot from `/` if you use environ:
-```
+```sh
 python bot/bot.py
 ```
 
