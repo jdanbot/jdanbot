@@ -90,10 +90,10 @@ def detect(message):
             bword = choice(bwords)
 
             if type(bword) == str:
-                bot.reply_to(message, bword)
+                bot.reply_to(message, bword, parse_mode="HTML")
 
             elif type(bword) == dict:
-                bot.reply_to(message, bword["text"])
+                bot.reply_to(message, bword["text"], parse_mode="HTML")
                 bot.send_sticker(message.chat.id, bword["sticker"])
 
             try:
