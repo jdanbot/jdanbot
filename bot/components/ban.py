@@ -35,7 +35,8 @@ def detect(message):
 
     if message.chat.id == -1001335444502 or \
        message.chat.id == -1001189395000 or \
-       message.chat.id == -1001176998310:
+       message.chat.id == -100117699831 or \
+       message.chat.id == -1001374137898:
         msg = message.text.lower().replace("_", "") \
                                   .replace("-", "")
 
