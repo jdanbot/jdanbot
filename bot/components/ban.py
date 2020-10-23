@@ -6,7 +6,7 @@ from .random import random_putin, random_lukash
 from .wiki import getWiki
 
 from random import choice, randint
-from time import time
+import time
 import re
 
 
