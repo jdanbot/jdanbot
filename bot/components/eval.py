@@ -3,6 +3,7 @@ import traceback
 import re
 import requests
 import telebot
+import time
 
 
 @bot.message_handler(["e"])
