@@ -7,6 +7,6 @@ if "TOKEN" in os.environ:
     heroku = True
 
 else:
-    with open("../token2.json") as token:
+    with open("../token.json") as token:
         heroku = False
         bot = telebot.TeleBot(json.loads(token.read())["token"])

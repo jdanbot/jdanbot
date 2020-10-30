@@ -1,5 +1,7 @@
 from .token import bot
-from .lib.wikipedia import Wikipedia
+
+from wikipya import Wikipya
+
 import telebot
 import re
 
@@ -16,7 +18,7 @@ def query_text(query):
         return
 
     try:
-        wiki = Wikipedia("ru")
+        wiki = Wikipya("ru")
         q = matches.group()
         r = wiki.search(q, 5)
         print(q)

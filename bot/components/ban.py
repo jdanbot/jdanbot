@@ -1,6 +1,6 @@
 from .token import bot
 from .texts import texts
-from .lib.wikipedia import Wikipedia
+from wikipya import Wikipya
 from .rules import chat_rules
 from .random import random_putin, random_lukash
 from .wiki import getWiki
@@ -16,7 +16,7 @@ def detect(message):
         text = message.text.replace("/w_", "")
         if text.find("@") != -1:
             text = text.split("@", maxsplit=1)[0]
-        w = Wikipedia("ru")
+        w = Wikipya("ru")
 
         try:
             id_ = int(text)

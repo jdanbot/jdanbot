@@ -1,6 +1,7 @@
 from .token import bot
-from .lib.wikipedia import Wikipedia
 from .texts import texts
+
+from wikipya import Wikipya
 
 
 def wikiSearch(message, lang="ru", logs=False):
@@ -11,7 +12,7 @@ def wikiSearch(message, lang="ru", logs=False):
     query = message.text.split(maxsplit=1)[1]
     print(f"[Wikipedia Search {lang.upper()}] {query}")
 
-    wiki = Wikipedia(lang)
+    wiki = Wikipya(lang)
 
     r = wiki.search(query, 20)
 
@@ -29,7 +30,7 @@ def wikiSearch(message, lang="ru", logs=False):
 
 
 def getWiki(message=None, lang="ru", logs=False, title=None):
-    wiki = Wikipedia(lang)
+    wiki = Wikipya(lang)
 
     if title is None:
         if len(message.text.split(maxsplit=1)) != 2:
