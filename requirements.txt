@@ -5,3 +5,4 @@ pillow
 art
 pyyaml
 pyscp
+wikipya
