@@ -1,6 +1,6 @@
 from .token import bot
 
-from wikipya import Wikipya
+from wikipya.core import Wikipya
 
 import telebot
 import re

@@ -1,10 +1,10 @@
 from .token import bot
 from .texts import texts
-from wikipya import Wikipya
 from .rules import chat_rules
 from .random import random_putin, random_lukash
 from .wiki import getWiki
 
+from wikipya.core import Wikipya
 from random import choice, randint
 import time
 import re

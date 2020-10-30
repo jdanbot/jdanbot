@@ -1,7 +1,7 @@
 from .token import bot
 from .texts import texts
 
-from wikipya import Wikipya
+from wikipya.core import Wikipya
 
 
 def wikiSearch(message, lang="ru", logs=False):
