@@ -12,7 +12,7 @@ def getTranslate(message, lang):
     elif hasattr(message.reply_to_message, "text"):
         text = message.reply_to_message.text
 
-    elif hasattr(message.reply_to_message, "text"):
+    elif hasattr(message.reply_to_message, "caption"):
         text = message.reply_to_message.caption
 
     else:
