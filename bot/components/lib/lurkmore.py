@@ -76,7 +76,7 @@ class Lurkmore:
             })
 
         images_list = []
-        blocklist = ["St.jpg", "ZOG1.jpg", "Butthurt.png", "Politota.png", "SShA.jpg", "48ef4db2ad.png", "Hate_small.png", "BanCaptcha.jpg", "Magnify-clip.png", "Wrar64.png", "Warning_1.png", "Eri_x_Yakumo.jpg", "Slowpoke.png", "Drama.png", "Barbed_wire_new_flip.png", "Huy.png", "Bashorgrufavicon.png", "Nihuya-small.png", "Uvaga.gif", "Nohate.jpg", "Hypnotoad_1.gif", "Kapitan_ochevidnost'.jpg"]
+        blocklist = ["St.jpg", "ZOG1.jpg", "Butthurt.png", "Politota.png", "SShA.jpg", "48ef4db2ad.png", "Hate_small.png", "BanCaptcha.jpg", "Magnify-clip.png", "Wrar64.png", "Warning_1.png", "Eri_x_Yakumo.jpg", "Slowpoke.png", "Drama.png", "Barbed_wire_new_flip.png", "Huy.png", "Bashorgrufavicon.png", "Nihuya-small.png", "Uvaga.gif", "Nohate.jpg", "Hypnotoad_1.gif", "Kapitan_ochevidnost'.jpg", "Tema_sm.jpg"]
 
         for item in r["parse"]["images"]:
             if item not in blocklist:
