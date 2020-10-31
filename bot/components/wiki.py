@@ -2,6 +2,9 @@ from .token import bot
 from .texts import texts
 
 from wikipya.core import Wikipya
+from googletrans import Translator
+
+t = Translator()
 
 
 def wikiSearch(message, lang="ru", logs=False):
@@ -30,8 +33,6 @@ def wikiSearch(message, lang="ru", logs=False):
 
 
 def getWiki(message=None, lang="ru", logs=False, title=None):
-    wiki = Wikipya(lang)
-
     if title is None:
         if len(message.text.split(maxsplit=1)) != 2:
             bot.reply_to(message, f"Пожалуйста, напишите название статьи\nНапример так: `{message.text.split(maxsplit=1)[0]} Название Статьи`", parse_mode="Markdown")
@@ -39,6 +40,14 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
 
         query = message.text.split(maxsplit=1)[1]
         print(f"[Wikipedia {lang.upper()}] {query}")
+
+        if lang == "eru":
+            lang = "en"
+            eru = True
+        else:
+            eru = False
+
+        wiki = Wikipya(lang)
 
         s = wiki.search(query, 1)
 
@@ -64,7 +73,10 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
             if p.text == "":
                 p.replace_with("")
 
-        text = wiki.parsePage(page)
+        if eru:
+            text = t.translate(wiki.parsePage(page), dest="ru").text
+        else:
+            text = wiki.parsePage(page)
 
     image = wiki.getImageByPageName(title)
 
@@ -165,6 +177,11 @@ def wikihe(message):
 @bot.message_handler(commands=["wikixh", "wxh"])
 def wikixh(message):
     getWiki(message, "xh")
+
+
+@bot.message_handler(commands=["weru"])
+def weru(message):
+    getWiki(message, "eru")
 
 
 @bot.message_handler(commands=["wikiab", "wab"])
