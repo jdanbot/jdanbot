@@ -5,18 +5,16 @@ t = Translator()
 
 
 def getTranslate(message, lang):
-    opt = message.text.split(maxsplit=1)
-    if len(message.text.split(maxsplit=1)) == 2:
-        text = message.text.split(maxsplit=1)[1]
+    try:
+        try:
+            text = message.reply_to_message.__dict__["text"]
 
-    elif hasattr(message.reply_to_message, "text"):
-        text = message.reply_to_message.text
+        except:
+            text = message.reply_to_message.__dict__["caption"]
 
-    elif hasattr(message.reply_to_message, "caption"):
-        text = message.reply_to_message.caption
-
-    else:
-        bot.reply_to(message, "Ответь на сообщение")
+    except Exception as e:
+        bot.reply_to(message, "Ошибка")
+        bot.send_message("@jDan734", e)
         return
 
     bot.reply_to(message, t.translate(text, dest=lang).text[:4096])
