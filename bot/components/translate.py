@@ -6,15 +6,19 @@ t = Translator()
 
 def getTranslate(message, lang):
     try:
-        try:
-            text = message.reply_to_message.__dict__["text"]
+        if "reply_to_message" in message.__dict__:
+            if message.reply_to_message.text is None:
+                text = message.reply_to_message.caption
 
-        except:
-            text = message.reply_to_message.__dict__["caption"]
+            elif message.reply_to_message.text is not None:
+                text = message.reply_to_message.text
+        else:
+            bot.reply_to(message, "Ответь на сообщение")
+            return
 
     except Exception as e:
         bot.reply_to(message, "Ошибка")
-        bot.send_message("@jDan734", e)
+        bot.send_message("795449748", e)
         return
 
     bot.reply_to(message, t.translate(text, dest=lang).text[:4096])
@@ -33,3 +37,13 @@ def ten(message):
 @bot.message_handler(commands=["tuk", "tua"])
 def tua(message):
     getTranslate(message, "uk")
+
+
+@bot.message_handler(commands=["tbe", "tby"])
+def tbe(message):
+    getTranslate(message, "be")
+
+
+@bot.message_handler(commands=["tpl"])
+def tbe(message):
+    getTranslate(message, "pl")
