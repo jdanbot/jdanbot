@@ -75,16 +75,43 @@ class Lurkmore:
                 "section": 0
             })
 
-        return r["parse"]["images"]
+        images_list = []
+        blocklist = ["St.jpg", "ZOG1.jpg", "Butthurt.png", "Politota.png", "SShA.jpg", "48ef4db2ad.png", "Hate_small.png", "BanCaptcha.jpg", "Magnify-clip.png", "Wrar64.png", "Warning_1.png", "Eri_x_Yakumo.jpg", "Slowpoke.png", "Drama.png", "Barbed_wire_new_flip.png", "Huy.png", "Bashorgrufavicon.png", "Nihuya-small.png", "Uvaga.gif", "Nohate.jpg", "Hypnotoad_1.gif", "Kapitan_ochevidnost'.jpg"]
+
+        for item in r["parse"]["images"]:
+            if item not in blocklist:
+                images_list.append(item)
+
+        return images_list
 
     def getImage(self, filename):
-        r = self._get({
+        r = requests.get("https://ipv6.lurkmo.re", {
                     "search": f"Файл:{filename}"
                 })
 
         soup = BeautifulSoup(r.text, 'lxml')
 
         return "https:" + soup.find("div", id="file").a.img["src"]
+
+    def findImagesInPage(self, imagelist, div):
+        url_list = []
+        blocklist = ["//lurkmore.so/images/9/9f/St.jpg",
+                     "//lurkmore.so/images/thumb/0/0a/ZOG1.jpg/64px-ZOG1.jpg",
+                     "//lurkmore.so/images/thumb/4/41/Butthurt.png/64px-Butthurt.png",
+                     "//lurkmore.so/images/c/ca/Politota.png",
+                     "//lurkmore.so/images/thumb/f/f1/SShA.jpg/270px-SShA.jpg",
+                     "/skins/common/images/magnify-clip.png",
+                     "//lurkmore.so/images/thumb/e/e6/48ef4db2ad.png/32px-48ef4db2ad.png",
+                     "//lurkmore.so/images/thumb/9/9c/Hate_small.png/64px-Hate_small.png"]
+
+        for img in div.find_all("img"):
+            if img["src"].find("/skins/") != -1:
+                pass
+            elif img["src"] in blocklist:
+                pass
+            else:
+                url_list.append("https:" + img["src"])
+        return url_list
 
     def parse(self, page):
         soup = BeautifulSoup(page, 'lxml')
@@ -118,10 +145,13 @@ class Lurkmore:
                                  .replace("  ", " ")
 
             for bold in bold_text:
-                page_text = re.sub(bold, f"<b>{bold}</b>", page_text, 1)
+                try:
+                    page_text = re.sub(bold, f"<b>{bold}</b>", page_text, 1)
+                except re.error:
+                    page_text = page_text.replace(bold + " ", f"<b>{bold}</b> ")
 
         except Exception as e:
             print(e)
-            return 404
+            return "Не удалось распарсить"
 
-        return soup
+        return page_text
