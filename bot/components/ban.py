@@ -107,10 +107,10 @@ def detect(message):
             bot.reply_to(message, "Кто?")
 
         if msg.find("наки") != -1:
-            bot.reply_to(message, "Майкл Наки - в жопе козинаки")
+            bot.reply_to(message, "Майкл Наки — в жопе козинаки")
 
         elif msg.find("наки майкл") != -1:
-            bot.reply_to(message, "Майкл Наки - в жопе козинаки")
+            bot.reply_to(message, "Майкл Наки — в жопе козинаки")
 
         if msg.find("когда уйдет путин") != -1:
             random_putin(message)

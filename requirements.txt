@@ -1,4 +1,5 @@
 PyTelegramBotAPI
+googletrans
 lxml
 beautifulsoup4
 pillow
