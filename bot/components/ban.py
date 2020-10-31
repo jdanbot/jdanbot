@@ -107,7 +107,7 @@ def detect(message):
             bot.reply_to(message, "Кто?")
 
         if msg.find("наки") != -1:
-            bot.reply_to(message, "Кто?")
+            bot.reply_to(message, "Майкл Наки - в жопе козинаки")
 
         elif msg.find("наки майкл") != -1:
             bot.reply_to(message, "Майкл Наки - в жопе козинаки")
