@@ -1,11 +1,13 @@
 from .token import bot
-from datetime import datetime
+from .lib.lurkmore import Lurkmore
 from bs4 import BeautifulSoup
 
 import requests
 import traceback
 import json
 import re
+
+L = Lurkmore()
 
 
 def getImageInfo(url, filename):
@@ -33,90 +35,43 @@ def lurk(message, logs=False):
         print(f"[Lurkmore] {name}")
 
     url = "https://ipv6.lurkmo.re/"
-    # r = requests.get(url + "index.php",
-    #                  params={"search": name})
 
-    # https://lurkmo.re/api.php?action=query&format=json&list=search&srsearch=%D0%B1%D0%B0%D1%82%D1%8C%D0%BA%D0%B0&srprop=size
+    data = L.opensearch(name)
 
-    timedata = "speedlurk\n"
-    time = datetime.now()
-
-    r = requests.get(f"{url}api.php",
-                     params={
-                        "action": "query",
-                        "format": "json",
-                        "list": "search",
-                        "srsearch": name,
-                        "srlimit": 1,
-                        "sprop": "size"
-                     })
-
-    if logs:
-        timedata += "├─find:\n"
-        loadtime = str(datetime.now() - time).split(".")
-        main = loadtime[0].split(":")
-        second = loadtime[1]
-
-        timedata += f"│⠀├─seconds: {main[2]}\n"
-        timedata += f"│⠀└─ms: {second}\n"
-
-    data = json.loads(r.text)
-
-    if len(data["query"]["search"]) == 0:
+    if len(data) == 0:
         bot.reply_to(message, "Не удалось ничего найти. Попробуйте написать ваш запрос по-другому")
         return
 
-    name = data["query"]["search"][0]["title"]
-
-    time = datetime.now()
+    name = data[0]
 
     r = requests.get(url + "api.php",
                      params={
                         "action": "parse",
                         "format": "json",
                         "page": name,
-                        "prop": "text|images"
+                        "prop": "text|images",
+                        "section": 0,
+                        "redirects": True
                      })
-
-    if logs:
-
-        timedata += "├─text:\n"
-        loadtime = str(datetime.now() - time).split(".")
-        main = loadtime[0].split(":")
-        second = loadtime[1]
-
-        timedata += f"│⠀├─seconds: {main[2]}\n"
-        timedata += f"│⠀└─ms: {second}\n"
 
     parse = json.loads(r.text)["parse"]
     soup = BeautifulSoup(parse["text"]["*"], 'lxml')
 
     div = soup
 
-    if len(div.findAll("p")) == 0:
-        redirect = soup.ol.li.a["title"]
+    # if len(div.findAll("p")) == 0:
+    #     redirect = soup.ol.li.a["title"]
 
-        time = datetime.now()
+    #     r = requests.get(url + "api.php",
+    #                      params={
+    #                          "action": "parse",
+    #                          "format": "json",
+    #                          "page": redirect,
+    #                          "prop": "text|images"
+    #                      })
 
-        r = requests.get(url + "api.php",
-                         params={
-                             "action": "parse",
-                             "format": "json",
-                             "page": redirect,
-                             "prop": "text|images"
-                         })
-
-        if logs:
-            timedata += "└─image:\n"
-            loadtime = str(datetime.now() - time).split(".")
-            main = loadtime[0].split(":")
-            second = loadtime[1]
-
-            timedata += f" ⠀├─seconds: {main[2]}\n"
-            timedata += f"⠀ └─ms: {second}\n"
-
-        soup = BeautifulSoup(json.loads(r.text)["parse"]["text"]["*"], 'lxml')
-        div = soup
+    #     soup = BeautifulSoup(json.loads(r.text)["parse"]["text"]["*"], 'lxml')
+    #     div = soup
 
     for t in div.findAll("table", {"class": "lm-plashka"}):
         t.replace_with("")
@@ -144,16 +99,6 @@ def lurk(message, logs=False):
             pass
         else:
             url_list.append("https:" + img["src"])
-
-    if logs:
-        if timedata.find("image") == -1:
-
-            timedata += "└─image:\n"
-            timedata += " ⠀├─seconds: None\n"
-            timedata += "⠀ └─ms: None\n"
-
-        bot.reply_to(message, f"`{timedata}`", parse_mode="Markdown")
-        return
 
     try:
         page_text = first if (first := div.find("p").text.strip()) \
