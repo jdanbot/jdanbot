@@ -108,7 +108,7 @@ class Lurkmore:
 
         try:
             page_text = first if (first := soup.find("p").text.strip()) \
-                              else soup.findAll("p", recursive=False)[1] \
+                              else soup.findAll("p")[1] \
                                       .text \
                                       .strip()
 

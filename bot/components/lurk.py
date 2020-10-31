@@ -101,10 +101,17 @@ def lurk(message, logs=False):
             url_list.append("https:" + img["src"])
 
     try:
-        page_text = first if (first := div.find("p").text.strip()) \
-                          else div.findAll("p", recursive=False)[1] \
-                                  .text \
-                                  .strip()
+        try:
+            page_text = first if (first := div.find("p").text.strip()) \
+                              else div.findAll("p")[1] \
+                                      .text \
+                                      .strip()
+
+        except:
+            page_text = first if (first := div.find("p").text.strip()) \
+                              else div.findAll("p")[0] \
+                                      .text \
+                                      .strip()
 
         page_text = page_text.replace("<", "&lt;") \
                              .replace(">", "&gt;") \
