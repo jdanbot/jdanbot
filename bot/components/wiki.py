@@ -82,7 +82,7 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
         else:
             text = wiki.parsePage(page)
 
-    image = wiki.getImageByPageName(title)
+    image = wiki.getImageByPageName(title)["source"]
 
     if type(image) is int:
         bot.send_chat_action(message.chat.id, "typing")
