@@ -33,21 +33,22 @@ def wikiSearch(message, lang="ru", logs=False):
 
 
 def getWiki(message=None, lang="ru", logs=False, title=None):
+    if lang == "eru":
+        lang = "en"
+        eru = True
+    else:
+        eru = False
+
+    wiki = Wikipya(lang)
+
     if title is None:
         if len(message.text.split(maxsplit=1)) != 2:
             bot.reply_to(message, f"Пожалуйста, напишите название статьи\nНапример так: `{message.text.split(maxsplit=1)[0]} Название Статьи`", parse_mode="Markdown")
             return
 
         query = message.text.split(maxsplit=1)[1]
+
         print(f"[Wikipedia {lang.upper()}] {query}")
-
-        if lang == "eru":
-            lang = "en"
-            eru = True
-        else:
-            eru = False
-
-        wiki = Wikipya(lang)
 
         s = wiki.search(query, 1)
 
@@ -56,6 +57,9 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
             return
 
         title = s[0][0]
+
+    else:
+        print(f"[Wikipedia {lang.upper()}] {title}")
 
     page = wiki.getPage(title)
 
