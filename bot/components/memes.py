@@ -49,6 +49,11 @@ def rzaka_time(message):
     send_meme(message, memes["rzaka_time"])
 
 
+@bot.message_handler(commands=["java1"])
+def java_secret(message):
+    bot.send_voice(message.chat.id, "java.ogg")
+
+
 @bot.message_handler(commands=["ban"])
 def ban(message):
     msg = message.text.replace("/ban@jDan734_bot", "").replace("/ban", "")
