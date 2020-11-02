@@ -51,7 +51,7 @@ def rzaka_time(message):
 
 @bot.message_handler(commands=["java1"])
 def java_secret(message):
-    file = "/bot/java.ogg" if heroku else "java.ogg" 
+    file = "bot/java.ogg" if heroku else "java.ogg" 
     bot.send_voice(message.chat.id, open(file, "rb+"))
 
 
