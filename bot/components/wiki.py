@@ -82,7 +82,7 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
         else:
             text = wiki.parsePage(page)
 
-    image = wiki.getImageByPageName(title)["source"]
+    image = wiki.getImageByPageName(title)
 
     if type(image) is int:
         bot.send_chat_action(message.chat.id, "typing")
@@ -94,6 +94,7 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
             bot.reply_to(message, "Не удалось отправить статью")
 
     else:
+        image = image["source"]
         if image == "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Flag_of_Belarus.svg/1000px-Flag_of_Belarus.svg.png":
             image = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg/1000px-Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg.png"
 
