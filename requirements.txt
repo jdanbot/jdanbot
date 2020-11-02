@@ -6,4 +6,4 @@ pillow
 art
 pyyaml
 pyscp
-wikipya=1.0.4
+wikipya==1.0.4
