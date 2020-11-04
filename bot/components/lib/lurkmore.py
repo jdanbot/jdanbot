@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 class Lurkmore:
     def __init__(self):
         self.url = "https://ipv6.lurkmo.re/api.php"
+        self.url2 = "https://ipv6.lurkmo.re"
         self.params = {"format": "json", "action": "query"}
 
     def _get(self, params):
@@ -84,8 +85,24 @@ class Lurkmore:
 
         return images_list
 
+    def getImageFromFandomPage(self, page):
+        p = BeautifulSoup(page, "lxml")
+
+        try:
+            for t in p.find("aside").findAll("h2"):
+                t.replace_with("")
+        except:
+            pass
+
+        try:
+            i = p.find("aside").find("a", {"class": "image"}).find("img")
+
+            return i["src"]
+        except:
+            return 404
+
     def getImage(self, filename):
-        r = requests.get("https://ipv6.lurkmo.re", {
+        r = requests.get(self.url2, {
                     "search": f"Файл:{filename}"
                 })
 
@@ -116,17 +133,30 @@ class Lurkmore:
     def parse(self, page):
         soup = BeautifulSoup(page, 'lxml')
 
-        for t in soup.findAll("table", {"class": "lm-plashka"}):
-            t.replace_with("")
+        try:
+            for t in soup.findAll("table", {"class": "lm-plashka"}):
+                t.replace_with("")
 
-        for t in soup.findAll("table", {"class": "lm-plashka-tiny"}):
-            t.replace_with("")
+            for t in soup.findAll("table", {"class": "lm-plashka-tiny"}):
+                t.replace_with("")
 
-        for t in soup.findAll("table", {"class": "tpl-quote-tiny"}):
-            t.replace_with("")
+            for t in soup.findAll("table", {"class": "tpl-quote-tiny"}):
+                t.replace_with("")
 
-        for t in soup.findAll("div", {"class": "gallerytext"}):
-            t.replace_with("")
+            for t in soup.findAll("div", {"class": "gallerytext"}):
+                t.replace_with("")
+
+            for t in soup.findAll("aside"):
+                t.replace_with("")
+
+            for t in soup.findAll("table"):
+                t.replace_with("")
+
+            for t in soup.findAll("p"):
+                if "Это статья об" in t.text:
+                    t.replace_with("")
+        except:
+            pass
 
         bold_text = []
 
