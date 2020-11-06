@@ -21,7 +21,12 @@ def getTranslate(message, lang):
         bot.send_message("795449748", e)
         return
 
-    bot.reply_to(message, t.translate(text, dest=lang).text[:4096])
+    try:
+        translated = t.translate(text, dest=lang).text[:4096]
+    except:
+        translated = "Library for translating not work"
+
+    bot.reply_to(message, translated)
 
 
 @bot.message_handler(commands=["tru"])

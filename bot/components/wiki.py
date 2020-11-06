@@ -62,6 +62,9 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
         print(f"[Wikipedia {lang.upper()}] {title}")
 
     page = wiki.getPage(title)
+    print(page)
+    bot.reply_to(message, page)
+    return
 
     if page == -1:
         text = ""
@@ -78,7 +81,10 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
                 p.replace_with("")
 
         if eru:
-            text = t.translate(wiki.parsePage(page), dest="ru").text
+            try:
+                text = t.translate(wiki.parsePage(page), dest="ru").text
+            except:
+                text = "Library for translating not work"
         else:
             text = wiki.parsePage(page)
 
