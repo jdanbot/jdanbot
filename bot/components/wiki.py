@@ -79,7 +79,7 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
 
         if eru:
             try:
-                text = t.translate(wiki.parsePage(page), dest="ru").text
+                text = t.translate(page.text, dest="ru").text
             except:
                 text = "Library for translating not work"
         else:
@@ -94,7 +94,7 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
 
         except:
             bot.send_message(795449748, text)
-            bot.reply_to(message, "Не удалось отправить статью")
+            bot.reply_to(message, text)
 
     else:
         image = image["source"]
