@@ -5,26 +5,30 @@ t = Translator()
 
 
 def getTranslate(message, lang):
-    try:
-        if "reply_to_message" in message.__dict__:
-            if message.reply_to_message.text is None:
-                text = message.reply_to_message.caption
+    opt = message.text.split(maxsplit=1)
 
-            elif message.reply_to_message.text is not None:
+    if len(opt) != 1:
+        text = opt[1]
+    elif message.reply_to_message is not None:
+        if message.reply_to_message.text is None:
+            text = message.reply_to_message.caption
+
+        elif message.reply_to_message.text is not None:
+            try:
                 text = message.reply_to_message.text
-        else:
-            bot.reply_to(message, "Ответь на сообщение")
-            return
-
-    except Exception as e:
-        bot.reply_to(message, "Ошибка")
-        bot.send_message("795449748", e)
+            except Exception as e:
+                bot.reply_to(message, "Ошибка")
+                bot.send_message("795449748", e)
+                return
+    else:
+        bot.reply_to(message, "Ответь на сообщение")
         return
 
     try:
         translated = t.translate(text, dest=lang).text[:4096]
-    except:
-        translated = "Library for translating not work"
+    except Exception as e:
+        bot.send_message("795449748", e)
+        translated = f"Ошибка при переводе\n{e}"
 
     bot.reply_to(message, translated)
 
