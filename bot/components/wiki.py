@@ -98,7 +98,7 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
         page_name = s[0][0]
     except:
         page_name = title
-    keyboard.add(telebot.types.InlineKeyboardButton(text="📘 Читать полностью",
+    keyboard.add(telebot.types.InlineKeyboardButton(text="Читать полностью",
                                                     url=f"https://{lang}.wikipedia.org/wiki/{page_name}"))
 
     if type(image) is int:
