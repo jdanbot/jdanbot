@@ -93,7 +93,13 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
         pass
 
     keyboard = telebot.types.InlineKeyboardMarkup()
-    keyboard.add(telebot.types.InlineKeyboardButton(text="Читать полностью", url=f"https://{lang}.wikipedia.org/wiki/{s[0][0]}"))
+
+    try:
+        page_name = s[0][0]
+    except:
+        page_name = title
+    keyboard.add(telebot.types.InlineKeyboardButton(text="📘 Читать полностью",
+                                                    url=f"https://{lang}.wikipedia.org/wiki/{page_name}"))
 
     if type(image) is int:
         bot.send_chat_action(message.chat.id, "typing")
