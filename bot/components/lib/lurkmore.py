@@ -49,6 +49,9 @@ class Lurkmore:
                 "limit": limit
             })
 
+        if len(r) == 0:
+            return []
+
         results = []
 
         for item in r[1]:
