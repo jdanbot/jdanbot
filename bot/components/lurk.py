@@ -33,6 +33,7 @@ def getlurk(message, logs=False):
             bot.send_photo(message.chat.id,
                            image,
                            caption=lurk.parse(p)[:1000],
+                           reply_to_message_id=message.message_id,
                            parse_mode="HTML")
         except Exception as e:
             bot.send_chat_action(message.chat.id, "typing")
