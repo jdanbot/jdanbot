@@ -1,6 +1,6 @@
 from .token import bot
 
-@bot.message_handler(func=lambda message: message.forward_from == "Канал Максима Каца")
+@bot.message_handler(func=lambda message: message.forward_from.username == "maximkatz")
 def pin_kaz(message):
     if isinstance(message.text, str):
         return
