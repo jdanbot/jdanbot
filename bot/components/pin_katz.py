@@ -14,7 +14,7 @@ def pin_kaz(message):
         if "text" not in entity:
             continue
 
-        if "youtu" entity["text"]:
+        if "youtu" in entity["text"]:
             do_pin = True
 
     if do_pin:
