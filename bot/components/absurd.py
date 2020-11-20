@@ -17,9 +17,13 @@ def getAbsurd(message, logs=False):
     print(f"[Absurdowiki] {name}")
 
     try:
-        s = a.opensearch(name)
+        try:
+            s = a.opensearch(name)
+        except:
+            s = a.opensearch(name)
     except:
-        s = a.opensearch(name)
+        bot.reply_to(message, "Не найдено")
+        return
 
     if len(s) == 0:
         bot.reply_to(message, "Не найдено")
