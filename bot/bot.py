@@ -7,9 +7,9 @@ from components.token import bot
 
 
 try:
-    bot.polling()
+    bot.polling(none_stop=True)
 
-except:
+except Exception as e:
     bot.send_message("795449748",
                      f"`{str(traceback.format_exc())}`",
                      parse_mode="Markdown")
