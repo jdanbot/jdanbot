@@ -152,6 +152,9 @@ class Lurkmore:
             for t in soup.findAll("table"):
                 t.replace_with("")
 
+            for t in soup.findAll("div", {"class": "noprint"}):
+                t.replace_with("")
+
             for t in soup.findAll("p"):
                 if "Это статья об" in t.text:
                     t.replace_with("")
