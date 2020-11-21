@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
-token.json
-token2.json
+*.mp3
+*.ogg
+*.json
 *.txt
