@@ -1,6 +1,10 @@
 from .token import bot
 from .lib.prettyword import prettyword
+from .lib.telegram import Telegram
 from random import choice, randint
+
+
+tg = Telegram(bot)
 
 
 @bot.message_handler(commands=["random_ban", "random"])
@@ -19,35 +23,21 @@ def random_lukash(message):
 
 
 def random_person(message, name):
-    number = randint(0, 200)
+    number = randint(0, 500)
 
-    if number == 0:
+    if number == 1:
         bot.reply_to(message, "Иди нахуй))")
 
     else:
-        nedeli = number / 7
-        date = choice(["дней", "месяцев"])
-
-        if date == "дней":
-            true_date = prettyword(number, ["день", "дня", "дней"])
-
-        elif date == "месяцев":
-            true_date = prettyword(number, ["месяц", "месяца", "месяцев"])
+        weeks = number / 7
 
         if number % 7 == 0:
-            bot.reply_to(message, f'{name} уйдет через {int(nedeli)} {prettyword(int(nedeli), ["неделя", "недели", "недель"])}')
+            bot.reply_to(message, f'{name} уйдет через {int(weeks)} {prettyword(int(weeks), ["неделя", "недели", "недель"])}')
         else:
-            print(number % 7)
-            bot.reply_to(message, f'{name} уйдет через {int(nedeli)} {prettyword(int(nedeli), ["неделя", "недели", "недель"])} и {int(number % 7)} {prettyword(int(number % 7), ["день", "дня", "дней"])}')
+            bot.reply_to(message, f'{name} уйдет через {int(weeks)} {prettyword(int(weeks), ["неделя", "недели", "недель"])} и {int(number % 7)} {prettyword(int(number % 7), ["день", "дня", "дней"])}')
 
 
 @bot.message_handler(commands=["da_net"])
 def da_net(message):
-    try:
-        bot.delete_message(message.chat.id, message.message_id)
-    except:
-        pass
-    try:
-        bot.send_message(message.chat.id, choice(["Да", "Нет"]), reply_to_message_id=message.reply_to_message.message_id)
-    except AttributeError:
-        bot.send_message(message.chat.id, choice(["Да", "Нет"]))
+    tg.delete_message(message)
+    bot.reply_to(message, choice(["Да", "Нет"]))

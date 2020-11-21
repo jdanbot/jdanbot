@@ -16,3 +16,9 @@ class Telegram:
             return commands
         else:
             return 404
+
+    def delete_message(self, message):
+        try:
+            self.bot.delete_message(message.chat.id, message.message_id)
+        except:
+            pass
