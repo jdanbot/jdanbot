@@ -103,7 +103,7 @@ def detect(message):
             except:
                 pass
 
-        if msg.find("секс") != -1:
+        if False and (msg.find("секс") != -1):
             bot.reply_to(message, "Кто?")
 
         if msg.find("наки") != -1:
