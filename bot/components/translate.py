@@ -25,7 +25,9 @@ def getTranslate(message, lang):
         return
 
     try:
-        translated = t.translate(text, dest=lang).text[:4096]
+        translated = t.translate(text, dest=lang).text
+        if len(translated) >= 4096:
+            translated = translated[:4096]
     except Exception as e:
         bot.send_message("795449748", e)
         translated = f"Ошибка при переводе\n{e}"

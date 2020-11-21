@@ -4,16 +4,25 @@ from .lib.lurkmore import Lurkmore
 
 @bot.message_handler(["fallout"])
 def fallout(message):
+    fandom(message, "Fallout", "https://fallout.fandom.com/ru/api.php")
+
+
+@bot.message_handler(["doom"])
+def doom(message):
+    fandom(message, "DooM", "https://doom.fandom.com/ru/api.php")
+
+
+def fandom(message, fname, url):
     f = Lurkmore()
-    f.url = "https://fallout.fandom.com/ru/api.php"
-    f.url2 = "https://fallout.fandom.com/ru/"
+    f.url = url
+    f.url2 = url.replace("api.php", "")
     options = message.text.split(maxsplit=1)
     if len(options) == 1:
         bot.reply_to(message, "Напишите название статьи")
         return
 
     name = options[1]
-    print(f"[Fandom: Fallout] {name}")
+    print(f"[Fandom: {fname}] {name}")
 
     s = f.opensearch(name)
 

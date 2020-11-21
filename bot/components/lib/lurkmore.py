@@ -49,7 +49,7 @@ class Lurkmore:
                 "limit": limit
             })
 
-        if len(r) == 0:
+        if len(r[1]) == 0:
             return []
 
         results = []
