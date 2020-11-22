@@ -13,24 +13,21 @@ def getAbsurd(message, logs=False):
         bot.reply_to(message, "Напишите название статьи")
         return
 
-    name = options[1]
-    print(f"[Absurdowiki] {name}")
+    query = options[1]
+    print(f"[Absurdowiki] {query}")
 
     try:
         try:
-            s = a.opensearch(name)
+            s = a.search(query)
+            p = a.getPage(s[0])
+            i = a.getImagesList(s[0])
         except:
-            s = a.opensearch(name)
-    except:
+            p = a.getPage(query)
+            i = a.getImagesList(query)
+    except Exception as e:
+        print(e)
         bot.reply_to(message, "Не найдено")
         return
-
-    if len(s) == 0:
-        bot.reply_to(message, "Не найдено")
-        return
-
-    p = a.getPage(s)
-    i = a.getImagesList(s)
 
     # for item in i:
     #     bot.send_photo(message.chat.id, lurk.getImage(item), caption=item)
