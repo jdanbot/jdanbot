@@ -82,6 +82,10 @@ def detect(message):
                      .replace("🅰️", "а")
                      .replace("🅱️", "б")):
 
+            if message.from_user.id == 1248462292:
+                bot.reply_to(message, "Никакого бана мышам!")
+                return
+
             if message.from_user.id in texts["ban_list"]:
                 bwords = texts["ban_list"][message.from_user.id]
             else:
