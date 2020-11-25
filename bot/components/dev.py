@@ -25,6 +25,19 @@ def delete_w10(message):
         pass
 
 
+@bot.message_handler(content_types=['sticker'],
+                     func=lambda message: message.chat.id == -1001176998310 or \
+                                          message.chat.id == -1001374137898)
+def delete_misha(message):
+    try:
+        if message.sticker.file_size == 20340 and \
+           not message.sticker.is_animated and \
+           message.from_user.id == 1248462292:
+            bot.delete_message(message.chat.id, message.message_id)
+    except:
+        pass
+
+
 @bot.message_handler(commands=["detect"])
 def detect_boicot(message):
     if message.text.find("бойкот") != -1:
