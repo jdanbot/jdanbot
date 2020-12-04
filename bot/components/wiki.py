@@ -7,6 +7,30 @@ from googletrans import Translator
 t = Translator()
 
 
+def fixPage(text):
+    namelist = [
+        ["Белоруссия", "Беларусь"],
+        ["Белоруссии", "Беларуси"],
+        ["Беларуссию", "Беларусь"],
+        ["Белоруссией", "Беларусью"],
+        ["Белоруссиею", "Беларусью"],
+
+
+        ["Белору́ссия", "Белару́сь"],
+        ["Белору́ссии", "Белару́си"],
+        ["Белору́ссию", "Белару́сь"],
+        ["Белору́ссией", "Белару́сью"],
+        ["Белору́ссиею", "Белару́сью"],
+
+        ["на Украин", "в Украин"],
+    ]
+
+    for name in namelist:
+        text = text.replace(*name)
+
+    return text
+
+
 def wikiSearch(message, lang="ru", logs=False):
     if len(message.text.split(maxsplit=1)) != 2:
         bot.reply_to(message, f"Пожалуйста, напишите название статьи\nНапример так: `{message.text.split(maxsplit=1)[0]} Название Статьи`", parse_mode="Markdown")
@@ -83,7 +107,7 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
             except:
                 text = "Library for translating not work"
         else:
-            text = wiki.parsePage(page)
+            text = fixPage(wiki.parsePage(page))
 
     image = wiki.getImageByPageName(title)
 
