@@ -50,7 +50,7 @@ def wikiSearch(message, lang="ru", logs=False):
     text = ""
 
     for prop in r:
-        text += f"{prop[0]}\n"
+        text += f"{fixPage(prop[0])}\n"
         text += f"└─/w_{prop[1]}\n"
 
     bot.reply_to(message, text)
