@@ -128,11 +128,11 @@ def getWiki(message=None, lang="ru", logs=False, title=None):
 
 
 @bot.message_handler(commands=["sru", "s", "search"])
-def wikiru(message):
+def wikis(message):
     wikiSearch(message, "ru")
 
 
-@bot.message_handler(commands=["wikiru", "wikiru2", "wru", "w"])
+@bot.message_handler(commands=["wikiru", "wikiru2", "wru", "w", "wiki", "wiki2"])
 def wikiru(message):
     getWiki(message, "ru")
 
@@ -217,7 +217,7 @@ def wikibet(message):
     getWiki(message, "be-tarask")
 
 
-@bot.message_handler(commands=["wiki_usage", "wiki2", "wiki"])
+@bot.message_handler(commands=["wiki_usage"])
 def wiki_usage(message):
     bot.reply_to(message, texts["wiki_query_example"], parse_mode="Markdown")
 
