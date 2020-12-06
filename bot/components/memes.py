@@ -55,8 +55,14 @@ def java_secret(message):
     bot.send_voice(message.chat.id, open(file, "rb+"))
 
 
+@bot.message_handler(commands=["xxx_music"])
+def xxx_secret(message):
+    file = "bot/music.ogg" if heroku else "music.ogg"
+    bot.send_voice(message.chat.id, open(file, "rb+"))
+
+
 @bot.message_handler(commands=["0x00001488"])
-def nazi_error(message):
+def secret_error(message):
     bot.reply_to(message, """<code>A problem has been detected and KanobuOS has been shutdown to prevent damage
 to your computer.
 
