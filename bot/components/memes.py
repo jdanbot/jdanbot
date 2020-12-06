@@ -57,7 +57,7 @@ def java_secret(message):
 
 @bot.message_handler(commands=["0x00001488"])
 def nazi_error(message):
-    bot.reply_to(message, """A problem has been detected and KanobuOS has been shut down to prevent damage
+    bot.reply_to(message, """<code>A problem has been detected and KanobuOS has been shutdown to prevent damage
 to your computer.
 
 The problem seems to be caused by the following file: canobu.exe
@@ -84,7 +84,7 @@ Technical Information:
 0xfffff880009a9230)
 
 *** canobu.exe - Address 0x00001488 base at 0xfffff80002e0d000 DateStamp
-0x4ce7951a""")
+0x4ce7951a</code>""", parse_mode="HTML")
 
 
 @bot.message_handler(commands=["ban"])
