@@ -52,13 +52,17 @@ def rzaka_time(message):
 @bot.message_handler(commands=["java1"])
 def java_secret(message):
     file = "bot/java.ogg" if heroku else "java.ogg"
-    bot.send_voice(message.chat.id, open(file, "rb+"))
+    bot.send_voice(message.chat.id,
+                   open(file, "rb+"),
+                   reply_to_message_id=message.message_id)
 
 
-@bot.message_handler(commands=["xxx_music"])
+@bot.message_handler(commands=["cool_music"])
 def xxx_secret(message):
     file = "bot/music.ogg" if heroku else "music.ogg"
-    bot.send_voice(message.chat.id, open(file, "rb+"))
+    bot.send_voice(message.chat.id,
+                   open(file, "rb+"),
+                   reply_to_message_id=message.message_id)
 
 
 @bot.message_handler(commands=["0x00001488"])
