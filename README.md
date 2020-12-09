@@ -1,4 +1,6 @@
 # 🤖 jdan734-bot
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FjDan735%2Fjdan734-bot.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FjDan735%2Fjdan734-bot?ref=badge_shield)
+
 Multifunctional telegram bot for banning and stuff.
 
 ## 🚀 Start
@@ -35,3 +37,7 @@ ASCII art is also known as "computer text art".
 The next generation YAML parser and emitter for Python.
 ### 👻 [pyscp](https://github.com/anqxyr/pyscp)
 pyscp is a python library for interacting with wikidot-hosted websites.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FjDan735%2Fjdan734-bot.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FjDan735%2Fjdan734-bot?ref=badge_large)
