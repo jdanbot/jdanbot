@@ -1,5 +1,4 @@
 from .bot import bot, dp
-from .data import data
 
 
 @dp.message_handler(commands=["java1"])
