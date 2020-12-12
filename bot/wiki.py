@@ -213,26 +213,25 @@ async def wiki_usage(message):
     await message.reply(data["wiki_query_example"], parse_mode="Markdown")
 
 
-@dp.message_handler(content_types=['text'])
+@dp.message_handler(lambda message: message.text.startswith("/w_"))
 async def detect(message):
-    if message.text.startswith("/w_"):
-        text = message.text.replace("/w_", "")
-        if text.find("@") != -1:
-            text = text.split("@", maxsplit=1)[0]
+    text = message.text.replace("/w_", "")
+    if text.find("@") != -1:
+        text = text.split("@", maxsplit=1)[0]
 
-        w = Wikipya("ru")
+    w = Wikipya("ru")
 
-        try:
-            id_ = int(text)
+    try:
+        id_ = int(text)
 
-        except Exception:
-            message.reply("id должен быть числом")
-            return
+    except Exception:
+        message.reply("id должен быть числом")
+        return
 
-        title = await w.getPageNameById(id_)
+    title = await w.getPageNameById(id_)
 
-        if title == -1:
-            await message.reply("Не получилось найти статью по айди")
-            return
+    if title == -1:
+        await message.reply("Не получилось найти статью по айди")
+        return
 
-        await getWiki(message, title=title)
+    await getWiki(message, title=title)
