@@ -59,7 +59,7 @@ async def password(message):
     # data.extend(list("абвгдеёжзийклмнопрстуфхцчшщъыьэюя".upper()))
     data.extend(list("abcdefghijklmnopqrstuvwxyz"))
     data.extend(list("abcdefghijklmnopqrstuvwxyz".upper()))
-    data.extend(list('~!@#$%^&*()_+-=`[]\\{}|;\':"<>,./?'))
+    data.extend(list('~!@#$%^&*()_+-=`[]\\}{|;\':"<>,./?'))
     data.extend(list("0123456789"))
 
     for num in range(0, crypto_type):

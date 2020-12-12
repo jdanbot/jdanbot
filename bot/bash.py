@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 async def bashorg(message):
     params = message.text.split(maxsplit=1)
     if len(params) == 1:
-        text = await aioget("https://bash.im/random")
+        page = await aioget("https://bash.im/random")
     else:
         try:
             num = int(params[1])
@@ -16,7 +16,9 @@ async def bashorg(message):
             await message.reply("Введи число")
             return
 
-        text = await aioget(f"https://bash.im/quote/{num}")
+        page = await aioget(f"https://bash.im/quote/{num}")
+
+    text = await page.text()
 
     soup = BeautifulSoup(text.replace("<br>", "\n"), 'lxml')
     soup2 = soup.find("div", class_="quote__body")
