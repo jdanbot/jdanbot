@@ -1,0 +1,267 @@
+bot.py:5:1: F403 'from prettyword import *' used; unable to detect undefined names
+bot.py:10:1: E265 block comment should start with '# '
+bot.py:11:1: F401 'wikipediaapi as wikipedia' imported but unused
+bot.py:16:1: F403 'from decimal import *' used; unable to detect undefined names
+bot.py:18:1: E265 block comment should start with '# '
+bot.py:45:80: E501 line too long (85 > 79 characters)
+bot.py:46:80: E501 line too long (85 > 79 characters)
+bot.py:48:80: E501 line too long (81 > 79 characters)
+bot.py:52:1: E265 block comment should start with '# '
+bot.py:54:1: E265 block comment should start with '# '
+bot.py:56:1: E302 expected 2 blank lines, found 1
+bot.py:70:1: E302 expected 2 blank lines, found 1
+bot.py:83:1: E302 expected 2 blank lines, found 1
+bot.py:96:1: E302 expected 2 blank lines, found 1
+bot.py:109:1: E302 expected 2 blank lines, found 1
+bot.py:124:5: E722 do not use bare 'except'
+bot.py:127:1: E302 expected 2 blank lines, found 1
+bot.py:131:80: E501 line too long (142 > 79 characters)
+bot.py:132:5: E722 do not use bare 'except'
+bot.py:147:80: E501 line too long (86 > 79 characters)
+bot.py:156:80: E501 line too long (169 > 79 characters)
+bot.py:157:9: E722 do not use bare 'except'
+bot.py:159:80: E501 line too long (167 > 79 characters)
+bot.py:164:1: E302 expected 2 blank lines, found 1
+bot.py:169:9: E722 do not use bare 'except'
+bot.py:176:9: E722 do not use bare 'except'
+bot.py:181:9: E722 do not use bare 'except'
+bot.py:184:80: E501 line too long (88 > 79 characters)
+bot.py:189:9: E722 do not use bare 'except'
+bot.py:197:9: E722 do not use bare 'except'
+bot.py:205:80: E501 line too long (81 > 79 characters)
+bot.py:215:5: E265 block comment should start with '# '
+bot.py:215:80: E501 line too long (80 > 79 characters)
+bot.py:223:5: E722 do not use bare 'except'
+bot.py:227:80: E501 line too long (82 > 79 characters)
+bot.py:233:80: E501 line too long (84 > 79 characters)
+bot.py:239:9: E722 do not use bare 'except'
+bot.py:246:9: E722 do not use bare 'except'
+bot.py:258:9: E303 too many blank lines (2)
+bot.py:261:9: E303 too many blank lines (2)
+bot.py:268:9: E722 do not use bare 'except'
+bot.py:273:9: E722 do not use bare 'except'
+bot.py:278:9: E722 do not use bare 'except'
+bot.py:283:9: E722 do not use bare 'except'
+bot.py:289:9: E265 block comment should start with '# '
+bot.py:290:9: E265 block comment should start with '# '
+bot.py:294:9: E303 too many blank lines (2)
+bot.py:302:13: E722 do not use bare 'except'
+bot.py:304:9: E722 do not use bare 'except'
+bot.py:323:9: E303 too many blank lines (2)
+bot.py:325:9: E722 do not use bare 'except'
+bot.py:328:62: E231 missing whitespace after ','
+bot.py:328:80: E501 line too long (80 > 79 characters)
+bot.py:329:80: E501 line too long (80 > 79 characters)
+bot.py:334:13: E116 unexpected indentation (comment)
+bot.py:334:13: E265 block comment should start with '# '
+bot.py:341:5: E265 block comment should start with '# '
+bot.py:341:80: E501 line too long (80 > 79 characters)
+bot.py:347:80: E501 line too long (88 > 79 characters)
+bot.py:351:9: E722 do not use bare 'except'
+bot.py:352:80: E501 line too long (81 > 79 characters)
+bot.py:356:80: E501 line too long (80 > 79 characters)
+bot.py:357:9: E722 do not use bare 'except'
+bot.py:360:80: E501 line too long (100 > 79 characters)
+bot.py:363:80: E501 line too long (95 > 79 characters)
+bot.py:366:80: E501 line too long (83 > 79 characters)
+bot.py:369:9: E303 too many blank lines (2)
+bot.py:372:9: E303 too many blank lines (2)
+bot.py:378:9: E722 do not use bare 'except'
+bot.py:386:9: E265 block comment should start with '# '
+bot.py:389:80: E501 line too long (115 > 79 characters)
+bot.py:389:97: E231 missing whitespace after ','
+bot.py:390:80: E501 line too long (115 > 79 characters)
+bot.py:392:80: E501 line too long (81 > 79 characters)
+bot.py:395:17: E116 unexpected indentation (comment)
+bot.py:395:17: E265 block comment should start with '# '
+bot.py:408:9: E722 do not use bare 'except'
+bot.py:412:9: E303 too many blank lines (2)
+bot.py:416:1: E302 expected 2 blank lines, found 1
+bot.py:418:80: E501 line too long (132 > 79 characters)
+bot.py:419:5: F405 'getcontext' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:423:18: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:423:37: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:424:5: E722 do not use bare 'except'
+bot.py:429:18: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:429:37: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:430:5: E722 do not use bare 'except'
+bot.py:435:18: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:435:37: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:436:5: E722 do not use bare 'except'
+bot.py:441:18: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:441:37: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:442:5: E722 do not use bare 'except'
+bot.py:447:18: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:447:37: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:448:5: E722 do not use bare 'except'
+bot.py:453:18: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:453:38: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:454:5: E722 do not use bare 'except'
+bot.py:459:18: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:459:38: F405 'Decimal' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:460:5: E722 do not use bare 'except'
+bot.py:483:1: E302 expected 2 blank lines, found 1
+bot.py:487:1: E265 block comment should start with '# '
+bot.py:489:1: E302 expected 2 blank lines, found 1
+bot.py:493:1: E302 expected 2 blank lines, found 1
+bot.py:497:1: E302 expected 2 blank lines, found 1
+bot.py:501:1: E302 expected 2 blank lines, found 1
+bot.py:505:1: E302 expected 2 blank lines, found 1
+bot.py:509:1: E302 expected 2 blank lines, found 1
+bot.py:513:1: E302 expected 2 blank lines, found 1
+bot.py:523:80: E501 line too long (137 > 79 characters)
+bot.py:530:5: E265 block comment should start with '# '
+bot.py:530:80: E501 line too long (131 > 79 characters)
+bot.py:555:5: E265 block comment should start with '# '
+bot.py:555:80: E501 line too long (111 > 79 characters)
+bot.py:557:5: E265 block comment should start with '# '
+bot.py:572:80: E501 line too long (95 > 79 characters)
+bot.py:585:5: E265 block comment should start with '# '
+bot.py:625:80: E501 line too long (151 > 79 characters)
+bot.py:637:5: E722 do not use bare 'except'
+bot.py:643:1: E303 too many blank lines (3)
+bot.py:661:80: E501 line too long (84 > 79 characters)
+bot.py:663:80: E501 line too long (93 > 79 characters)
+bot.py:683:1: E303 too many blank lines (3)
+bot.py:710:80: E501 line too long (88 > 79 characters)
+bot.py:711:80: E501 line too long (169 > 79 characters)
+bot.py:713:80: E501 line too long (84 > 79 characters)
+bot.py:716:80: E501 line too long (101 > 79 characters)
+bot.py:720:80: E501 line too long (137 > 79 characters)
+bot.py:722:80: E501 line too long (109 > 79 characters)
+bot.py:723:80: E501 line too long (129 > 79 characters)
+bot.py:730:80: E501 line too long (107 > 79 characters)
+bot.py:733:80: E501 line too long (139 > 79 characters)
+bot.py:735:80: E501 line too long (133 > 79 characters)
+bot.py:749:80: E501 line too long (89 > 79 characters)
+bot.py:753:80: E501 line too long (126 > 79 characters)
+bot.py:759:1: E302 expected 2 blank lines, found 3
+bot.py:763:5: E722 do not use bare 'except'
+bot.py:771:80: E501 line too long (137 > 79 characters)
+bot.py:782:1: E302 expected 2 blank lines, found 1
+bot.py:786:5: E722 do not use bare 'except'
+bot.py:798:5: E265 block comment should start with '# '
+bot.py:799:5: E265 block comment should start with '# '
+bot.py:810:80: E501 line too long (121 > 79 characters)
+bot.py:811:5: E722 do not use bare 'except'
+bot.py:816:5: E303 too many blank lines (2)
+bot.py:829:5: E303 too many blank lines (3)
+bot.py:840:5: E265 block comment should start with '# '
+bot.py:845:9: E722 do not use bare 'except'
+bot.py:846:80: E501 line too long (80 > 79 characters)
+bot.py:859:9: E722 do not use bare 'except'
+bot.py:862:80: E501 line too long (87 > 79 characters)
+bot.py:866:13: E722 do not use bare 'except'
+bot.py:867:80: E501 line too long (119 > 79 characters)
+bot.py:869:80: E501 line too long (88 > 79 characters)
+bot.py:873:80: E501 line too long (91 > 79 characters)
+bot.py:875:80: E501 line too long (97 > 79 characters)
+bot.py:877:80: E501 line too long (143 > 79 characters)
+bot.py:882:1: E302 expected 2 blank lines, found 1
+bot.py:886:5: E722 do not use bare 'except'
+bot.py:896:5: E265 block comment should start with '# '
+bot.py:900:49: E711 comparison to None should be 'if cond is None:'
+bot.py:908:9: E722 do not use bare 'except'
+bot.py:909:80: E501 line too long (102 > 79 characters)
+bot.py:914:5: E303 too many blank lines (2)
+bot.py:914:5: E265 block comment should start with '# '
+bot.py:915:5: E265 block comment should start with '# '
+bot.py:926:80: E501 line too long (121 > 79 characters)
+bot.py:927:5: F841 local variable 'e' is assigned to but never used
+bot.py:929:9: E265 block comment should start with '# '
+bot.py:935:9: E722 do not use bare 'except'
+bot.py:937:5: F841 local variable 'e' is assigned to but never used
+bot.py:950:9: E722 do not use bare 'except'
+bot.py:953:80: E501 line too long (87 > 79 characters)
+bot.py:957:13: E722 do not use bare 'except'
+bot.py:958:80: E501 line too long (119 > 79 characters)
+bot.py:960:80: E501 line too long (88 > 79 characters)
+bot.py:962:1: E302 expected 2 blank lines, found 1
+bot.py:964:80: E501 line too long (201 > 79 characters)
+bot.py:966:1: E302 expected 2 blank lines, found 1
+bot.py:970:80: E501 line too long (119 > 79 characters)
+bot.py:975:80: E501 line too long (111 > 79 characters)
+bot.py:977:80: E501 line too long (119 > 79 characters)
+bot.py:981:1: E302 expected 2 blank lines, found 1
+bot.py:986:80: E501 line too long (86 > 79 characters)
+bot.py:988:1: E302 expected 2 blank lines, found 1
+bot.py:992:5: E722 do not use bare 'except'
+bot.py:995:9: E265 block comment should start with '# '
+bot.py:999:80: E501 line too long (84 > 79 characters)
+bot.py:1000:5: E722 do not use bare 'except'
+bot.py:1021:5: E722 do not use bare 'except'
+bot.py:1027:80: E501 line too long (88 > 79 characters)
+bot.py:1045:5: E265 block comment should start with '# '
+bot.py:1045:80: E501 line too long (81 > 79 characters)
+bot.py:1046:5: E265 block comment should start with '# '
+bot.py:1052:5: E265 block comment should start with '# '
+bot.py:1054:1: E302 expected 2 blank lines, found 1
+bot.py:1061:80: E501 line too long (105 > 79 characters)
+bot.py:1065:1: E302 expected 2 blank lines, found 1
+bot.py:1069:5: E722 do not use bare 'except'
+bot.py:1073:80: E501 line too long (111 > 79 characters)
+bot.py:1077:1: E302 expected 2 blank lines, found 1
+bot.py:1079:5: E265 block comment should start with '# '
+bot.py:1082:5: E722 do not use bare 'except'
+bot.py:1086:80: E501 line too long (106 > 79 characters)
+bot.py:1090:1: E302 expected 2 blank lines, found 1
+bot.py:1092:5: E265 block comment should start with '# '
+bot.py:1095:5: E722 do not use bare 'except'
+bot.py:1099:80: E501 line too long (109 > 79 characters)
+bot.py:1103:1: E302 expected 2 blank lines, found 1
+bot.py:1105:80: E501 line too long (88 > 79 characters)
+bot.py:1108:5: E722 do not use bare 'except'
+bot.py:1111:80: E501 line too long (104 > 79 characters)
+bot.py:1118:80: E501 line too long (88 > 79 characters)
+bot.py:1121:5: E722 do not use bare 'except'
+bot.py:1124:80: E501 line too long (104 > 79 characters)
+bot.py:1128:1: E302 expected 2 blank lines, found 1
+bot.py:1130:80: E501 line too long (88 > 79 characters)
+bot.py:1133:5: E722 do not use bare 'except'
+bot.py:1136:80: E501 line too long (104 > 79 characters)
+bot.py:1140:1: E302 expected 2 blank lines, found 1
+bot.py:1142:80: E501 line too long (177 > 79 characters)
+bot.py:1145:5: E722 do not use bare 'except'
+bot.py:1148:80: E501 line too long (104 > 79 characters)
+bot.py:1152:1: E302 expected 2 blank lines, found 1
+bot.py:1154:80: E501 line too long (88 > 79 characters)
+bot.py:1157:5: E722 do not use bare 'except'
+bot.py:1160:80: E501 line too long (104 > 79 characters)
+bot.py:1164:1: E302 expected 2 blank lines, found 1
+bot.py:1168:5: E722 do not use bare 'except'
+bot.py:1171:80: E501 line too long (128 > 79 characters)
+bot.py:1175:1: E302 expected 2 blank lines, found 1
+bot.py:1177:5: E265 block comment should start with '# '
+bot.py:1180:5: E722 do not use bare 'except'
+bot.py:1183:80: E501 line too long (170 > 79 characters)
+bot.py:1186:80: E501 line too long (104 > 79 characters)
+bot.py:1190:1: E302 expected 2 blank lines, found 1
+bot.py:1192:5: E265 block comment should start with '# '
+bot.py:1195:5: E722 do not use bare 'except'
+bot.py:1198:80: E501 line too long (814 > 79 characters)
+bot.py:1201:80: E501 line too long (104 > 79 characters)
+bot.py:1205:1: E302 expected 2 blank lines, found 1
+bot.py:1208:80: E501 line too long (120 > 79 characters)
+bot.py:1212:1: E302 expected 2 blank lines, found 1
+bot.py:1216:1: E302 expected 2 blank lines, found 1
+bot.py:1222:21: F405 'prettyword' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:1225:21: F405 'prettyword' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:1228:21: F405 'prettyword' may be undefined, or defined from star imports: decimal, prettyword
+bot.py:1231:5: E303 too many blank lines (2)
+bot.py:1232:5: E265 block comment should start with '# '
+bot.py:1232:80: E501 line too long (152 > 79 characters)
+bot.py:1234:1: E302 expected 2 blank lines, found 1
+bot.py:1238:1: E302 expected 2 blank lines, found 1
+bot.py:1239:1: F811 redefinition of unused 'detect' from line 1206
+bot.py:1241:80: E501 line too long (120 > 79 characters)
+bot.py:1244:9: E265 block comment should start with '# '
+bot.py:1244:80: E501 line too long (122 > 79 characters)
+bot.py:1247:1: E302 expected 2 blank lines, found 1
+bot.py:1249:80: E501 line too long (137 > 79 characters)
+bot.py:1251:1: E302 expected 2 blank lines, found 1
+bot.py:1251:80: E501 line too long (113 > 79 characters)
+bot.py:1254:80: E501 line too long (82 > 79 characters)
+bot.py:1256:5: E722 do not use bare 'except'
+bot.py:1259:1: E305 expected 2 blank lines after class or function definition, found 1
+bot.py:1261:1: E722 do not use bare 'except'
+bot.py:1262:80: E501 line too long (92 > 79 characters)

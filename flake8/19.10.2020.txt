@@ -1,0 +1,128 @@
+.\bot.py:5:1: F403 'from components import *' used; unable to detect undefined names
+.\bot.py:5:1: F401 'components.*' imported but unused
+.\bot.py:12:1: E722 do not use bare 'except'
+.\components\stickers.py:8:80: E501 line too long (94 > 79 characters)
+.\components\stickers.py:14:80: E501 line too long (90 > 79 characters)
+.\components\stickers.py:20:80: E501 line too long (94 > 79 characters)
+.\components\stickers.py:26:80: E501 line too long (94 > 79 characters)
+.\components\stickers.py:32:80: E501 line too long (94 > 79 characters)
+.\components\stickers.py:38:80: E501 line too long (183 > 79 characters)
+.\components\stickers.py:44:5: E722 do not use bare 'except'
+.\components\stickers.py:50:80: E501 line too long (81 > 79 characters)
+.\components\text.py:66:5: E722 do not use bare 'except'
+.\components\youtube.py:11:80: E501 line too long (169 > 79 characters)
+.\components\youtube.py:12:9: E722 do not use bare 'except'
+.\components\youtube.py:16:80: E501 line too long (167 > 79 characters)
+.\components\menu.py:28:5: E722 do not use bare 'except'
+.\components\menu.py:78:5: F841 local variable 'e' is assigned to but never used
+.\components\ban.py:24:9: F841 local variable 'e' is assigned to but never used
+.\components\ban.py:46:80: E501 line too long (101 > 79 characters)
+.\components\ban.py:69:80: E501 line too long (124 > 79 characters)
+.\components\ban.py:73:80: E501 line too long (118 > 79 characters)
+.\components\ban.py:102:13: E722 do not use bare 'except'
+.\components\photo.py:73:80: E501 line too long (91 > 79 characters)
+.\components\photo.py:146:80: E501 line too long (80 > 79 characters)
+.\components\photo.py:149:80: E501 line too long (82 > 79 characters)
+.\components\photo.py:181:80: E501 line too long (82 > 79 characters)
+.\components\photo.py:187:80: E501 line too long (82 > 79 characters)
+.\components\random.py:18:80: E501 line too long (84 > 79 characters)
+.\components\random.py:35:13: F841 local variable 'true_date' is assigned to but never used
+.\components\random.py:38:80: E501 line too long (128 > 79 characters)
+.\components\random.py:41:80: E501 line too long (203 > 79 characters)
+.\components\random.py:48:5: E722 do not use bare 'except'
+.\components\random.py:51:80: E501 line too long (121 > 79 characters)
+.\components\art.py:22:5: E722 do not use bare 'except'
+.\components\status.py:14:12: F541 f-string is missing placeholders
+.\components\status.py:33:11: E222 multiple spaces after operator
+.\components\status.py:33:13: F541 f-string is missing placeholders
+.\components\status.py:34:13: F541 f-string is missing placeholders
+.\components\eval.py:3:1: F401 're' imported but unused
+.\components\eval.py:4:1: F401 'requests' imported but unused
+.\components\eval.py:5:1: F401 'telebot' imported but unused
+.\components\eval.py:15:9: E722 do not use bare 'except'
+.\components\memes.py:9:5: E722 do not use bare 'except'
+.\components\memes.py:13:80: E501 line too long (111 > 79 characters)
+.\components\memes.py:22:5: E722 do not use bare 'except'
+.\components\memes.py:26:80: E501 line too long (106 > 79 characters)
+.\components\memes.py:35:5: E722 do not use bare 'except'
+.\components\memes.py:39:80: E501 line too long (109 > 79 characters)
+.\components\memes.py:48:5: E722 do not use bare 'except'
+.\components\memes.py:64:5: E722 do not use bare 'except'
+.\components\memes.py:70:80: E501 line too long (81 > 79 characters)
+.\components\memes.py:76:1: F811 redefinition of unused 'rzaka' from line 61
+.\components\memes.py:84:5: E722 do not use bare 'except'
+.\components\memes.py:90:80: E501 line too long (81 > 79 characters)
+.\components\lurk.py:26:5: E722 do not use bare 'except'
+.\components\lurk.py:66:80: E501 line too long (99 > 79 characters)
+.\components\lurk.py:172:5: F841 local variable 'e' is assigned to but never used
+.\components\lurk.py:173:80: E501 line too long (88 > 79 characters)
+.\components\lurk.py:182:9: E722 do not use bare 'except'
+.\components\lurk.py:187:80: E501 line too long (86 > 79 characters)
+.\components\lurk.py:192:13: E722 do not use bare 'except'
+.\components\lurk.py:210:9: E722 do not use bare 'except'
+.\components\lurk.py:213:80: E501 line too long (87 > 79 characters)
+.\components\lurk.py:218:13: E722 do not use bare 'except'
+.\components\wiki.py:8:80: E501 line too long (162 > 79 characters)
+.\components\wiki.py:36:80: E501 line too long (166 > 79 characters)
+.\components\wiki.py:75:9: E722 do not use bare 'except'
+.\components\wiki.py:80:80: E501 line too long (131 > 79 characters)
+.\components\wiki.py:81:80: E501 line too long (194 > 79 characters)
+.\components\wiki.py:90:9: E722 do not use bare 'except'
+.\components\wiki.py:100:1: F811 redefinition of unused 'wikiru' from line 95
+.\components\mrakopedia.py:10:5: E722 do not use bare 'except'
+.\components\mrakopedia.py:30:9: E722 do not use bare 'except'
+.\components\mrakopedia.py:31:80: E501 line too long (102 > 79 characters)
+.\components\mrakopedia.py:44:80: E501 line too long (121 > 79 characters)
+.\components\mrakopedia.py:45:5: F841 local variable 'e' is assigned to but never used
+.\components\mrakopedia.py:53:9: E722 do not use bare 'except'
+.\components\mrakopedia.py:55:5: E722 do not use bare 'except'
+.\components\mrakopedia.py:65:9: E722 do not use bare 'except'
+.\components\mrakopedia.py:68:80: E501 line too long (87 > 79 characters)
+.\components\mrakopedia.py:72:13: E722 do not use bare 'except'
+.\components\mrakopedia.py:73:80: E501 line too long (119 > 79 characters)
+.\components\mrakopedia.py:75:80: E501 line too long (88 > 79 characters)
+.\components\bash.py:4:80: E501 line too long (89 > 79 characters)
+.\components\bash.py:6:80: E501 line too long (95 > 79 characters)
+.\components\bash.py:8:80: E501 line too long (141 > 79 characters)
+.\components\habr.py:16:5: E722 do not use bare 'except'
+.\components\wget.py:30:5: E722 do not use bare 'except'
+.\components\wget.py:93:13: F541 f-string is missing placeholders
+.\components\math.py:15:9: E722 do not use bare 'except'
+.\components\dev.py:24:5: E722 do not use bare 'except'
+.\components\dev.py:31:80: E501 line too long (120 > 79 characters)
+.\components\dev.py:41:5: E722 do not use bare 'except'
+.\components\dev.py:49:5: E722 do not use bare 'except'
+.\components\dev.py:54:80: E501 line too long (84 > 79 characters)
+.\components\dev.py:55:5: E722 do not use bare 'except'
+.\components\dev.py:61:80: E501 line too long (93 > 79 characters)
+.\components\dev.py:74:9: E722 do not use bare 'except'
+.\components\dev.py:103:80: E501 line too long (80 > 79 characters)
+.\components\dev.py:105:80: E501 line too long (80 > 79 characters)
+.\components\dev.py:108:5: E722 do not use bare 'except'
+.\components\dev.py:109:80: E501 line too long (99 > 79 characters)
+.\components\inline.py:15:5: F841 local variable 'ex' is assigned to but never used
+.\components\inline.py:34:80: E501 line too long (84 > 79 characters)
+.\components\inline.py:35:25: E122 continuation line missing indentation or outdented
+.\components\inline.py:36:25: E122 continuation line missing indentation or outdented
+.\components\inline.py:43:80: E501 line too long (84 > 79 characters)
+.\components\inline.py:44:25: E122 continuation line missing indentation or outdented
+.\components\inline.py:45:25: E122 continuation line missing indentation or outdented
+.\components\inline.py:46:80: E501 line too long (179 > 79 characters)
+.\components\github.py:11:5: E722 do not use bare 'except'
+.\components\github.py:20:80: E501 line too long (137 > 79 characters)
+.\components\crypto.py:10:80: E501 line too long (119 > 79 characters)
+.\components\crypto.py:15:80: E501 line too long (111 > 79 characters)
+.\components\crypto.py:17:80: E501 line too long (119 > 79 characters)
+.\components\crypto.py:30:5: E722 do not use bare 'except'
+.\components\crypto.py:36:80: E501 line too long (88 > 79 characters)
+.\components\scp.py:23:5: E722 do not use bare 'except'
+.\components\scp.py:27:9: E722 do not use bare 'except'
+.\components\scp.py:54:80: E501 line too long (84 > 79 characters)
+.\components\lib\wikipedia.py:79:80: E501 line too long (82 > 79 characters)
+.\components\lib\habr.py:18:80: E501 line too long (85 > 79 characters)
+.\components\lib\habr.py:21:80: E501 line too long (85 > 79 characters)
+.\components\lib\photo.py:45:30: E701 multiple statements on one line (colon)
+.\components\lib\photo.py:46:30: E701 multiple statements on one line (colon)
+.\components\lib\photo.py:64:9: E722 do not use bare 'except'
+.\components\lib\telegram.py:8:9: E722 do not use bare 'except'
+.\components\lib\prettyword.py:13:24: W292 no newline at end of file
