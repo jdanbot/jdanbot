@@ -1,3 +1,10 @@
 __pycache__/
 bot/token.json
 bot/token2.json
+*.py[cod]
+*$py.class
+*.so
+*.mp3
+*.ogg
+*.json
+*.txt
