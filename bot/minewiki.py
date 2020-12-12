@@ -4,7 +4,7 @@ from .lib.lurkmore import Lurkmore
 
 mine = Lurkmore()
 mine.url = "https://minecraft.gamepedia.com/api.php"
-mine.url2 = "https://minecraft.gamepedia.com/index.php"
+mine.url2 = "https://minecraft.gamepedia.com"
 
 
 @dp.message_handler(commands=["mine", "minewiki"])
