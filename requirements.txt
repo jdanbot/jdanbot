@@ -1,2 +1,4 @@
 aiogram
 art
+pyyaml
+wikipya=1.1.0
