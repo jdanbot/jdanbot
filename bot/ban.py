@@ -50,11 +50,11 @@ async def detect_text_message(message):
         await message.reply(choice(["Да", "Нет"]))
 
     if msg.find("бойкот") != -1:
-        await message.reply("Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником")
+        await message.reply(data["ban"]["boikot"])
 
     if msg.find("яблоко") != -1 or \
-       msg.find("яблочник") != -1:
-        await message.reply("Вы запостили информацию о яблоке, если вы яблочник, то к вам приедут с паяльником")
+       msg.find("яблочн") != -1:
+        await message.reply(data["ban"]["apple"])
 
     if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нn]([^a-zа-яё\d]|$)",
                  message.text
@@ -91,13 +91,10 @@ async def detect_text_message(message):
             pass
 
     if msg.find("секс") != -1:
-        await message.reply("Кто?")
+        await message.reply("Что?")
 
-    if msg.find("наки") != -1:
-        await message.reply("Майкл Наки — в жопе козинаки")
-
-    elif msg.find("наки майкл") != -1:
-        await message.reply("Майкл Наки — в жопе козинаки")
+    # if msg.find(" наки ") != -1:
+    #     await message.reply("Майкл Наки — в жопе козинаки")
 
     if msg.find("когда уйдет путин") != -1:
         await random_putin(message)

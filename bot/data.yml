@@ -164,6 +164,13 @@ love_words:
   - бот, ты красавчик
 
 
+honka:
+    send_love: CAACAgIAAx0CRieRpgABA7bCX1aW70b_1a0OspsDDXYk8iPACEkAArwBAAKUmWkvXbzmLd8q5dcbBA
+
+ban:
+    boikot: Вы запостили информацию о бойкоте, если вы бойкотировали, то к вам приедут с паяльником
+    apple: Вы запостили информацию о яблоке, если вы яблочник, то к вам приедут с паяльником
+
 # Википедия
 langs: |
     `Поддерживаемые языки
