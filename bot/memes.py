@@ -14,7 +14,7 @@ async def send_meme(message, text):
             reply_to_message_id=message.reply_to_message.message_id
         )
     except AttributeError:
-        await bot.send_message(message.chat.id, text)
+        await message.answer(text)
 
 
 memes = {
@@ -74,5 +74,4 @@ async def polak(message):
             reply_to_message_id=message.reply_to_message.message_id
         )
     except AttributeError:
-        await bot.send_photo(message.chat.id,
-                             open("images/polak.jpg", "rb").read())
+        await message.answer_photo(open("images/polak.jpg", "rb"))
