@@ -1,5 +1,7 @@
+beautifulsoup4
+wikipya==1.1.0
 aiogram
-art
 pyyaml
-wikipya=1.1.0
 psutil
+lxml
+art
