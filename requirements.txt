@@ -1,9 +1,7 @@
-PyTelegramBotAPI
-googletrans
-lxml
 beautifulsoup4
-pillow
-art
+wikipya==1.1.0
+aiogram
 pyyaml
-pyscp
-wikipya==1.0.4
+psutil
+lxml
+art

@@ -1,16 +1,12 @@
-from components.token import bot
-import traceback
+from .bot import dp
+
+import asyncio
 
 
-@bot.message_handler(["987G87S98DFUS89D"])
-def unpoll(message):
-    pass
+@dp.message_handler(commands=["ping"])
+async def ping(message):
+    reply = await message.reply("Pong")
+    await asyncio.sleep(1)
 
-
-try:
-    bot.polling(none_stop=True)
-
-except Exception as e:
-    bot.send_message("795449748",
-                     f"`{str(traceback.format_exc())}`",
-                     parse_mode="Markdown")
+    await message.delete()
+    await reply.delete()

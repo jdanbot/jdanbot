@@ -1,15 +1,22 @@
-# -- coding: utf8 --
+import logging
+import json
 
-import traceback
+from os import environ
+from datetime import datetime
+from aiogram import Bot, Dispatcher
 
-from components import *
-from components.token import bot
 
+if "TOKEN" in environ:
+    TOKEN = environ["TOKEN"]
+    heroku = True
 
-try:
-    bot.polling(none_stop=True)
+else:
+    with open("bot/token.json") as token:
+        TOKEN = json.loads(token.read())["token"]
+        heroku = False
 
-except Exception as e:
-    bot.send_message("795449748",
-                     f"`{str(traceback.format_exc())}`",
-                     parse_mode="Markdown")
+start_time = datetime.now()
+logging.basicConfig(level=logging.INFO)
+
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot)
