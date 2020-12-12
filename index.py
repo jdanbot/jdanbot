@@ -6,9 +6,9 @@ from aiogram import executor
 
 
 try:
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_polling(dp)
 
-except Exception as e:
+except Exception:
     bot.send_message("795449748",
                      f"`{str(traceback.format_exc())}`",
                      parse_mode="Markdown")

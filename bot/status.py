@@ -7,7 +7,7 @@ import psutil
 status = """status
 ├─heroku: {heroku}
 ├─memoru:
-│ ├─stats: {total}/{used} GB
+│ ├─stats: {total}/{used}
 │ └─percent: {mem_perc}%
 ├─cpu: {cpu}%
 └─uptime: {uptime}
