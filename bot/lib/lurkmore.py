@@ -107,8 +107,7 @@ class Lurkmore:
 
     async def getImage(self, filename):
         async with aiohttp.ClientSession() as session:
-            response = await session.get(f"{self.url2}",
-                                         params={"search": f"Файл:{filename}"})
+            response = await session.get(f"{self.url2}/File:{filename}")
 
             if not response.status == 200:
                 return 404
