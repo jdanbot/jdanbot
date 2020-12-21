@@ -6,14 +6,30 @@ lurk = Lurkmore()
 
 
 @dp.message_handler(commands=["lurk"])
-async def getlurk(message):
+async def L(message):
+    await getOldWiki(message)
+
+
+@dp.message_handler(commands=["absurd"])
+async def absurd(message):
+    await getOldWiki(message, "Absurdopedia",
+                     "https://absurdopedia.net/w/api.php",
+                     "https://absurdopedia.net/wiki/")
+
+
+async def getOldWiki(message, n="Lurkmore",
+                     url="https://ipv6.lurkmo.re/api.php",
+                     url2="https://ipv6.lurkmo.re"):
     options = message.text.split(maxsplit=1)
     if len(options) == 1:
         await message.reply("Напишите название статьи")
         return
 
+    lurk.url = url
+    lurk.url2 = url2
+
     name = options[1]
-    print(f"[Lurkmore] {name}")
+    print(f"[{n}] {name}")
 
     s = await lurk.opensearch(name)
 
@@ -23,6 +39,8 @@ async def getlurk(message):
 
     p = await lurk.getPage(s[0])
     i = await lurk.getImagesList(s[0])
+
+    print(i)
 
     if len(i) != 0:
         try:

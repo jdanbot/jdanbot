@@ -2,7 +2,7 @@ from .fixHTML import fixHTML
 
 
 def code(text):
-    return f"<code>{fixHTML(text)}</code>"
+    return f"<code>{fixHTML(str(text))}</code>"
 
 
 def bold(text):
