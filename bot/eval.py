@@ -18,10 +18,10 @@ async def supereval(message):
     if async_:
         try:
             exec(
-                "async def __ex(message, print): " +
+                "async def __ex(message, bot, print): " +
                 "".join(f"\n {L}" for L in text.split("\n"))
             )
-            await locals()["__ex"](message, print_)
+            await locals()["__ex"](message, bot, print_)
         except:
             await message.reply(code(traceback.format_exc()),
                                 parse_mode="HTML")
@@ -29,10 +29,10 @@ async def supereval(message):
         try:
 
             exec(
-                "def __ex(message): " +
+                "def __ex(message, bot): " +
                 "".join(f"\n {L}" for L in text.split("\n"))
             )
-            locals()["__ex"](message)
+            locals()["__ex"](message, bot)
 
         except:
             await message.reply(code(traceback.format_exc()),
