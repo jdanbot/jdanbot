@@ -18,7 +18,7 @@ async def john(message):
         await chat_rules(message, False)
 
 
-@dp.message_handler(content_types=["left_chat_participant"])
+@dp.message_handler(content_types=["left_chat_member"])
 async def left_john(message):
     if message.chat.id != -1001319828458 and message.chat.id != -1001189395000:
         await message.reply(f'{choice(data["greatings"])} ушел?')
