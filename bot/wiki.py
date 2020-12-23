@@ -98,9 +98,10 @@ async def getWiki(message=None, lang="ru", logs=False, title=None):
         try:
             await message.reply(text, parse_mode="HTML", reply_markup=keyboard)
 
-        except:
-            await bot.send_message(795449748, text)
-            await message.reply(text)
+        except Exception as e:
+            await bot.send_message(795449748, code("[Wikipedia Error] " + str(e)),
+                                   parse_mode="HTML")
+            await message.reply(text + "\n\n@jDan734, фикси, фикси, фикси", parse_mode="HTML")
 
     else:
         if image == data["belarus_flag"]["old"]:
