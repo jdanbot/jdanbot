@@ -1,6 +1,7 @@
 from .lib.fixWords import fixWords
 from .data import data
 from .bot import bot, dp
+from .lib.html import code
 
 
 import aiogram
@@ -73,7 +74,7 @@ async def getWiki(message=None, lang="ru", logs=False, title=None):
             if p.text == "":
                 p.replace_with("")
 
-        text = fixWords(wiki.parsePage(page))
+        text = fixWords(wiki.parsePage(page)).split("\n")[0]
 
     image = await wiki.getImageByPageName(title)
 
@@ -111,7 +112,9 @@ async def getWiki(message=None, lang="ru", logs=False, title=None):
             await message.reply_photo(image, caption=text,
                                       parse_mode="HTML",
                                       reply_markup=keyboard)
-        except Exception:
+        except Exception as e:
+            await bot.send_message(795449748, code("[Wikipedia Error] " + str(e)),
+                                   parse_mode="HTML")
             await message.reply("Не удалось отправить статью")
 
 
