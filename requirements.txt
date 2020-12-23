@@ -1,5 +1,5 @@
 beautifulsoup4
-wikipya==1.1.0
+wikipya==1.1.1
 aiogram
 pyyaml
 psutil
