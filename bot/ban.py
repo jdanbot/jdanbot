@@ -18,12 +18,21 @@ async def john(message):
         await chat_rules(message, False)
 
 
+@dp.message_handler(content_types=["left_chat_participant"])
+async def left_john(message):
+    if message.chat.id != -1001319828458 and message.chat.id != -1001189395000:
+        await message.reply(f'{choice(data["greatings"])} ушел?')
+
+
 @dp.message_handler(lambda message: False or
                     message.chat.id == -1001335444502 or
                     message.chat.id == -1001189395000 or
                     message.chat.id == -1001176998310 or
                     message.chat.id == -1001374137898)
 async def detect_text_message(message):
+
+    print(message)
+
     msg = message.text.lower().replace("_", "") \
                               .replace("-", "")
 
