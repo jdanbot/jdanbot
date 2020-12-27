@@ -58,12 +58,12 @@ async def detect_text_message(message):
     elif msg.find("бот,") != -1 and msg.find("?") != -1:
         await message.reply(choice(["Да", "Нет"]))
 
-    if msg.find("бойкот") != -1:
-        await message.reply(data["ban"]["boikot"])
+    # if msg.find("бойкот") != -1:
+    #     await message.reply(data["ban"]["boikot"])
 
-    if msg.find("яблоко") != -1 or \
-       msg.find("яблочн") != -1:
-        await message.reply(data["ban"]["apple"])
+    # if msg.find("яблоко") != -1 or \
+    #    msg.find("яблочн") != -1:
+    #     await message.reply(data["ban"]["apple"])
 
     if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нn]([^a-zа-яё\d]|$)",
                  message.text
@@ -99,14 +99,14 @@ async def detect_text_message(message):
         except Exception:
             pass
 
-    if msg.find("секс") != -1:
-        await message.reply("Что?")
+    # if msg.find("секс") != -1:
+    #     await message.reply("Что?")
 
     # if msg.find(" наки ") != -1:
     #     await message.reply("Майкл Наки — в жопе козинаки")
 
-    if msg.find("когда уйдет путин") != -1:
-        await random_putin(message)
+    # if msg.find("когда уйдет путин") != -1:
+    #     await random_putin(message)
 
-    if msg.find("когда уйдет лукашенко") != -1:
-        await random_lukash(message)
+    # if msg.find("когда уйдет лукашенко") != -1:
+    #     await random_lukash(message)
