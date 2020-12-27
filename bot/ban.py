@@ -31,8 +31,6 @@ async def left_john(message):
                     message.chat.id == -1001374137898)
 async def detect_text_message(message):
 
-    print(message)
-
     msg = message.text.lower().replace("_", "") \
                               .replace("-", "")
 
