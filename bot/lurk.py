@@ -54,16 +54,30 @@ async def getOldWiki(message, n="Lurkmore",
 
     if len(i) != 0:
         try:
+            # Send page in normal mode
             image = await lurk.getImage(i[0])
             await bot.send_chat_action(message.chat.id, "upload_photo")
             await message.reply_photo(image, caption=lurk.parse(p)[:1000],
                                       parse_mode="HTML")
         except Exception as e:
+            # Send error message
             await bot.send_chat_action(message.chat.id, "typing")
-            await message.reply(code(e), parse_mode="HTML")
+            await message.reply(code(e),
+                                parse_mode="HTML")
+
             try:
-                await message.reply(lurk.parse(p)[:4096], parse_mode="HTML")
+                # Try send only html
+                await message.reply(lurk.parse(p)[:4096],
+                                    parse_mode="HTML")
             except Exception:
+                # Try send only text
                 await message.reply(lurk.parse(p)[:4096])
     else:
-        await message.reply(lurk.parse(p)[:4096], parse_mode="HTML")
+        parsed_text = lurk.parse(p)[:4096]
+        try:
+            # Send html in normal mode
+            await message.reply(parsed_text,
+                                parse_mode="HTML")
+        except Exception:
+            # Try send text
+            await message.reply(parsed_text)
