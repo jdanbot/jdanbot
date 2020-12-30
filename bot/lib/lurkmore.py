@@ -3,6 +3,7 @@ import json
 import aiohttp
 
 from bs4 import BeautifulSoup
+from .html import bold as bold_html
 
 
 class Lurkmore:
@@ -160,6 +161,16 @@ class Lurkmore:
             for t in soup.findAll("table"):
                 t.replace_with("")
 
+            for t in soup.findAll("div", {"class": "archwiki-template-meta-related-articles-start"}):
+                t.replace_with("")
+
+            for t in soup.findAll("a", {"class": "extiw"}):
+                t.replace_with("")
+                for t2 in soup.findAll("p"):
+                    t2.replace_with("")
+                    break
+                break
+
             for t in soup.findAll("div", {"class": "noprint"}):
                 t.replace_with("")
 
@@ -175,21 +186,24 @@ class Lurkmore:
             bold_text.append(tag.text)
 
         try:
-            page_text = first if (first := soup.find("p").text.strip()) \
-                              else soup.findAll("p")[1] \
-                                      .text \
-                                      .strip()
-
-            page_text = page_text.replace("<", "&lt;") \
-                                 .replace(">", "&gt;") \
-                                 .replace(" )", ")") \
-                                 .replace("  ", " ")
+            try:
+                page_text = first if (first := soup.find("p").text.strip()) \
+                                  else soup.findAll("p")[1] \
+                                           .text \
+                                           .strip()
+            except:
+                page_text = first if (first := soup.find("dd").text.strip()) \
+                                  else soup.findAll("dd")[1] \
+                                           .text \
+                                           .strip()
 
             for bold in bold_text:
                 try:
-                    page_text = re.sub(bold, f"<b>{bold}</b>", page_text, 1)
+                    page_text = re.sub(bold, bold_html(bold),
+                                       page_text, 1)
                 except re.error:
-                    page_text = page_text.replace(bold + " ", f"<b>{bold}</b> ")
+                    page_text = page_text.replace(bold + " ",
+                                                  bold_html(bold))
 
         except Exception as e:
             print(e)

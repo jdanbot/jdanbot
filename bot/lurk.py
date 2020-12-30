@@ -17,6 +17,13 @@ async def absurd(message):
                      "https://absurdopedia.net/wiki/")
 
 
+@dp.message_handler(commands=["archwiki"])
+async def archwiki(message):
+    await getOldWiki(message, "archwiki",
+                     "https://wiki.archlinux.org/api.php",
+                     "https://wiki.archlinux.org")
+
+
 async def getOldWiki(message, n="Lurkmore",
                      url="https://ipv6.lurkmo.re/api.php",
                      url2="https://ipv6.lurkmo.re"):
@@ -34,8 +41,11 @@ async def getOldWiki(message, n="Lurkmore",
     s = await lurk.opensearch(name)
 
     if len(s) == 0:
-        await message.reply("Не найдено")
-        return
+        s = await lurk.search(name)
+
+        if len(s) == 0:
+            await message.reply("Не найдено")
+            return
 
     p = await lurk.getPage(s[0])
     i = await lurk.getImagesList(s[0])
