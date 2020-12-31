@@ -6,4 +6,4 @@ import os
                     commands=["update"])
 async def update(message):
     await message.reply("Start update")
-    os.system("../after_push.sh")
+    os.system("/home/jdan/after_push.sh")
