@@ -11,7 +11,7 @@ if "TOKEN" in environ:
     heroku = True
 
 else:
-    with open("bot/token.json") as token:
+    with open("token.json") as token:
         TOKEN = json.loads(token.read())["token"]
         heroku = False
 
