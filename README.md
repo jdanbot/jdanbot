@@ -9,7 +9,7 @@ python index.py
 
 ## 🔑 Token
 You can get token from [BotFather](t.me/BotFather).
-After you must create file `token.json` in `/bot/` if you not use environ:
+After you must create file `token.json` in `/` if you not use environ:
 ```json
 {"token": "XXXXXXX"}
 ```
