@@ -32,9 +32,9 @@ async def get_status(message):
     mem = psutil.virtual_memory()
     cpu = psutil.cpu_percent()
 
-    text = status.format(total=to_gb(mem.total), os=platform, uptime=uptime, cpu=cpu,
+    text = status.format(total=to_gb(mem.total), os=platform, uptime=uptime,
                          used=to_gb(mem.used), mem_perc=int(mem.percent),
-                         heroku=heroku)
+                         heroku=heroku, cpu=cpu)
 
     text = code(text).replace("False", "❌") \
                      .replace("True", "✅") \
