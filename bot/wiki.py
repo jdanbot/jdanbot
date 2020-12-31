@@ -34,10 +34,10 @@ async def wikiSearch(message, lang="ru", logs=False):
     await message.reply(text)
 
 
-async def getWiki(message=None, lang="ru", logs=False, title=None):
+async def getWiki(message=None, lang="ru", logs=False, name=None):
     wiki = Wikipya(lang)
 
-    if title is None:
+    if name is None:
         if len(message.text.split(maxsplit=1)) != 2:
             await message.reply(f"Пожалуйста, напишите название статьи\nНапример так: `{message.text.split(maxsplit=1)[0]} Название Статьи`",
                           parse_mode="Markdown")
@@ -47,19 +47,20 @@ async def getWiki(message=None, lang="ru", logs=False, title=None):
 
         print(f"[Wikipedia {lang.upper()}] {query}")
 
-        s = await wiki.search(query)
-        os = await wiki.opensearch(query)
+        search = await wiki.search(query)
 
-        if s[0] == -1:
+        if search[0] == -1:
             await message.reply("Ничего не найдено")
             return
 
-        title = s[0][0]
+        name = search[0][0]
+        opensearch = await wiki.opensearch(name)
+        url = opensearch[-1][0]
 
     else:
-        print(f"[Wikipedia {lang.upper()}] {title}")
+        print(f"[Wikipedia {lang.upper()}] {name}")
 
-    page = await wiki.getPage(title)
+    page = await wiki.getPage(name)
 
     if page == -1:
         text = ""
@@ -77,7 +78,7 @@ async def getWiki(message=None, lang="ru", logs=False, title=None):
 
         text = fixWords(wiki.parsePage(page)).split("\n")[0]
 
-    image = await wiki.getImageByPageName(title)
+    image = await wiki.getImageByPageName(name)
 
     try:
         image = image["source"]
@@ -87,12 +88,12 @@ async def getWiki(message=None, lang="ru", logs=False, title=None):
     keyboard = aiogram.types.InlineKeyboardMarkup()
 
     try:
-        page_name = s[0][0]
+        page_name = search[0][0]
     except:
-        page_name = title
+        page_name = name
 
     keyboard.add(aiogram.types.InlineKeyboardButton(text="Читать полностью",
-                                                    url=os[-1][0]))
+                                                    url=url))
 
     if type(image) is int:
         await bot.send_chat_action(message.chat.id, "typing")
@@ -234,10 +235,10 @@ async def detect(message):
         message.reply("id должен быть числом")
         return
 
-    title = await w.getPageNameById(id_)
+    name = await w.getPageNameById(id_)
 
-    if title == -1:
+    if name == -1:
         await message.reply("Не получилось найти статью по айди")
         return
 
-    await getWiki(message, title=title)
+    await getWiki(message, name=name)
