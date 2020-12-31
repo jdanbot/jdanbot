@@ -174,19 +174,16 @@ async def random_color(message):
             await message.reply("Вводи цвет в формате hex")
             return
 
-    img = Photo()
+    img = Photo(xy=(200, 200))
 
     try:
-        img.rectangle((0, 0), (220, 220), color)
-        img.rectangle((0, 159), (220, 220), "#282C34")
-        img.font("fonts/JetBrainsMono-Bold.ttf", 47)
-        img.text("#DB9D63", (13, 160), color, outline=False)
-        img.text("#FFF", (13, 160), "#", outline=False)
+        img.rectangle((0, 0), (200, 200), color)
     except Exception as e:
         await message.reply(f"{bold('Произошла ошибка')}\n{code(e)}",
                             parse_mode="HTML")
         return
 
-    await message.reply_photo(img.save(), caption=code(color),
+    caption = code("#") + bold(color[1:])
+    await message.reply_photo(img.save(), caption=caption,
                               parse_mode="HTML")
     img.clean()
