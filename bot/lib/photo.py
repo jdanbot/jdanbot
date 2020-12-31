@@ -4,16 +4,16 @@ import random
 
 
 class Photo:
-    def __init__(self, path=None, xy=None):
+    def __init__(self, path=None, xy=(220, 220)):
         if path is not None:
             self.path = path
             self.saved_path = path.split(".")[0] + "_saved.jpg"
             self.image = Image.open(path)
             self.idraw = ImageDraw.Draw(self.image)
         else:
-            self.path = str(random.randint(0, 10000000000000000)) + ".jpg"
-            self.saved_path = self.path.split(".")[0] + "_saved.jpg"
-            self.image = Image.new("RGB", (220, 220), (255, 255, 255))
+            self.path = f"cache/{str(random.randint(0, 10000000000000000))}.jpg"
+            self.saved_path = f"{self.path.split('.')[0]}_saved.jpg"
+            self.image = Image.new("RGB", xy, (255, 255, 255))
             self.idraw = ImageDraw.Draw(self.image)
 
     def resize(self, size):
