@@ -47,14 +47,14 @@ async def ten(message):
 
 @dp.message_handler(commands=["tuk", "tua"])
 async def tua(message):
-    getTranslate(message, "uk")
+    await getTranslate(message, "uk")
 
 
 @dp.message_handler(commands=["tbe", "tby"])
 async def tbe(message):
-    getTranslate(message, "be")
+    await getTranslate(message, "be")
 
 
 @dp.message_handler(commands=["tpl"])
 async def tpl(message):
-    getTranslate(message, "pl")
+    await getTranslate(message, "pl")
