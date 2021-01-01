@@ -57,6 +57,8 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         opensearch = await wiki.opensearch(name)
         url = opensearch[-1][0]
 
+        print(url)
+
     else:
         print(f"[Wikipedia {lang.upper()}] {name}")
 
@@ -88,9 +90,14 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
     keyboard = aiogram.types.InlineKeyboardMarkup()
 
     try:
-        page_name = search[0][0]
+        name = search[0][0]
     except:
-        page_name = name
+        name = name
+
+    try:
+        print(url)
+    except:
+        url = f"https://{lang}.wikipedia.org/wiki/{name}"
 
     keyboard.add(aiogram.types.InlineKeyboardButton(text="Читать полностью",
                                                     url=url))
