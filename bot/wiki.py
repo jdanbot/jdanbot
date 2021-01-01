@@ -49,15 +49,13 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
 
         search = await wiki.search(query)
 
-        if search[0] == -1:
+        if search == -1:
             await message.reply("Ничего не найдено")
             return
 
         name = search[0][0]
         opensearch = await wiki.opensearch(name)
         url = opensearch[-1][0]
-
-        print(url)
 
     else:
         print(f"[Wikipedia {lang.upper()}] {name}")
@@ -95,7 +93,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         name = name
 
     try:
-        print(url)
+        url
     except:
         url = f"https://{lang}.wikipedia.org/wiki/{name}"
 
