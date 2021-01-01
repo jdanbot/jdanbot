@@ -4,5 +4,6 @@ aiogram
 pyyaml
 pillow
 psutil
+pyscp
 lxml
 art
