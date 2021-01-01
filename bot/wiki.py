@@ -1,7 +1,7 @@
 from .lib.fixWords import fixWords
 from .data import data
 from .bot import bot, dp
-from .lib.html import code
+from .lib.html import code, bold
 
 
 import aiogram
@@ -28,10 +28,10 @@ async def wikiSearch(message, lang="ru", logs=False):
     text = ""
 
     for prop in r:
-        text += f"{fixWords(prop[0])}\n"
+        text += bold(fixWords(prop[0])) + "\n"
         text += f"└─/w_{prop[1]}\n"
 
-    await message.reply(text)
+    await message.reply(text, parse_mode="HTML")
 
 
 async def getWiki(message=None, lang="ru", logs=False, name=None):
