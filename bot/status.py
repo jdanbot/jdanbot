@@ -18,8 +18,11 @@ status = """status
 """
 
 
-def to_gb(bytes):
-    return int(bytes * 0.00000001) * 0.1
+def convert_bytes(num):
+    for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
+        if num < 1024.0:
+            return f"{round(num, 2)} {x}"
+        num /= 1024.0
 
 
 @dp.message_handler(commands=["status"])
@@ -37,9 +40,12 @@ async def get_status(message):
     mem = psutil.virtual_memory()
     cpu = psutil.cpu_percent()
 
+    total = convert_bytes(mem.total)
+    used = convert_bytes(mem.used)
+
     # token = "environ" if heroku else "file"
-    text = status.format(total=to_gb(mem.total), os=platform, uptime=uptime,
-                         used=to_gb(mem.used), mem_perc=int(mem.percent),
+    text = status.format(total=total, os=platform, uptime=uptime,
+                         used=used, mem_perc=int(mem.percent),
                          status=bot_status, cpu=cpu, commit=commit)
 
     text = code(text).replace("False", "❌") \
