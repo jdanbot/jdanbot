@@ -11,7 +11,8 @@ status = """status
 ├─status: {status}
 ├─os: {os}
 ├─memory:
-│ ├─stats: {total}/{used}
+│ ├─used: {used}
+│ ├─total: {total}
 │ └─percent: {mem_perc}%
 ├─cpu: {cpu}%
 └─uptime: {uptime}
