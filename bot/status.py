@@ -1,4 +1,4 @@
-from .bot import dp, heroku, start_time
+from .bot import dp, start_time, bot_status
 from datetime import datetime
 from aiogram.utils.markdown import code
 
@@ -8,7 +8,7 @@ import psutil
 
 status = """status
 ├─commit: {commit}
-├─heroku: {heroku}
+├─status: {status}
 ├─os: {os}
 ├─memory:
 │ ├─stats: {total}/{used}
@@ -37,9 +37,10 @@ async def get_status(message):
     mem = psutil.virtual_memory()
     cpu = psutil.cpu_percent()
 
+    # token = "environ" if heroku else "file"
     text = status.format(total=to_gb(mem.total), os=platform, uptime=uptime,
                          used=to_gb(mem.used), mem_perc=int(mem.percent),
-                         heroku=heroku, cpu=cpu, commit=commit)
+                         status=bot_status, cpu=cpu, commit=commit)
 
     text = code(text).replace("False", "❌") \
                      .replace("True", "✅") \

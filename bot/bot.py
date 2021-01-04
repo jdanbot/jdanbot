@@ -11,8 +11,13 @@ if "TOKEN" in environ:
     heroku = True
 
 else:
-    with open("token.json") as token:
-        TOKEN = json.loads(token.read())["token"]
+    with open("token.json") as file:
+        token = json.loads(file.read())
+        TOKEN = token["token"]
+        try:
+            bot_status = token["status"]
+        except:
+            bot_status = "unknown"
         heroku = False
 
 start_time = datetime.now()
