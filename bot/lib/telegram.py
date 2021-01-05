@@ -5,7 +5,7 @@ class Telegram:
     async def photo(self, message):
         try:
             self.file_id = message.reply_to_message.photo[-1].file_id
-        except:
+        except Exception:
             self.file_id = message.reply_to_message.document.thumb.file_id
 
         file = await self.bot.get_file(self.file_id)
@@ -18,9 +18,3 @@ class Telegram:
             return commands
         else:
             return 404
-
-    async def delete_message(self, message):
-        try:
-            await message.delete()
-        except:
-            pass
