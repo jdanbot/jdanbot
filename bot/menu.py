@@ -23,10 +23,7 @@ for ind, button in enumerate(buttons):
 
 for ind, button in enumerate(buttons):
     a = buttons[ind:ind + 2]
-    try:
-        buttons.remove(a[1])
-    except:
-        pass
+    buttons.remove(a[1])
     keyboard.add(*a)
 
 
