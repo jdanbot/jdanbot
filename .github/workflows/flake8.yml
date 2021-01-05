@@ -1,2 +1,0 @@
-name: python-flake8
-uses: julianwachholz/flake8-action@v1.1.0
