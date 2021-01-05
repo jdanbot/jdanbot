@@ -1,5 +1,7 @@
 from .bot import bot, dp
 from .lib.html import code
+from .data import data
+
 from random import choice
 
 import hashlib
@@ -10,10 +12,13 @@ async def sha256(message):
     text = ""
 
     if message.reply_to_message:
-        if message.reply_to_message.text:
-            text = message.reply_to_message.text.encode("utf-8")
-        elif message.reply_to_message.document:
-            file_id = message.reply_to_message.document.file_id
+        reply = message.reply_to_message
+
+        if reply.text:
+            text = reply.text.encode("utf-8")
+
+        elif reply.document:
+            file_id = reply.document.file_id
 
             document = bot.get_file(file_id)
             text = bot.download_file(document.file_path)
@@ -43,8 +48,8 @@ async def password(message):
         return
 
     if crypto_type > 4096:
-        await message.reply_to("Телеграм поддерживает сообщения длиной не больше `4096` символов",
-                               parse_mode="Markdown")
+        await message.reply(data["errors"]["message_len"],
+                            parse_mode="Markdown")
         return
 
     elif crypto_type < 6:
@@ -53,16 +58,14 @@ async def password(message):
         return
 
     password = ""
-    data = []
+    symbols = []
 
-    # data.extend(list("абвгдеёжзийклмнопрстуфхцчшщъыьэюя"))
-    # data.extend(list("абвгдеёжзийклмнопрстуфхцчшщъыьэюя".upper()))
-    data.extend(list("abcdefghijklmnopqrstuvwxyz"))
-    data.extend(list("abcdefghijklmnopqrstuvwxyz".upper()))
-    data.extend(list('~!@#$%^&*()_+-=`[]\\}{|;\':"<>,./?'))
-    data.extend(list("0123456789"))
+    symbols.extend(list("abcdefghijklmnopqrstuvwxyz"))
+    symbols.extend(list("abcdefghijklmnopqrstuvwxyz".upper()))
+    symbols.extend(list('~!@#$%^&*()_+-=`[]\\}{|;\':"<>,./?'))
+    symbols.extend(list("0123456789"))
 
     for num in range(0, crypto_type):
-        password += choice(data)
+        password += choice(symbols)
 
     await message.reply(code(password), parse_mode="HTML")

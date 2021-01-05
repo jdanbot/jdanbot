@@ -1,5 +1,8 @@
-from .bot import dp
 from .lib.prettyword import prettyword
+from .data import data
+from .bot import dp
+
+
 from random import choice, randint
 
 
@@ -10,7 +13,7 @@ async def random(message):
 
 @dp.message_handler(commands=["random_putin"])
 async def random_putin(message):
-    await random_person(message, choice(["Обнуленец", "Путин", "Путен"]))
+    await random_person(message, choice(["Обнуленец", "Путин", "Краб"]))
 
 
 @dp.message_handler(commands=["random_lukash", "luk", "lukash"])
@@ -27,12 +30,24 @@ async def random_person(message, name):
         return
 
     else:
-        weeks = number / 7
+        weeks_num = round(number / 7)
+        days_num = round((number - weeks_num) % 7)
 
-        if number % 7 == 0:
-            await message.reply(f'{name} уйдет через {int(weeks)} {prettyword(int(weeks), ["неделя", "недели", "недель"])}')
+        if weeks_num == 0:
+            await message.reply(f'{name} уйдет сегодня')
+
+        elif days_num == 0:
+            date = prettyword(int(weeks_num), data["weeks"])
+            await message.reply(f'{name} уйдет через {int(weeks_num)} {date}')
+
         else:
-            await message.reply(f'{name} уйдет через {int(weeks)} {prettyword(int(weeks), ["неделя", "недели", "недель"])} и {int(number % 7)} {prettyword(int(number % 7), ["день", "дня", "дней"])}')
+            weeks = prettyword(int(weeks_num), data["weeks"])
+            days = prettyword(int(days_num), data["days"])
+
+            date = "{} {} и {} {}".format(weeks_num, weeks,
+                                          days_num, days)
+
+            await message.reply(f'{name} уйдет {date}')
 
 
 @dp.message_handler(commands=["da_net"])
