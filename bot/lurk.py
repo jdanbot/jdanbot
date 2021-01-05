@@ -50,8 +50,6 @@ async def getOldWiki(message, n="Lurkmore",
     p = await lurk.getPage(s[0])
     i = await lurk.getImagesList(s[0])
 
-    print(i)
-
     if len(i) != 0:
         try:
             # Send page in normal mode
