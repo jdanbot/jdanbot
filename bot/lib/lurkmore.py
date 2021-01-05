@@ -1,9 +1,13 @@
 import re
 import json
+import yaml
 import aiohttp
 
 from bs4 import BeautifulSoup
 from .html import bold as bold_html
+
+with open("bot/lib/blocklist.yml") as file:
+    blocklist = yaml.safe_load(file.read())
 
 
 class Lurkmore:
@@ -82,10 +86,9 @@ class Lurkmore:
             })
 
         images_list = []
-        blocklist = ["St.jpg", "ZOG1.jpg", "Butthurt.png", "Politota.png", "SShA.jpg", "48ef4db2ad.png", "Hate_small.png", "BanCaptcha.jpg", "Magnify-clip.png", "Wrar64.png", "Warning_1.png", "Eri_x_Yakumo.jpg", "Slowpoke.png", "Drama.png", "Barbed_wire_new_flip.png", "Huy.png", "Bashorgrufavicon.png", "Nihuya-small.png", "Uvaga.gif", "Nohate.jpg", "Hypnotoad_1.gif", "Kapitan_ochevidnost'.jpg", "Tema_sm.jpg", "Blood_jar.png", "Information_icon.svg", "Biohazard.png"]
 
         for item in r["parse"]["images"]:
-            if item not in blocklist:
+            if item not in blocklist["images"]:
                 images_list.append(item)
 
         return images_list
@@ -96,14 +99,14 @@ class Lurkmore:
         try:
             for t in p.find("aside").findAll("h2"):
                 t.replace_with("")
-        except:
+        except Exception:
             pass
 
         try:
             i = p.find("aside").find("a", {"class": "image"}).find("img")
 
             return i["src"]
-        except:
+        except Exception:
             return 404
 
     async def getImage(self, filename):
@@ -121,19 +124,11 @@ class Lurkmore:
 
     def findImagesInPage(self, imagelist, div):
         url_list = []
-        blocklist = ["//lurkmore.so/images/9/9f/St.jpg",
-                     "//lurkmore.so/images/thumb/0/0a/ZOG1.jpg/64px-ZOG1.jpg",
-                     "//lurkmore.so/images/thumb/4/41/Butthurt.png/64px-Butthurt.png",
-                     "//lurkmore.so/images/c/ca/Politota.png",
-                     "//lurkmore.so/images/thumb/f/f1/SShA.jpg/270px-SShA.jpg",
-                     "/skins/common/images/magnify-clip.png",
-                     "//lurkmore.so/images/thumb/e/e6/48ef4db2ad.png/32px-48ef4db2ad.png",
-                     "//lurkmore.so/images/thumb/9/9c/Hate_small.png/64px-Hate_small.png"]
 
         for img in div.find_all("img"):
             if img["src"].find("/skins/") != -1:
                 pass
-            elif img["src"] in blocklist:
+            elif img["src"] in blocklist["images_in_page"]:
                 pass
             else:
                 url_list.append("https:" + img["src"])
@@ -161,7 +156,8 @@ class Lurkmore:
             for t in soup.findAll("table"):
                 t.replace_with("")
 
-            for t in soup.findAll("div", {"class": "archwiki-template-meta-related-articles-start"}):
+            arch_class = "archwiki-template-meta-related-articles-start"
+            for t in soup.findAll("div", {"class": arch_class}):
                 t.replace_with("")
 
             for t in soup.findAll("a", {"class": "extiw"}):
@@ -177,7 +173,7 @@ class Lurkmore:
             for t in soup.findAll("p"):
                 if "Это статья об" in t.text:
                     t.replace_with("")
-        except:
+        except Exception:
             pass
 
         bold_text = []
@@ -191,7 +187,7 @@ class Lurkmore:
                                   else soup.findAll("p")[1] \
                                            .text \
                                            .strip()
-            except:
+            except Exception:
                 page_text = first if (first := soup.find("dd").text.strip()) \
                                   else soup.findAll("dd")[1] \
                                            .text \
