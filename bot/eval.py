@@ -22,7 +22,7 @@ async def supereval(message):
                 "".join(f"\n {L}" for L in text.split("\n"))
             )
             await locals()["__ex"](message, bot, print_)
-        except:
+        except Exception:
             await message.reply(code(traceback.format_exc()),
                                 parse_mode="HTML")
     else:
@@ -34,6 +34,6 @@ async def supereval(message):
             )
             locals()["__ex"](message, bot)
 
-        except:
+        except Exception:
             await message.reply(code(traceback.format_exc()),
                                 parse_mode="HTML")

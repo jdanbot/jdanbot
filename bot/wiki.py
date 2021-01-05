@@ -1,7 +1,7 @@
 from .lib.fixWords import fixWords
+from .lib.html import bold
 from .data import data
 from .bot import bot, dp
-from .lib.html import code, bold
 
 
 import aiogram
@@ -10,11 +10,13 @@ from wikipya.aiowiki import Wikipya
 
 
 async def wikiSearch(message, lang="ru", logs=False):
-    if len(message.text.split(maxsplit=1)) != 2:
-        await message.reply(f"Пожалуйста, напишите название статьи\nНапример так: `{message.text.split(maxsplit=1)[0]} Название Статьи`", parse_mode="Markdown")
+    opts = message.text.split(maxsplit=1)
+    if len(opts) == 1:
+        await message.reply(data["wikierror"].format(opts[0]),
+                            parse_mode="Markdown")
         return
 
-    query = message.text.split(maxsplit=1)[1]
+    query = opts[1]
     print(f"[Wikipedia Search {lang.upper()}] {query}")
 
     wiki = Wikipya(lang)
@@ -38,12 +40,13 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
     wiki = Wikipya(lang)
 
     if name is None:
-        if len(message.text.split(maxsplit=1)) != 2:
-            await message.reply(f"Пожалуйста, напишите название статьи\nНапример так: `{message.text.split(maxsplit=1)[0]} Название Статьи`",
-                          parse_mode="Markdown")
+        opts = message.text.split(maxsplit=1)
+        if len(opts) == 1:
+            await message.reply(data["wikierror"].format(opts[0]),
+                                parse_mode="Markdown")
             return
 
-        query = message.text.split(maxsplit=1)[1]
+        query = opts[1]
 
         print(f"[Wikipedia {lang.upper()}] {query}")
 
@@ -82,19 +85,19 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
 
     try:
         image = image["source"]
-    except:
+    except KeyError:
         pass
 
     keyboard = aiogram.types.InlineKeyboardMarkup()
 
     try:
         name = search[0][0]
-    except:
+    except KeyError:
         name = name
 
     try:
         url
-    except:
+    except NameError:
         url = f"https://{lang}.wikipedia.org/wiki/{name}"
 
     keyboard.add(aiogram.types.InlineKeyboardButton(text="Читать полностью",
@@ -105,11 +108,8 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         try:
             await message.reply(text, parse_mode="HTML", reply_markup=keyboard)
 
-        except Exception as e:
-            await bot.send_message(795449748, code("[Wikipedia Error] " + str(e)),
-                                   parse_mode="HTML")
-            await message.reply(f"{text}\n\n@jDan734, фикси, фикси, фикси",
-                                parse_mode="HTML")
+        except Exception:
+            pass
 
     else:
         if image == data["belarus_flag"]["old"]:
@@ -122,9 +122,8 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
                                       parse_mode="HTML",
                                       reply_markup=keyboard)
         except Exception as e:
-            await bot.send_message(795449748, code("[Wikipedia Error] " + str(e)),
-                                   parse_mode="HTML")
-            await message.reply("Не удалось отправить статью")
+            await message.reply(f"*Не удалось отправить статью*\n`{e}`",
+                                parse_mode="Markdown")
 
 
 @dp.message_handler(commands=["langs", "wikilangs", "wiki_langs"])
