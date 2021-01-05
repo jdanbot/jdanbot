@@ -1,9 +1,11 @@
+from .lib.convert_bytes import convert_bytes
 from .bot import dp, start_time, bot_status
-from datetime import datetime
+
 from aiogram.utils.markdown import code
+from datetime import datetime
+from sys import platform
 
 import subprocess
-from sys import platform
 import psutil
 
 status = """status
@@ -17,13 +19,6 @@ status = """status
 ├─cpu: {cpu}%
 └─uptime: {uptime}
 """
-
-
-def convert_bytes(num):
-    for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
-        if num < 1024.0:
-            return f"{round(num, 2)} {x}"
-        num /= 1024.0
 
 
 @dp.message_handler(commands=["status"])
