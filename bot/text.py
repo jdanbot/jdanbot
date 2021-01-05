@@ -1,67 +1,68 @@
-from .token import bot
+from .bot import dp
 
 
-@bot.message_handler(["title"])
-def title(message):
-    if len(message.text.split(maxsplit=1)) == 2:
-        text = message.text.split(maxsplit=1)[1]
-
-    elif hasattr(message.reply_to_message, "text"):
-        text = message.reply_to_message.text
-
-    else:
-        bot.reply_to(message, "Ответь на сообщение")
-        return
-
-    bot.reply_to(message, text.title())
-
-
-@bot.message_handler(["upper"])
-def upper(message):
-    if len(message.text.split(maxsplit=1)) == 2:
-        text = message.text.split(maxsplit=1)[1]
+@dp.message_handler(commands=["title"])
+async def title(message):
+    opt = message.text.split(maxsplit=1)
+    if len(opt) == 2:
+        text = opt[1]
 
     elif hasattr(message.reply_to_message, "text"):
         text = message.reply_to_message.text
 
     else:
-        bot.reply_to(message, "Ответь на сообщение")
+        await message.reply("Ответь на сообщение")
         return
 
-    bot.reply_to(message, text.upper())
+    await message.reply(text.title())
 
 
-@bot.message_handler(["lower"])
-def lower(message):
-    if len(message.text.split(maxsplit=1)) == 2:
-        text = message.text.split(maxsplit=1)[1]
+@dp.message_handler(commands=["upper"])
+async def upper(message):
+    opt = message.text.split(maxsplit=1)
+    if len(opt) == 2:
+        text = opt[1]
 
     elif hasattr(message.reply_to_message, "text"):
         text = message.reply_to_message.text
 
     else:
-        bot.reply_to(message, "Ответь на сообщение")
+        await message.reply("Ответь на сообщение")
         return
 
-    bot.reply_to(message, text.lower())
+    await message.reply(text.upper())
 
 
-@bot.message_handler(["markdown"])
-def md(message):
-    if len(message.text.split(maxsplit=1)) == 2:
-        text = message.text.split(maxsplit=1)[1]
+@dp.message_handler(commands=["lower"])
+async def lower(message):
+    opt = message.text.split(maxsplit=1)
+    if len(opt) == 2:
+        text = opt[1]
 
     elif hasattr(message.reply_to_message, "text"):
         text = message.reply_to_message.text
 
     else:
-        bot.reply_to(message, "Ответь на сообщение")
+        await message.reply("Ответь на сообщение")
         return
 
-    bot.reply_to(message, text.title())
+    await message.reply(text.lower())
+
+
+@dp.message_handler(commands=["markdown"])
+async def markdown(message):
+    opt = message.text.split(maxsplit=1)
+    if len(opt) == 2:
+        text = opt[1]
+
+    elif hasattr(message.reply_to_message, "text"):
+        text = message.reply_to_message.text
+
+    else:
+        await message.reply("Ответь на сообщение")
+        return
 
     try:
-        bot.reply_to(message, text, parse_mode="Markdown")
-
+        await message.reply(text, parse_mode="Markdown")
     except:
-        bot.reply_to(message, "Невалидный markdown")
+        await message.reply("Не удалось отправить markdown")
