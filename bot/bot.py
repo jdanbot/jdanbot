@@ -14,10 +14,13 @@ else:
     with open("token.json") as file:
         token = json.loads(file.read())
         TOKEN = token["token"]
+
         try:
             bot_status = token["status"]
-        except:
+        except KeyError:
+            print("Enter status of bot in token.json")
             bot_status = "unknown"
+
         heroku = False
 
 start_time = datetime.now()
