@@ -55,15 +55,7 @@ class Lurkmore:
                 "limit": limit
             })
 
-        if len(r[1]) == 0:
-            return []
-
-        results = []
-
-        for item in r[1]:
-            results.append(item)
-
-        return results
+        return r
 
     async def getPage(self, title):
         r = await self._get({
