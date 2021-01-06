@@ -95,9 +95,9 @@ class Lurkmore:
             pass
 
         try:
-            i = p.find("aside").find("a", {"class": "image"}).find("img")
+            i = p.find("aside").find("a", {"class": "image"})
 
-            return i["src"]
+            return i["href"]
         except Exception:
             return 404
 
