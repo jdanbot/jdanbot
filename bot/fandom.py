@@ -3,6 +3,12 @@ from .lib.lurkmore import Lurkmore
 from .lib.html import code
 
 
+@dp.message_handler(commands=["railgun"])
+async def railgun(message):
+    await fandom(message, "Railgun",
+                 "https://toarumajutsunoindex.fandom.com/api.php")
+
+
 @dp.message_handler(commands=["fallout"])
 async def fallout(message):
     await fandom(message, "Fallout", "https://fallout.fandom.com/ru/api.php")
