@@ -6,4 +6,4 @@ from .lib.html import code
                     commands=["calc"])
 async def supereval(message):
     text = message.text.split(maxsplit=1)[1]
-    await message.reply(code(eval(text))[:4096], parse_mode="HTML")
+    await message.reply(code(eval(text)[:4000]), parse_mode="HTML")
