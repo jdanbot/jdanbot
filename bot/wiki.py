@@ -79,13 +79,13 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
             if p.text == "":
                 p.replace_with("")
 
-        text = fixWords(wiki.parsePage(page)).split("\n")[0]
+        text = fixWords(wiki.parsePage(page))
 
     image = await wiki.getImageByPageName(name)
 
     try:
         image = image["source"]
-    except KeyError:
+    except TypeError:
         pass
 
     keyboard = aiogram.types.InlineKeyboardMarkup()
