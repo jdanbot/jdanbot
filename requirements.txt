@@ -1,4 +1,4 @@
-googletrans==3.1.0a0
+googletrans==4.0.0-rc1
 beautifulsoup4
 wikipya==1.2.0
 aiogram
