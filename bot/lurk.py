@@ -40,12 +40,14 @@ async def getOldWiki(message, n="Lurkmore",
 
     s = await lurk.opensearch(name)
 
-    if len(s) == 0:
+    if len(s[1]) == 0:
         s = await lurk.search(name)
 
         if len(s) == 0:
             await message.reply("Не найдено")
             return
+    else:
+        s = s[1]
 
     p = await lurk.getPage(s[0])
     i = await lurk.getImagesList(s[0])
