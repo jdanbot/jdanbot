@@ -1,11 +1,9 @@
-import re
 import json
 import yaml
 import aiohttp
 import traceback
 
 from bs4 import BeautifulSoup
-from .html import bold as bold_html
 
 with open("bot/lib/blocklist.yml") as file:
     blocklist = yaml.safe_load(file.read())
@@ -131,6 +129,10 @@ class Lurkmore:
         soup = BeautifulSoup(page, 'lxml')
 
         try:
+            for t in soup.findAll("p"):
+                if "Это статья об" in t.text:
+                    t.replace_with("")
+
             arch_class = "archwiki-template-meta-related-articles-start"
             tagBlocklist = [
                 ["table", {"class": "lm-plashka"}],
@@ -151,46 +153,25 @@ class Lurkmore:
                     except Exception:
                         pass
 
-            for t in soup.findAll("p"):
-                if "Это статья об" in t.text:
-                    t.replace_with("")
-
-            # for t in soup.findAll("a", {"class": "extiw"}):
-            #     t.replace_with("")
-            #     for t2 in soup.findAll("p"):
-            #         t2.replace_with("")
-            #         break
-            #     break
+            for tag in soup.findAll("p"):
+                if tag.text.replace("\n", "") == "":
+                    tag.replace_with("")
         except Exception:
             print(traceback.format_exc())
 
-        bold_text = []
-
-        for tag in soup.findAll("b"):
-            bold_text.append(tag.text)
-
         try:
-            try:
-                page_text = first if (first := soup.find("p").text.strip()) \
-                                  else soup.findAll("p")[1] \
-                                           .text \
-                                           .strip()
-            except Exception:
-                page_text = first if (first := soup.find("dd").text.strip()) \
-                                  else soup.findAll("dd")[1] \
-                                           .text \
-                                           .strip()
+            soup = soup.p
+            for tag in soup.findAll("a"):
+                for attribute in ["class", "title", "href"]:
+                    try:
+                        del tag[attribute]
+                    except Exception:
+                        pass
 
-            for bold in bold_text:
-                try:
-                    page_text = re.sub(bold, bold_html(bold),
-                                       page_text, 1)
-                except re.error:
-                    page_text = page_text.replace(bold + " ",
-                                                  bold_html(bold))
-
+            return str(soup).replace("<p>", "") \
+                            .replace("<a>", "") \
+                            .replace("</p>", "") \
+                            .replace("</a>", "")
         except Exception as e:
             print(e)
             return "Не удалось распарсить"
-
-        return page_text
