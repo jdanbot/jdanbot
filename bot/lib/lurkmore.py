@@ -174,7 +174,7 @@ class Lurkmore:
                             .replace("<span>", "") \
                             .replace("</p>", "") \
                             .replace("</a>", "") \
-                            .replace("</span>")
+                            .replace("</span>", "")
         except Exception as e:
             print(e)
             return "Не удалось распарсить"
