@@ -163,7 +163,7 @@ class Lurkmore:
             soup = soup.p
             for tag in soup():
                 for attribute in ["class", "title", "href", "style", "name",
-                                  "id", "dir", "lang"]:
+                                  "id", "dir", "lang", "rel"]:
                     try:
                         del tag[attribute]
                     except Exception:
