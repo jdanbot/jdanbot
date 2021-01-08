@@ -2,6 +2,7 @@ import re
 import json
 import yaml
 import aiohttp
+import traceback
 
 from bs4 import BeautifulSoup
 from .html import bold as bold_html
@@ -130,43 +131,38 @@ class Lurkmore:
         soup = BeautifulSoup(page, 'lxml')
 
         try:
-            for t in soup.findAll("table", {"class": "lm-plashka"}):
-                t.replace_with("")
-
-            for t in soup.findAll("table", {"class": "lm-plashka-tiny"}):
-                t.replace_with("")
-
-            for t in soup.findAll("table", {"class": "tpl-quote-tiny"}):
-                t.replace_with("")
-
-            for t in soup.findAll("div", {"class": "gallerytext"}):
-                t.replace_with("")
-
-            for t in soup.findAll("aside"):
-                t.replace_with("")
-
-            for t in soup.findAll("table"):
-                t.replace_with("")
-
             arch_class = "archwiki-template-meta-related-articles-start"
-            for t in soup.findAll("div", {"class": arch_class}):
-                t.replace_with("")
+            tagBlocklist = [
+                ["table", {"class": "lm-plashka"}],
+                ["table", {"class": "lm-plashka-tiny"}],
+                ["table", {"class": "tpl-quote-tiny"}],
+                ["div", {"class": "thumbinner"}],
+                ["div", {"class": "gallerytext"}],
+                ["aside"],
+                ["table"],
+                ["div", {"class": arch_class}],
+                ["div", {"class": "noprint"}]
+            ]
 
-            for t in soup.findAll("a", {"class": "extiw"}):
-                t.replace_with("")
-                for t2 in soup.findAll("p"):
-                    t2.replace_with("")
-                    break
-                break
-
-            for t in soup.findAll("div", {"class": "noprint"}):
-                t.replace_with("")
+            for item in tagBlocklist:
+                for tag in soup.findAll(*item):
+                    try:
+                        tag.replace_with("")
+                    except Exception:
+                        pass
 
             for t in soup.findAll("p"):
                 if "Это статья об" in t.text:
                     t.replace_with("")
+
+            # for t in soup.findAll("a", {"class": "extiw"}):
+            #     t.replace_with("")
+            #     for t2 in soup.findAll("p"):
+            #         t2.replace_with("")
+            #         break
+            #     break
         except Exception:
-            pass
+            print(traceback.format_exc())
 
         bold_text = []
 
