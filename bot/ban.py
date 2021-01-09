@@ -28,8 +28,7 @@ async def left_john(message):
                     message.chat.id == -1001335444502 or
                     message.chat.id == -1001189395000 or
                     message.chat.id == -1001176998310 or
-                    message.chat.id == -1001374137898 or
-                    message.chat.id == -1189395000)
+                    message.chat.id == -1001374137898)
 async def detect_text_message(message):
 
     msg = message.text.lower().replace("_", "") \
