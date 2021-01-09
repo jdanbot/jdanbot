@@ -2,7 +2,7 @@ from .bot import bot, dp
 from .lib.html import code
 from .lib.lurkmore import Lurkmore
 
-from tghtml import tghtml
+# from tghtml import tghtml
 
 lurk = Lurkmore()
 
