@@ -163,7 +163,8 @@ class Lurkmore:
             soup = soup.p
             for tag in soup():
                 for attribute in ["class", "title", "href", "style", "name",
-                                  "id", "dir", "lang", "rel"]:
+                                  "id", "dir", "lang", "rel", "src", "alt",
+                                  "height", "width"]:
                     try:
                         del tag[attribute]
                     except Exception:
@@ -174,7 +175,9 @@ class Lurkmore:
                             .replace("<span>", "") \
                             .replace("</p>", "") \
                             .replace("</a>", "") \
+                            .replace("<img/>", "") \
                             .replace("</span>", "")
+
         except Exception as e:
             print(e)
             return "Не удалось распарсить"
