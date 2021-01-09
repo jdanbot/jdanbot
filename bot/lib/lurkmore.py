@@ -1,8 +1,8 @@
 import json
 import yaml
 import aiohttp
-import traceback
 
+from tghtml import tghtml
 from bs4 import BeautifulSoup
 
 with open("bot/lib/blocklist.yml") as file:
@@ -126,58 +126,17 @@ class Lurkmore:
         return url_list
 
     def parse(self, page):
-        soup = BeautifulSoup(page, 'lxml')
+        arch_class = "archwiki-template-meta-related-articles-start"
+        tagBlocklist = [
+            ["table", {"class": "lm-plashka"}],
+            ["table", {"class": "lm-plashka-tiny"}],
+            ["table", {"class": "tpl-quote-tiny"}],
+            ["div", {"class": "thumbinner"}],
+            ["div", {"class": "gallerytext"}],
+            ["aside"],
+            ["table"],
+            ["div", {"class": arch_class}],
+            ["div", {"class": "noprint"}]
+        ]
 
-        try:
-            for t in soup.findAll("p"):
-                if "Это статья об" in t.text:
-                    t.replace_with("")
-
-            arch_class = "archwiki-template-meta-related-articles-start"
-            tagBlocklist = [
-                ["table", {"class": "lm-plashka"}],
-                ["table", {"class": "lm-plashka-tiny"}],
-                ["table", {"class": "tpl-quote-tiny"}],
-                ["div", {"class": "thumbinner"}],
-                ["div", {"class": "gallerytext"}],
-                ["aside"],
-                ["table"],
-                ["div", {"class": arch_class}],
-                ["div", {"class": "noprint"}]
-            ]
-
-            for item in tagBlocklist:
-                for tag in soup.findAll(*item):
-                    try:
-                        tag.replace_with("")
-                    except Exception:
-                        pass
-
-            for tag in soup.findAll("p"):
-                if tag.text.replace("\n", "") == "":
-                    tag.replace_with("")
-        except Exception:
-            print(traceback.format_exc())
-
-        try:
-            soup = soup.p
-            for tag in soup():
-                for attribute in ["class", "title", "href", "style", "name",
-                                  "id", "dir", "lang", "rel", "src", "alt",
-                                  "height", "width"]:
-                    try:
-                        del tag[attribute]
-                    except Exception:
-                        pass
-
-            return str(soup).replace("<p>", "") \
-                            .replace("<a>", "") \
-                            .replace("<span>", "") \
-                            .replace("</p>", "") \
-                            .replace("</a>", "") \
-                            .replace("<img/>", "") \
-                            .replace("</span>", "")
-
-        except Exception as e:
-            print(e)
-            return "Не удалось распарсить"
+        return tghtml(page, tagBlocklist)

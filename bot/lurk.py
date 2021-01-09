@@ -2,8 +2,6 @@ from .bot import bot, dp
 from .lib.html import code
 from .lib.lurkmore import Lurkmore
 
-# from tghtml import tghtml
-
 lurk = Lurkmore()
 
 
@@ -53,21 +51,6 @@ async def getOldWiki(message, n="Lurkmore",
 
     p = await lurk.getPage(s[0])
     i = await lurk.getImagesList(s[0])
-
-
-
-    arch_class = "archwiki-template-meta-related-articles-start"
-    tagBlocklist = [
-        ["table", {"class": "lm-plashka"}],
-        ["table", {"class": "lm-plashka-tiny"}],
-        ["table", {"class": "tpl-quote-tiny"}],
-        ["div", {"class": "thumbinner"}],
-        ["div", {"class": "gallerytext"}],
-        ["aside"],
-        ["table"],
-        ["div", {"class": arch_class}],
-        ["div", {"class": "noprint"}]
-    ]
 
     parsed_text = lurk.parse(p)[:4096]
 

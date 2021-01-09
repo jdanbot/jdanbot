@@ -4,6 +4,7 @@ wikipya==1.2.0
 aiogram
 pyyaml
 pillow
+tghtml
 psutil
 pyscp
 lxml
