@@ -1,10 +1,10 @@
 googletrans==4.0.0-rc1
 beautifulsoup4
 wikipya==1.2.0
+tghtml==0.0.3
 aiogram
 pyyaml
 pillow
-tghtml
 psutil
 pyscp
 lxml
