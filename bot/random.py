@@ -47,7 +47,7 @@ async def random_person(message, name):
             date = "{} {} и {} {}".format(weeks_num, weeks,
                                           days_num, days)
 
-            await message.reply(f'{name} уйдет {date}')
+            await message.reply(f'{name} уйдет через {date}')
 
 
 @dp.message_handler(commands=["da_net"])
