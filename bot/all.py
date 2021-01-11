@@ -4,12 +4,17 @@ from .lib.html import code
 
 @dp.message_handler(commands=["leave_from_every"])
 async def leaveFromAll(message):
+    try:
+        name = " ".join([message.from_user.first_name,
+                         message.from_user.last_name])
+    except:
+        name = message.from_user.first_name
+
     select = "SELECT * FROM"
     chatid = str(message.chat.id).replace("-", "_")
     user = {
         "id": message.from_user.id,
-        "name": " ".join([message.from_user.first_name,
-                          message.from_user.last_name])}
+        "name": name}
 
     cur = conn.cursor()
 
@@ -26,12 +31,17 @@ async def leaveFromAll(message):
 
 @dp.message_handler(commands=["every"])
 async def testAll(message):
+    try:
+        name = " ".join([message.from_user.first_name,
+                         message.from_user.last_name])
+    except:
+        name = message.from_user.first_name
+
     select = "SELECT * FROM"
     chatid = str(message.chat.id).replace("-", "_")
     user = {
         "id": message.from_user.id,
-        "name": " ".join([message.from_user.first_name,
-                          message.from_user.last_name])}
+        "name": name}
 
     cur = conn.cursor()
     try:
