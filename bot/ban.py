@@ -11,8 +11,13 @@ import re
 
 @dp.message_handler(content_types=["new_chat_members"])
 async def john(message):
-    if message.chat.id != -1001319828458 and message.chat.id != -1001189395000:
+    if message.chat.id != -1001319828458 and \
+       message.chat.id != -1001189395000 and \
+       not message.from_user.id == 795449748:
         await message.reply(f'{choice(data["greatings"])}?')
+
+    if message.from_user.id == 795449748:
+        await message.reply(f'{choice(data["jdan_welcome"])}?')
 
     if message.chat.id == -1001335444502 or \
        message.chat.id == -1001176998310 and \
