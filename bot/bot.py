@@ -1,4 +1,5 @@
 import logging
+import sqlite3
 import json
 
 from os import environ
@@ -14,10 +15,15 @@ else:
     with open("token.json") as file:
         token = json.loads(file.read())
         TOKEN = token["token"]
+
+        conn = sqlite3.connect("jdanbot.db")
+
         try:
             bot_status = token["status"]
-        except:
+        except KeyError:
+            print("Enter status of bot in token.json")
             bot_status = "unknown"
+
         heroku = False
 
 start_time = datetime.now()

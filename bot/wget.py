@@ -1,6 +1,7 @@
 from .bot import dp
 from .lib.html import code
 from .lib.aioget import aioget
+from .lib.convert_bytes import convert_bytes
 
 from datetime import datetime
 
@@ -54,14 +55,13 @@ async def wget(message):
         return
 
     load_time = datetime.now() - time
-    main = str(load_time).split(".")[0].split(":")
+    main = str(load_time).split(":")
 
     page = await response.text()
 
     text = f"{url}\n"
-    text += f"├─size:\n"
-    text += f"│⠀├─bytes: {sys.getsizeof(page)}\n"
-    text += f"│⠀└─megabytes: {str(sys.getsizeof(page) * (10**-6))}\n"
+    text += f"├─status: {response.status}\n"
+    text += f"├─size: {convert_bytes(sys.getsizeof(page))}\n"
     text += f"└─time: {main[1]}:{main[2]}"
 
     await message.reply(code(text), parse_mode="HTML")
