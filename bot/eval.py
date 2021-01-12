@@ -41,7 +41,7 @@ async def supereval(message):
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,
-                    commands=["bash"])
+                    commands=["jbash"])
 async def bash(message):
     options = message.text.split(maxsplit=1)
 
