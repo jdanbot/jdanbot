@@ -14,7 +14,9 @@ async def john(message):
     if message.chat.id != -1001319828458 and message.chat.id != -1001189395000:
         await message.reply(f'{choice(data["greatings"])}?')
 
-    if message.chat.id == -1001335444502 or message.chat.id == -1001176998310:
+    if message.chat.id == -1001335444502 or \
+       message.chat.id == -1001176998310 and \
+       not message.from_user.id == 795449748:
         await chat_rules(message, False)
 
 
@@ -103,8 +105,8 @@ async def detect_text_message(message):
     # if msg.find(" наки ") != -1:
     #     await message.reply("Майкл Наки — в жопе козинаки")
 
-    # if msg.find("когда уйдет путин") != -1:
-    #     await random_putin(message)
+    if msg.find("бот,") != -1 and msg.find("когда уйдет путин") != -1:
+        await random_putin(message)
 
-    # if msg.find("когда уйдет лукашенко") != -1:
-    #     await random_lukash(message)
+    if msg.find("бот,") != -1 and msg.find("когда уйдет лукашенко") != -1:
+        await random_lukash(message)

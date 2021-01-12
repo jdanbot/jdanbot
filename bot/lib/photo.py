@@ -11,7 +11,7 @@ class Photo:
             self.image = Image.open(path)
             self.idraw = ImageDraw.Draw(self.image)
         else:
-            self.path = f"cache/{str(random.randint(0, 10000000000000000))}.jpg"
+            self.path = f"cache/{str(random.randint(0, 1000000000000000))}.jpg"
             self.saved_path = f"{self.path.split('.')[0]}_saved.jpg"
             self.image = Image.new("RGB", xy, (255, 255, 255))
             self.idraw = ImageDraw.Draw(self.image)
@@ -42,8 +42,11 @@ class Photo:
     def parseXY(self, xy):
         xy = xy.split("x")
 
-        if int(xy[0]) > 99999: raise ValueError
-        if int(xy[1]) > 99999: raise ValueError
+        if int(xy[0]) > 99999:
+            raise ValueError
+
+        if int(xy[1]) > 99999:
+            raise ValueError
 
         return (int(xy[0]), int(xy[1]))
 
@@ -61,5 +64,5 @@ class Photo:
     def _remove(self, path):
         try:
             os.remove(path)
-        except:
+        except FileNotFoundError:
             pass
