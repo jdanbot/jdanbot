@@ -200,6 +200,8 @@ wiki_query_example: |
 
     Узнать домен (индекс языка) - /langs
 
+default_wiki_image: https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Wikipedia-logo-v2.svg/75px-Wikipedia-logo-v2.svg.png
+
 wikierror: "*Пожалуйста, напишите название статьи*\nНапример так: `{} Название Статьи`"
 
 errors:
