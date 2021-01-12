@@ -23,34 +23,34 @@ async def query_text(query):
 
     try:
         wiki = Wikipya("ru")
-        r = await wiki.search(q, 7)
+        search = await wiki.search(q, 15)
 
-        btns = []
-        for page in r:
-            p = await wiki.getPage(page[0])
+        buttons = []
+        for page in search:
+            html = await wiki.getPage(page[0])
             img = await wiki.getImageByPageName(page[0], 75)
             full_img = await wiki.getImageByPageName(page[0])
-            t = wiki.parsePage(p)
+            text = wiki.parsePage(html)
 
             btn_defaults = {"id": page[1], "title": page[0],
-                            "description": p.text[:100],
+                            "description": html.text[:100],
                             "thumb_width": 48, "thumb_height": 48,
                             "input_message_content": InputTextMessageContent(
-                                message_text=t,
+                                message_text=text,
                                 parse_mode="HTML"
                             )}
 
             if img != -1 and full_img != -1:
-                btns.append(InlineQueryResultArticle(
-                                **btn_defaults,
-                                thumb_url=img["source"]
-                            ))
+                buttons.append(InlineQueryResultArticle(
+                                   **btn_defaults,
+                                   thumb_url=img["source"]
+                               ))
             else:
-                btns.append(InlineQueryResultArticle(
-                                **btn_defaults,
-                                thumb_url=data["default_wiki_image"]
-                            ))
+                buttons.append(InlineQueryResultArticle(
+                                   **btn_defaults,
+                                   thumb_url=data["default_wiki_image"]
+                               ))
 
-        await bot.answer_inline_query(query.id, btns)
+        await bot.answer_inline_query(query.id, buttons)
     except Exception:
         print(traceback.format_exc())
