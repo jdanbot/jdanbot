@@ -2,6 +2,7 @@ from .bot import bot, dp
 from .lib.html import code
 
 import traceback
+import subprocess
 
 
 async def print_(message, text):
@@ -37,3 +38,18 @@ async def supereval(message):
         except Exception:
             await message.reply(code(traceback.format_exc()),
                                 parse_mode="HTML")
+
+
+@dp.message_handler(lambda message: message.from_user.id == 795449748,
+                    commands=["bash"])
+async def bash(message):
+    options = message.text.split(maxsplit=1)
+
+    try:
+        command = options[1].split()
+        output = subprocess.check_output(command).decode("utf-8")
+
+        await message.reply(code(output), parse_mode="HTML")
+    except Exception:
+        await message.reply(code(traceback.format_exc()),
+                            parse_mode="HTML")
