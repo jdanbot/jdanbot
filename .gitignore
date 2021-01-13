@@ -1,6 +1,6 @@
 __pycache__/
 bot/token.json
-bot/token2.json
+jdanbot.db
 *.py[cod]
 *$py.class
 *.so
