@@ -203,6 +203,7 @@ wiki_query_example: |
 default_wiki_image: https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Wikipedia-logo-v2.svg/75px-Wikipedia-logo-v2.svg.png
 
 wikierror: "*Пожалуйста, напишите название статьи*\nНапример так: `{} Название Статьи`"
+duckerror: "*Пожалуйста, напишите запрос*\nНапример так: `{} Название Статьи`"
 
 errors:
    message_len: "*Телеграм поддерживает сообщения длиной не больше* `4096` *символов*"
