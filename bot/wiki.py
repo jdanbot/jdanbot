@@ -1,4 +1,5 @@
 from .lib.fixWords import fixWords
+from tghtml import tghtml
 from .lib.html import bold
 from .data import data
 from .bot import bot, dp
@@ -79,12 +80,12 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
             if p.text == "":
                 p.replace_with("")
 
-        text = fixWords(wiki.parsePage(page))
+        text = fixWords(tghtml(page))
 
     image = await wiki.getImageByPageName(name)
 
     try:
-        image = image["source"]
+        image = image.source
     except TypeError:
         pass
 
