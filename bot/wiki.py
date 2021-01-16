@@ -86,7 +86,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
 
     try:
         image = image.source
-    except TypeError:
+    except AttributeError:
         pass
 
     keyboard = aiogram.types.InlineKeyboardMarkup()
