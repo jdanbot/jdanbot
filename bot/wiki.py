@@ -80,7 +80,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
             if p.text == "":
                 p.replace_with("")
 
-        text = fixWords(tghtml(page))
+        text = fixWords(tghtml(str(page)))
 
     image = await wiki.getImageByPageName(name)
 
