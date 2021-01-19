@@ -44,7 +44,7 @@ def getUniqueUsers(cur, users, chatid):
 
         currentUsers = e
     except Exception:
-        currentUsers = None
+        currentUsers = []
 
     return [users, currentUsers]
 
