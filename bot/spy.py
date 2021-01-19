@@ -105,6 +105,5 @@ async def activateSpy(message):
         cur.execute('INSERT INTO c{chatid} VALUES ({id}, "{name}")'
                     .format(chatid=chatid, **user))
         conn.commit()
-        await message.reply("Чел, ты в списке бана")
     else:
         pass
