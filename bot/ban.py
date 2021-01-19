@@ -4,9 +4,11 @@ from .rules import chat_rules
 from .random import random_putin, random_lukash
 
 from .spy import activateSpy
+from .lib.html import code
 
 from random import choice, randint
 
+import traceback
 import time
 import re
 
@@ -33,14 +35,21 @@ async def left_john(message):
         await message.reply(f'{choice(data["greatings"])} ушел?')
 
 
-@dp.message_handler(lambda message: False or
-                    message.chat.id == -1001335444502 or
-                    message.chat.id == -1001189395000 or
-                    message.chat.id == -1001176998310 or
-                    message.chat.id == -1001374137898)
-async def detect_text_message(message):
-    await activateSpy(message)
+@dp.message_handler(lambda message: True)
+async def message_handler(message):
+    try:
+        await activateSpy(message)
+    except Exception:
+        print(code(traceback.format_exc()))
 
+    if message.chat.id == -1001335444502 or \
+       message.chat.id == -1001189395000 or \
+       message.chat.id == -1001176998310 or \
+       message.chat.id == -1001374137898:
+        await detect_text_message(message)
+
+
+async def detect_text_message(message):
     msg = message.text.lower().replace("_", "") \
                               .replace("-", "")
 
