@@ -65,7 +65,6 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         print(f"[Wikipedia {lang.upper()}] {name}")
 
     page = await wiki.getPage(name)
-    text = str(page)
 
     if page == -1:
         text = ""
@@ -74,14 +73,11 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         text = ""
 
     else:
-        for span in page.find_all("span"):
-            span.name = "p"
-
         for p in page.find_all("p"):
             if p.text == "":
                 p.replace_with("")
 
-        text = tghtml(text)
+        text = fixWords(tghtml(str(page)))
 
     image = await wiki.getImageByPageName(name)
 
