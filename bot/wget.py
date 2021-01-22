@@ -3,6 +3,9 @@ from .lib.html import code
 from .lib.aioget import aioget
 from .lib.convert_bytes import convert_bytes
 
+import yaml
+import json
+
 from datetime import datetime
 
 import sys
@@ -19,6 +22,11 @@ async def download(message):
 
     response = await aioget(options[1])
     text = await response.text()
+
+    try:
+        text = yaml.dump(json.loads(text))
+    except json.decoder.JSONDecodeError:
+        pass
 
     await message.reply(code(text[:4096]),
                         parse_mode="HTML")
