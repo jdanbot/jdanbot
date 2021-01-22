@@ -51,20 +51,20 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
 
         print(f"[Wikipedia {lang.upper()}] {query}")
 
-        search = await wiki.search(query)
+        try:
+            search = await wiki.search(query)
 
-        if search == -1:
+        except Wikipya.NotFound:
             await message.reply("Ничего не найдено")
             return
 
-        name = search[0][0]
-        opensearch = await wiki.opensearch(name)
+        opensearch = await wiki.opensearch(search[0].title)
         url = opensearch[-1][0]
 
     else:
         print(f"[Wikipedia {lang.upper()}] {name}")
 
-    page = await wiki.getPage(name)
+    page = await wiki.page(search[0])
 
     if page == -1:
         text = ""
@@ -73,13 +73,13 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         text = ""
 
     else:
-        for p in page.find_all("p"):
+        for p in page.soup.find_all("p"):
             if p.text == "":
                 p.replace_with("")
 
-        text = fixWords(tghtml(str(page)))
+        text = fixWords(tghtml(str(page.soup)))
 
-    image = await wiki.getImageByPageName(name)
+    image = await page.image()
 
     try:
         image = image.source
@@ -89,7 +89,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
     keyboard = aiogram.types.InlineKeyboardMarkup()
 
     try:
-        name = search[0][0]
+        name = search[0].title
     except KeyError:
         name = name
 
