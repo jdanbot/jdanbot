@@ -74,7 +74,9 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
             if p.text == "":
                 p.replace_with("")
 
-        text = fixWords(tghtml(str(page.soup)))
+        text = fixWords(tghtml(str(page.soup),
+                               [["table", {"class": "infobox"}],
+                               ["ol", {"class": "references"}]]))
 
     try:
         image = await page.image()
