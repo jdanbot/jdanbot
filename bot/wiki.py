@@ -70,13 +70,11 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         text = ""
 
     else:
-        for p in page.soup.find_all("p"):
-            if p.text == "":
-                p.replace_with("")
-
-        text = fixWords(tghtml(str(page.soup),
-                               [["table", {"class": "infobox"}],
-                               ["ol", {"class": "references"}]]))
+        page.blockList = [["table", {"class": "infobox"}],
+                          ["ol", {"class": "references"}],
+                          ["link"], ["style"]]
+        print(page.parsed)
+        text = fixWords(page.parsed)
 
     try:
         image = await page.image()
@@ -116,9 +114,10 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         await bot.send_chat_action(message.chat.id, "upload_photo")
 
         try:
-            await message.reply_photo(image, caption=text,
+            await message.reply_photo(image, caption=text[:1000],
                                       parse_mode="HTML",
                                       reply_markup=keyboard)
+
         except Exception as e:
             await message.reply(f"*Не удалось отправить статью*\n`{e}`",
                                 parse_mode="Markdown")
