@@ -1,5 +1,5 @@
 from .lib.fixWords import fixWords
-from tghtml import tghtml
+from .lib.cutecrop import cuteCrop
 from .lib.html import bold
 from .data import data
 from .bot import bot, dp
@@ -73,7 +73,6 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         page.blockList = [["table", {"class": "infobox"}],
                           ["ol", {"class": "references"}],
                           ["link"], ["style"]]
-        print(page.parsed)
         text = fixWords(page.parsed)
 
     try:
@@ -102,7 +101,8 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
     if type(image) is int:
         await bot.send_chat_action(message.chat.id, "typing")
         try:
-            await message.reply(text, parse_mode="HTML", reply_markup=keyboard)
+            await message.reply(cuteCrop(text, limit=4096), parse_mode="HTML",
+                                reply_markup=keyboard)
 
         except Exception:
             pass
@@ -114,7 +114,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         await bot.send_chat_action(message.chat.id, "upload_photo")
 
         try:
-            await message.reply_photo(image, caption=text[:1000],
+            await message.reply_photo(image, caption=cuteCrop(text, limit=1024),
                                       parse_mode="HTML",
                                       reply_markup=keyboard)
 
