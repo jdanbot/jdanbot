@@ -100,7 +100,7 @@ class Lurkmore:
         except Exception:
             return 404
 
-    async def getImage(self, filename):
+    async def getImage(self, filename, host=""):
         async with aiohttp.ClientSession() as session:
             response = await session.get(f"{self.url2}/File:{filename}")
 
@@ -108,10 +108,9 @@ class Lurkmore:
                 return 404
 
             text = await response.text()
-
             soup = BeautifulSoup(text, 'lxml')
 
-            return "https:" + soup.find("div", id="file").a.img["src"]
+            return "https:" + host + soup.find("div", id="file").a.img["src"]
 
     def findImagesInPage(self, imagelist, div):
         url_list = []

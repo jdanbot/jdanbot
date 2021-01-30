@@ -24,9 +24,16 @@ async def archwiki(message):
                      "https://wiki.archlinux.org")
 
 
+@dp.message_handler(commands=["encycl"])
+async def encyclopedia(message):
+    await getOldWiki(message, "encyclopedia",
+                     "https://encyclopatia.ru/w/api.php",
+                     "https://encyclopatia.ru/wiki", host="//encyclopatia.ru")
+
+
 async def getOldWiki(message, n="Lurkmore",
                      url="https://ipv6.lurkmo.re/api.php",
-                     url2="https://ipv6.lurkmo.re"):
+                     url2="https://ipv6.lurkmo.re", host=""):
     options = message.text.split(maxsplit=1)
     if len(options) == 1:
         await message.reply("Напишите название статьи")
@@ -57,7 +64,7 @@ async def getOldWiki(message, n="Lurkmore",
     if len(i) != 0:
         try:
             # Send page in normal mode
-            image = await lurk.getImage(i[0])
+            image = await lurk.getImage(i[0], host=host)
             await bot.send_chat_action(message.chat.id, "upload_photo")
             await message.reply_photo(image, caption=parsed_text[:1000],
                                       parse_mode="HTML")
