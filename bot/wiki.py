@@ -1,5 +1,5 @@
 from .lib.fixWords import fixWords
-from tghtml import tghtml
+from .lib.cutecrop import cuteCrop
 from .lib.html import bold
 from .data import data
 from .bot import bot, dp
@@ -7,7 +7,7 @@ from .bot import bot, dp
 
 import aiogram
 
-from wikipya.aiowiki import Wikipya
+from wikipya.aiowiki import Wikipya, NotFound
 
 
 async def wikiSearch(message, lang="ru", logs=False):
@@ -30,9 +30,9 @@ async def wikiSearch(message, lang="ru", logs=False):
 
     text = ""
 
-    for prop in r:
-        text += bold(fixWords(prop[0])) + "\n"
-        text += f"└─/w_{prop[1]}\n"
+    for item in r:
+        text += bold(fixWords(item.title)) + "\n"
+        text += f"└─/w_{item.pageid}\n"
 
     await message.reply(text, parse_mode="HTML")
 
@@ -47,22 +47,19 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
                                 parse_mode="Markdown")
             return
 
-        query = opts[1]
+        name = opts[1]
 
-        print(f"[Wikipedia {lang.upper()}] {query}")
+    print(f"[Wikipedia {lang.upper()}] {name}")
 
-        try:
-            search = await wiki.search(query)
+    try:
+        search = await wiki.search(name)
 
-        except Wikipya.NotFound:
-            await message.reply("Ничего не найдено")
-            return
+    except NotFound:
+        await message.reply("Ничего не найдено")
+        return
 
-        opensearch = await wiki.opensearch(search[0].title)
-        url = opensearch[-1][0]
-
-    else:
-        print(f"[Wikipedia {lang.upper()}] {name}")
+    opensearch = await wiki.opensearch(search[0].title)
+    url = opensearch[-1][0]
 
     page = await wiki.page(search[0])
 
@@ -73,18 +70,18 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         text = ""
 
     else:
-        for p in page.soup.find_all("p"):
-            if p.text == "":
-                p.replace_with("")
-
-        text = fixWords(tghtml(str(page.soup)))
-
-    image = await page.image()
+        page.blockList = [["table", {"class": "infobox"}],
+                          ["ol", {"class": "references"}],
+                          ["link"], ["style"]]
+        text = fixWords(page.parsed)
 
     try:
+        image = await page.image()
         image = image.source
     except AttributeError:
         pass
+    except NotFound:
+        image = -1
 
     keyboard = aiogram.types.InlineKeyboardMarkup()
 
@@ -104,7 +101,8 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
     if type(image) is int:
         await bot.send_chat_action(message.chat.id, "typing")
         try:
-            await message.reply(text, parse_mode="HTML", reply_markup=keyboard)
+            await message.reply(cuteCrop(text, limit=4096), parse_mode="HTML",
+                                reply_markup=keyboard)
 
         except Exception:
             pass
@@ -116,9 +114,10 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         await bot.send_chat_action(message.chat.id, "upload_photo")
 
         try:
-            await message.reply_photo(image, caption=text,
+            await message.reply_photo(image, caption=cuteCrop(text, limit=1024),
                                       parse_mode="HTML",
                                       reply_markup=keyboard)
+
         except Exception as e:
             await message.reply(f"*Не удалось отправить статью*\n`{e}`",
                                 parse_mode="Markdown")
@@ -237,7 +236,7 @@ async def detect(message):
         message.reply("id должен быть числом")
         return
 
-    name = await w.getPageNameById(id_)
+    name = await w.getPageName(id_)
 
     if name == -1:
         await message.reply("Не получилось найти статью по айди")
