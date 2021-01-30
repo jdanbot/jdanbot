@@ -135,7 +135,8 @@ class Lurkmore:
             ["aside"],
             ["table"],
             ["div", {"class": arch_class}],
-            ["div", {"class": "noprint"}]
+            ["div", {"class": "noprint"}],
+            ["span", {"id": "w4g_rb_area-1"}]
         ]
 
         return tghtml(page, tagBlocklist)

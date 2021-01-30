@@ -17,6 +17,14 @@ async def absurd(message):
                      "https://absurdopedia.net/wiki/")
 
 
+@dp.message_handler(commands=["mrakopedia"])
+async def pizdec(message):
+    await getOldWiki(message, "mrakopedia",
+                     "https://mrakopedia.net/w/api.php",
+                     "https://mrakopedia.net/wiki",
+                     host="//mrakopedia.net")
+
+
 @dp.message_handler(commands=["archwiki"])
 async def archwiki(message):
     await getOldWiki(message, "archwiki",
@@ -28,7 +36,8 @@ async def archwiki(message):
 async def encyclopedia(message):
     await getOldWiki(message, "encyclopedia",
                      "https://encyclopatia.ru/w/api.php",
-                     "https://encyclopatia.ru/wiki", host="//encyclopatia.ru")
+                     "https://encyclopatia.ru/wiki",
+                     host="//encyclopatia.ru")
 
 
 async def getOldWiki(message, n="Lurkmore",
