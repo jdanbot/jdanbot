@@ -69,7 +69,7 @@ async def activateSpy(message):
 
     cur = conn.cursor()
 
-    e = cur.execute(f"{select} c{message.chat.id} where id={message.from_user.id}")
+    e = cur.execute(f"{select} events where id={message.from_user.id}")
 
     if e.fetchone() is None:
         cur.execute('INSERT INTO events VALUES ({chatid}, {id}, "{name}")'
