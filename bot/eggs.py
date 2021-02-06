@@ -31,6 +31,28 @@ async def lyagushka(message):
                          reply_to_message_id=message.message_id)
 
 
+@dp.message_handler(commands=["say"])
+async def say(message):
+    opt = message.text.split(maxsplit=1)
+
+    if len(opt) == 1:
+        await bot.reply("Введите текст для аудио")
+        return
+
+    host = "https://tts.chez.work/say"
+    params = ["text={text}",
+              "voice=irina",
+              "format=opus",
+              "rate=80",
+              "pitch=80",
+              "volume=50"]
+
+    url = f"{host}?{'&'.join(params)}"
+    await bot.send_voice(message.chat.id,
+                         url.format(text=opt[1]),
+                         reply_to_message_id=message.message_id)
+
+
 @dp.message_handler(commands=["0x00001488"])
 async def secret_error(message):
     await message.reply(code(data["errors"]["egg_error"]),
