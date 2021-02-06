@@ -1,6 +1,7 @@
 from .lib.html import code
 from .bot import bot, dp
 from .data import data
+from .lib import chez
 
 
 @dp.message_handler(commands=["java1"])
@@ -18,7 +19,7 @@ async def cool_secret(message):
 
 
 @dp.message_handler(commands=["cum"])
-async def cool_secret(message):
+async def cum(message):
     await bot.send_voice(message.chat.id,
                          open("music/cum.ogg", "rb+"),
                          reply_to_message_id=message.message_id)
@@ -39,17 +40,8 @@ async def say(message):
         await bot.reply("Введите текст для аудио")
         return
 
-    host = "https://tts.chez.work/say"
-    params = ["text={text}",
-              "voice=irina",
-              "format=opus",
-              "rate=80",
-              "pitch=80",
-              "volume=50"]
-
-    url = f"{host}?{'&'.join(params)}"
     await bot.send_voice(message.chat.id,
-                         url.format(text=opt[1]),
+                         chez.say(opt[1]),
                          reply_to_message_id=message.message_id)
 
 
