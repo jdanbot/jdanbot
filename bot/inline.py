@@ -8,9 +8,6 @@ from bs4 import BeautifulSoup
 
 from .lib import chez
 
-import traceback
-import re
-
 
 @dp.inline_handler(lambda query: False or
                    query.query.startswith("wiki ") or
