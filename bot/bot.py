@@ -16,7 +16,7 @@ else:
         token = json.loads(file.read())
         TOKEN = token["token"]
 
-        conn = sqlite3.connect("jdanbot.db")
+        conn = sqlite3.connect("jdandb.db")
 
         try:
             bot_status = token["status"]
