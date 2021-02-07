@@ -1,5 +1,5 @@
 from .lib.convert_bytes import convert_bytes
-from .bot import dp, start_time, bot_status
+from .config import dp, start_time, bot_status
 
 from aiogram.utils.markdown import code
 from datetime import datetime

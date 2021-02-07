@@ -1,5 +1,5 @@
 from .lib.prettyword import prettyword
-from .bot import dp, conn
+from .config import dp, conn
 from .lib.html import code
 from .data import data
 

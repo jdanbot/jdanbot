@@ -1,4 +1,4 @@
-from .bot import bot, dp
+from .config import bot, dp
 from .lib.html import code
 from .data import data
 

@@ -1,4 +1,4 @@
-from .bot import dp, bot
+from .config import dp, bot
 from .data import data
 
 import aiogram

@@ -1,5 +1,5 @@
 from .lib.html import code
-from .bot import bot, dp
+from .config import bot, dp
 from .data import data
 from .lib import chez
 

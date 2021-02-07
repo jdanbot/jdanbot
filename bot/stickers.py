@@ -1,4 +1,4 @@
-from .bot import bot, dp
+from .config import bot, dp
 from .data import data
 
 from random import choice

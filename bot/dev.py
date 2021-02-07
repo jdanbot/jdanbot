@@ -1,4 +1,4 @@
-from .bot import bot, dp
+from .config import bot, dp
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,

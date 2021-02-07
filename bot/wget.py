@@ -1,4 +1,4 @@
-from .bot import dp
+from .config import dp
 from .lib.html import code
 from .lib.aioget import aioget
 from .lib.convert_bytes import convert_bytes

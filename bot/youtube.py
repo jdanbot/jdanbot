@@ -1,4 +1,4 @@
-from .bot import dp, bot
+from .config import dp, bot
 import urllib
 
 
