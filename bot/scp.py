@@ -1,4 +1,4 @@
-from .bot import dp
+from .config import dp
 from .lib.html import code, bold
 from .lib.fixHTML import fixHTML
 import pyscp

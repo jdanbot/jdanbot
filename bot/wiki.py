@@ -2,7 +2,7 @@ from .lib.fixWords import fixWords
 from .lib.cutecrop import cuteCrop
 from .lib.html import bold
 from .data import data
-from .bot import bot, dp
+from .config import bot, dp, logger
 
 
 import aiogram
@@ -49,7 +49,8 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
 
         name = opts[1]
 
-    print(f"[Wikipedia {lang.upper()}] {name}")
+    logger.debug(f"[Wikipedia {lang.upper()}] {name}")
+    # print(f"[Wikipedia {lang.upper()}] {name}")
 
     try:
         search = await wiki.search(name)

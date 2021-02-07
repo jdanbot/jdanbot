@@ -1,4 +1,4 @@
-from .bot import dp, bot
+from .config import dp, bot
 from .data import data
 from .rules import chat_rules
 from .random import random_putin, random_lukash

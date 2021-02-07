@@ -1,4 +1,4 @@
-from .bot import bot, dp
+from .config import bot, dp
 
 import aiohttp
 import json

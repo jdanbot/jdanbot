@@ -1,4 +1,4 @@
-from .bot import dp
+from .config import dp
 
 import asyncio
 

@@ -1,7 +1,7 @@
 from .lib.fixWords import fixWords
 from .lib.html import bold
 from .data import data
-from .bot import dp
+from .config import dp
 
 from pyduckgo import Duck
 
