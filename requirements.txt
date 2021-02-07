@@ -2,6 +2,7 @@ googletrans==4.0.0-rc1
 beautifulsoup4
 wikipya==2.0.0
 tghtml==0.1.1
+coloredlogs
 pyduckgo
 aiogram
 pyyaml

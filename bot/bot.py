@@ -1,4 +1,4 @@
-import logging
+import coloredlogs, logging
 import sqlite3
 import json
 
@@ -28,6 +28,9 @@ else:
 
 start_time = datetime.now()
 logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger(__name__)
+coloredlogs.install(level='INFO', logger=logger)
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
