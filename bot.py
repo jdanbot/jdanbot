@@ -1,7 +1,7 @@
 import traceback
 
 from bot import *
-from bot.bot import bot, dp
+from bot.config import bot, dp
 from aiogram import executor
 
 
