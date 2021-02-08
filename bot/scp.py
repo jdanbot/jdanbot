@@ -1,18 +1,17 @@
-from .config import dp
+from .config import dp, logging
 from .lib.html import code, bold
 from .lib.fixHTML import fixHTML
+from .lib.cutecrop import cuteCrop
 import pyscp
-import re
 
 
 def format_scp(p):
     text = p.text
 
-    # text = re.sub(r"рейтинг: ", "", p.text)
-
     text = fixHTML(text)
-    text = re.sub(r"(\n\n\n|\n\n)", "\n", text)
     text = text.split("\n")
+
+    # print("\n\n".join(text))
 
     try:
         for number, string in enumerate(text):
@@ -20,28 +19,15 @@ def format_scp(p):
                 del(text[number])
 
         for number, string in enumerate(text):
-            if string.startswith("Дополнение"):
-                del(text[number])
-
-            if string.find("Особые условия содержания:") != -1:
-                del(text[number])
-
-        for number, string in enumerate(text):
-            test = ["Объект №:", "Класс объекта:",
-                    "Примеры объектов:", "Описание:"]
+            test = ["Объект №:",
+                    "Класс объекта:",
+                    "Примеры объектов:",
+                    "Описание:",
+                    "Особые условия содержания:"]
             for k in test:
                 if string.find(k) != -1:
                     o = string.split(":")[0]
                     text[number] = text[number].replace(o, bold(o))
-
-            if "Описание:" in string:
-                u = number + 1
-            else:
-                u = 6
-
-        for number, string in enumerate(text):
-            if string.startswith("Дополнение"):
-                del(text[number])
 
         if text[0] == "":
             del(text[0])
@@ -49,14 +35,15 @@ def format_scp(p):
         if len(p.images) != 0:
             del(text[0])
 
-        text = "\n".join(text[:u])
+    #     text = "\n".join(text[:u])
 
     except Exception as e:
         print(e)
-        text = "\n".join(text)
+
+    text = cuteCrop("\n".join(text), 4096)
 
     title = fixHTML(p.title.replace('\n', ''))
-    msg = f"<b>{title}</b>\n{text}"
+    msg = f"<b>{title}</b>\n\n{text}"
     msg = msg.replace("</b>\n\n<b>", "</b>\n<b>")
     return msg
 
@@ -65,11 +52,12 @@ def format_scp(p):
 async def detectscp(message):
     scp = pyscp.wikidot.Wiki('http://scpfoundation.net')
     options = message.text.split(maxsplit=1)
+
     if len(options) == 1:
         await message.reply("Напишите название scp")
         return
 
-    print(f"[SCP RU] {options[1]}")
+    logging.info(f"[SCP RU] {options[1]}")
 
     try:
         p = scp(options[1])
@@ -86,11 +74,10 @@ async def detectscp(message):
 
     images = p.images
     msg = format_scp(p)
-    # print(msg)
 
     if len(images) != 0:
         try:
-            await message.reply_photo(images[0], msg[:2048],
+            await message.reply_photo(images[0], msg[:1024],
                                       parse_mode="HTML")
         except Exception as e:
             await message.reply(code(e), parse_mode="HTML")
