@@ -31,7 +31,7 @@ start_time = datetime.now()
 logging.basicConfig(level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-coloredlogs.install(fmt="%(asctime)s %(name)s %(levelname)s %(message)s",
+coloredlogs.install(fmt="%(asctime)s %(levelname)s %(message)s",
                     level='INFO',
                     logger=logger)
 
