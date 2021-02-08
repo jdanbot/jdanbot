@@ -1,9 +1,9 @@
-import json
 import yaml
 import aiohttp
 
 from tghtml import tghtml
 from bs4 import BeautifulSoup
+from aiogram.utils import json
 
 with open("bot/lib/blocklist.yml") as file:
     blocklist = yaml.safe_load(file.read())
