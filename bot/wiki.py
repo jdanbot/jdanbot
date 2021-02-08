@@ -2,8 +2,7 @@ from .lib.fixWords import fixWords
 from .lib.cutecrop import cuteCrop
 from .lib.html import bold
 from .data import data
-from .config import bot, dp, logger
-
+from .config import bot, dp, logging
 
 import aiogram
 
@@ -49,7 +48,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
 
         name = opts[1]
 
-    logger.debug(f"[Wikipedia {lang.upper()}] {name}")
+    logging.info(f"[Wikipedia {lang.upper()}] {name}")
     # print(f"[Wikipedia {lang.upper()}] {name}")
 
     try:
@@ -116,7 +115,8 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         await bot.send_chat_action(message.chat.id, "upload_photo")
 
         try:
-            await message.reply_photo(image, caption=cuteCrop(text, limit=1024),
+            await message.reply_photo(image,
+                                      caption=cuteCrop(text, limit=1024),
                                       parse_mode="HTML",
                                       reply_markup=keyboard)
 
@@ -126,96 +126,40 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
 
 
 @dp.message_handler(commands=["langs", "wikilangs", "wiki_langs"])
-async def langs(message):
+async def getLangs(message):
     await message.reply(data["langs"], parse_mode="Markdown",
                         disable_web_page_preview=True)
+
+
+wikicommands = []
+
+for lang in data["langs_list"]:
+    wikicommands.extend([f"wiki{lang}", f"w{lang}"])
+
+for lang in data["unique_commands"]:
+    wikicommands.extend(data["unique_commands"][lang])
+
+
+@dp.message_handler(commands=wikicommands)
+async def wikihandler(message):
+    command = message.text.split()[0]
+    lang = command.replace("/wiki", "") \
+                  .replace("/w", "")
+
+    if lang in data["langs_list"]:
+        await getWiki(message, command)
+        return
+
+    else:
+        for lang in data["unique_commands"]:
+            if command[1:] in data["unique_commands"][lang]:
+                await getWiki(message, lang)
+                break
 
 
 @dp.message_handler(commands=["sru", "s", "search"])
 async def wikis(message):
     await wikiSearch(message, "ru")
-
-
-@dp.message_handler(commands=["wikiru",
-                              "wikiru2",
-                              "wru", "w",
-                              "wiki", "wiki2"])
-async def wikiru(message):
-    await getWiki(message, "ru")
-
-
-@dp.message_handler(commands=["wikien", "van", "wen", "v"])
-async def wikien(message):
-    await getWiki(message, "en")
-
-
-@dp.message_handler(commands=["wikisv", "wsv"])
-async def wikisv(message):
-    await getWiki(message, "sv")
-
-
-@dp.message_handler(commands=["wikide", "wde"])
-async def wikide(message):
-    await getWiki(message, "de")
-
-
-@dp.message_handler(commands=["wikice", "wce"])
-async def wikice(message):
-    await getWiki(message, "ce")
-
-
-@dp.message_handler(commands=["wikitt", "wtt"])
-async def wikitt(message):
-    await getWiki(message, "tt")
-
-
-@dp.message_handler(commands=["wikiba", "wba"])
-async def wikiba(message):
-    await getWiki(message, "ba")
-
-
-@dp.message_handler(commands=["wikipl", "wpl"])
-async def wikipl(message):
-    await getWiki(message, "pl")
-
-
-@dp.message_handler(commands=["wikiua", "wikiuk", "wuk", "wua", "pawuk"])
-async def wikiua(message):
-    await getWiki(message, "uk")
-
-
-@dp.message_handler(commands=["wikibe", "wbe",
-                              "tarakanwiki",
-                              "lukaswiki",
-                              "potato",
-                              "potatowiki"])
-async def wikibe(message):
-    await getWiki(message, "be")
-
-
-@dp.message_handler(commands=["wikies", "wes"])
-async def wikies(message):
-    await getWiki(message, "es")
-
-
-@dp.message_handler(commands=["wikihe", "whe"])
-async def wikihe(message):
-    await getWiki(message, "he")
-
-
-@dp.message_handler(commands=["wikixh", "wxh"])
-async def wikixh(message):
-    await getWiki(message, "xh")
-
-
-@dp.message_handler(commands=["wikiab", "wab"])
-async def wikiab(message):
-    await getWiki(message, "ab")
-
-
-@dp.message_handler(commands=["wikibe-tarask", "wikibet", "wbet", "xbet"])
-async def wikibet(message):
-    await getWiki(message, "be-tarask")
 
 
 @dp.message_handler(commands=["wiki_usage"])
