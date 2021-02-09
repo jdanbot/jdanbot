@@ -10,22 +10,26 @@ from aiogram import Bot, Dispatcher
 
 if "TOKEN" in environ:
     TOKEN = environ["TOKEN"]
-    heroku = True
 
+    try:
+        bot_status = environ["STATUS"]
+    except:
+        print("Enter status of bot in token.json")
 else:
-    with open("token.json") as file:
-        token = json.loads(file.read())
-        TOKEN = token["token"]
+    try:
+        with open("config.json") as file:
+            config = json.loads(file.read())
+            TOKEN = config["token"]
 
-        conn = sqlite3.connect("jdandb.db")
+            try:
+                bot_status = config["status"]
+            except KeyError:
+                print("Enter status of bot in token.json")
+                bot_status = "unknown"
 
-        try:
-            bot_status = token["status"]
-        except KeyError:
-            print("Enter status of bot in token.json")
-            bot_status = "unknown"
-
-        heroku = False
+    except:
+        print("Create config.json with bot token")
+        exit()
 
 start_time = datetime.now()
 logging.basicConfig(level=logging.INFO)
@@ -34,6 +38,8 @@ logger = logging.getLogger(__name__)
 coloredlogs.install(fmt="%(asctime)s %(levelname)s %(message)s",
                     level='INFO',
                     logger=logger)
+
+conn = sqlite3.connect("jdandb.db")
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
