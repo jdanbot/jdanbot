@@ -4,31 +4,23 @@ from .data import data
 from .lib import chez
 
 
-@dp.message_handler(commands=["java1"])
-async def java_secret(message):
+egg_commands = []
+
+
+for egg in data["eggs"]:
+    egg_commands.extend(egg["commands"])
+
+
+@dp.message_handler(commands=egg_commands)
+async def sendEgg(message):
+    command = message.text.split()[0][1:]
+
+    for egg in data["eggs"]:
+        if command in egg["commands"]:
+            audio = egg["audio"]
+
     await bot.send_voice(message.chat.id,
-                         open("music/java.ogg", "rb+"),
-                         reply_to_message_id=message.message_id)
-
-
-@dp.message_handler(commands=["cool_music"])
-async def cool_secret(message):
-    await bot.send_voice(message.chat.id,
-                         open("music/music.ogg", "rb+"),
-                         reply_to_message_id=message.message_id)
-
-
-@dp.message_handler(commands=["cum"])
-async def cum(message):
-    await bot.send_voice(message.chat.id,
-                         open("music/cum.ogg", "rb+"),
-                         reply_to_message_id=message.message_id)
-
-
-@dp.message_handler(commands=["lyagushka", "frog"])
-async def lyagushka(message):
-    await bot.send_voice(message.chat.id,
-                         open("music/lyagushka.ogg", "rb+"),
+                         open(f"music/{audio}", "rb+"),
                          reply_to_message_id=message.message_id)
 
 

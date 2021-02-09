@@ -202,7 +202,7 @@ unique_commands:
 
 
 wiki_query_example: |
-    Чтобы вызвать википедию нужно ввести 
+    Чтобы вызвать википедию нужно ввести
         `/w[язык] [запрос]`:
     Например для русского (`ru`) команда будет такой:
         `/wru Википедия`
@@ -222,6 +222,19 @@ errors:
 days: [день, дня, дней]
 weeks: [неделя, недели, недель]
 users: [пользователь, пользователя, пользователей]
+
+eggs:
+  - commands: [java1]
+    audio: java.ogg
+
+  - commands: [cool_music]
+    audio: music.ogg
+
+  - commands: [cum]
+    audio: cum.ogg
+
+  - commands: [lyagushka, frog]
+    audio: lyagushka.ogg
 
 jdan_welcome:
   - Ты — это я
