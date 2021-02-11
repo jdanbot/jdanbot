@@ -1,14 +1,6 @@
-import traceback
-
-from bot import *
-from bot.config import bot, dp
 from aiogram import executor
 
+from bot import *  # noqa
+from bot.config import dp
 
-try:
-    executor.start_polling(dp)
-
-except Exception:
-    bot.send_message("795449748",
-                     f"`{str(traceback.format_exc())}`",
-                     parse_mode="Markdown")
+executor.start_polling(dp)
