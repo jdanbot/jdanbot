@@ -23,9 +23,9 @@ async def john(message):
     if message.from_user.id == 795449748:
         await message.reply(f'{choice(data["jdan_welcome"])}?')
 
-    if message.chat.id == -1001176998310 and \
-       not message.from_user.id == 795449748:
-        await chat_rules(message, False)
+    #if message.chat.id == -1001176998310 and \
+    #   not message.from_user.id == 795449748:
+    #    await chat_rules(message, False)
 
 
 @dp.message_handler(content_types=["left_chat_member"])
