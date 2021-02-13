@@ -36,8 +36,9 @@ logging.basicConfig(level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(fmt="%(asctime)s %(levelname)s %(message)s",
-                    level='INFO',
+                    level="INFO",
                     logger=logger)
+log = logger.info
 
 conn = sqlite3.connect("jdandb.db")
 

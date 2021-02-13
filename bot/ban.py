@@ -1,12 +1,12 @@
 from .config import dp, bot
 from .data import data
-from .rules import chat_rules
 from .random import random_putin, random_lukash
 
 from .spy import activateSpy
 from .lib.html import code
 
 from random import choice, randint
+from .notes import getNote
 
 import traceback
 import time
@@ -23,9 +23,11 @@ async def john(message):
     if message.from_user.id == 795449748:
         await message.reply(f'{choice(data["jdan_welcome"])}?')
 
-    if message.chat.id == -1001176998310 and \
-       not message.from_user.id == 795449748:
-        await chat_rules(message, False)
+    try:
+        rules = getNote(message.chat.id, "__rules__")
+        await message.answer(rules)
+    except TypeError:
+        pass
 
 
 @dp.message_handler(content_types=["left_chat_member"])
@@ -41,10 +43,12 @@ async def message_handler(message):
     except Exception:
         print(code(traceback.format_exc()))
 
-    if message.chat.id == -1001335444502 or \
-       message.chat.id == -1001189395000 or \
-       message.chat.id == -1001176998310 or \
-       message.chat.id == -1001374137898:
+    try:
+        response = getNote(message.chat.id, "__enable_response__")
+    except TypeError:
+        response = "False"
+
+    if response == "True":
         await detect_text_message(message)
 
 
@@ -74,12 +78,12 @@ async def detect_text_message(message):
     elif msg.find("бот,") != -1 and msg.find("?") != -1:
         await message.reply(choice(["Да", "Нет"]))
 
-    # if msg.find("бойкот") != -1:
-    #     await message.reply(data["ban"]["boikot"])
+    if msg.find("бойкот") != -1:
+        await message.reply(data["ban"]["boikot"])
 
-    # if msg.find("яблоко") != -1 or \
-    #    msg.find("яблочн") != -1:
-    #     await message.reply(data["ban"]["apple"])
+    if msg.find("яблоко") != -1 or \
+       msg.find("яблочн") != -1:
+        await message.reply(data["ban"]["apple"])
 
     if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нn]([^a-zа-яё\d]|$)",
                  message.text
@@ -115,11 +119,11 @@ async def detect_text_message(message):
         except Exception:
             pass
 
-    # if msg.find("секс") != -1:
-    #     await message.reply("Что?")
+    if msg.find("секс") != -1:
+        await message.reply("Что?")
 
-    # if msg.find(" наки ") != -1:
-    #     await message.reply("Майкл Наки — в жопе козинаки")
+    if msg.find(" наки ") != -1:
+        await message.reply("Майкл Наки — в жопе козинаки")
 
     if msg.find("бот,") != -1 and msg.find("когда уйдет путин") != -1:
         await random_putin(message)
