@@ -1,5 +1,5 @@
-from .config import dp
-from .lib.html import code
+from ..config import dp
+from ..lib.html import code
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,

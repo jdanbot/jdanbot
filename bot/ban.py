@@ -1,6 +1,6 @@
 from .config import dp, bot
 from .data import data
-from .random import random_putin, random_lukash
+from .memes.random import random_putin, random_lukash
 
 from .spy import activateSpy
 from .lib.html import code

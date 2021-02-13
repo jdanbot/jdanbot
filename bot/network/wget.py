@@ -4,11 +4,11 @@ from datetime import datetime
 
 import yaml
 
-from .config import dp
-from .lib.aioget import aioget
-from .lib.convert_bytes import convert_bytes
-from .lib.html import code
-from .lib.libtree import make_tree
+from ..config import dp
+from ..lib.aioget import aioget
+from ..lib.convert_bytes import convert_bytes
+from ..lib.html import code
+from ..lib.libtree import make_tree
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,

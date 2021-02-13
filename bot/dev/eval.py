@@ -1,5 +1,5 @@
-from .config import bot, dp
-from .lib.html import code
+from ..config import bot, dp
+from ..lib.html import code
 
 import traceback
 import subprocess

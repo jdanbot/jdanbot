@@ -1,6 +1,6 @@
-from .lib.prettyword import prettyword
-from .data import data
-from .config import dp
+from ..lib.prettyword import prettyword
+from ..data import data
+from ..config import dp
 
 
 from random import choice, randint

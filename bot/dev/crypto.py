@@ -1,6 +1,6 @@
-from .config import bot, dp
-from .lib.html import code
-from .data import data
+from ..config import bot, dp
+from ..lib.html import code
+from ..data import data
 
 from random import choice
 

@@ -1,8 +1,8 @@
-from .lib.fixWords import fixWords
-from .lib.cutecrop import cuteCrop
-from .lib.html import bold
-from .data import data
-from .config import bot, dp, logging
+from ..lib.fixWords import fixWords
+from ..lib.cutecrop import cuteCrop
+from ..lib.html import bold
+from ..data import data
+from ..config import bot, dp, logging
 
 import aiogram
 

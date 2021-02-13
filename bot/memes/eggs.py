@@ -1,7 +1,7 @@
-from .lib.html import code
-from .config import bot, dp
-from .data import data
-from .lib import chez
+from ..lib.html import code
+from ..config import bot, dp
+from ..data import data
+from ..lib import chez
 
 
 egg_commands = []

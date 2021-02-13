@@ -1,12 +1,10 @@
-from .config import dp, bot
-
-from .lib.telegram import Telegram
-from .lib.photo import Photo
-from .lib.html import code, bold
-
-from .data import data
-
 from random import choice
+
+from .config import bot, dp
+from .data import data
+from .lib.telegram import Telegram
+from .lib.html import bold, code
+from .lib.photo import Photo
 
 
 @dp.message_handler(commands=["resize"])

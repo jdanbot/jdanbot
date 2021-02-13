@@ -1,5 +1,5 @@
-from .config import bot, dp
-from .data import data
+from ..config import bot, dp
+from ..data import data
 
 from random import choice
 

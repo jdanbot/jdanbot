@@ -1,7 +1,7 @@
-from .config import dp, logging
-from .lib.html import code, bold
-from .lib.fixHTML import fixHTML
-from .lib.cutecrop import cuteCrop
+from ..config import dp, logging
+from ..lib.html import code, bold
+from ..lib.fixHTML import fixHTML
+from ..lib.cutecrop import cuteCrop
 import pyscp
 
 

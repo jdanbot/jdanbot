@@ -1,6 +1,6 @@
-from .config import dp, bot
-from .lib.lurkmore import Lurkmore
-from .lib.html import code
+from ..config import dp, bot
+from ..lib.lurkmore import Lurkmore
+from ..lib.html import code
 
 import aiogram
 

@@ -1,4 +1,4 @@
-from .config import dp
+from ..config import dp
 import os
 
 
