@@ -1,14 +1,14 @@
-from .config import dp
-from .lib.html import code
-from .lib.aioget import aioget
-from .lib.convert_bytes import convert_bytes
-
-import yaml
 import json
-
+import sys
 from datetime import datetime
 
-import sys
+import yaml
+
+from .config import dp
+from .lib.aioget import aioget
+from .lib.convert_bytes import convert_bytes
+from .lib.html import code
+from .lib.libtree import make_tree
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,
@@ -59,7 +59,7 @@ async def wget(message):
     try:
         response = await aioget(url)
     except Exception as e:
-        await message.reply(code(str(e)), parse_mode="HTML")
+        await message.reply(code(e), parse_mode="HTML")
         return
 
     load_time = datetime.now() - time
@@ -67,9 +67,10 @@ async def wget(message):
 
     page = await response.text()
 
-    text = f"{url}\n"
-    text += f"├─status: {response.status}\n"
-    text += f"├─size: {convert_bytes(sys.getsizeof(page))}\n"
-    text += f"└─time: {main[1]}:{main[2]}"
+    tree = make_tree({
+        "status": response.status,
+        "size": convert_bytes(sys.getsizeof(page)),
+        "time": f"{main[1]}:{main[2][:main[2].find('.')]}"
+    }, url)
 
-    await message.reply(code(text), parse_mode="HTML")
+    await message.reply(code(tree), parse_mode="HTML")

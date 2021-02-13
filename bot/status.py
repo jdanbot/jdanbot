@@ -1,51 +1,40 @@
-from .lib.convert_bytes import convert_bytes
-from .config import dp, start_time, bot_status
+import subprocess
 
-from aiogram.utils.markdown import code
 from datetime import datetime
 from sys import platform
 
-import subprocess
 import psutil
 
-status = """status
-├─commit: {commit}
-├─status: {status}
-├─os: {os}
-├─memory:
-│ ├─used: {used}
-│ ├─total: {total}
-│ └─percent: {mem_perc}%
-├─cpu: {cpu}%
-└─uptime: {uptime}
-"""
+from aiogram.utils.markdown import code
+from .config import bot_status, dp, start_time
+from .lib.convert_bytes import convert_bytes
+from .lib.libtree import make_tree
 
 
 @dp.message_handler(commands=["status"])
 async def get_status(message):
-    uptime = str(datetime.now() - start_time)
-    main = uptime.split(".")[0].split(":")
-    git_command = ["git", "rev-parse", "--short", "HEAD"]
-    commit = subprocess.check_output(git_command).decode("utf-8") \
-                                                 .replace("\n", "")
-
-    h = main[0]
-    h = "0" + h if len(h) == 1 else h
-
-    uptime = f"{h}:{main[1]}:{main[2]}"
     mem = psutil.virtual_memory()
     cpu = psutil.cpu_percent()
+    time = str(datetime.now() - start_time)
+    status = make_tree({
+        "commit": getCurrentCommit(),
+        "status": bot_status,
+        "os": platform,
+        "memory": {
+            "used": convert_bytes(mem.used),
+            "total": convert_bytes(mem.total),
+            "percent": "{}%".format(mem.percent)
+        },
+        "cpu": "{}%".format(cpu),
+        "uptime": time[:time.find(".")]
+    }, "status")
 
-    total = convert_bytes(mem.total)
-    used = convert_bytes(mem.used)
+    await message.reply(code(status).replace("\\", ""),
+                        parse_mode="Markdown")
 
-    # token = "environ" if heroku else "file"
-    text = status.format(total=total, os=platform, uptime=uptime,
-                         used=used, mem_perc=int(mem.percent),
-                         status=bot_status, cpu=cpu, commit=commit)
 
-    text = code(text).replace("False", "❌") \
-                     .replace("True", "✅") \
-                     .replace("\\", "")
-
-    await message.reply(text, parse_mode="Markdown")
+def getCurrentCommit():
+    git_command = ["git", "rev-parse", "--short", "HEAD"]
+    return subprocess.check_output(git_command) \
+                     .decode("utf-8") \
+                     .replace("\n", "")
