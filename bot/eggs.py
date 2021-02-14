@@ -24,6 +24,12 @@ async def cum(message):
                          open("music/cum.ogg", "rb+"),
                          reply_to_message_id=message.message_id)
 
+@dp.message_handler(commands=["longcum"])
+async def longcum(message):
+    await bot.send_voice(message.chat.id,
+                         open("music/longcum.ogg", "rb+"),
+                         reply_to_message_id=message.message_id)
+
 
 @dp.message_handler(commands=["lyagushka", "frog"])
 async def lyagushka(message):
