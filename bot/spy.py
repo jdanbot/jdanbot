@@ -1,43 +1,15 @@
-from .lib.prettyword import prettyword
 from .config import dp, conn
-from .lib.html import code
 from .data import data
-
-
-@dp.message_handler(commands=["leave_from_every"])
-async def leaveFromAll(message):
-    try:
-        name = " ".join([message.from_user.first_name,
-                         message.from_user.last_name])
-    except:
-        name = message.from_user.first_name
-
-    select = "SELECT * FROM"
-    chatid = str(message.chat.id).replace("-", "_")
-    user = {
-        "id": message.from_user.id,
-        "name": name}
-
-    cur = conn.cursor()
-
-    try:
-        e = cur.execute(f"{select} c{chatid} where id={user['id']}")
-        if e.fetchone() is None:
-            await message.reply("Вы не регистрировались")
-        else:
-            cur.execute(f"DELETE from c{chatid} where id={user['id']}")
-            conn.commit()
-            await message.reply("Вас больше нет в бд")
-    except Exception as err:
-        await message.reply(err)
+from .lib.prettyword import prettyword
+from .lib.html import code
 
 
 def getPrettyUsersName(users):
-    return prettyword(len(users), data["users"])
+    return prettyword(len(users), data.users)
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,
-                    commands=["calc_all_bot_users"])
+                    commands=["users"])
 async def calc_all_bot_users(message):
     users = []
     cur = conn.cursor()

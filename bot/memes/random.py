@@ -1,7 +1,6 @@
-from .lib.prettyword import prettyword
-from .data import data
-from .config import dp
-
+from ..lib.prettyword import prettyword
+from ..data import data
+from ..config import dp
 
 from random import choice, randint
 
@@ -37,12 +36,12 @@ async def random_person(message, name):
             await message.reply(f'{name} уйдет сегодня')
 
         elif days_num == 0:
-            date = prettyword(int(weeks_num), data["weeks"])
+            date = prettyword(int(weeks_num), data.weeks)
             await message.reply(f'{name} уйдет через {int(weeks_num)} {date}')
 
         else:
-            weeks = prettyword(int(weeks_num), data["weeks"])
-            days = prettyword(int(days_num), data["days"])
+            weeks = prettyword(int(weeks_num), data.weeks)
+            days = prettyword(int(days_num), data.days)
 
             date = "{} {} и {} {}".format(weeks_num, weeks,
                                           days_num, days)

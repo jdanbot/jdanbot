@@ -1,4 +1,4 @@
-from .config import dp, bot
+from ..config import dp, bot
 from googletrans import Translator
 
 t = Translator()
