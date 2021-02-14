@@ -233,6 +233,9 @@ eggs:
   - commands: [cum]
     audio: cum.ogg
 
+  - commands: [longcum]
+    audio: longcum.ogg
+
   - commands: [lyagushka, frog]
     audio: lyagushka.ogg
 
