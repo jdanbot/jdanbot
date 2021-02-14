@@ -20,9 +20,9 @@ async def send_meme(message, text):
 memes = {
     "bylo": "Было",
     "ne_bylo": "Не было",
-    "rzaka": data["rzaka"],
-    "rzaka_full": data["rzaka_full"],
-    "rzaka_time": f"{data['rzaka_time']} часов"
+    "rzaka": data.rzaka,
+    "rzaka_full": data.rzaka_full,
+    "rzaka_time": f"{data.rzaka_time} часов"
 }
 
 

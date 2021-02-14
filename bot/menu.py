@@ -29,38 +29,38 @@ for ind, button in enumerate(buttons):
 
 @dp.message_handler(commands=["new_menu", "start", "help"])
 async def menu(message):
-    await message.reply(data["menu"]["main"], parse_mode="HTML",
+    await message.reply(data.menu.main, parse_mode="HTML",
                         reply_markup=keyboard)
 
 
 @dp.callback_query_handler(lambda call: True)
 async def callback_worker(call):
     if call.data == "main":
-        await edit(call, data["menu"]["main"])
+        await edit(call, data.menu.main)
 
     if call.data == "math":
-        await edit(call, data["menu"]["math"])
+        await edit(call, data.menu.math)
 
     if call.data == "text":
-        await edit(call, data["menu"]["text"])
+        await edit(call, data.menu.text)
 
     if call.data == "network":
-        await edit(call, data["menu"]["network"])
+        await edit(call, data.menu.network)
 
     if call.data == "math":
-        await edit(call, data["menu"]["math"])
+        await edit(call, data.menu.math)
 
     if call.data == "images":
-        await edit(call, data["menu"]["images"])
+        await edit(call, data.menu.images)
 
     if call.data == "commands":
-        await edit(call, data["menu"]["commands"])
+        await edit(call, data.menu.commands)
 
     if call.data == "crypt":
-        await edit(call, data["menu"]["crypt"])
+        await edit(call, data.menu.crypt)
 
     if call.data == "memes":
-        await edit(call, data["menu"]["memes"])
+        await edit(call, data.menu.memes)
 
 
 async def edit(call, text):

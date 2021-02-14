@@ -55,7 +55,7 @@ async def cool_secret(message):
     if len(opt) == 1:
         await message.reply("Введи имя заметки для удаления")
 
-    if opt[1] in data["adminNotes"] and message.chat.type == "supergroup":
+    if opt[1] in data.adminNotes and message.chat.type == "supergroup":
         if await check_admin(message, bot):
             removeNote(message.chat.id, opt[1])
         else:
@@ -76,7 +76,7 @@ async def notes(message):
             await message.reply(getNote(chatid, opt[0]))
 
     else:
-        if opt[0] in data["adminNotes"] and message.chat.type == "supergroup":
+        if opt[0] in data.adminNotes and message.chat.type == "supergroup":
             if await check_admin(message, bot):
                 addNote(chatid, opt[0], opt[1])
                 await message.reply("Добавил системную заметку в бд")

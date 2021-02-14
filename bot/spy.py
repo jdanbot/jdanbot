@@ -5,11 +5,11 @@ from .lib.html import code
 
 
 def getPrettyUsersName(users):
-    return prettyword(len(users), data["users"])
+    return prettyword(len(users), data.users)
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,
-                    commands=["calc_all_bot_users"])
+                    commands=["users"])
 async def calc_all_bot_users(message):
     users = []
     cur = conn.cursor()

@@ -14,7 +14,7 @@ async def resize(message):
     params = tg.parse(message, 3)
 
     if params == 404:
-        await message.reply(data["errors"]["few_args"].format(num=3),
+        await message.reply(data.errors.few_args.format(num=3),
                             parse_mode="Markdown")
         return
 
@@ -51,7 +51,7 @@ async def text(message):
     params = message.text.split(" ", maxsplit=4)
 
     if params == 404:
-        await message.reply(data["errors"]["few_args"].format(num=4),
+        await message.reply(data.errors.few_args.format(num=4),
                             parse_mode="Markdown")
         return
 
@@ -88,7 +88,7 @@ async def t(message):
     params = message.text.split(" ", maxsplit=1)
 
     if params == 404:
-        await message.reply(data["errors"]["few_args"].format(num=2),
+        await message.reply(data.errors.few_args.format(num=2),
                             parse_mode="Markdown")
         return
 
@@ -125,7 +125,7 @@ async def rectangle(message):
     params = tg.parse(message, 4)
 
     if params == 404:
-        await message.reply(data["errors"]["few_args"].format(num=4),
+        await message.reply(data.errors.few_args.format(num=4),
                             parse_mode="Markdown")
         return
 
