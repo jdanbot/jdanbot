@@ -42,7 +42,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
     if name is None:
         opts = message.text.split(maxsplit=1)
         if len(opts) == 1:
-            await message.reply(data["wikierror"].format(opts[0]),
+            await message.reply(data.wikierror.format(opts[0]),
                                 parse_mode="Markdown")
             return
 
@@ -109,8 +109,8 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
             pass
 
     else:
-        if image == data["belarus_flag"]["old"]:
-            image = data["belarus_flag"]["new"]
+        if image == data.belarus_flag.old:
+            image = data.belarus_flag.new
 
         await bot.send_chat_action(message.chat.id, "upload_photo")
 
@@ -127,7 +127,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
 
 @dp.message_handler(commands=["langs", "wikilangs", "wiki_langs"])
 async def getLangs(message):
-    await message.reply(data["langs"], parse_mode="Markdown",
+    await message.reply(data.langs, parse_mode="Markdown",
                         disable_web_page_preview=True)
 
 
