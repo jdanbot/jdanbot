@@ -1,37 +1,37 @@
-from .config import bot, dp
-from .data import data
+from ..config import bot, dp
+from ..data import data
 
 from random import choice
 
 
 @dp.message_handler(commands=["pizda"])
 async def pizda(message):
-    await sendSticker(message, data["stickers"]["pizda"])
+    await sendSticker(message, data.stickers.pizda)
 
 
 @dp.message_handler(commands=["net_pizdy"])
 async def net_pizdy(message):
-    await sendSticker(message, data["stickers"]["net_pizdy"])
+    await sendSticker(message, data.stickers.net_pizdy)
 
 
 @dp.message_handler(commands=["pizda_tebe"])
 async def pizda_tebe(message):
-    await sendSticker(message, data["stickers"]["pizda_tebe"])
+    await sendSticker(message, data.stickers.pizda_tebe)
 
 
 @dp.message_handler(commands=["xui"])
 async def xui(message):
-    await sendSticker(message, data["stickers"]["xui"])
+    await sendSticker(message, data.stickers.xui)
 
 
 @dp.message_handler(commands=["net_xua"])
 async def net_xua(message):
-    await sendSticker(message, data["stickers"]["net_xua"])
+    await sendSticker(message, data.stickers.net_xua)
 
 
 @dp.message_handler(commands=["xui_pizda"])
 async def xui_pizda(message):
-    sticker = choice([data["stickers"]["xui"], data["stickers"]["pizda"]])
+    sticker = choice([data.stickers.xui, data.stickers.pizda])
     await sendSticker(message, sticker)
 
 

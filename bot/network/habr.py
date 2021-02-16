@@ -1,5 +1,5 @@
-from .config import dp
-from .lib.habr import Habr
+from ..config import dp
+from ..lib.habr import Habr
 
 
 @dp.message_handler(commands=["habr"])

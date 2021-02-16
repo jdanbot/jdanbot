@@ -1,6 +1,6 @@
-from .config import bot, dp
-from .lib.html import code
-from .lib.lurkmore import Lurkmore
+from ..config import bot, dp
+from ..lib.html import code
+from ..lib.lurkmore import Lurkmore
 
 mine = Lurkmore()
 mine.url = "https://minecraft-ru.gamepedia.com/api.php"

@@ -1,6 +1,6 @@
-from .config import bot, dp
-from .lib.html import code
-from .data import data
+from ..config import bot, dp
+from ..lib.html import code
+from ..data import data
 
 from random import choice
 
@@ -48,7 +48,7 @@ async def password(message):
         return
 
     if crypto_type > 4096:
-        await message.reply(data["errors"]["message_len"],
+        await message.reply(data.errors.message_len,
                             parse_mode="Markdown")
         return
 

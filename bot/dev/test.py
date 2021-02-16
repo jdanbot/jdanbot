@@ -1,6 +1,6 @@
-from .config import dp
-
 import asyncio
+
+from ..config import dp
 
 
 @dp.message_handler(commands=["ping"])

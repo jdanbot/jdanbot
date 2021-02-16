@@ -1,5 +1,5 @@
-from .config import dp
-from .lib.aioget import aioget
+from ..config import dp
+from ..lib.aioget import aioget
 
 from bs4 import BeautifulSoup
 
