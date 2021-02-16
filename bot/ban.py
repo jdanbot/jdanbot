@@ -1,12 +1,12 @@
 from .config import dp, bot
 from .data import data
-from .rules import chat_rules
-from .random import random_putin, random_lukash
+from .memes.random import random_putin, random_lukash
 
 from .spy import activateSpy
 from .lib.html import code
 
 from random import choice, randint
+from .notes import getNote
 
 import traceback
 import time
@@ -18,20 +18,22 @@ async def john(message):
     if message.chat.id != -1001319828458 and \
        message.chat.id != -1001189395000 and \
        not message.from_user.id == 795449748:
-        await message.reply(f'{choice(data["greatings"])}?')
+        await message.reply(f'{choice(data.greatings)}?')
 
     if message.from_user.id == 795449748:
-        await message.reply(f'{choice(data["jdan_welcome"])}?')
+        await message.reply(f'{choice(data.jdan_welcome)}?')
 
-    #if message.chat.id == -1001176998310 and \
-    #   not message.from_user.id == 795449748:
-    #    await chat_rules(message, False)
+    try:
+        rules = getNote(message.chat.id, "__rules__")
+        await message.answer(rules)
+    except TypeError:
+        pass
 
 
 @dp.message_handler(content_types=["left_chat_member"])
 async def left_john(message):
     if message.chat.id != -1001319828458 and message.chat.id != -1001189395000:
-        await message.reply(f'{choice(data["greatings"])} ушел?')
+        await message.reply(f'{choice(data.greatings)} ушел?')
 
 
 @dp.message_handler(lambda message: True)
@@ -41,10 +43,12 @@ async def message_handler(message):
     except Exception:
         print(code(traceback.format_exc()))
 
-    if message.chat.id == -1001335444502 or \
-       message.chat.id == -1001189395000 or \
-       message.chat.id == -1001176998310 or \
-       message.chat.id == -1001374137898:
+    try:
+        response = getNote(message.chat.id, "__enable_response__")
+    except TypeError:
+        response = "False"
+
+    if response == "True":
         await detect_text_message(message)
 
 
@@ -52,9 +56,9 @@ async def detect_text_message(message):
     msg = message.text.lower().replace("_", "") \
                               .replace("-", "")
 
-    for word in data["love_words"]:
+    for word in data.love_words:
         if word in msg:
-            await message.reply_sticker(data["honka"]["send_love"])
+            await message.reply_sticker(data.honka.send_love)
             break
 
     if msg.find("бот, сколько") != -1 and msg.find("?") != -1:
@@ -69,17 +73,17 @@ async def detect_text_message(message):
             await message.reply(f"{str(number)} {word}")
 
     elif msg.find("бот, почему") != -1 and msg.find("?") != -1:
-        await message.reply(choice(data["why_list"]))
+        await message.reply(choice(data.why_list))
 
     elif msg.find("бот,") != -1 and msg.find("?") != -1:
         await message.reply(choice(["Да", "Нет"]))
 
-    # if msg.find("бойкот") != -1:
-    #     await message.reply(data["ban"]["boikot"])
+    if msg.find("бойкот") != -1:
+        await message.reply(data.ban.boikot)
 
-    # if msg.find("яблоко") != -1 or \
-    #    msg.find("яблочн") != -1:
-    #     await message.reply(data["ban"]["apple"])
+    if msg.find("яблоко") != -1 or \
+       msg.find("яблочн") != -1:
+        await message.reply(data.ban.apple)
 
     if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нn]([^a-zа-яё\d]|$)",
                  message.text
@@ -94,19 +98,19 @@ async def detect_text_message(message):
             await message.reply("Никакого бана мышам!")
             return
 
-        if message.from_user.id in data["ban_list"]:
-            bwords = data["ban_list"][message.from_user.id]
+        if str(message.from_user.id) in list(data.ban_list._dict.keys()):
+            bwords = data.ban_list.__dict__[str(message.from_user.id)]
         else:
-            bwords = data["ban_list"]["all"]
+            bwords = data.ban_list.all
 
         bword = choice(bwords)
 
         if type(bword) == str:
             await message.reply(bword, parse_mode="HTML")
 
-        elif type(bword) == dict:
-            await message.reply(bword["text"], parse_mode="HTML")
-            await bot.send_sticker(message.chat.id, bword["sticker"])
+        elif type(bword).__name__ == "Dict2Class":
+            await message.reply(bword.text, parse_mode="HTML")
+            await bot.send_sticker(message.chat.id, bword.sticker)
 
         try:
             await bot.restrict_chat_member(message.chat.id,
@@ -115,11 +119,11 @@ async def detect_text_message(message):
         except Exception:
             pass
 
-    # if msg.find("секс") != -1:
-    #     await message.reply("Что?")
+    if msg.find("секс") != -1:
+        await message.reply("Что?")
 
-    # if msg.find(" наки ") != -1:
-    #     await message.reply("Майкл Наки — в жопе козинаки")
+    if msg.find(" наки ") != -1:
+        await message.reply("Майкл Наки — в жопе козинаки")
 
     if msg.find("бот,") != -1 and msg.find("когда уйдет путин") != -1:
         await random_putin(message)
