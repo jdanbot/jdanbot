@@ -122,8 +122,8 @@ async def detect_text_message(message):
     if msg.find("секс") != -1:
         await message.reply("Что?")
 
-    if msg.find(" наки ") != -1:
-        await message.reply("Майкл Наки — в жопе козинаки")
+    # if msg.find(" наки ") != -1:
+    #     await message.reply("Майкл Наки — в жопе козинаки")
 
     if msg.find("бот,") != -1 and msg.find("когда уйдет путин") != -1:
         await random_putin(message)
