@@ -136,8 +136,8 @@ wikicommands = []
 for lang in data.langs_list:
     wikicommands.extend([f"wiki{lang}", f"w{lang}"])
 
-for lang in data.unique_commands.__dict__:
-    wikicommands.extend(data.unique_commands.__dict__[lang])
+for lang in data.unique_commands._dict:
+    wikicommands.extend(data.unique_commands._dict[lang])
 
 
 @dp.message_handler(commands=wikicommands)
