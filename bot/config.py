@@ -9,7 +9,7 @@ from aiogram import Bot, Dispatcher
 
 try:
     with open("config.json") as file:
-        config = json.loads(file)
+        config = json.loads(file.read())
 except FileNotFoundError:
     config = {}
 
