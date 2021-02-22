@@ -73,7 +73,11 @@ async def notes(message):
         if opt[0] == "__notes_list__":
             await message.reply(", ".join(showNotes(chatid)))
         else:
-            await message.reply(getNote(chatid, opt[0]))
+            note = getNote(chatid, opt[0])
+            try:
+                await message.reply(note, parse_mode="MarkdownV2")
+            except Exception:
+                await message.reply(note)
 
     else:
         if opt[0] in data.adminNotes and message.chat.type == "supergroup":
