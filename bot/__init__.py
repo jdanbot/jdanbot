@@ -3,7 +3,7 @@ from os import listdir, walk
 files = None
 folders = None
 
-for root, dirs, files in walk("bot", topdown=True):
+for _, dirs, files in walk("bot", topdown=True):
     files = files
     folders = dirs
     break
@@ -11,7 +11,7 @@ for root, dirs, files in walk("bot", topdown=True):
 __all__ = []
 
 for folder in folders:
-    if folder != "lib" and folder != "__pycache__":
+    if folder != "lib" and folder != "__pycache__" and folder != "cache":
         for file in listdir(f"bot/{folder}"):
             if file != "__pycache__" and file != "ban.py":
                 __import__(f"bot.{folder}.{file[:-3]}")
