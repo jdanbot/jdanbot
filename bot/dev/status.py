@@ -1,12 +1,11 @@
-import subprocess
-
+import subprocess  # noqa: S404
 from datetime import datetime
 from sys import platform
 
 import psutil
-
 from aiogram.utils.markdown import code
-from ..config import bot_status, dp, start_time
+
+from ..config import dp, STATUS, START_TIME
 from ..lib.convert_bytes import convert_bytes
 from ..lib.libtree import make_tree
 
@@ -15,10 +14,10 @@ from ..lib.libtree import make_tree
 async def get_status(message):
     mem = psutil.virtual_memory()
     cpu = psutil.cpu_percent()
-    time = str(datetime.now() - start_time)
+    time = str(datetime.now() - START_TIME)
     status = make_tree({
         "commit": getCurrentCommit(),
-        "status": bot_status,
+        "status": STATUS,
         "os": platform,
         "memory": {
             "used": convert_bytes(mem.used),
