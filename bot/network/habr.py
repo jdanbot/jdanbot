@@ -1,17 +1,13 @@
 from ..config import dp
+from ..lib import handlers
 from ..lib.habr import Habr
 
 
 @dp.message_handler(commands=["habr"])
-async def habr(message):
-    options = message.text.split(maxsplit=1)
-
-    if len(options) == 1:
-        await message.reply("Введи id поста из хабра")
-        return
-
+@handlers.parse_arguments(1)
+async def habr(message, params):
     try:
-        id_ = int(options[-1])
+        id_ = int(params[1])
 
     except ValueError:
         await message.reply("Введи валидный id поста")

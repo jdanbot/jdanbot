@@ -1,6 +1,7 @@
 import urllib
 
 from ..config import bot, dp
+from ..lib import handlers
 
 
 def get_video_id(url):
@@ -11,12 +12,8 @@ def get_video_id(url):
 
 
 @dp.message_handler(commands=["preview"])
-async def preview(message):
-    try:
-        url = message.reply_to_message.text
-    except AttributeError:
-        url = message.text.split(maxsplit=1)[1]
-
+@handlers.get_text
+async def preview(message, url):
     MAX_URL = "https://img.youtube.com/vi/{id}/maxresdefault.jpg"
     HQ_URL = "https://img.youtube.com/vi/{id}/hqdefault.jpg"
     video_id = get_video_id(url)

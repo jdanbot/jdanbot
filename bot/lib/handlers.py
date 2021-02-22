@@ -53,3 +53,36 @@ def init_photo_file(func):
         await func(message, params, img)
 
     return wrapper
+
+
+def get_text(func):
+    @parse_arguments(2, without_params=True)
+    async def wrapper(message, params):
+        reply = message.reply_to_message
+        if reply:
+            if reply.text:
+                text = reply.text
+
+            elif reply.document:
+                file_id = reply.document.file_id
+
+                document = bot.get_file(file_id)
+                text = bot.download_file(document.file_path)
+        elif len(params) == 2:
+            text = params[1]
+        else:
+            await message.reply(data.errors.few_args.format(num=1),
+                                parse_mode="Markdown")
+            return
+
+        await func(message, text)
+
+    return wrapper
+
+
+def only_jdan(func):
+    async def wrapper(message):
+        if message.from_user.id == 795449748:
+            await func(message)
+
+    return wrapper

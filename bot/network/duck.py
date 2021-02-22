@@ -1,23 +1,17 @@
-from ..lib.fixWords import fixWords
-from ..lib.html import bold
-from ..data import data
-from ..config import dp
-
 from pyduckgo import Duck
 
+from ..config import dp
+from ..lib import handlers
+from ..lib.fixWords import fixWords
+from ..lib.html import bold
 
 duck = Duck()
 
 
 @dp.message_handler(commands=["duck"])
-async def getDuck(message):
-    opts = message.text.split(maxsplit=1)
-    if len(opts) == 1:
-        await message.reply(data["duckerror"].format(opts[0]),
-                            parse_mode="Markdown")
-        return
-
-    query = opts[1]
+@handlers.parse_arguments(1)
+async def getDuck(message, params):
+    query = params[1]
     text = ""
 
     links = await duck.HTML_search(query)

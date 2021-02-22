@@ -1,8 +1,10 @@
-from ..config import dp, logging
-from ..lib.html import code, bold
-from ..lib.fixHTML import fixHTML
-from ..lib.cutecrop import cuteCrop
 import pyscp
+
+from ..config import dp, logging
+from ..lib import handlers
+from ..lib.cutecrop import cuteCrop
+from ..lib.fixHTML import fixHTML
+from ..lib.html import bold, code 
 
 
 def format_scp(p):
@@ -49,23 +51,18 @@ def format_scp(p):
 
 
 @dp.message_handler(commands=["scp"])
-async def detectscp(message):
+@handlers.parse_arguments(1)
+async def detectscp(message, params):
     scp = pyscp.wikidot.Wiki('http://scpfoundation.net')
-    options = message.text.split(maxsplit=1)
-
-    if len(options) == 1:
-        await message.reply("Напишите название scp")
-        return
-
-    logging.info(f"[SCP RU] {options[1]}")
+    logging.info(f"[SCP RU] {params[1]}")
 
     try:
-        p = scp(options[1])
+        p = scp(params[1])
         p.title
 
     except AttributeError:
         try:
-            p = scp("scp-" + options[1])
+            p = scp("scp-" + params[1])
             p.title
         except AttributeError:
             await message.reply(bold("Не удалось найти scp"),

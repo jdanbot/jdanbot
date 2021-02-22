@@ -1,7 +1,7 @@
 from ..lib.html import code
 from ..config import bot, dp
 from ..data import data
-from ..lib import chez
+from ..lib import chez, handlers
 
 
 egg_commands = []
@@ -25,15 +25,10 @@ async def sendEgg(message):
 
 
 @dp.message_handler(commands=["say"])
-async def say(message):
-    opt = message.text.split(maxsplit=1)
-
-    if len(opt) == 1:
-        await bot.reply("Введите текст для аудио")
-        return
-
+@handlers.get_text
+async def say(message, text):
     await bot.send_voice(message.chat.id,
-                         chez.say(opt[1]),
+                         chez.say(text),
                          reply_to_message_id=message.message_id)
 
 

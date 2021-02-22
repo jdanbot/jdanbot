@@ -1,60 +1,38 @@
-from ..config import bot, dp
-from ..lib.html import code
-from ..data import data
-
+import hashlib
 from random import choice
 
-import hashlib
+from ..config import dp
+from ..data import data
+from ..lib import handlers
+from ..lib.html import code
 
 
 @dp.message_handler(commands=["sha256"])
-async def sha256(message):
-    text = ""
+@handlers.get_text
+async def sha256(message, text):
+    text = bytearray(text.encode("utf-8"))
+    crypt = hashlib.sha256(text).hexdigest()
 
-    if message.reply_to_message:
-        reply = message.reply_to_message
-
-        if reply.text:
-            text = reply.text.encode("utf-8")
-
-        elif reply.document:
-            file_id = reply.document.file_id
-
-            document = bot.get_file(file_id)
-            text = bot.download_file(document.file_path)
-    else:
-        opt = message.text.split(maxsplit=1)
-
-        if len(opt) == 1:
-            await message.reply("Ответьте на сообщение с текстом")
-            return
-
-        text = opt[1].encode("utf-8")
-
-    await message.reply(hashlib.sha256(bytearray(text)).hexdigest())
+    await message.reply(crypt)
 
 
 @dp.message_handler(commands=["generate_password"])
-async def password(message):
-    opt = message.text.split(maxsplit=1)
-    if len(opt) == 1:
-        await message.reply_to("Укажите количество символов в пароле")
-        return
-
+@handlers.parse_arguments(1)
+async def password(message, options):
     try:
-        crypto_type = int(opt[1])
+        password_len = int(options[1])
     except ValueError:
-        message.reply("Введите число")
+        await message.reply("Введите число")
         return
 
-    if crypto_type > 4096:
+    if password_len > 4096:
         await message.reply(data.errors.message_len,
                             parse_mode="Markdown")
         return
 
-    elif crypto_type < 6:
-        message.reply("Пароли меньше `6` символов запрещены",
-                      parse_mode="Markdown")
+    elif password_len < 6:
+        await message.reply("Пароли меньше `6` символов запрещены",
+                            parse_mode="Markdown")
         return
 
     password = ""
@@ -65,7 +43,7 @@ async def password(message):
     symbols.extend(list('~!@#$%^&*()_+-=`[]\\}{|;\':"<>,./?'))
     symbols.extend(list("0123456789"))
 
-    for num in range(0, crypto_type):
+    for _ in range(0, password_len):
         password += choice(symbols)
 
     await message.reply(code(password), parse_mode="HTML")

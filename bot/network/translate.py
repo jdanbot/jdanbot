@@ -1,5 +1,5 @@
-from ..config import dp, bot
 from googletrans import Translator
+from ..config import dp, bot
 
 t = Translator()
 

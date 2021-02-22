@@ -5,22 +5,18 @@ from datetime import datetime
 import yaml
 
 from ..config import dp
+from ..lib import handlers
 from ..lib.aioget import aioget
 from ..lib.convert_bytes import convert_bytes
 from ..lib.html import code
 from ..lib.libtree import make_tree
 
 
-@dp.message_handler(lambda message: message.from_user.id == 795449748,
-                    commands=["d"])
-async def download(message):
-    options = message.text.split(maxsplit=1)
-
-    if len(options) == 1:
-        await message.reply("Напиши ссылку")
-        return
-
-    response = await aioget(options[1])
+@dp.message_handler(commands=["d"])
+@handlers.only_jdan
+@handlers.get_text
+async def download(message, query):
+    response = await aioget(query)
     text = await response.text()
 
     try:
@@ -33,14 +29,10 @@ async def download(message):
 
 
 @dp.message_handler(commands=["wget", "r", "request"])
-async def wget(message):
-    opt = message.text.split(maxsplit=1)
-    if len(opt) == 1:
-        await message.reply("Напиши ссылку")
-        return
-
+@handlers.parse_arguments(1)
+async def wget(message, params):
     time = datetime.now()
-    url = opt[1]
+    url = params[1]
 
     blacklist = ["mb", ".zip", ".7", ".gz", "98.145.185.175", ".avi",
                  "movie", "release", ".dll", "localhost", ".bin",

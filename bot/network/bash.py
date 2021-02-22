@@ -1,12 +1,13 @@
-from ..config import dp
-from ..lib.aioget import aioget
-
 from bs4 import BeautifulSoup
+
+from ..config import dp
+from ..lib import handlers
+from ..lib.aioget import aioget
 
 
 @dp.message_handler(commands=["bashorg", "bashim", "b"])
-async def bashorg(message):
-    params = message.text.split(maxsplit=1)
+@handlers.parse_arguments(1, without_params=True)
+async def bashorg(message, params):
     if len(params) == 1:
         page = await aioget("https://bash.im/random")
     else:
