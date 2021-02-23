@@ -9,7 +9,7 @@ duck = Duck()
 
 
 @dp.message_handler(commands=["duck"])
-@handlers.parse_arguments(1)
+@handlers.parse_arguments(2)
 async def getDuck(message, params):
     query = params[1]
     text = ""

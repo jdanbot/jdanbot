@@ -51,7 +51,7 @@ def format_scp(p):
 
 
 @dp.message_handler(commands=["scp"])
-@handlers.parse_arguments(1)
+@handlers.parse_arguments(2)
 async def detectscp(message, params):
     scp = pyscp.wikidot.Wiki('http://scpfoundation.net')
     logging.info(f"[SCP RU] {params[1]}")

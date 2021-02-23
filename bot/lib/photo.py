@@ -1,6 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
+
 import os
 import random
+
+from ..config import IMAGE_PATH
 
 
 class Photo:
@@ -11,7 +14,9 @@ class Photo:
             self.image = Image.open(path)
             self.idraw = ImageDraw.Draw(self.image)
         else:
-            self.path = f"cache/{str(random.randint(0, 1000000000000000))}.jpg"
+            self.path = IMAGE_PATH.format(
+                image=random.randint(0, 1000000000000000)
+            )
             self.saved_path = f"{self.path.split('.')[0]}_saved.jpg"
             self.image = Image.new("RGB", xy, (255, 255, 255))
             self.idraw = ImageDraw.Draw(self.image)

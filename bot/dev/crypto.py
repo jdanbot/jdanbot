@@ -17,7 +17,7 @@ async def sha256(message, text):
 
 
 @dp.message_handler(commands=["generate_password"])
-@handlers.parse_arguments(1)
+@handlers.parse_arguments(2)
 async def password(message, options):
     try:
         password_len = int(options[1])

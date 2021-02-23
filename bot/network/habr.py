@@ -4,7 +4,7 @@ from ..lib.habr import Habr
 
 
 @dp.message_handler(commands=["habr"])
-@handlers.parse_arguments(1)
+@handlers.parse_arguments(2)
 async def habr(message, params):
     try:
         id_ = int(params[1])

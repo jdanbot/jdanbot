@@ -7,7 +7,7 @@ from .lib.photo import Photo
 
 
 @dp.message_handler(commands=["resize"])
-@handlers.parse_arguments(3)
+@handlers.parse_arguments(4)
 @handlers.init_photo_file
 async def resize(message, params, img):
     print(params)
@@ -24,7 +24,7 @@ async def resize(message, params, img):
 
 
 @dp.message_handler(commands=["text"])
-@handlers.parse_arguments(4)
+@handlers.parse_arguments(5)
 @handlers.init_photo_file
 async def text(message, params, img):
     print(params)

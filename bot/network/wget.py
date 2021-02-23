@@ -29,7 +29,7 @@ async def download(message, query):
 
 
 @dp.message_handler(commands=["wget", "r", "request"])
-@handlers.parse_arguments(1)
+@handlers.parse_arguments(2)
 async def wget(message, params):
     time = datetime.now()
     url = params[1]

@@ -6,7 +6,7 @@ from .photo import Photo
 def parse_arguments(limit, without_params=False):
     def argument_wrapper(func):
         async def wrapper(message):
-            params = message.text.split(maxsplit=limit)
+            params = message.text.split(maxsplit=limit - 1)
 
             if len(params) < limit and not without_params:
                 await message.reply(data.errors.few_args.format(num=limit),
