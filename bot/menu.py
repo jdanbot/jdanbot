@@ -32,10 +32,10 @@ async def menu(message):
                         reply_markup=keyboard)
 
 
-@dp.callback_query_handler(lambda call: True)
+@dp.callback_query_handler(lambda call: True and
+                           call.data in list(data.menu._dict.keys()))
 async def callback_worker(call):
-    if call.data in list(data.menu._dict.keys()):
-        await edit(call, data.menu._dict[call.data])
+    await edit(call, data.menu._dict[call.data])
 
 
 async def edit(call, text):

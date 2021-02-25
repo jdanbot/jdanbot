@@ -1,3 +1,5 @@
+from aiogram import types
+
 from .config import dp, bot
 from .data import data
 from .memes.random import random_putin, random_lukash
@@ -11,6 +13,47 @@ from .notes import getNote
 import traceback
 import time
 import re
+
+
+@dp.message_handler(commands=["admins"])
+async def call_admins(message):
+    keyboard = types.InlineKeyboardMarkup()
+    keyboard.add(
+        types.InlineKeyboardButton(text="Да", callback_data="call_admin"),
+        types.InlineKeyboardButton(text="Удолить", callback_data="delete"))
+
+    await message.reply("Вы точно уверен, что хочешь призвать админов? 🌚",
+                        reply_markup=keyboard)
+
+
+@dp.callback_query_handler(lambda call: call.data == "delete")
+async def delete_call(call):
+    await call.message.delete()
+
+
+@dp.callback_query_handler(lambda call: call.data == "call_admin")
+async def call_admin(call):
+    keyboard = types.InlineKeyboardMarkup()
+    keyboard.add(types.InlineKeyboardButton(text="Удолить",
+                                            callback_data="delete"))
+
+    admins = await bot.get_chat_administrators(call.message.chat.id)
+    
+    true_admins = []
+
+    for admin in admins:
+        try:
+            if not admin.user.is_bot:
+                true_admins.append("@" + admin.user.username)
+        except Exception:
+            pass
+
+    admins_call = ", ".join(true_admins) + ". "
+
+    await bot.edit_message_text(chat_id=call.message.chat.id,
+                                message_id=call.message.message_id,
+                                text=admins_call + "Все, вызвал админов, тiкай з чату",
+                                reply_markup=keyboard)
 
 
 @dp.message_handler(content_types=["new_chat_members"])
