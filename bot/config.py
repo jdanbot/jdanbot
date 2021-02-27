@@ -16,14 +16,21 @@ except FileNotFoundError:
 RSS_FEEDS = [
     # Katz channel
     {
-        "chatid": -1001176998310,
+        "chatid": -1001410092459,
         "channelid": "UCUGfDbfRIx51kJGGHIFo8Rw",
         "url": "https://www.youtube.com/feeds/videos.xml?channel_id="
                "UCUGfDbfRIx51kJGGHIFo8Rw"
-    }
+    },
+
+    {
+        "chatid": -1001335444502,
+        "channelid": "UCBNlINWfd08qgDkUTaUY4_w",
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id="
+               "UCBNlINWfd08qgDkUTaUY4_w"
+    },
 ]
 
-DELAY = 15
+DELAY = 10
 DATABASE_PATH = "jdandb.db"
 IMAGE_PATH = "bot/cache/{image}.jpg"
 START_TIME = datetime.now()
