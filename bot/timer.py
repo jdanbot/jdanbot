@@ -22,7 +22,6 @@ async def timer():
             saveVideo(feed["channelid"], first_video)
         else:
             if channels[0][1] == first_video:
-                await bot.send_message(feed["chatid"], "было")
                 pass
             else:
                 message = await bot.send_message(feed["chatid"], first_video)
