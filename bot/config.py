@@ -13,10 +13,22 @@ try:
 except FileNotFoundError:
     config = {}
 
+RSS_FEEDS = [
+    # Katz channel
+    {
+        "chatid": -1001176998310,
+        "channelid": "UCUGfDbfRIx51kJGGHIFo8Rw",
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id="
+               "UCUGfDbfRIx51kJGGHIFo8Rw"
+    }
+]
+
+DELAY = 15
 DATABASE_PATH = "jdandb.db"
 IMAGE_PATH = "bot/cache/{image}.jpg"
 START_TIME = datetime.now()
 
+ENABLE_RSS = environ.get("RSS") or config.get("rss") or False
 TOKEN = environ.get("TOKEN") or config.get("token")
 STATUS = environ.get("STATUS") or config.get("status") or "unknown"
 
