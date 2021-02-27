@@ -14,8 +14,10 @@ async def timer():
         xml = feedparser.parse(await response.text())
         first_video = xml["entries"][0]["link"]
 
-        sql = "SELECT * FROM videos"
-        channels = cur.execute(sql).fetchall()
+        sql = 'SELECT * FROM videos WHERE channelid="{id}"'
+        channels = cur.execute(sql.format(
+            id=feed["channelid"]
+        )).fetchall()
 
         if len(channels) == 0:
             await bot.send_message(feed["chatid"], first_video)
@@ -39,7 +41,10 @@ async def timer():
 def saveVideo(channelid, link):
     cur = conn.cursor()
 
-    cur.execute("DELETE FROM videos")
+    cur.execute('DELETE FROM videos WHERE channelid="{id}"'.format(
+        id=channelid
+    ))
+
     cur.execute('INSERT INTO videos VALUES ("{id}", "{link}")'.format(
         id=channelid,
         link=link
