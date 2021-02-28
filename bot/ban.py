@@ -67,7 +67,7 @@ async def john(message):
         await message.reply(f'{choice(data.jdan_welcome)}?')
 
     try:
-        rules = getNote(message.chat.id, "__rules__")
+        rules = await getNote(message.chat.id, "__rules__")
         await message.answer(rules)
     except TypeError:
         pass
@@ -87,7 +87,7 @@ async def message_handler(message):
         print(code(traceback.format_exc()))
 
     try:
-        response = getNote(message.chat.id, "__enable_response__")
+        response = await getNote(message.chat.id, "__enable_response__")
     except TypeError:
         response = "False"
 
