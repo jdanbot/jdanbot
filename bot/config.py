@@ -1,6 +1,7 @@
 import json
 import logging
-import sqlite3
+import asyncio
+import aiosqlite
 from datetime import datetime
 from os import environ
 
@@ -27,7 +28,7 @@ RSS_FEEDS = [
         "channelid": "UCBNlINWfd08qgDkUTaUY4_w",
         "url": "https://www.youtube.com/feeds/videos.xml?channel_id="
                "UCBNlINWfd08qgDkUTaUY4_w"
-    },
+    }
 ]
 
 DELAY = 10
@@ -45,7 +46,12 @@ coloredlogs.install(fmt="%(asctime)s %(levelname)s %(message)s",
                     level="INFO",
                     logger=logger)
 
-conn = sqlite3.connect(DATABASE_PATH)
+
+async def connect_db():
+    return await aiosqlite.connect(DATABASE_PATH)
+
+
+conn = asyncio.run(connect_db())
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)

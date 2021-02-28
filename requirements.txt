@@ -5,6 +5,7 @@ tghtml==0.2.0
 coloredlogs
 feedparser
 pyduckgo==0.1.4
+python-mpv
 aiogram
 pyyaml
 pillow

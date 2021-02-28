@@ -9,19 +9,21 @@ import feedparser
 async def timer():
     for feed in RSS_FEEDS:
         response = await aioget(feed["url"])
-        cur = conn.cursor()
+        cur = await conn.cursor()
 
         xml = feedparser.parse(await response.text())
         first_video = xml["entries"][0]["link"]
 
         sql = 'SELECT * FROM videos WHERE channelid="{id}"'
-        channels = cur.execute(sql.format(
+        channels = await cur.execute(sql.format(
             id=feed["channelid"]
-        )).fetchall()
+        ))
+
+        channels = await channels.fetchall()
 
         if len(channels) == 0:
             await bot.send_message(feed["chatid"], first_video)
-            saveVideo(feed["channelid"], first_video)
+            await saveVideo(feed["channelid"], first_video)
         else:
             if channels[0][1] == first_video:
                 pass
@@ -33,24 +35,24 @@ async def timer():
                     disable_notification=True
                 )
 
-                saveVideo(feed["channelid"], first_video)
+                await saveVideo(feed["channelid"], first_video)
 
-        conn.commit()
+        await conn.commit()
 
 
-def saveVideo(channelid, link):
-    cur = conn.cursor()
+async def saveVideo(channelid, link):
+    cur = await conn.cursor()
 
-    cur.execute('DELETE FROM videos WHERE channelid="{id}"'.format(
+    await cur.execute('DELETE FROM videos WHERE channelid="{id}"'.format(
         id=channelid
     ))
 
-    cur.execute('INSERT INTO videos VALUES ("{id}", "{link}")'.format(
+    await cur.execute('INSERT INTO videos VALUES ("{id}", "{link}")'.format(
         id=channelid,
         link=link
     ))
 
-    conn.commit()
+    await conn.commit()
 
 
 def repeat(coro, loop):

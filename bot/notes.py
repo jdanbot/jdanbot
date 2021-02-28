@@ -4,34 +4,36 @@ from .lib.html import code
 from .data import data
 
 
-def addNote(chatid, name, text):
+async def addNote(chatid, name, text):
     try:
-        removeNote(chatid, name)
+        await removeNote(chatid, name)
     except Exception as e:
         print(e)
 
     sql = 'INSERT INTO notes VALUES ({chatid}, "{name}", "{text}")'
 
-    cur = conn.cursor()
-    cur.execute(sql.format(chatid=chatid, name=name, text=text)).fetchone()
+    cur = await conn.cursor()
+    await cur.execute(sql.format(chatid=chatid, name=name, text=text))
 
-    conn.commit()
+    await conn.commit()
 
 
-def getNote(chatid, name):
+async def getNote(chatid, name):
     sql = 'SELECT * FROM notes WHERE (chatid={chatid} and name="{name}")'
 
-    cur = conn.cursor()
-    e = cur.execute(sql.format(chatid=chatid, name=name)).fetchone()
+    cur = await conn.cursor()
+    e = await cur.execute(sql.format(chatid=chatid, name=name))
+    e = await e.fetchone()
 
     return e[-1]
 
 
-def showNotes(chatid):
+async def showNotes(chatid):
     sql = "SELECT * FROM notes WHERE chatid={chatid}".format(chatid=chatid)
 
-    cur = conn.cursor()
-    e = cur.execute(sql).fetchall()
+    cur = await conn.cursor()
+    e = await cur.execute(sql)
+    e = await e.fetchall()
     notes = []
 
     for item in e:
@@ -40,12 +42,12 @@ def showNotes(chatid):
     return notes
 
 
-def removeNote(chatid, name):
-    cur = conn.cursor()
+async def removeNote(chatid, name):
+    cur = await conn.cursor()
 
     sql = 'DELETE FROM notes WHERE (chatid={chatid} and name="{name}")'
-    cur.execute(sql.format(chatid=chatid, name=name))
-    conn.commit()
+    await cur.execute(sql.format(chatid=chatid, name=name))
+    await conn.commit()
 
 
 @dp.message_handler(commands=["remove_note"])
@@ -57,11 +59,11 @@ async def cool_secret(message):
 
     if opt[1] in data.adminNotes and message.chat.type == "supergroup":
         if await check_admin(message, bot):
-            removeNote(message.chat.id, opt[1])
+            await removeNote(message.chat.id, opt[1])
         else:
             await message.reply("У вас нет прав для изменения этой заметки")
     else:
-        removeNote(message.chat.id, opt[1])
+        await removeNote(message.chat.id, opt[1])
 
 
 @dp.message_handler(lambda message: message.text.startswith("#"))
@@ -73,7 +75,7 @@ async def notes(message):
         if opt[0] == "__notes_list__":
             await message.reply(", ".join(showNotes(chatid)))
         else:
-            note = getNote(chatid, opt[0])
+            note = await getNote(chatid, opt[0])
             try:
                 await message.reply(note, parse_mode="MarkdownV2")
             except Exception:
@@ -82,12 +84,12 @@ async def notes(message):
     else:
         if opt[0] in data.adminNotes and message.chat.type == "supergroup":
             if await check_admin(message, bot):
-                addNote(chatid, opt[0], opt[1])
+                await addNote(chatid, opt[0], opt[1])
                 await message.reply("Добавил системную заметку в бд")
             else:
                 await message.reply("У вас нет прав для изменения этой заметки")
         else:
-            addNote(chatid, opt[0], opt[1])
+            await addNote(chatid, opt[0], opt[1])
             await message.reply("Добавил заметку в бд")
 
 
