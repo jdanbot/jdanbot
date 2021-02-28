@@ -11,7 +11,12 @@ async def timer():
         response = await aioget(feed["url"])
         cur = await conn.cursor()
 
-        xml = feedparser.parse(await response.text())
+        try:
+            text = await response.text()
+        except Exception:
+            return
+
+        xml = feedparser.parse(text)
         first_video = xml["entries"][0]["link"]
 
         sql = 'SELECT * FROM videos WHERE channelid="{id}"'
