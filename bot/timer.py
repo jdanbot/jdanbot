@@ -9,45 +9,45 @@ from .lib.aioget import aioget
 import feedparser
 
 
-async def rss_task():
-    for feed in RSS_FEEDS:
-        response = await aioget(feed["url"], timeout=3)
+async def rss_task(url, channelid, chatid):
+    response = await aioget(url, timeout=3)
 
-        try:
-            text = await response.text()
-        except asyncio.exceptions.TimeoutError:
-            debug(f"[{feed['channelid']}] TimeoutError")
-            return
+    try:
+        text = await response.text()
+    except asyncio.exceptions.TimeoutError:
+        debug(f"[{channelid}] TimeoutError")
+        return
 
-        xml = feedparser.parse(text)
-        first_video = xml["entries"][0]["link"]
+    xml = feedparser.parse(text)
+    first_video = xml["entries"][0]["link"]
 
-        cur = await conn.cursor()
+    cur = await conn.cursor()
 
-        sql = 'SELECT * FROM videos WHERE channelid="{id}"'
-        channels = await cur.execute(sql.format(
-            id=feed["channelid"]
-        ))
+    channels = await cur.execute(f'SELECT * FROM videos WHERE channelid="{channelid}"')
+    channels = await channels.fetchall()
 
-        channels = await channels.fetchall()
-
-        if len(channels) == 0:
-            await bot.send_message(feed["chatid"], first_video)
-            await saveVideo(feed["channelid"], first_video)
+    if len(channels) == 0:
+        await bot.send_message(chatid, first_video)
+        await saveVideo(channelid, first_video)
+    else:
+        if first_video in json.loads(channels[0][1]):
+            pass
         else:
-            if first_video in json.loads(channels[0][1]):
-                pass
-            else:
-                message = await bot.send_message(feed["chatid"], first_video)
-                await bot.pin_chat_message(
-                    feed["chatid"],
-                    message.message_id,
-                    disable_notification=True
-                )
+            message = await bot.send_message(chatid, first_video)
+            await bot.pin_chat_message(
+                chatid,
+                message.message_id,
+                disable_notification=True
+            )
 
-                await saveVideo(feed["channelid"], first_video)
+            await saveVideo(channelid, first_video)
 
-        await conn.commit()
+    await conn.commit()
+
+
+async def rss_timer():
+    for feed in RSS_FEEDS:
+        await rss_task(feed["url"], feed["channelid"], feed["chatid"])
 
 
 async def saveVideo(channelid, link):
