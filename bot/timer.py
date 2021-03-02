@@ -1,21 +1,28 @@
 import asyncio
 import json
 
+from logging import log, debug, info
+
 from .config import conn, bot, DELAY, RSS_FEEDS
 from .lib.aioget import aioget
 
 import feedparser
 
 
-async def timer():
+async def rss_task():
     for feed in RSS_FEEDS:
-        response = await aioget(feed["url"])
-        cur = await conn.cursor()
+        response = await aioget(feed["url"], timeout=3)
 
-        text = await response.text()
+        try:
+            text = await response.text()
+        except asyncio.exceptions.TimeoutError:
+            debug(f"[{feed['channelid']}] TimeoutError")
+            return
 
         xml = feedparser.parse(text)
         first_video = xml["entries"][0]["link"]
+
+        cur = await conn.cursor()
 
         sql = 'SELECT * FROM videos WHERE channelid="{id}"'
         channels = await cur.execute(sql.format(
@@ -67,8 +74,3 @@ async def saveVideo(channelid, link):
     ))
 
     await conn.commit()
-
-
-def repeat(coro, loop):
-    asyncio.ensure_future(coro(), loop=loop)
-    loop.call_later(DELAY, repeat, coro, loop)

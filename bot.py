@@ -1,18 +1,27 @@
 import asyncio
+import aioschedule
 
 from aiogram import executor
 
 from bot import *  # noqa
 from bot.config import dp, DELAY, ENABLE_RSS
-from bot.timer import timer, repeat
+from bot.timer import rss_task
 
-try:
-    loop = asyncio.get_event_loop()
-except RuntimeError:
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
 
-if ENABLE_RSS:
-    loop.call_later(DELAY, repeat, timer, loop)
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
-executor.start_polling(dp, loop=loop)
+
+async def scheduler():
+    aioschedule.every(DELAY).seconds.do(rss_task)
+
+    while True:
+        await aioschedule.run_pending()
+
+
+async def startup(x):
+    if ENABLE_RSS:
+        asyncio.create_task(scheduler())
+
+
+executor.start_polling(dp, loop=loop, on_startup=startup)
