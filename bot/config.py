@@ -8,6 +8,8 @@ from os import environ
 import coloredlogs
 from aiogram import Bot, Dispatcher
 
+from .lib.filters import NoRunningJobFilter
+
 try:
     with open("config.json") as file:
         config = json.loads(file.read())
@@ -31,7 +33,7 @@ RSS_FEEDS = [
     }
 ]
 
-DELAY = 10
+DELAY = 15
 DATABASE_PATH = "jdandb.db"
 IMAGE_PATH = "bot/cache/{image}.jpg"
 START_TIME = datetime.now()
@@ -46,6 +48,7 @@ coloredlogs.install(fmt="%(asctime)s %(levelname)s %(message)s",
                     level="INFO",
                     logger=logger)
 
+logging.getLogger("schedule").addFilter(NoRunningJobFilter())
 
 async def connect_db():
     return await aiosqlite.connect(DATABASE_PATH)
