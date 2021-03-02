@@ -1,10 +1,10 @@
+import asyncio
 import json
 import logging
-import asyncio
-import aiosqlite
 from datetime import datetime
 from os import environ
 
+import aiosqlite
 import coloredlogs
 from aiogram import Bot, Dispatcher
 
