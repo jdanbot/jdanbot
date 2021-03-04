@@ -68,7 +68,7 @@ async def john(message):
 
     try:
         rules = await getNote(message.chat.id, "__rules__")
-        await message.answer(rules)
+        await message.answer(rules, parse_mode="MarkdownV2")
     except TypeError:
         pass
 
