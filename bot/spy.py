@@ -1,11 +1,11 @@
 from .config import dp, conn
-from .data import data
+from .locale import locale
 from .lib.prettyword import prettyword
 from .lib.html import code
 
 
 def getPrettyUsersName(users):
-    return prettyword(len(users), data.users)
+    return prettyword(len(users), locale.users)
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,

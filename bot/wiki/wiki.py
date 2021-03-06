@@ -1,7 +1,7 @@
 from ..lib.fixWords import fixWords
 from ..lib.cutecrop import cuteCrop
 from ..lib.html import bold
-from ..data import data
+from ..locale import locale
 from ..config import bot, dp, logging
 
 import aiogram
@@ -9,10 +9,22 @@ import aiogram
 from wikipya.aiowiki import Wikipya, NotFound
 
 
+WGR_FLAG = (
+    "https://upload.wikimedia.org/wikipedia/commons/thumb" +
+    "/8/85/Flag_of_Belarus.svg/1000px-Flag_of_Belarus.svg.png"
+)
+
+WRW_FLAG = (
+    "https://upload.wikimedia.org/wikipedia/commons/thumb" +
+    "/5/50/Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg" +
+    "/1000px-Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg.png"
+)
+
+
 async def wikiSearch(message, lang="ru", logs=False):
     opts = message.text.split(maxsplit=1)
     if len(opts) == 1:
-        await message.reply(data.wikierror.format(opts[0]),
+        await message.reply(locale.wikierror.format(opts[0]),
                             parse_mode="Markdown")
         return
 
@@ -42,7 +54,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
     if name is None:
         opts = message.text.split(maxsplit=1)
         if len(opts) == 1:
-            await message.reply(data.wikierror.format(opts[0]),
+            await message.reply(locale.wikierror.format(opts[0]),
                                 parse_mode="Markdown")
             return
 
@@ -109,8 +121,8 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
             pass
 
     else:
-        if image == data.belarus_flag.old:
-            image = data.belarus_flag.new
+        if image == WGR_FLAG:
+            image = WRW_FLAG
 
         await bot.send_chat_action(message.chat.id, "upload_photo")
 
@@ -127,17 +139,17 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
 
 @dp.message_handler(commands=["langs", "wikilangs", "wiki_langs"])
 async def getLangs(message):
-    await message.reply(data.langs, parse_mode="Markdown",
+    await message.reply(locale.langs, parse_mode="Markdown",
                         disable_web_page_preview=True)
 
 
 wikicommands = []
 
-for lang in data.langs_list:
+for lang in locale.langs_list:
     wikicommands.extend([f"wiki{lang}", f"w{lang}"])
 
-for lang in data.unique_commands._dict:
-    wikicommands.extend(data.unique_commands._dict[lang])
+for lang in locale.unique_commands.__dict__:
+    wikicommands.extend(locale.unique_commands.__dict__[lang])
 
 
 @dp.message_handler(commands=wikicommands)
@@ -146,13 +158,13 @@ async def wikihandler(message):
     lang = command.replace("/wiki", "") \
                   .replace("/w", "")
 
-    if lang in data.langs_list:
+    if lang in locale.langs_list:
         await getWiki(message, command)
         return
 
     else:
-        for lang in data.unique_commands.__dict__:
-            if command[1:] in data.unique_commands.__dict__[lang]:
+        for lang in locale.unique_commands.__dict__:
+            if command[1:] in locale.unique_commands.__dict__[lang]:
                 await getWiki(message, lang)
                 break
 
@@ -164,7 +176,7 @@ async def wikis(message):
 
 @dp.message_handler(commands=["wiki_usage"])
 async def wiki_usage(message):
-    await message.reply(data.wiki_query_example, parse_mode="Markdown")
+    await message.reply(locale.wiki_query_example, parse_mode="Markdown")
 
 
 @dp.message_handler(lambda message: message.text.startswith("/w_"))

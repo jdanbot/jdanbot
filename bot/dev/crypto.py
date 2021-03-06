@@ -2,7 +2,7 @@ import hashlib
 from random import choice
 
 from ..config import dp
-from ..data import data
+from ..locale import locale
 from ..lib import handlers
 from ..lib.html import code
 
@@ -16,7 +16,7 @@ async def sha256(message, text):
     await message.reply(crypt)
 
 
-@dp.message_handler(commands=["generate_password"])
+@dp.message_handler(commands=["generate_password", "password"])
 @handlers.parse_arguments(2)
 async def password(message, options):
     try:
@@ -26,7 +26,7 @@ async def password(message, options):
         return
 
     if password_len > 4096:
-        await message.reply(data.errors.message_len,
+        await message.reply(locale.errors.message_len,
                             parse_mode="Markdown")
         return
 

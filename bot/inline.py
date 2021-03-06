@@ -1,5 +1,5 @@
 from .config import bot, dp
-from .data import data
+from .locale import locale
 
 from aiogram.types import InputTextMessageContent, \
                           InlineQueryResultAudio, InlineQueryResultArticle
@@ -38,7 +38,7 @@ async def query_text(query):
                                                     thumb_url=img.source))
 
         except NotFound:
-            default_image = data.default_wiki_image
+            default_image = locale.default_wiki_image
             buttons.append(InlineQueryResultArticle(**btn_defaults,
                                                     thumb_url=default_image))
 

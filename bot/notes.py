@@ -1,7 +1,7 @@
 from .lib.prettyword import prettyword
 from .config import bot, dp, conn
 from .lib.html import code
-from .data import data
+from .locale import locale
 
 
 async def addNote(chatid, name, text):
@@ -57,7 +57,7 @@ async def cool_secret(message):
     if len(opt) == 1:
         await message.reply("Введи имя заметки для удаления")
 
-    if opt[1] in data.adminNotes and message.chat.type == "supergroup":
+    if opt[1] in locale.adminNotes and message.chat.type == "supergroup":
         if await check_admin(message, bot):
             await removeNote(message.chat.id, opt[1])
         else:
@@ -82,7 +82,7 @@ async def notes(message):
                 await message.reply(note)
 
     else:
-        if opt[0] in data.adminNotes and message.chat.type == "supergroup":
+        if opt[0] in locale.adminNotes and message.chat.type == "supergroup":
             if await check_admin(message, bot):
                 await addNote(chatid, opt[0], opt[1])
                 await message.reply("Добавил системную заметку в бд")

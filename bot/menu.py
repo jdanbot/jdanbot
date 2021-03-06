@@ -1,7 +1,7 @@
 import aiogram
 
 from .config import bot, dp
-from .data import data
+from .locale import locale
 
 keyboard = aiogram.types.InlineKeyboardMarkup()
 
@@ -18,7 +18,7 @@ buttons = [
 
 for ind, button in enumerate(buttons):
     buttons[ind] = aiogram.types.InlineKeyboardButton(text=button[0],
-                                                      callback_data=button[1])
+                                                      callback_locale=button[1])
 
 for ind, _button in enumerate(buttons):
     a = buttons[ind:ind + 2]
@@ -28,14 +28,14 @@ for ind, _button in enumerate(buttons):
 
 @dp.message_handler(commands=["new_menu", "start", "help"])
 async def menu(message):
-    await message.reply(data.menu.main, parse_mode="HTML",
+    await message.reply(locale.menu.main, parse_mode="HTML",
                         reply_markup=keyboard)
 
 
 @dp.callback_query_handler(lambda call: True and
-                           call.data in list(data.menu._dict.keys()))
+                           call.locale in list(locale.menu.__dict__.keys()))
 async def callback_worker(call):
-    await edit(call, data.menu._dict[call.data])
+    await edit(call, locale.menu._dict[call.locale])
 
 
 async def edit(call, text):

@@ -1,5 +1,5 @@
 from ..config import bot, IMAGE_PATH
-from ..data import data
+from ..locale import locale
 from .photo import Photo
 
 
@@ -9,7 +9,7 @@ def parse_arguments(limit, without_params=False):
             params = message.text.split(maxsplit=limit - 1)
 
             if len(params) < limit and not without_params:
-                await message.reply(data.errors.few_args.format(num=limit),
+                await message.reply(locale.errors.few_args.format(num=limit),
                                     parse_mode="Markdown")
             else:
                 await func(message, params)
@@ -71,7 +71,7 @@ def get_text(func):
         elif len(params) == 2:
             text = params[1]
         else:
-            await message.reply(data.errors.few_args.format(num=1),
+            await message.reply(locale.errors.few_args.format(num=1),
                                 parse_mode="Markdown")
             return
 

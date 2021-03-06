@@ -1,0 +1,15 @@
+eggs:
+  - commands: [java1]
+    audio: java.ogg
+
+  - commands: [cool_music]
+    audio: music.ogg
+
+  - commands: [cum]
+    audio: cum.ogg
+
+  - commands: [longcum]
+    audio: longcum.ogg
+
+  - commands: [lyagushka, frog]
+    audio: lyagushka.ogg
