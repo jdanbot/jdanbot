@@ -4,7 +4,7 @@ import aioschedule
 from aiogram import executor
 
 from bot import *  # noqa
-from bot.config import dp, DELAY, ENABLE_RSS
+from bot.config import dp, DELAY, RSS
 from bot.timer import rss_timer
 
 
@@ -17,10 +17,11 @@ async def scheduler():
 
     while True:
         await aioschedule.run_pending()
+        await asyncio.sleep(5)
 
 
 async def startup(x):
-    if ENABLE_RSS:
+    if RSS:
         asyncio.create_task(scheduler())
 
 

@@ -1,0 +1,15 @@
+# General settings
+token: 1234567890:AAAAAAAA_AAAAAAAAAAAAAAAAAAAAAAAAAA
+status: develop
+
+# RSS settings
+rss: False
+rss_feeds:
+  -  chatid: -000000000000
+     channelid: name of channel
+     url: ""
+delay: 30
+
+# Path settings
+db_path: jdanbot.db
+images_path: bot/cache/{image}.jpg
