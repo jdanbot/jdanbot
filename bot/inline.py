@@ -5,6 +5,7 @@ from aiogram.types import InputTextMessageContent, \
                           InlineQueryResultAudio, InlineQueryResultArticle
 from wikipya.aiowiki import Wikipya, NotFound
 from bs4 import BeautifulSoup
+from random import randint, choice
 
 from .lib import chez
 
@@ -43,6 +44,39 @@ async def query_text(query):
                                                     thumb_url=default_image))
 
     await bot.answer_inline_query(query.id, buttons)
+
+
+@dp.inline_handler(lambda query: len(query.query) == 0)
+async def cock(query):
+    cock_size = randint(0, 46)
+    if cock_size == 46:
+        cock_size = 1488
+
+    person = choice(locale.persons)
+
+    await bot.answer_inline_query(query.id, [
+        InlineQueryResultArticle(
+            id=5,
+            title="Вычислить кок сайз",
+            description="Новая иновационная система вычисляет длину члена"
+                        " очень точно. Достаточно приложить хуй к экрану",
+            input_message_content=InputTextMessageContent(
+                message_text=f"🏳️‍🌈 Размер моего хуя *{cock_size}см*",
+                parse_mode="Markdown"
+            )
+        ),
+
+        InlineQueryResultArticle(
+            id=6,
+            title="Кто я из Профсоюза?",
+            description="Определяет кто вы в профсоюзе. Точность 100%",
+            input_message_content=InputTextMessageContent(
+                message_text=f"В профсоюзе вы *{person['name']}*\n\n"
+                             f"__{person['description']}__",
+                parse_mode="Markdown"
+            )
+        )
+    ], cache_time=1)
 
 
 @dp.inline_handler(lambda query: len(query.query) > 0)
