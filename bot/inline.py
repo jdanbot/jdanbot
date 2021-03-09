@@ -71,7 +71,7 @@ async def cock(query):
             title="Кто я из Профсоюза?",
             description="Определяет кто вы в профсоюзе. Точность 100%",
             input_message_content=InputTextMessageContent(
-                message_text=f"В профсоюзе вы *{person['name']}*\n\n"
+                message_text=f"В профсоюзе я *{person['name']}*\n\n"
                              f"__{person['description']}__",
                 parse_mode="Markdown"
             )
