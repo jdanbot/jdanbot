@@ -18,7 +18,7 @@ async def admin_mut(message, params):
                    "<b>Срок:</b> <code>{time}</code> минут"
 
     await message.reply(ban_template.format(
-        name=message.from_user.full_name,
+        name=reply.from_user.full_name,
         why=params[-1] if len(params) == 3 else "не указана",
         time=params[1]
     ), parse_mode="HTML")
