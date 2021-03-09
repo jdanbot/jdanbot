@@ -1,4 +1,5 @@
 from ..config import bot, IMAGE_PATH
+from ..notes import check_admin
 from ..locale import locale
 from .photo import Photo
 
@@ -83,6 +84,15 @@ def get_text(func):
 def only_jdan(func):
     async def wrapper(message):
         if message.from_user.id == 795449748:
+            await func(message)
+
+    return wrapper
+
+
+def only_admins(func):
+    async def wrapper(message):
+        if message.chat.type == "supergroup" and \
+           await check_admin(message, bot):
             await func(message)
 
     return wrapper
