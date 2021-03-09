@@ -18,7 +18,7 @@ buttons = [
 
 for ind, button in enumerate(buttons):
     buttons[ind] = aiogram.types.InlineKeyboardButton(text=button[0],
-                                                      callback_locale=button[1])
+                                                      callback_data=button[1])
 
 for ind, _button in enumerate(buttons):
     a = buttons[ind:ind + 2]
@@ -33,9 +33,9 @@ async def menu(message):
 
 
 @dp.callback_query_handler(lambda call: True and
-                           call.locale in list(locale.menu.__dict__.keys()))
+                           call.data in list(locale.menu.__dict__.keys()))
 async def callback_worker(call):
-    await edit(call, locale.menu._dict[call.locale])
+    await edit(call, locale.menu.__dict__[call.data])
 
 
 async def edit(call, text):
