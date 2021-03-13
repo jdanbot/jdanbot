@@ -1,7 +1,8 @@
 import time
 
-from .lib import handlers
 from .config import bot, dp
+from .locale import locale
+from .lib import handlers
 
 
 @dp.message_handler(commands=["mute"])
@@ -13,12 +14,18 @@ async def admin_mut(message, params):
     await bot.restrict_chat_member(message.chat.id, reply.from_user.id,
                                    until_date=time.time() + ban_time)
 
-    ban_template = "Выдан мут на имя <b>{name}</b>\n\n" + \
-                   "<b>Причина:</b> {why}\n" + \
-                   "<b>Срок:</b> <code>{time}</code> минут"
-
-    await message.reply(ban_template.format(
+    ban_log = locale.ban_template.format(
         name=reply.from_user.full_name,
         why=params[-1] if len(params) == 3 else "не указана",
         time=params[1]
-    ), parse_mode="HTML")
+    )
+
+    await message.reply(ban_log, parse_mode="HTML")
+
+    if message.chat.id == -1001176998310:
+        await bot.forward_message(-1001334412934,
+                                  -1001176998310,
+                                  reply.message_id)
+
+        await bot.send_message(-1001334412934, ban_log,
+                               parse_mode="HTML")
