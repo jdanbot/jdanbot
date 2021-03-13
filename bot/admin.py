@@ -16,6 +16,7 @@ async def admin_mut(message, params):
 
     ban_log = locale.ban_template.format(
         name=reply.from_user.full_name,
+        userid=reply.from_user.id,
         why=params[-1] if len(params) == 3 else "не указана",
         time=params[1]
     )
