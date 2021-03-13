@@ -63,4 +63,4 @@ ban_template: |
                 <b>{banchik}</b> выдал мут <a href="tg://user?id={userid}"><b>{name}</b></a>
 
                 <b>Причина:</b> {why}
-                <b>Срок:</b> <code>{time}</code> минут
+                <b>Срок:</b> {time} {time_localed}

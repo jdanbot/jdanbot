@@ -3,6 +3,7 @@ import time
 from .config import bot, dp
 from .locale import locale
 from .lib import handlers
+from .lib.prettyword import prettyword
 
 
 @dp.message_handler(commands=["mute"])
@@ -19,7 +20,8 @@ async def admin_mut(message, params):
         banchik=message.from_user.full_name,
         userid=reply.from_user.id,
         why=params[-1] if len(params) == 3 else "не указана",
-        time=params[1]
+        time=params[1],
+        time_localed=prettyword(int(params[1]), locale.minutes)
     )
 
     await message.reply(ban_log, parse_mode="HTML")
