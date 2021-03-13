@@ -60,7 +60,7 @@ ban_list:
       - Ура, председатель пришел))
 
 ban_template: |
-                {banchik} выдал мут <a href="tg://user?id={userid}"><b>{name}</b></a>
+                <b>{banchik}</b> выдал мут <a href="tg://user?id={userid}"><b>{name}</b></a>
 
                 <b>Причина:</b> {why}
                 <b>Срок:</b> <code>{time}</code> минут
