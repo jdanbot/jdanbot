@@ -40,3 +40,14 @@ async def admin_mut(message, params):
     except Exception:
         await message.reply(ban_log, parse_mode="HTML")
 
+
+@dp.message_handler(commands=["katz_poll"])
+@handlers.parse_arguments(2)
+async def kz_poll(message, params):
+    await bot.send_poll(message.chat.id, params[1], [
+                            "Да",
+                            "Нет",
+                            "Воздержусь",
+                            "Нет прав"
+                        ], is_anonymous=False)
+    await message.delete()
