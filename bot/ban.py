@@ -58,8 +58,14 @@ async def call_admin(call):
 
 @dp.message_handler(content_types=["new_chat_members"])
 async def john(message):
-    if message.chat.id != -1001319828458 and \
-       message.chat.id != -1001189395000 and \
+    try:
+        greatings = await getNote(message.chat.id, "__enable_greatings__")
+    except:
+        greatings = False
+
+    greatings = True if greatings == "True" else False
+
+    if greatings and \
        not message.from_user.id == 795449748:
         await message.reply(f'{choice(locale.greatings)}?')
 
