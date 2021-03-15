@@ -8,7 +8,7 @@ from ..config import dp
 from ..lib import handlers
 from ..lib.aioget import aioget
 from ..lib.convert_bytes import convert_bytes
-from ..lib.html import code
+from ..lib.text import code
 from ..lib.libtree import make_tree
 
 

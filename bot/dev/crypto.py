@@ -4,7 +4,7 @@ from random import choice
 from ..config import dp
 from ..locale import locale
 from ..lib import handlers
-from ..lib.html import code
+from ..lib.text import code
 
 
 @dp.message_handler(commands=["sha256"])

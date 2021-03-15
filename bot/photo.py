@@ -2,7 +2,7 @@ from random import choice
 
 from .config import bot, dp
 from .lib import handlers
-from .lib.html import bold, code
+from .lib.text import bold, code
 from .lib.photo import Photo
 
 

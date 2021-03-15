@@ -1,5 +1,5 @@
 from ..config import bot, dp
-from ..lib.html import code
+from ..lib.text import code
 from ..lib.lurkmore import Lurkmore
 
 lurk = Lurkmore()

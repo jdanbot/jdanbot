@@ -3,7 +3,7 @@ import time
 from .config import bot, dp
 from .locale import locale
 from .lib import handlers
-from .lib.prettyword import prettyword
+from .lib.text import prettyword
 
 
 @dp.message_handler(commands=["mute"])

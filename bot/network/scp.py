@@ -2,9 +2,7 @@ import pyscp
 
 from ..config import dp, logging
 from ..lib import handlers
-from ..lib.cutecrop import cuteCrop
-from ..lib.fixHTML import fixHTML
-from ..lib.html import bold, code 
+from ..lib.text import bold, code, cuteCrop, fixHTML
 
 
 def format_scp(p):
