@@ -2,7 +2,7 @@ import traceback
 import subprocess
 
 from ..config import bot, dp
-from ..lib.html import code
+from ..lib.text import code
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,

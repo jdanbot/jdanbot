@@ -1,4 +1,4 @@
-from ..lib.html import code
+from ..lib.text import code
 from ..config import bot, dp
 from ..locale import locale
 from ..lib import chez, handlers

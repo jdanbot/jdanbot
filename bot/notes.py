@@ -1,6 +1,5 @@
-from .lib.prettyword import prettyword
 from .config import bot, dp, conn
-from .lib.html import code
+from .lib.text import code, prettyword
 from .locale import locale
 
 

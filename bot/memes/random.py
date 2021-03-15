@@ -1,4 +1,4 @@
-from ..lib.prettyword import prettyword
+from ..lib.text import prettyword
 from ..locale import locale
 from ..config import dp
 
