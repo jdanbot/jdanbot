@@ -1,4 +1,4 @@
-from .config import dp, conn
+from .config import bot, dp, conn
 from .locale import locale
 from .lib.prettyword import prettyword
 from .lib.html import code
@@ -6,6 +6,36 @@ from .lib.html import code
 
 def getPrettyUsersName(users):
     return prettyword(len(users), locale.users)
+
+
+@dp.message_handler(commands=["me"])
+async def me_info(message):
+    msg_template = (
+        "*Full name:* {name}\n" +
+        "*ID:* `{id}`\n\n" +
+        "*Common chats*: `{chats}`\n" +
+        "*User status*: {status}"
+    )
+
+    cur = await conn.cursor()
+    sql = "SELECT * FROM events WHERE id={id}"
+
+    e = await cur.execute(sql.format(
+        id=message.from_user.id
+    ))
+
+    chats = len(await e.fetchall())
+    user = await bot.get_chat_member(
+        message.chat.id,
+        message.from_user.id
+    )
+
+    await message.reply(msg_template.format(
+        name=message.from_user.full_name,
+        id=message.from_user.id,
+        chats=chats,
+        status=user.status
+    ), parse_mode="Markdown")
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,
