@@ -2,8 +2,7 @@ from pyduckgo import Duck
 
 from ..config import dp
 from ..lib import handlers
-from ..lib.fixWords import fixWords
-from ..lib.html import bold
+from ..lib.text import bold, fixWords
 
 duck = Duck()
 

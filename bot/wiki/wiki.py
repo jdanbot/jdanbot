@@ -1,6 +1,4 @@
-from ..lib.fixWords import fixWords
-from ..lib.cutecrop import cuteCrop
-from ..lib.html import bold
+from ..lib.text import bold, cuteCrop, fixWords
 from ..locale import locale
 from ..config import bot, dp, logging
 

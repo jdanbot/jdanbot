@@ -2,7 +2,7 @@ from art import text2art
 
 from ..config import dp
 from ..lib import handlers
-from ..lib.html import code
+from ..lib.text import code
 
 
 @dp.message_handler(commands=["art"])

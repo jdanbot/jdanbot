@@ -1,7 +1,6 @@
 from .config import bot, dp, conn
 from .locale import locale
-from .lib.prettyword import prettyword
-from .lib.html import code
+from .lib.text import code, prettyword
 
 
 def getPrettyUsersName(users):

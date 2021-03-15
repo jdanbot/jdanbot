@@ -5,7 +5,7 @@ from .locale import locale
 from .memes.random import random_putin, random_lukash
 
 from .spy import activateSpy
-from .lib.html import code
+from .lib.text import code
 
 from random import choice, randint
 from .notes import getNote
