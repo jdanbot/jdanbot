@@ -6,6 +6,7 @@ aioschedule
 coloredlogs
 feedparser
 pyduckgo==0.1.4
+pymemeru
 python-mpv
 aiogram
 pyyaml
