@@ -10,7 +10,7 @@ from .lib.text import prettyword
 @handlers.only_admins
 @handlers.parse_arguments(3, True)
 async def admin_mut(message, params):
-    ban_time = int(params[1]) * 60
+    ban_time = float(params[1]) * 60
     reply = message.reply_to_message
     await bot.restrict_chat_member(message.chat.id, reply.from_user.id,
                                    until_date=time.time() + ban_time)
@@ -21,7 +21,7 @@ async def admin_mut(message, params):
         userid=reply.from_user.id,
         why=params[-1] if len(params) == 3 else "не указана",
         time=params[1],
-        time_localed=prettyword(int(params[1]), locale.minutes)
+        time_localed=prettyword(float(params[1]), locale.minutes)
     )
 
     if message.chat.id == -1001176998310:
