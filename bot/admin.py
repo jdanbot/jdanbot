@@ -50,7 +50,6 @@ async def admin_mut(message, params):
         await message.reply(ban_log, parse_mode="HTML")
 
 
-<<<<<<< HEAD
 @dp.message_handler(commands=["selfmute"])
 @handlers.parse_arguments(2, True)
 async def self_mut(message, params):
@@ -91,8 +90,6 @@ async def self_mut(message, params):
         await message.reply(ban_log, parse_mode="HTML")
 
 
-=======
->>>>>>> origin/Aphanasiy
 def calc_ban_time(time):
     if time == 0:
         return "никогда))"
