@@ -13,7 +13,7 @@ async def ban(
         reason = "Причина не указана"
         ):
         
-    if time < 1:
+    if int(time) < 1:
         time = 1
 
     try:
