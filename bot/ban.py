@@ -133,8 +133,8 @@ async def detect_text_message(message):
     if msg.find("яблоко") != -1 or \
        msg.find("яблочн") != -1:
         await message.reply(locale.ban.apple)
-
-    if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нn]([^a-zа-яё\d]|$)",
+    
+    if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нnh]([^a-zа-яё\d]|$)",
                  message.text
                         .lower()
                         .replace("H", "н")
