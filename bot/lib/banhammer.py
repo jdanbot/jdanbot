@@ -7,12 +7,12 @@ from .text import prettyword
 
 
 
-async def ban(blocker_message,
+async def ban(
+        blocker_message,
         blockable_message,
         time,
         reason = "Причина не указана"
         ):
-    
     try:
         ban_time = math.ceil(float(time))
     except ValueError:
