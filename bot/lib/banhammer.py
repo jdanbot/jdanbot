@@ -9,7 +9,7 @@ from .text import prettyword
 async def ban(
         blocker_message,
         blockable_message,
-        time,
+        time = 1,
         reason = "Причина не указана"
         ):
         
