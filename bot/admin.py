@@ -32,3 +32,4 @@ async def kz_poll(message, params):
                             "Нет прав"
                         ], is_anonymous=False)
     await message.delete()
+ 
