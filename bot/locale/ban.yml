@@ -64,3 +64,5 @@ ban_template: |
 
                 <b>Причина:</b> {why}
                 <b>Срок:</b> {time} {time_localed}
+
+                <b>Разбан when:</b> {unban_time}
