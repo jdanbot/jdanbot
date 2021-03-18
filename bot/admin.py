@@ -17,7 +17,7 @@ async def admin_mut(message, params):
 
     
 @dp.message_handler(commands=["selfmute"])
-@handlers.parse_arguments(2, False)
+@handlers.parse_arguments(2)
 async def self_mut(message, params):
     await ban(message, message, *params[1:])
 
