@@ -59,7 +59,7 @@ def calc_ban_time(time):
         return "никогда))"
 
     ts = datetime.now(TIMEZONE).timestamp() + time * 60
-    return datetime.fromtimestamp(ts)
+    return TIMEZONE.localize(datetime.fromtimestamp(ts))
 
 
 @dp.message_handler(commands=["katz_poll"])
