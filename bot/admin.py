@@ -54,7 +54,8 @@ async def admin_mut(message, params):
 @handlers.parse_arguments(2, True)
 async def self_mut(message, params):
     try:
-        ban_time = float(params[1])
+        ban_time = int(params[1])
+        ban_time = 1 if ban_time == 0 else ban_time
     except ValueError:
         bt = datetime.time.fromisoformat(params[1])
         ban_time = bt.hour + bt.minute
