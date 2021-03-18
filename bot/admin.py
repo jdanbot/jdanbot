@@ -53,6 +53,8 @@ async def admin_mut(message, params):
 @dp.message_handler(commands=["selfmute"])
 @handlers.parse_arguments(2, True)
 async def self_mut(message, params):
+    reply = message.reply_to_message
+
     try:
         ban_time = int(params[1])
         ban_time = 1 if ban_time == 0 else ban_time
