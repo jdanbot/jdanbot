@@ -2,7 +2,7 @@ import datetime
 import math
 
 
-from ..config import TIMEZONE
+from ..config import bot, dp, TIMEZONE
 from ..locale import locale
 from .text import prettyword
 
@@ -20,7 +20,7 @@ async def ban(
         bt = datetime.time.fromisoformat(time)
         ban_time = bt.hour + bt.minute
 
-    until_date = datetime.datetime.now() + datetime.timedelta(minutes = ban_time)
+    until_date = datetime.datetime.now(TIMEZONE) + datetime.timedelta(minutes=ban_time)
     await bot.restrict_chat_member(blocker_message.chat.id, blockable_message.from_user.id,
                                    until_date=until_date.timestamp())
 
