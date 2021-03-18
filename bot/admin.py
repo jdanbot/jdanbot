@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 
-from .config import bot, dp
+from .config import bot, dp, TIMEZONE
 from .locale import locale
 from .lib import handlers
 from .lib.text import prettyword
@@ -18,8 +18,8 @@ async def admin_mut(message, params):
     except ValueError:
         date = params[1].split(":")
 
-        hour = (int(date[0]) - datetime.now().hour) * 60
-        minute = int(date[1]) - datetime.now().minute
+        hour = (int(date[0]) - datetime.now(TIMEZONE).hour) * 60
+        minute = int(date[1]) - datetime.now(TIMEZONE).minute
 
         ban_time = hour + minute
 
@@ -34,7 +34,7 @@ async def admin_mut(message, params):
         why=params[-1] if len(params) == 3 else "не указана",
         time=params[1],
         time_localed=prettyword(ban_time, locale.minutes),
-        unban_time=calc_ban_time(ban_time).strftime("%Y-%m-%d %I:%M:%S")
+        unban_time=calc_ban_time(ban_time).strftime("%Y-%m-%d %H:%M:%S")
     )
 
     if message.chat.id == -1001176998310:
@@ -58,7 +58,7 @@ def calc_ban_time(time):
     if time == 0:
         return "никогда))"
 
-    ts = datetime.now().timestamp() + time * 60
+    ts = datetime.now(TIMEZONE).timestamp() + time * 60
     return datetime.fromtimestamp(ts)
 
 

@@ -13,5 +13,6 @@ pyyaml
 pillow
 psutil
 pyscp
+pytz
 lxml
 art

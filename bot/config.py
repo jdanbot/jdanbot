@@ -2,6 +2,7 @@ import aiosqlite
 import coloredlogs
 import yaml
 from aiogram import Bot, Dispatcher
+from pytz import timezone
 
 import asyncio
 import logging
@@ -33,6 +34,7 @@ config.get("token")
 config.get("status", default="unknown")
 
 START_TIME = datetime.now()
+TIMEZONE = timezone("Europe/Moscow")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
