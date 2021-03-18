@@ -2,6 +2,7 @@ import datetime
 import math
 
 
+from ..config import TIMEZONE
 from ..locale import locale
 from .text import prettyword
 
