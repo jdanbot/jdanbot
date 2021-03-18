@@ -11,10 +11,21 @@ from .lib.text import prettyword
 @handlers.only_admins
 @handlers.parse_arguments(3, True)
 async def admin_mut(message, params):
-    ban_time = float(params[1])
     reply = message.reply_to_message
+
+    try:
+        ban_time = float(params[1])
+    except ValueError:
+        date = params[1].split(":")
+
+        hour = (int(date[0]) - datetime.now().hour) * 60
+        minute = int(date[1]) - datetime.now().minute
+
+        ban_time = hour + minute
+
+    until_date = time.time() + ban_time * 60
     await bot.restrict_chat_member(message.chat.id, reply.from_user.id,
-                                   until_date=time.time() + ban_time * 60)
+                                   until_date=until_date)
 
     ban_log = locale.ban_template.format(
         name=reply.from_user.full_name,
@@ -23,7 +34,7 @@ async def admin_mut(message, params):
         why=params[-1] if len(params) == 3 else "не указана",
         time=params[1],
         time_localed=prettyword(ban_time, locale.minutes),
-        unban_time=calc_ban_time(ban_time)
+        unban_time=calc_ban_time(ban_time).strftime("%Y-%m-%d %I:%M:%S")
     )
 
     if message.chat.id == -1001176998310:
@@ -48,9 +59,7 @@ def calc_ban_time(time):
         return "никогда))"
 
     ts = datetime.now().timestamp() + time * 60
-    date = datetime.fromtimestamp(ts)
-
-    return date.strftime("%Y-%m-%d %I:%M:%S")
+    return datetime.fromtimestamp(ts)
 
 
 @dp.message_handler(commands=["katz_poll"])
