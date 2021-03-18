@@ -50,9 +50,6 @@ async def admin_mut(message, params):
         await message.reply(ban_log, parse_mode="HTML")
 
 
-
-
-
 def calc_ban_time(time):
     if time == 0:
         return "никогда))"
