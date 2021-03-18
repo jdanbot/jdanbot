@@ -26,7 +26,7 @@ async def ban(
     await bot.restrict_chat_member(blocker_message.chat.id, blockable_message.from_user.id,
                                    until_date=until_date.timestamp())
 
-    time_localed=prettyword(ban_time, locale.minutes),
+    time_localed=prettyword(ban_time, locale.minutes)
     unban_time=until_date.isoformat()
     
     ban_log = locale.ban_template.format(
@@ -52,7 +52,9 @@ async def ban(
         await bot.send_message(blockable_message.chat.id, ban_log,
                                reply_to_message_id=blockable_message.message_id,
                                parse_mode="HTML")
-        await blocker_message.delete()
+        
+        if blocker_message.message_id != blockable_message.message_id:
+            await blocker_message.delete()
     except Exception:
         await blocker_message.reply(ban_log, parse_mode="HTML")
 
