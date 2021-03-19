@@ -1,11 +1,9 @@
 import datetime
 import math
 
-
 from ..config import bot, dp, TIMEZONE
 from ..locale import locale
 from .text import prettyword
-
 
 
 async def ban(
@@ -14,6 +12,10 @@ async def ban(
         time = 1,
         reason = "Причина не указана"
         ):
+        
+    if time < 1:
+        time = 1
+
     try:
         ban_time = math.ceil(float(time))
     except ValueError:
@@ -47,10 +49,10 @@ async def ban(
                                parse_mode="HTML")
 
     try:
-        await blocker_message.delete()
         await bot.send_message(blockable_message.chat.id, ban_log,
                                reply_to_message_id=blockable_message.message_id,
                                parse_mode="HTML")
+        await blocker_message.delete()
     except Exception:
         await blocker_message.reply(ban_log, parse_mode="HTML")
 
