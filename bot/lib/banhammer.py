@@ -12,11 +12,11 @@ async def ban(
         time = 1,
         reason = "Причина не указана"
         ):
-        
-    if int(time) < 1:
-        time = 1
 
     try:
+        if int(time) < 1:
+            time = 1
+
         ban_time = math.ceil(float(time))
     except ValueError:
         bt = datetime.time.fromisoformat(time)
