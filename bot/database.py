@@ -10,8 +10,8 @@ warns = SQLTable("warns", conn)
 
 
 async def count_wtbans(user_id, chat_id,
-                       period=datatime.timedelta(hours=24)):
-    period_bound = int((datatime.datatime.now() - period).timestamp())
+                       period=datetime.timedelta(hours=24)):
+    period_bound = int((datetime.datatime.now() - period).timestamp())
     w = warns.select(where=[f"timestamp >= {period_bound}", f"{user_id = }", f"{chat_id = }"])
     return len(w)
 
