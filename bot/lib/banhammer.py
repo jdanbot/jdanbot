@@ -4,6 +4,7 @@ import math
 from ..config import bot, dp, TIMEZONE
 from ..locale import locale
 from .text import prettyword
+from .notes import getNote
 
 
 async def ban(
@@ -58,9 +59,33 @@ async def ban(
 
 
 
-def __calc_ban_time(time):
-    if time == 0:
-        return "никогда))"
+async def warn(
+    blocker_message,
+    blockable_message,
+    reason = "Причина не указана"
+    ):
+    #     ?
+    await warn_chat_member(blockable_message.chat.id, blockable_message.from_user.id)
+    #        ?
+    #       Здесь не нужен await
+    wtbans = check_wtbans(blockable_message.from_user.id, period=datatime.timedelta(hours=24))
+    
+    wtbans += 1
 
-    ts = datetime.now(TIMEZONE).timestamp() + time * 60
-    return TIMEZONE.localize(datetime.fromtimestamp(ts))
+    warn_log = locale.warn_template.format(
+        name=blockable_message.from_user.full_name,
+        banchik=blocker_message.from_user.full_name,
+        userid=blockable_message.from_user.id,
+        why=reason,
+        i=wtbans
+    )
+
+    await bot.send_message(blockable_message.chat.id, warn_log,
+                           reply_to_message_id=blockable_message.message_id,
+                           parse_mode="HTML")
+
+    #                    ?
+    if (bans == getNote("WARNS_TO_BAN")):
+        ban(blocker_message, blockable_message, "24:00", "Получено {bans+1}-е предупреждение. Автобан активирован")
+
+    blocker_message.delete()
