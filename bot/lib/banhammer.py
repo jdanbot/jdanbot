@@ -1,6 +1,6 @@
 import datetime
 import math
- 
+
 from ..config import bot, dp, TIMEZONE
 from ..locale import locale
 from ..notes import getNote
