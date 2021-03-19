@@ -18,7 +18,7 @@ async def ban(
 
     except ValueError:
         bt = datetime.time.fromisoformat(time)
-        ban_time = bt.hour + bt.minute
+        ban_time = bt.hour * 60 + bt.minute
 
     until_date = datetime.datetime.now(TIMEZONE) + datetime.timedelta(minutes=ban_time)
     await bot.restrict_chat_member(blocker_message.chat.id, blockable_message.from_user.id,
