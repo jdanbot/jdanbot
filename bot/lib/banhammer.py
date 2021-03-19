@@ -13,11 +13,8 @@ async def ban(
         reason = "Причина не указана"
         ):
         
-    if time < 1:
-        time = 1
-
     try:
-        ban_time = math.ceil(float(time))
+        ban_time = max(1, math.ceil(float(time)))
     except ValueError:
         bt = datetime.time.fromisoformat(time)
         ban_time = bt.hour + bt.minute
@@ -26,7 +23,7 @@ async def ban(
     await bot.restrict_chat_member(blocker_message.chat.id, blockable_message.from_user.id,
                                    until_date=until_date.timestamp())
 
-    time_localed=prettyword(ban_time, locale.minutes),
+    time_localed=prettyword(ban_time, locale.minutes)
     unban_time=until_date.isoformat()
     
     ban_log = locale.ban_template.format(
