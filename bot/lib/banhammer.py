@@ -71,7 +71,7 @@ async def warn(
                           period=datatime.timedelta(hours=24))
     mark_chat_member(blockable_message.from_user.id,
                      blockable_message.chat.id, 
-                     blocker_message.from_user.id
+                     blocker_message.from_user.id,
                      reason=reason
                      )
     
