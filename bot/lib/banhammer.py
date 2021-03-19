@@ -3,8 +3,8 @@ import math
 
 from ..config import bot, dp, TIMEZONE
 from ..locale import locale
+from ..notes import getNote
 from .text import prettyword
-from .notes import getNote
 
 
 async def ban(
