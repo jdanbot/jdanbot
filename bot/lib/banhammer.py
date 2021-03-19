@@ -96,8 +96,8 @@ async def warn(
                            parse_mode="HTML")
 
     #                    ?
-    if (wtbans == WARNS_TO_BAN):
+    if (wtbans >= WARNS_TO_BAN):
         await ban(blocker_message, blockable_message, "1440",
                   f"Получено {wtbans}-е предупреждение")
-
-    await blocker_message.delete()
+    else:
+        await blocker_message.delete()
