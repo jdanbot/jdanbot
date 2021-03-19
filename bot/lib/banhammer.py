@@ -65,8 +65,15 @@ async def warn(
     reason = "Причина не указана"
     ):
     #     ?
-    wtbans = await check_wtbans(blockable_message.from_user.id, period=datatime.timedelta(hours=24))
-    await warn_chat_member(blockable_message.chat.id, blockable_message.from_user.id)
+    # NO AWAITS IN NEXT 2 PHRASES!!! THE ORDER IS IMPORTANT
+    wtbans = count_wtbans(blockable_message.from_user.id, 
+                          blockable_message.chat.id, 
+                          period=datatime.timedelta(hours=24))
+    mark_chat_member(blockable_message.from_user.id
+                     blockable_message.chat.id, 
+                     blocker_message.from_user.id
+                     reason=reason
+                     )
     
     wtbans += 1
 
