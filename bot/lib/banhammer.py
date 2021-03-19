@@ -3,6 +3,8 @@ import math
 
 from ..config import bot, dp, TIMEZONE
 from ..locale import locale
+from ..notes import getNote
+from ..database import count_wtbans, mark_chat_member
 from .text import prettyword
 
 
@@ -32,7 +34,7 @@ async def ban(
         banchik=blocker_message.from_user.full_name,
         userid=blockable_message.from_user.id,
         why=reason,
-        time=time,
+        time=str(ban_time),
         time_localed=time_localed,
         unban_time=unban_time
     )
@@ -58,9 +60,36 @@ async def ban(
 
 
 
-def __calc_ban_time(time):
-    if time == 0:
-        return "никогда))"
+async def warn(
+    blocker_message,
+    blockable_message,
+    reason="Причина не указана"
+    ):
 
-    ts = datetime.now(TIMEZONE).timestamp() + time * 60
-    return TIMEZONE.localize(datetime.fromtimestamp(ts))
+    WARNS_TO_BAN = int(await getNote(blocker_message.chat.id, "__warns_to_ban__"))
+
+    wtbans = await count_wtbans(blockable_message.from_user.id,
+                                blockable_message.chat.id,
+                                period=datetime.timedelta(hours=23))
+    wtbans += 1
+
+    warn_log = locale.warn_template.format(
+        name=blockable_message.from_user.full_name,
+        banchik=blocker_message.from_user.full_name,
+        userid=blockable_message.from_user.id,
+        why=reason,
+        i=wtbans
+    )
+
+    await blockable_message.reply(warn_log, parse_mode="HTML")
+
+    if wtbans >= WARNS_TO_BAN:
+        await ban(blocker_message, blockable_message, "1440",
+                  f"получено {wtbans}-е предупреждение")
+    else:
+        await mark_chat_member(blockable_message.from_user.id,
+                               blockable_message.chat.id,
+                               blocker_message.from_user.id,
+                               reason=reason)
+        await blocker_message.delete()
+
