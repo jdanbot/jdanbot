@@ -32,7 +32,7 @@ async def ban(
         banchik=blocker_message.from_user.full_name,
         userid=blockable_message.from_user.id,
         why=reason,
-        time=time,
+        time=str(ban_time),
         time_localed=time_localed,
         unban_time=unban_time
     )
