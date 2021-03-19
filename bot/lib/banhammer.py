@@ -66,7 +66,11 @@ async def warn(
     reason="Причина не указана"
     ):
 
-    WARNS_TO_BAN = int(await getNote(blocker_message.chat.id, "__warns_to_ban__"))
+    try:
+        WARNS_TO_BAN = await getNote(blocker_message.chat.id, "__warns_to_ban__")
+        WARNS_TO_BAN = int(WARNS_TO_BAN)
+    except Exception:
+        WARNS_TO_BAN = 3
 
     wtbans = await count_wtbans(blockable_message.from_user.id,
                                 blockable_message.chat.id,

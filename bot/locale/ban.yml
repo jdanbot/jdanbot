@@ -68,6 +68,6 @@ ban_template: |
                 <b>Амнистия:</b> {unban_time}
 
 warn_template: |
-                <b>{banchik}</b> выдал {i}-е предупреждение <a href="tg://user?id={userid}"><b>{name}</b></a>
+                <b>{banchik}</b> выдал {i}-й пред <a href="tg://user?id={userid}"><b>{name}</b></a>
 
                 <b>Причина:</b> {why}

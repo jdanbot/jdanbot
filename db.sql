@@ -14,3 +14,11 @@ CREATE TABLE videos (
     channelid TEXT,
     links TEXT
 );
+
+CREATE TABLE warns (
+    user_id INTEGER,
+    admin_id INTEGER,
+    chat_id INTEGER,
+    timestamp TEXT,
+    reason TEXT
+);
