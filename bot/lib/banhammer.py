@@ -68,7 +68,7 @@ async def warn(
     await warn_chat_member(blockable_message.chat.id, blockable_message.from_user.id)
     #        ?
     #       Здесь не нужен await
-    wtbans = check_wtbans(blockable_message.from_user.id, period=datatime.timedelta(hours=24))
+    wtbans = await check_wtbans(blockable_message.from_user.id, period=datatime.timedelta(hours=24))
     
     wtbans += 1
 
@@ -86,6 +86,6 @@ async def warn(
 
     #                    ?
     if (bans == getNote("WARNS_TO_BAN")):
-        ban(blocker_message, blockable_message, "24:00", "Получено {bans+1}-е предупреждение. Автобан активирован")
+        await ban(blocker_message, blockable_message, "24:00", "Получено {bans+1}-е предупреждение. Автобан активирован")
 
-    blocker_message.delete()
+    await blocker_message.delete()
