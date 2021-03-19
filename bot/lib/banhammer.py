@@ -12,12 +12,10 @@ async def ban(
         time = 1,
         reason = "Причина не указана"
         ):
-
+      
     try:
-        if int(time) < 1:
-            time = 1
+        ban_time = max(1, math.ceil(float(time)))
 
-        ban_time = math.ceil(float(time))
     except ValueError:
         bt = datetime.time.fromisoformat(time)
         ban_time = bt.hour + bt.minute
@@ -52,7 +50,7 @@ async def ban(
         await bot.send_message(blockable_message.chat.id, ban_log,
                                reply_to_message_id=blockable_message.message_id,
                                parse_mode="HTML")
-        
+
         if blocker_message.message_id != blockable_message.message_id:
             await blocker_message.delete()
     except Exception:
