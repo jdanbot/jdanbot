@@ -69,7 +69,7 @@ async def warn(
     wtbans = count_wtbans(blockable_message.from_user.id, 
                           blockable_message.chat.id, 
                           period=datatime.timedelta(hours=24))
-    mark_chat_member(blockable_message.from_user.id
+    mark_chat_member(blockable_message.from_user.id,
                      blockable_message.chat.id, 
                      blocker_message.from_user.id
                      reason=reason
