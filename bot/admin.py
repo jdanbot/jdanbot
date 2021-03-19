@@ -15,7 +15,7 @@ async def admin_mut(message, params):
     reply = message.reply_to_message
     await ban(message, reply, *params[1:])
 
-    
+
 @dp.message_handler(commands=["selfmute", "selfban"])
 @handlers.parse_arguments(3, True)
 async def self_mut(message, params):
@@ -27,18 +27,21 @@ async def self_mut(message, params):
 @handlers.parse_arguments(2, True)
 async def admin_warn(message, params):
     reply = message.reply_to_message
-    await warn(message, reply, *params[1:])  
-
+    await warn(message, reply, *params[1:])
 
 
 @dp.message_handler(commands=["katz_poll"])
 @handlers.parse_arguments(2)
 async def kz_poll(message, params):
-    await bot.send_poll(message.chat.id, params[1], [
+    poll = await bot.send_poll(message.chat.id, params[1], [
                             "Да",
                             "Нет",
                             "Воздержусь",
                             "Нет прав"
                         ], is_anonymous=False)
+
+    if poll.chat.id == -1001334412934:
+        await poll.pin(disable_notification=True)
+
     await message.delete()
  
