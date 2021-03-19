@@ -4,8 +4,8 @@ import math
 from ..config import bot, dp, TIMEZONE
 from ..locale import locale
 from ..notes import getNote
+from ..database import count_wtbans, mark_chat_member
 from .text import prettyword
-from .database import count_wtbans, mark_chat_member
 
 
 async def ban(
