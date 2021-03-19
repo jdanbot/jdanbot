@@ -73,7 +73,7 @@ async def warn(
                                 period=datetime.timedelta(hours=23))
     wtbans += 1
 
-    if wtbans > WARNS_TO_BAN:
+    if wtbans >= WARNS_TO_BAN:
         await ban(blocker_message, blockable_message, "1440",
                   f"Получено {wtbans}-е предупреждение")
     else:
@@ -81,6 +81,7 @@ async def warn(
                                blockable_message.chat.id,
                                blocker_message.from_user.id,
                                reason=reason)
+        await blocker_message.delete()
 
 
     warn_log = locale.warn_template.format(
@@ -94,10 +95,3 @@ async def warn(
     await bot.send_message(blockable_message.chat.id, warn_log,
                            reply_to_message_id=blockable_message.message_id,
                            parse_mode="HTML")
-
-    #                    ?
-    if (wtbans >= WARNS_TO_BAN):
-        await ban(blocker_message, blockable_message, "1440",
-                  f"Получено {wtbans}-е предупреждение")
-    else:
-        await blocker_message.delete()
