@@ -58,7 +58,7 @@ ban_list:
 
     619489012:
       - Ура, председатель пришел))
-
+ 
 ban_template: |
                 <b>{banchik}</b> выдал мут <a href="tg://user?id={userid}"><b>{name}</b></a>
 
