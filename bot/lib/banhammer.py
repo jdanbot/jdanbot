@@ -81,6 +81,10 @@ async def warn(
         i=wtbans
     )
 
+    if blockable_message.chat.id == -1001176998310:
+        await bot.send_message(-1001334412934, warn_log,
+                               parse_mode="HTML")
+
     await blockable_message.reply(warn_log, parse_mode="HTML")
 
     if wtbans >= WARNS_TO_BAN:
@@ -92,4 +96,3 @@ async def warn(
                                blocker_message.from_user.id,
                                reason=reason)
         await blocker_message.delete()
-
