@@ -5,12 +5,12 @@ from aiogram import types
 from sqlfocus import SQLTable
 import datetime
 
-import SQLFocus
+import sqlfocus
 import datetime
 
 
 conn = sqlite3.connect("jdanbot.db")
-warns = SQLTable("warns", conn)
+warns = sqlfocus.SQLTable("warns", conn)
 
 
 async def count_wtbans(
