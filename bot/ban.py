@@ -4,7 +4,7 @@ from .config import dp, bot
 from .locale import locale
 from .memes.random import random_putin, random_lukash
 
-from .spy import activateSpy
+from .spy import activate_spy
 from .lib.text import code
 
 from random import choice, randint
@@ -88,7 +88,7 @@ async def left_john(message):
 @dp.message_handler(lambda message: True)
 async def message_handler(message):
     try:
-        await activateSpy(message)
+        await activate_spy(message)
     except Exception:
         print(code(traceback.format_exc()))
 

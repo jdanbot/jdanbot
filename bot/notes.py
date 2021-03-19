@@ -1,3 +1,5 @@
+from sqlfocus import SQLTable
+
 from .config import bot, dp, conn
 from .lib.text import code, prettyword
 from .locale import locale
@@ -9,43 +11,30 @@ async def addNote(chatid, name, text):
     except Exception as e:
         print(e)
 
-    sql = 'INSERT INTO notes VALUES ({chatid}, "{name}", "{text}")'
+    table = SQLTable("notes", conn)
 
-    cur = await conn.cursor()
-    await cur.execute(sql.format(chatid=chatid, name=name, text=text))
-
+    await table.insert(chatid, name, text)
     await conn.commit()
 
 
 async def getNote(chatid, name):
-    sql = 'SELECT * FROM notes WHERE (chatid={chatid} and name="{name}")'
+    table = SQLTable("notes", conn)
+    notes = await table.select(where=[f"chatid={chatid}", f'name="{name}"'])
 
-    cur = await conn.cursor()
-    e = await cur.execute(sql.format(chatid=chatid, name=name))
-    e = await e.fetchone()
-
-    return e[-1]
+    return notes[-1][-1]
 
 
 async def showNotes(chatid):
-    sql = "SELECT * FROM notes WHERE chatid={chatid}".format(chatid=chatid)
+    table = SQLTable("notes", conn)
+    notes = await table.select(where=[f"chatid={chatid}"])
 
-    cur = await conn.cursor()
-    e = await cur.execute(sql)
-    e = await e.fetchall()
-    notes = []
-
-    for item in e:
-        notes.append(item[1])
-
-    return notes
+    return [item[1] for item in notes]
 
 
 async def removeNote(chatid, name):
-    cur = await conn.cursor()
+    table = SQLTable("notes", conn)
+    await table.delete(where=[f"chatid={chatid}", f"name=\"{name}\""])
 
-    sql = 'DELETE FROM notes WHERE (chatid={chatid} and name="{name}")'
-    await cur.execute(sql.format(chatid=chatid, name=name))
     await conn.commit()
 
 

@@ -1,9 +1,11 @@
+from sqlfocus import SQLTable
+
 import asyncio
 import json
 
-from logging import log, debug, info
+from logging import debug
 
-from .config import conn, bot, DELAY, RSS_FEEDS
+from .config import conn, bot, RSS_FEEDS
 from .lib.aioget import aioget
 
 import feedparser
@@ -21,10 +23,9 @@ async def rss_task(url, channelid, chatid):
     xml = feedparser.parse(text)
     first_video = xml["entries"][0]["link"]
 
-    cur = await conn.cursor()
+    table = SQLTable("videos", conn)
 
-    channels = await cur.execute(f'SELECT * FROM videos WHERE channelid="{channelid}"')
-    channels = await channels.fetchall()
+    channels = await table.select(where=f"{channelid = }")
 
     if len(channels) == 0:
         await bot.send_message(chatid, first_video)
@@ -51,12 +52,10 @@ async def rss_timer():
 
 
 async def saveVideo(channelid, link):
-    cur = await conn.cursor()
+    table = SQLTable("videos", conn)
+    table.quote = "'"
 
-    links = await cur.execute('SELECT * FROM videos WHERE channelid="{id}"'.format(
-        id=channelid
-    ))
-    links = await links.fetchall()
+    links = await table.select(where=f"{channelid = }")
 
     try:
         links = json.loads(links[0][1])
@@ -64,13 +63,9 @@ async def saveVideo(channelid, link):
     except IndexError:
         links = [link]
 
-    await cur.execute('DELETE FROM videos WHERE channelid="{id}"'.format(
-        id=channelid
-    ))
+    links_str = json.dumps(links)
 
-    await cur.execute("INSERT INTO videos VALUES ('{id}', '{link}')".format(
-        id=channelid,
-        link=json.dumps(links)
-    ))
+    await table.delete(where=f"{channelid = }")
+    await table.insert(channelid, links_str)
 
     await conn.commit()
