@@ -63,19 +63,24 @@ async def ban(
 async def warn(
     blocker_message,
     blockable_message,
-    reason = "Причина не указана"
+    reason="Причина не указана"
     ):
-    #     ?
-    # NO AWAITS IN NEXT 2 PHRASES!!! THE ORDER IS IMPORTANT
-    wtbans = count_wtbans(blockable_message.from_user.id, 
-                          blockable_message.chat.id, 
-                          period=datetime.timedelta(hours=24))
-    mark_chat_member(blockable_message.from_user.id,
-                     blockable_message.chat.id, 
-                     blocker_message.from_user.id,
-                     reason=reason
-                     )
-    
+
+    WARNS_TO_BAN = int(await getNote(blocker_message.chat.id, "__warns_to_ban__"))
+
+    wtbans = await count_wtbans(blockable_message.from_user.id,
+                                blockable_message.chat.id,
+                                period=datetime.timedelta(hours=23))
+
+    if wtbans > WARNS_TO_BAN:
+        await ban(blocker_message, blockable_message, "1440",
+                  f"Получено {wtbans}-е предупреждение")
+    else:
+        await mark_chat_member(blockable_message.from_user.id,
+                               blockable_message.chat.id,
+                               blocker_message.from_user.id,
+                               reason=reason)
+
     wtbans += 1
 
     warn_log = locale.warn_template.format(
@@ -91,7 +96,8 @@ async def warn(
                            parse_mode="HTML")
 
     #                    ?
-    if (bans == getNote("WARNS_TO_BAN")):
-        await ban(blocker_message, blockable_message, "24:00", "Получено {bans+1}-е предупреждение. Автобан активирован")
+    if (wtbans == WARNS_TO_BAN):
+        await ban(blocker_message, blockable_message, "1440",
+                  f"Получено {wtbans+1}-е предупреждение")
 
     await blocker_message.delete()
