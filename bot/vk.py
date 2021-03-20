@@ -53,7 +53,7 @@ async def vk_timer():
 
                 await bot.send_media_group(channel["chatid"], photos)
 
-            else:
+            elif item["text"] != "":
                 await bot.send_message(channel["chatid"], item["text"])
 
 
