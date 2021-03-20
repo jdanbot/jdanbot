@@ -2,12 +2,14 @@ import aiosqlite
 import coloredlogs
 import yaml
 from aiogram import Bot, Dispatcher
+from aiovk import TokenSession, API
 from pytz import timezone
 
 import asyncio
 import logging
 from datetime import datetime
 from os import environ
+from .lib.driver import HttpDriver
 from .lib.filters import NoRunningJobFilter
 
 
@@ -28,10 +30,15 @@ config = Config()
 config.get("db_path", default="jdanbot.db")
 config.get("delay", default=30)
 config.get("rss_feeds", default=[])
-config.get("rss")
+config.get("rss", default=False)
 config.get("image_path", default="bot/cache/{image}.jpg")
 config.get("token")
 config.get("status", default="unknown")
+config.get("vk", default=False)
+config.get("vk_channels")
+config.get("access_token")
+
+SCHEDULE = VK or RSS
 
 START_TIME = datetime.now()
 TIMEZONE = timezone("Europe/Moscow")
@@ -50,6 +57,12 @@ async def connect_db():
 
 
 conn = asyncio.run(connect_db())
+
+# loop = asyncio.new_event_loop()
+driver = HttpDriver()
+
+session = TokenSession(access_token=ACCESS_TOKEN, driver=driver)
+vk_api = API(session)
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
