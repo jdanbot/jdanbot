@@ -7,6 +7,7 @@ aioschedule
 coloredlogs
 feedparser
 python-mpv
+aiosqlite
 pymemeru
 SQLFocus
 aiogram
