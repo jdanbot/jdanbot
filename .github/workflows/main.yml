@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: grantmcconnaughey/lintly-flake8-github-action@d91572c
+      - uses: grantmcconnaughey/lintly-flake8-github-action@d91572c2328f43c1940b5587d76aefb03c7a16f7
         with:
           # The GitHub API token to create reviews with
           token: ${{ secrets.GH_TOKEN }}
