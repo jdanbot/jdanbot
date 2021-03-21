@@ -7,8 +7,10 @@ from pytz import timezone
 
 import asyncio
 import logging
+import traceback
 from datetime import datetime
 from os import environ
+from .lib.text import code
 from .lib.driver import HttpDriver
 from .lib.filters import NoRunningJobFilter
 
@@ -49,7 +51,20 @@ coloredlogs.install(fmt="%(asctime)s %(levelname)s %(message)s",
                     level="INFO",
                     logger=logger)
 
+
+class ResendLogs(logging.Filter):
+    def filter(self, record):
+        loop = asyncio.get_event_loop()
+        tsk = loop.create_task(self.send_to_tg(record))
+        return True
+
+    async def send_to_tg(self, record):
+        await bot.send_message(-1001435542296, code(record.msg),
+                               parse_mode="HTML")
+
+
 logging.getLogger("schedule").addFilter(NoRunningJobFilter())
+logging.getLogger("asyncio").addFilter(ResendLogs())
 
 
 async def connect_db():
