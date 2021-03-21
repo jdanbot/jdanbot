@@ -19,7 +19,7 @@ async def admin_mut(message, params):
 @dp.message_handler(commands=["selfmute", "selfban"])
 @handlers.parse_arguments(3, True)
 async def self_mut(message, params):
-    await ban(message, message, *params[1:])
+    await ban(message, message, *params[1:], isRepostAllowed=False)
 
 
 @dp.message_handler(commands=["warn"])
@@ -44,4 +44,4 @@ async def kz_poll(message, params):
         await poll.pin(disable_notification=True)
 
     await message.delete()
- 
+
