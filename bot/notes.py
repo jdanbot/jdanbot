@@ -21,7 +21,10 @@ async def getNote(chatid, name):
     table = SQLTable("notes", conn)
     notes = await table.select(where=[f"chatid={chatid}", f'name="{name}"'])
 
-    return notes[-1][-1]
+    if len(notes) > 0:
+        return notes[-1][-1]
+    else:
+        return None
 
 
 async def showNotes(chatid):
@@ -64,6 +67,10 @@ async def notes(message):
             await message.reply(", ".join(showNotes(chatid)))
         else:
             note = await getNote(chatid, opt[0])
+
+            if note is None:
+                return
+
             try:
                 await message.reply(note, parse_mode="MarkdownV2")
             except Exception:
