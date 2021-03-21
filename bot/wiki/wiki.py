@@ -157,7 +157,7 @@ async def wikihandler(message):
                   .replace("/w", "")
 
     if lang in locale.langs_list:
-        await getWiki(message, command)
+        await getWiki(message, lang)
         return
 
     else:
