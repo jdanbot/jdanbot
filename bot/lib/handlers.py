@@ -1,6 +1,6 @@
 from ..config import bot, IMAGE_PATH
-from ..notes import check_admin
 from ..locale import locale
+from .admin import check_admin
 from .photo import Photo
 
 
