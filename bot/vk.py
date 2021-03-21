@@ -2,8 +2,9 @@ from aiogram.types import InputMediaPhoto
 from sqlfocus import SQLTable
 
 import json
-from .timer import saveVideo
 from .config import bot, conn, vk_api, VK_CHANNELS
+from .lib.text import cuteCrop
+from .timer import saveVideo
 
 
 async def vk_timer():
@@ -40,7 +41,8 @@ async def vk_timer():
                     links.append(url)
 
             if len(links) == 1:
-                await bot.send_photo(channel["chatid"], links[0], item["text"])
+                await bot.send_photo(channel["chatid"], links[0],
+                                     cuteCrop(item["text"], 1000))
 
             elif len(links) > 1:
                 photos = []
@@ -49,12 +51,14 @@ async def vk_timer():
                     photos.append(InputMediaPhoto(link))
 
                 if item["text"] != "":
-                    photos[0] = InputMediaPhoto(links[0], item["text"])
+                    photos[0] = InputMediaPhoto(links[0],
+                                                cuteCrop(item["text"], 1000))
 
                 await bot.send_media_group(channel["chatid"], photos)
 
             elif item["text"] != "":
-                await bot.send_message(channel["chatid"], item["text"])
+                await bot.send_message(channel["chatid"],
+                                       cuteCrop(item["text"], 4096))
 
 
 def get_max_photosize(photo, limit=130):
