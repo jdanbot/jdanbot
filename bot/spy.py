@@ -68,7 +68,7 @@ async def activate_spy(message):
     ])
 
     if len(events) == 0:
-        table.insert(message.chat.id, user.id, user.full_name)
+        await table.insert(message.chat.id, user.id, user.full_name)
         await conn.commit()
     else:
         pass
