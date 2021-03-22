@@ -105,7 +105,7 @@ async def notes(message):
         if name == "__notes_list__":
             await message.reply(", ".join(await showNotes(chatid)))
         else:
-            note = await getNote(chatid, opt[0])
+            note = await getNote(chatid, name)
 
             if note is None:
                 return
