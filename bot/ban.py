@@ -38,7 +38,7 @@ async def call_admin(call):
                                             callback_data="delete"))
 
     admins = await bot.get_chat_administrators(call.message.chat.id)
-    
+
     true_admins = []
 
     for admin in admins:
@@ -74,7 +74,9 @@ async def john(message):
 
     try:
         rules = await getNote(message.chat.id, "__rules__")
-        await message.answer(rules, parse_mode="MarkdownV2")
+
+        if rules is not None:
+            await message.answer(rules, parse_mode="MarkdownV2")
     except TypeError:
         pass
 
@@ -133,7 +135,7 @@ async def detect_text_message(message):
     if msg.find("яблоко") != -1 or \
        msg.find("яблочн") != -1:
         await message.reply(locale.ban.apple)
-    
+
     if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нnh]([^a-zа-яё\d]|$)",
                  message.text
                         .lower()
