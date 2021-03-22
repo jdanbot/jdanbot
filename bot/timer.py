@@ -58,7 +58,7 @@ async def saveVideo(channelid, link):
     links = await table.select(where=f"{channelid = }")
 
     try:
-        links = json.loads(links[0][1])
+        links = json.loads(links[0][1])[:9]
         links.append(link)
     except IndexError:
         links = [link]
