@@ -20,7 +20,7 @@ async def sendEgg(message):
             audio = egg["audio"]
 
     await bot.send_voice(message.chat.id,
-                         open(f"music/{audio}", "rb+"),
+                         open(f"media/music/{audio}", "rb+"),
                          reply_to_message_id=message.message_id)
 
 

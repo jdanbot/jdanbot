@@ -40,7 +40,7 @@ async def calc_users(message):
     users = []
     table = SQLTable("events", conn)
 
-    chat_users = await table.selectall(where=[f"chatid={message.chat.id}"])
+    chat_users = await table.select(where=[f"chatid={message.chat.id}"])
     e = await table.select()
 
     for user in e:
