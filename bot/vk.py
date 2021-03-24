@@ -1,10 +1,8 @@
 from aiogram.types import InputMediaPhoto
-from sqlfocus import SQLTable
 
 import json
-from .config import bot, conn, vk_api, VK_CHANNELS
+from .config import bot, vk_api, videos, VK_CHANNELS
 from .lib.text import cuteCrop
-from .timer import saveVideo
 
 
 async def vk_timer():
@@ -15,16 +13,15 @@ async def vk_timer():
         for item in posts["items"][::-1]:
             links = []
 
-            table = SQLTable("videos", conn)
-            channels = await table.select(where=f"{channelid = }")
+            channels = await videos.select(where=f"{channelid = }")
 
             if len(channels) == 0:
-                await saveVideo(channelid, item["id"])
+                await videos.save(channelid, item["id"])
             else:
                 if item["id"] in json.loads(channels[0][1]):
                     continue
                 else:
-                    await saveVideo(channelid, item["id"])
+                    await videos.save(channelid, item["id"])
 
             try:
                 attachments = item["attachments"]
