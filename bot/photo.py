@@ -30,7 +30,7 @@ async def text(message, params, img):
     print(params)
 
     try:
-        img.font("fonts/OpenSans-Bold.ttf", int(params[1]))
+        img.font("media/fonts/OpenSans-Bold.ttf", int(params[1]))
         img.text(params[2], img.parseXY(params[3]), params[4])
     except Exception as e:
         await message.reply(f"{bold('Произошла ошибка')}\n{code(e)}",
@@ -48,7 +48,7 @@ async def t(message, params, img):
     print(params)
 
     try:
-        img.font("fonts/OpenSans-Bold.ttf", 75)
+        img.font("media/fonts/OpenSans-Bold.ttf", 75)
         img.text("black", (50, 50), params[1])
     except Exception as e:
         await message.reply(f"{bold('Произошла ошибка')}\n{code(e)}",

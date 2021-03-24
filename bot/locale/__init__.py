@@ -29,6 +29,9 @@ files = listdir(LOCALE_PATH)
 locale = json.loads("{}", object_hook=Dict2Class)
 
 for _ in files:
+    if not _.endswith(".yml"):
+        continue
+
     with open(f'{LOCALE_PATH}/{_}', encoding="UTF-8") as file:
         locale.add(yaml.safe_load(file.read()))
 

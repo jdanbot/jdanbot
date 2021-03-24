@@ -1,6 +1,6 @@
 from sqlfocus import SQLTable
 
-from .config import bot, dp, conn
+from .config import bot, dp, conn, notes
 from .lib import handlers
 from .lib.admin import check_admin
 from .lib.text import code, prettyword
@@ -13,33 +13,27 @@ async def addNote(chatid, name, text):
     except Exception as e:
         print(e)
 
-    table = SQLTable("notes", conn)
-
-    await table.insert(chatid, name, text)
+    await notes.insert(chatid, name, text)
     await conn.commit()
 
 
 async def getNote(chatid, name):
-    table = SQLTable("notes", conn)
-    notes = await table.select(where=[f"chatid={chatid}", f'name="{name}"'])
+    e = await notes.select(where=[f"{chatid = }", f'name="{name}"'])
 
-    if len(notes) > 0:
-        return notes[-1][-1]
+    if len(e) > 0:
+        return e[-1][-1]
     else:
         return None
 
 
 async def showNotes(chatid):
-    table = SQLTable("notes", conn)
-    notes = await table.select(where=[f"chatid={chatid}"])
+    e = await notes.select(where=[f"chatid={chatid}"])
 
-    return [item[1] for item in notes]
+    return [item[1] for item in e]
 
 
 async def removeNote(chatid, name):
-    table = SQLTable("notes", conn)
-    await table.delete(where=[f"chatid={chatid}", f"name=\"{name}\""])
-
+    await notes.delete(where=[f"chatid={chatid}", f"name=\"{name}\""])
     await conn.commit()
 
 
@@ -97,7 +91,7 @@ async def get_(message, params):
 
 
 @dp.message_handler(lambda message: message.text.startswith("#"))
-async def notes(message):
+async def notes_(message):
     name = message.text.replace("#", "")
     chatid = message.chat.id
 

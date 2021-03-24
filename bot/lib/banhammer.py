@@ -1,10 +1,9 @@
 import datetime
 import math
 
-from ..config import bot, dp, TIMEZONE
+from ..config import bot, TIMEZONE, warns
 from ..locale import locale
 from ..notes import getNote
-from ..database import count_wtbans, mark_chat_member
 from .text import prettyword
 
 
@@ -40,7 +39,6 @@ async def ban(
         unban_time=unban_time
     )
 
-
     if blocker_message.chat.id == -1001176998310 and isRepostAllowed:
         await bot.forward_message(-1001334412934,
                                   -1001176998310,
@@ -60,7 +58,6 @@ async def ban(
         await blocker_message.reply(ban_log, parse_mode="HTML")
 
 
-
 async def warn(
     blocker_message,
     blockable_message,
@@ -73,9 +70,9 @@ async def warn(
     except Exception:
         WARNS_TO_BAN = 3
 
-    wtbans = await count_wtbans(blockable_message.from_user.id,
-                                blockable_message.chat.id,
-                                period=datetime.timedelta(hours=23))
+    wtbans = await warns.count_wtbans(blockable_message.from_user.id,
+                                      blockable_message.chat.id,
+                                      period=datetime.timedelta(hours=23))
     wtbans += 1
 
     warn_log = locale.warn_template.format(
@@ -99,8 +96,8 @@ async def warn(
         await ban(blocker_message, blockable_message, "1440",
                   f"получено {wtbans}-е предупреждение")
     else:
-        await mark_chat_member(blockable_message.from_user.id,
-                               blockable_message.chat.id,
-                               blocker_message.from_user.id,
-                               reason=reason)
+        await warns.mark_chat_member(blockable_message.from_user.id,
+                                     blockable_message.chat.id,
+                                     blocker_message.from_user.id,
+                                     reason=reason)
         await blocker_message.delete()
