@@ -48,6 +48,17 @@ class Warns(SQLTableBase):
         await conn.commit()
 
 
+class Pidors(SQLTableBase):
+    async def getPidorInfo(self, chat_id,
+                           period=datetime.timedelta(hours=24)):
+        period_bound = int((datetime.datetime.now() - period).timestamp())
+        return await self.select(where=[
+            f"timestamp >= {period_bound}", f"{chat_id = }"
+        ])
+
+        return 
+
+
 conn = asyncio.run(connect_db())
 
 events = SQLTable("events", conn)
@@ -55,3 +66,5 @@ videos = Videos(conn)
 videos.quote = "'"
 warns = Warns(conn)
 notes = SQLTable("notes", conn)
+pidors = Pidors(conn)
+pidorstats = SQLTable("pidorstats", conn)

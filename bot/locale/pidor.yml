@@ -1,0 +1,5 @@
+pidor_templates:
+  - Сегодня <b>{name} дня</b> — <b>{user}</b>
+
+pidor_finded_templates:
+  - Сегодня <b>{name} дня</b> уже был обнаружен, им является <b>{user}</b>
