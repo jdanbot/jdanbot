@@ -50,10 +50,9 @@ async def find_pidor(message):
 
             await pidorstats.delete(where=[f"{chat_id = }",
                                            f"user_id = {pidor_of_day}"])
-            count = stats[-1][-1]
 
             await pidorstats.insert(chat_id, pidor_of_day,
-                                    stats[-1][3], count + 1)
+                                    stats[-1][2], stats[-1][-1] + 1)
 
             stats = await pidorstats.select(where=[f"{chat_id = }",
                                                    f"user_id={pidor_of_day}"])
@@ -104,24 +103,37 @@ async def pidor_me(message):
     pidor = await pidorstats.select(where=[f"{chat_id = }",
                                            f"{user_id = }"])
 
-    fcount = prettyword(pidor[-1][-1], ["раз", "раза", "раз"])
-    await message.reply(f"Ты был <b>{name} дня</b> {pidor[-1][-1]} {fcount}",
+    count = pidor[-1][-1] if len(pidor) > 0 else 0
+
+    fcount = prettyword(count, ["раз", "раза", "раз"])
+    await message.reply(f"Ты был <b>{name} дня</b> {count} {fcount}",
                         parse_mode="HTML")
 
 
 @dp.message_handler(commands=["pidorreg"])
 async def reg_pidor(message):
-    pidor = await pidorstats.select(where=[
-        f"chat_id={message.chat.id}",
-        f"user_id={message.from_user.id}"
-    ])
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+
+    pidor = await pidorstats.select(where=[f"{chat_id = }", f"{user_id = }"])
+    username = await getUserName(message.chat.id, message.from_user.id)
 
     if len(pidor) == 0:
-        username = await getUserName(message.chat.id, message.from_user.id)
         await pidorstats.insert(message.chat.id, message.from_user.id,
                                 username, 0)
         await conn.commit()
 
         await message.reply("Попался в базу, ищи себя в jdanbot.db")
+
+    elif pidor[-1][2] != username:
+        pidor = pidor[-1]
+
+        await pidorstats.delete(where=[f"{chat_id}", f"{user_id}"])
+        await pidorstats.insert(*pidor[:2], username, pidor[-1])
+
+        await conn.commit()
+
+        await message.reply("Пофиксил имя в бд")
+
     else:
         await message.reply("Ты уже в базе")
