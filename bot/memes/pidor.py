@@ -41,21 +41,21 @@ async def find_pidor(message):
             ), parse_mode="HTML")
 
             period = int(datetime.datetime.now().timestamp())
+            curchat = await pidors.select(where=f"{chat_id}")
 
-            await pidors.delete(where=f"{chat_id = }")
-            await pidors.insert(chat_id, pidor_of_day, period)
-
-            stats = await pidorstats.select(where=[f"{chat_id = }",
-                                                   f"user_id={pidor_of_day}"])
-
-            await pidorstats.delete(where=[f"{chat_id = }",
-                                           f"user_id = {pidor_of_day}"])
-
-            await pidorstats.insert(chat_id, pidor_of_day,
-                                    stats[-1][2], stats[-1][-1] + 1)
+            if len(curchat) > 1:
+                await pidors.update(where=f"{chat_id = }",
+                                    user_id=pidor_of_day,
+                                    timestamp=period)
+            else:
+                await pidors.insert(chat_id, pidor_of_day, period)
 
             stats = await pidorstats.select(where=[f"{chat_id = }",
                                                    f"user_id={pidor_of_day}"])
+
+            await pidorstats.update(where=[f"{chat_id = }",
+                                           f"user_id={pidor_of_day}"],
+                                    count=stats[-1][-1] + 1)
             await conn.commit()
 
             if is_katzbots:
@@ -128,9 +128,8 @@ async def reg_pidor(message):
     elif pidor[-1][2] != username:
         pidor = pidor[-1]
 
-        await pidorstats.delete(where=[f"{chat_id}", f"{user_id}"])
-        await pidorstats.insert(*pidor[:2], username, pidor[-1])
-
+        await pidorstats.update(where=[f"{chat_id = }", f"{user_id = }"],
+                                username=username)
         await conn.commit()
 
         await message.reply("Пофиксил имя в бд")
