@@ -19,6 +19,19 @@ CREATE TABLE warns (
     user_id INTEGER,
     admin_id INTEGER,
     chat_id INTEGER,
-    timestamp TEXT,
+    timestamp INTEGER,
     reason TEXT
+);
+
+CREATE TABLE pidors (
+    chat_id INTEGER,
+    user_id INTEGER,
+    timestamp INTEGER
+);
+
+CREATE TABLE pidorstats (
+    chat_id INTEGER,
+    user_id INTEGER,
+    username TEXT,
+    count INTEGER
 );
