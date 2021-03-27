@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 from time import time
 from random import choice
@@ -35,18 +36,13 @@ async def find_pidor(message):
             pidor_of_day = choice([pidor[1] for pidor in all_pidors])
             pidorname = await getUserName(chat_id, pidor_of_day, True)
 
-            await message.reply(choice(locale.pidor_templates).format(
-                user=pidorname,
-                name=name
-            ), parse_mode="HTML")
 
             period = int(datetime.datetime.now().timestamp())
             curchat = await pidors.select(where=f"{chat_id}")
 
             if len(curchat) > 1:
-                await pidors.update(where=f"{chat_id = }",
-                                    user_id=pidor_of_day,
-                                    timestamp=period)
+                await pidors.delete(where=f"{chat_id = }")
+                await pidors.insert(chat_id, pidor_of_day, period)
             else:
                 await pidors.insert(chat_id, pidor_of_day, period)
 
@@ -57,6 +53,18 @@ async def find_pidor(message):
                                            f"user_id={pidor_of_day}"],
                                     count=stats[-1][-1] + 1)
             await conn.commit()
+
+            phrases = choice(locale.pidor_finding)
+
+            for phrase in phrases:
+                await message.answer(f"<i>{phrase}</i>", parse_mode="HTML")
+                await asyncio.sleep(2.5)
+
+            await message.answer(choice(locale.pidor_templates).format(
+                user=pidorname,
+                name=name
+            ), parse_mode="HTML")
+
 
             if is_katzbots:
                 try:
