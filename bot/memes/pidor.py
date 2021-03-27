@@ -57,7 +57,12 @@ async def find_pidor(message):
             phrases = choice(locale.pidor_finding)
 
             for phrase in phrases:
-                await message.answer(f"<i>{phrase}</i>", parse_mode="HTML")
+                phrase = f"<i>{phrase}</i>"
+                if is_katzbots:
+                    await message.answer(phrase.replace("пидора", "забаненного"),
+                                         parse_mode="HTML")
+                else:
+                    await message.answer(phrase, parse_mode="HTML")
                 await asyncio.sleep(2.5)
 
             await message.answer(choice(locale.pidor_templates).format(
