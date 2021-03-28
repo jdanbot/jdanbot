@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 from time import time
 from random import choice
@@ -35,29 +36,42 @@ async def find_pidor(message):
             pidor_of_day = choice([pidor[1] for pidor in all_pidors])
             pidorname = await getUserName(chat_id, pidor_of_day, True)
 
-            await message.reply(choice(locale.pidor_templates).format(
+
+            period = int(datetime.datetime.now().timestamp())
+            curchat = await pidors.select(where=f"{chat_id}")
+
+            if len(curchat) > 1:
+                await pidors.delete(where=f"{chat_id = }")
+                await pidors.insert(chat_id, pidor_of_day, period)
+            else:
+                await pidors.insert(chat_id, pidor_of_day, period)
+
+            stats = await pidorstats.select(where=[f"{chat_id = }",
+                                                   f"user_id={pidor_of_day}"])
+
+            await pidorstats.update(where=[f"{chat_id = }",
+                                           f"user_id={pidor_of_day}"],
+                                    count=stats[-1][-1] + 1)
+            await conn.commit()
+
+            phrases = choice(locale.pidor_finding)
+
+            for phrase in phrases:
+                phrase = f"<i>{phrase}</i>"
+                if is_katzbots:
+                    await message.answer(phrase.replace("пидора", "забаненного")
+                                               .replace("пидор", "забаненный")
+                                               .replace("pidor", "zabaneny"),
+                                         parse_mode="HTML")
+                else:
+                    await message.answer(phrase, parse_mode="HTML")
+                await asyncio.sleep(2.5)
+
+            await message.answer(choice(locale.pidor_templates).format(
                 user=pidorname,
                 name=name
             ), parse_mode="HTML")
 
-            period = int(datetime.datetime.now().timestamp())
-
-            await pidors.delete(where=f"{chat_id = }")
-            await pidors.insert(chat_id, pidor_of_day, period)
-
-            stats = await pidorstats.select(where=[f"{chat_id = }",
-                                                   f"user_id={pidor_of_day}"])
-
-            await pidorstats.delete(where=[f"{chat_id = }",
-                                           f"user_id = {pidor_of_day}"])
-            count = stats[-1][-1]
-
-            await pidorstats.insert(chat_id, pidor_of_day,
-                                    stats[-1][3], count + 1)
-
-            stats = await pidorstats.select(where=[f"{chat_id = }",
-                                                   f"user_id={pidor_of_day}"])
-            await conn.commit()
 
             if is_katzbots:
                 try:
@@ -104,24 +118,36 @@ async def pidor_me(message):
     pidor = await pidorstats.select(where=[f"{chat_id = }",
                                            f"{user_id = }"])
 
-    fcount = prettyword(pidor[-1][-1], ["раз", "раза", "раз"])
-    await message.reply(f"Ты был <b>{name} дня</b> {pidor[-1][-1]} {fcount}",
+    count = pidor[-1][-1] if len(pidor) > 0 else 0
+
+    fcount = prettyword(count, ["раз", "раза", "раз"])
+    await message.reply(f"Ты был <b>{name} дня</b> {count} {fcount}",
                         parse_mode="HTML")
 
 
 @dp.message_handler(commands=["pidorreg"])
 async def reg_pidor(message):
-    pidor = await pidorstats.select(where=[
-        f"chat_id={message.chat.id}",
-        f"user_id={message.from_user.id}"
-    ])
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+
+    pidor = await pidorstats.select(where=[f"{chat_id = }", f"{user_id = }"])
+    username = await getUserName(message.chat.id, message.from_user.id)
 
     if len(pidor) == 0:
-        username = await getUserName(message.chat.id, message.from_user.id)
         await pidorstats.insert(message.chat.id, message.from_user.id,
                                 username, 0)
         await conn.commit()
 
         await message.reply("Попался в базу, ищи себя в jdanbot.db")
+
+    elif pidor[-1][2] != username:
+        pidor = pidor[-1]
+
+        await pidorstats.update(where=[f"{chat_id = }", f"{user_id = }"],
+                                username=username)
+        await conn.commit()
+
+        await message.reply("Пофиксил имя в бд")
+
     else:
         await message.reply("Ты уже в базе")
