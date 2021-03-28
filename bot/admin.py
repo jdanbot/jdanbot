@@ -5,7 +5,7 @@ from .config import bot, dp, TIMEZONE
 from .locale import locale
 from .lib import handlers
 from .lib.text import prettyword
-from .lib.banhammer import ban, warn
+from .lib.banhammer import ban, warn, unwarn
 
 
 @dp.message_handler(commands=["mute"])
@@ -28,6 +28,14 @@ async def self_mut(message, params):
 async def admin_warn(message, params):
     reply = message.reply_to_message
     await warn(message, reply, *params[1:])
+
+
+@dp.message_handler(commands=["unwarn"])
+@handlers.only_admins
+@handlers.parse_arguments(2, True)
+async def admin_unwarn(message, params):
+    reply = message.reply_to_message
+    await unwarn(message, reply)
 
 
 @dp.message_handler(commands=["katz_poll"])
