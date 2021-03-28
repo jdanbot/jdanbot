@@ -59,7 +59,8 @@ async def find_pidor(message):
             for phrase in phrases:
                 phrase = f"<i>{phrase}</i>"
                 if is_katzbots:
-                    await message.answer(phrase.replace("пидора", "забаненного"),
+                    await message.answer(phrase.replace("пидора", "забаненного")
+                                               .replace("пидор", "забаненный"),
                                          parse_mode="HTML")
                 else:
                     await message.answer(phrase, parse_mode="HTML")
