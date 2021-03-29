@@ -59,7 +59,7 @@ async def call_admin(call):
 @dp.message_handler(content_types=["new_chat_members"])
 async def john(message):
     try:
-        greatings = await getNote(message.chat.id, "__enable_greatings__")
+        greatings = await getNote(message.chat.id, "__enable_welcome__")
     except:
         greatings = False
 
