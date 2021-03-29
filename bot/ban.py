@@ -108,7 +108,7 @@ async def detect_text_message(message):
             break
 
     if msg.find("бот, сколько") != -1 and msg.find("?") != -1:
-        number = randint(0, 100000)
+        number = randint(0, 10000)
         randnum = randint(0, 10000000)
 
         if randnum == 34563:
