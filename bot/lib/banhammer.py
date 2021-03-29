@@ -110,6 +110,11 @@ async def unwarn(
     ):
 
     user_id = blockable_message.from_user.id
+
+    if user_id == blocker_message.from_user.id:
+        await blocker_message.reply("Админ не может отменить пред сам себе")
+        return
+
     period = datetime.timedelta(hours=24)
     period_bound = int((datetime.datetime.now() - period).timestamp())
 
