@@ -58,27 +58,22 @@ async def call_admin(call):
 
 @dp.message_handler(content_types=["new_chat_members"])
 async def john(message):
-    try:
-        greatings = await getNote(message.chat.id, "__enable_welcome__")
-    except:
-        greatings = False
+    greatings = await getNote(message.chat.id, "__enable_greatings__")
+    welcome = await getNote(message.chat.id, "__enable_welcome__")
 
     greatings = True if greatings == "True" else False
+    welcome = True if welcome == "True" else False
 
-    if greatings and \
-       not message.from_user.id == 795449748:
-        await message.reply(f'{choice(locale.greatings)}?')
+    if greatings or welcome:
+        await message.reply(f"{choice(locale.greatings)}?")
 
     if message.from_user.id == 795449748:
-        await message.reply(f'{choice(locale.jdan_welcome)}?')
+        await message.reply(f"{choice(locale.jdan_welcome)}?")
 
-    try:
-        rules = await getNote(message.chat.id, "__rules__")
+    rules = await getNote(message.chat.id, "__rules__")
 
-        if rules is not None:
-            await message.answer(rules, parse_mode="MarkdownV2")
-    except TypeError:
-        pass
+    if rules is not None:
+        await message.answer(rules, parse_mode="MarkdownV2")
 
 
 @dp.message_handler(content_types=["left_chat_member"])
