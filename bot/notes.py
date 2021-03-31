@@ -1,4 +1,4 @@
-from sqlfocus import SQLTable
+from sqlfocus.helpers import sstr
 
 from .config import bot, dp, conn, notes
 from .lib import handlers
@@ -13,12 +13,12 @@ async def addNote(chatid, name, text):
     except Exception as e:
         print(e)
 
-    await notes.insert(chatid, name, text)
+    await notes.insert(chatid, sstr(name), sstr(text))
     await conn.commit()
 
 
 async def getNote(chatid, name):
-    e = await notes.select(where=[f"{chatid = }", f'name="{name}"'])
+    e = await notes.select(where=[f"{chatid = }", f"name='{sstr(name)}'"])
 
     if len(e) > 0:
         return e[-1][-1]
@@ -33,7 +33,7 @@ async def showNotes(chatid):
 
 
 async def removeNote(chatid, name):
-    await notes.delete(where=[f"chatid={chatid}", f"name=\"{name}\""])
+    await notes.delete(where=[f"chatid={chatid}", f"name='{sstr(name)}'"])
     await conn.commit()
 
 

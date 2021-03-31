@@ -1,5 +1,6 @@
 import aiosqlite
 from sqlfocus import SQLTableBase, SQLTable
+from sqlfocus.helpers import sstr
 
 import asyncio
 import json
@@ -43,7 +44,7 @@ class Warns(SQLTableBase):
 
     async def mark_chat_member(self, user_id, chat_id, admin_id, reason):
         await self.insert(user_id, admin_id, chat_id,
-                          int(datetime.datetime.now().timestamp()), reason)
+                          int(datetime.datetime.now().timestamp()), sstr(reason))
 
         await conn.commit()
 
