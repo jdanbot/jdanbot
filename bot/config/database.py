@@ -18,7 +18,7 @@ class Videos(SQLTableBase):
         links = await self.select(where=f"{channelid = }")
 
         try:
-            links = json.loads(links[0][1])[:9]
+            links = json.loads(links[0][1])[-9:]
             links.append(link)
         except IndexError:
             links = [link]
