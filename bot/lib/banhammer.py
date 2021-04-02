@@ -118,10 +118,8 @@ async def unwarn(
     period = datetime.timedelta(hours=24)
     period_bound = int((datetime.datetime.now() - period).timestamp())
 
-    WHERE = [f"timestamp >= {period_bound}",
-             f"{user_id = } ORDER BY timestamp"]
-
-    user_warns = await warns.select(where=WHERE)
+    WHERE = [f"timestamp >= {period_bound}", f"{user_id = }"]
+    user_warns = await warns.select(where=WHERE, order="timestamp")
 
     if len(user_warns) == 0:
         await blocker_message.reply("Предов нет")
