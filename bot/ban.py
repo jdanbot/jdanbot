@@ -73,7 +73,11 @@ async def john(message):
     rules = await getNote(message.chat.id, "__rules__")
 
     if rules is not None:
-        await message.answer(rules, parse_mode="MarkdownV2")
+        try:
+            await message.answer(rules,
+                                 parse_mode="MarkdownV2")
+        except Exception:
+            await message.answer(rules)
 
 
 @dp.message_handler(content_types=["left_chat_member"])
