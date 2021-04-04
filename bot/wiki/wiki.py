@@ -85,7 +85,8 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
                           ["link"], ["style"],
                           ["table", {"class": "noprint"}],
                           ["div", {"class": "plainlist"}],
-                          ["table", {"class": "sidebar"}]]
+                          ["table", {"class": "sidebar"}],
+                          ["span", {"class": "mw-ext-cite-error"}]]
         text = fixWords(page.parsed)
 
     try:
