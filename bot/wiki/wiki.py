@@ -83,7 +83,9 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         page.blockList = [["table", {"class": "infobox"}],
                           ["ol", {"class": "references"}],
                           ["link"], ["style"],
-                          ["table", {"class": "noprint"}]]
+                          ["table", {"class": "noprint"}],
+                          ["div", {"class": "plainlist"}],
+                          ["table", {"class": "sidebar"}]]
         text = fixWords(page.parsed)
 
     try:
