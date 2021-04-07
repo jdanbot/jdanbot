@@ -3,7 +3,7 @@ import datetime
 from time import time
 from random import choice
 from ..locale import locale
-from ..lib.text import prettyword
+from ..lib.text import prettyword, italic
 from ..config import bot, conn, dp, pidors, pidorstats
 
 
@@ -36,7 +36,6 @@ async def find_pidor(message):
             pidor_of_day = choice([pidor[1] for pidor in all_pidors])
             pidorname = await getUserName(chat_id, pidor_of_day, True)
 
-
             period = int(datetime.datetime.now().timestamp())
             curchat = await pidors.select(where=f"{chat_id}")
 
@@ -54,17 +53,11 @@ async def find_pidor(message):
                                     count=stats[-1][-1] + 1)
             await conn.commit()
 
-            phrases = choice(locale.pidor_finding)
-
-            for phrase in phrases:
-                phrase = f"<i>{phrase}</i>"
-                if is_katzbots:
-                    await message.answer(phrase.replace("пидора", "забаненного")
-                                               .replace("пидор", "забаненный")
-                                               .replace("pidor", "zabaneny"),
-                                         parse_mode="HTML")
-                else:
-                    await message.answer(phrase, parse_mode="HTML")
+            for phrase in choice(locale.pidor_finding):
+                if isinstance(phrase, list):
+                    phrase = phrase[0].replace(*phrase[1]) if is_katzbots else phrase[0]
+                
+                await message.answer(italic(phrase), parse_mode="HTML")
                 await asyncio.sleep(2.5)
 
             await message.answer(choice(locale.pidor_templates).format(

@@ -37,6 +37,10 @@ def bold(text):
     return f"<b>{fixHTML(text)}</b>"
 
 
+def italic(text):
+    return f"<i>{fixHTML(text)}</i>"
+
+
 def fixHTML(text):
     """replaces html-markup parts on tags"""
     return str(text).replace("&", "&amp;") \
