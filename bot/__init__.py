@@ -9,6 +9,7 @@ for _, dirs, files in walk("bot", topdown=True):
     break
 
 __all__ = []
+# test
 
 for folder in folders:
     if folder != "lib" and folder != "__pycache__" and folder != "cache":
