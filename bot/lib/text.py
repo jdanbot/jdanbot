@@ -1,3 +1,6 @@
+from random import choice
+
+
 TAG_SCHEMA = "<{tag}>{text}</{tag}>"
 
 
@@ -15,9 +18,24 @@ def prettyword(n, forms):
         return forms[2]
 
 
-def cuteCrop(text, limit=10, start=""):
-    return "\n\n".join([p for p in text.split("\n")
-                          if len(start) + len(p) + 2 <= limit and p != ""])
+def cuteCrop(lines, limit=100, text=""):
+    lines = lines.split("\n")
+
+    for i, line in enumerate(lines):
+        back_line = lines[i - 1 if i != 0 else i]
+        next_line = lines[i + 1 if i != len(lines) - 1 else i]
+
+        is_list = line.startswith("• ")
+        is_next_list = next_line.startswith("• ")
+
+        if len(text + line) <= limit and (back_line != "" or line != ""):
+            text += line + "\n"
+
+        if len(text) + 2 <= limit and (is_list and not is_next_list and
+                                       next_line != ""):
+           text += "\n"
+    
+    return text.replace("• ", "<b>•</b> ")
 
 
 def code(text):
@@ -33,7 +51,6 @@ def italic(text):
 
 
 def fixHTML(text):
-    """replaces html-markup parts on tags"""
     return str(text).replace("&", "&amp;") \
                     .replace("<", "&lt;") \
                     .replace(">", "&gt;")
