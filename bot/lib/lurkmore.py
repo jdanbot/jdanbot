@@ -1,7 +1,7 @@
 import yaml
 import aiohttp
 
-from tghtml import tghtml
+from tghtml import TgHTML
 from bs4 import BeautifulSoup
 from aiogram.utils import json
 
@@ -126,7 +126,8 @@ class Lurkmore:
 
     def parse(self, page):
         arch_class = "archwiki-template-meta-related-articles-start"
-        tagBlocklist = [
+
+        return TgHTML(page, [
             ["table", {"class": "lm-plashka"}],
             ["table", {"class": "lm-plashka-tiny"}],
             ["table", {"class": "tpl-quote-tiny"}],
@@ -137,6 +138,4 @@ class Lurkmore:
             ["div", {"class": arch_class}],
             ["div", {"class": "noprint"}],
             ["span", {"id": "w4g_rb_area-1"}]
-        ]
-
-        return tghtml(page, tagBlocklist)
+        ]).parsed
