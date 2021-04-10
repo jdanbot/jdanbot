@@ -1,3 +1,6 @@
+TAG_SCHEMA = "<{tag}>{text}</{tag}>"
+
+
 def prettyword(n, forms):
     if n % 100 in [11, 12, 13, 14]:
         return forms[2]
@@ -12,21 +15,9 @@ def prettyword(n, forms):
         return forms[2]
 
 
-def cuteCrop(page, limit=1, text=""):
-    for p in page.split("\n"):
-        if len(text) + len(p) + 2 <= limit:
-            text += p + "\n"
-
-    clean_text = []
-    text_splited = text.split("\n")
-
-    for p in text_splited:
-        if p == "":
-            pass
-        else:
-            clean_text.append(p)
-
-    return "\n\n".join(clean_text)
+def cuteCrop(text, limit=10, start=""):
+    return "\n\n".join([p for p in text.split("\n")
+                          if len(start) + len(p) + 2 <= limit and p != ""])
 
 
 def code(text):
