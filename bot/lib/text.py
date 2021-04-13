@@ -30,6 +30,8 @@ def cuteCrop(lines, limit=100, text=""):
 
         if len(text + line) <= limit and (back_line != "" or line != ""):
             text += line + "\n"
+        else:
+            break
 
         if len(text) + 2 <= limit and (is_list and not is_next_list and
                                        next_line != ""):
