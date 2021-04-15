@@ -15,5 +15,5 @@ pymemeru
 pyscp
 pyyaml
 sqlfocus
-tghtml==1.0.1
+tghtml==1.0.2
 wikipya==2.0.1
