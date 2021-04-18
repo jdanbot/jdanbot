@@ -1,4 +1,5 @@
 import aiosqlite
+from aiogram.utils import exceptions
 from sqlfocus import SQLTableBase, SQLTable
 from sqlfocus.helpers import sstr
 
@@ -7,6 +8,7 @@ import json
 import datetime
 
 from .config import DB_PATH
+from .bot import bot
 
 
 async def connect_db():
@@ -57,7 +59,44 @@ class Pidors(SQLTableBase):
             self.timestamp >= period_bound, f"{chat_id = }"
         ])
 
-        return 
+        return
+
+
+class Polls(SQLTableBase):
+    async def add_poll(self, user_id, chat_id,
+                       poll_id, description):
+        period = datetime.timedelta(hours=24)
+        now = datetime.datetime.now()
+        period_bound = int((now - period).timestamp())
+
+        return await self.insert(chat_id, user_id, poll_id,
+                                 description, period_bound)
+
+
+    async def close_old(self):
+        period = datetime.timedelta(hours=24)
+        now = datetime.datetime.now()
+        period_bound = int((now - period).timestamp())
+
+        where = self.timestamp >= period_bound
+
+        polls = await self.select(where=where)
+
+        for poll in polls:
+            try:
+                poll_res = await bot.stop_poll(poll[0], poll[2])
+            except exceptions.PollHasAlreadyBeenClosed:
+                await self.delete(where=[
+                    where,
+                    f"chat_id = {poll[0]}",
+                    f"poll_id = {poll[2]}"
+                ])
+                continue
+
+            if poll_res.is_closed:
+                await self.delete(where=where)
+            else:
+                await bot.stop_poll(poll[0], poll[2])
 
 
 conn = asyncio.run(connect_db())
@@ -68,6 +107,7 @@ warns = Warns(conn)
 notes = SQLTable("notes", conn)
 pidors = Pidors(conn)
 pidorstats = SQLTable("pidorstats", conn)
+polls = Polls(conn)
 
 
 async def init_db():
@@ -107,6 +147,14 @@ async def init_db():
         ("user_id", "INTEGER"),
         ("username", "TEXT"),
         ("count", "INTEGER")
+    ))
+
+    await polls.create(exists=True, schema=(
+        ("chat_id", "INTEGER"),
+        ("user_id", "INTEGER"),
+        ("poll_id", "INTEGER"),
+        ("description", "TEXT"),
+        ("timestamp", "INTEGER")
     ))
 
 asyncio.run(init_db())
