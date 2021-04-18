@@ -48,8 +48,7 @@ async def kz_poll(message, params):
                             "Нет прав"
                         ], is_anonymous=False)
 
-    # if poll.chat.id == -1001334412934:
-    if poll.chat.id == -1001410092459:
+    if poll.chat.id == -1001334412934:
         await poll.pin(disable_notification=True)
         await polls.add_poll(chat_id=message.chat.id,
                              user_id=message.from_user.id,
