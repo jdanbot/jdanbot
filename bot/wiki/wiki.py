@@ -82,7 +82,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
     else:
         page.blockList = [["table", {"class": "infobox"}],
                           ["ol", {"class": "references"}],
-                          ["link"], ["style"],
+                          ["link"], ["style"], ["img"],
                           ["table", {"class": "noprint"}],
                           ["div", {"class": "plainlist"}],
                           ["table", {"class": "sidebar"}],
