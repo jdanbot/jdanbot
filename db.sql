@@ -35,3 +35,11 @@ CREATE TABLE pidorstats (
     username TEXT,
     count INTEGER
 );
+
+CREATE TABLE polls (
+    chat_id INTEGER,
+    user_id INTEGER,
+    poll_id INTEGER,
+    description TEXT,
+    timestamp INTEGER
+);
