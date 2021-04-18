@@ -29,7 +29,8 @@ for ind, _button in enumerate(buttons):
 @dp.message_handler(commands=["new_menu", "start", "help"])
 async def menu(message):
     await message.reply(locale.menu.main, parse_mode="HTML",
-                        reply_markup=keyboard)
+                        reply_markup=keyboard,
+                        disable_web_page_preview=True)
 
 
 @dp.callback_query_handler(lambda call: True and
@@ -42,4 +43,5 @@ async def edit(call, text):
     await bot.edit_message_text(chat_id=call.message.chat.id,
                                 message_id=call.message.message_id,
                                 text=text, parse_mode="HTML",
-                                reply_markup=keyboard)
+                                reply_markup=keyboard,
+                                disable_web_page_preview=True)
