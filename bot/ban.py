@@ -156,7 +156,8 @@ async def detect_text_message(message):
         bword = choice(bwords)
 
         if type(bword) == str:
-            await message.reply(bword, parse_mode="HTML")
+            await message.reply(bword, parse_mode="HTML",
+                                disable_web_page_preview=True)
 
         elif type(bword) == dict:
             await message.reply(bword["text"], parse_mode="HTML")
