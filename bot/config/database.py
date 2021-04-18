@@ -64,8 +64,49 @@ conn = asyncio.run(connect_db())
 
 events = SQLTable("events", conn)
 videos = Videos(conn)
-videos.quote = "'"
 warns = Warns(conn)
 notes = SQLTable("notes", conn)
 pidors = Pidors(conn)
 pidorstats = SQLTable("pidorstats", conn)
+
+
+async def init_db():
+    await events.create(exists=True, schema=(
+        ("chatid", "INTEGER"),
+        ("id", "INTEGER"),
+        ("name", "TEXT")
+    ))
+
+    await videos.create(exists=True, schema=(
+        ("channelid", "TEXT"),
+        ("links", "TEXT")
+    ))
+
+    await warns.create(exists=True, schema=(
+        ("user_id", "INTEGER"),
+        ("admin_id", "INTEGER"),
+        ("chat_id", "INTEGER"),
+        ("timestamp", "INTEGER"),
+        ("reason", "TEXT")
+    ))
+
+    await notes.create(exists=True, schema=(
+        ("chatid", "INTEGER"),
+        ("name", "TEXT"),
+        ("content", "TEXT")
+    ))
+
+    await pidors.create(exists=True, schema=(
+        ("chat_id", "INTEGER"),
+        ("user_id", "INTEGER"),
+        ("timestamp", "INTEGER")
+    ))
+
+    await pidorstats.create(exists=True, schema=(
+        ("chat_id", "INTEGER"),
+        ("user_id", "INTEGER"),
+        ("username", "TEXT"),
+        ("count", "INTEGER")
+    ))
+
+asyncio.run(init_db())
