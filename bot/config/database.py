@@ -36,7 +36,7 @@ class Warns(SQLTableBase):
                            period=datetime.timedelta(hours=24)):
         period_bound = int((datetime.datetime.now() - period).timestamp())
         w = await self.select(where=[
-            f"timestamp >= {period_bound}",
+            self.timestamp >= period_bound,
             f"{user_id = }", f"{chat_id = }"
         ])
 
@@ -54,7 +54,7 @@ class Pidors(SQLTableBase):
                            period=datetime.timedelta(hours=24)):
         period_bound = int((datetime.datetime.now() - period).timestamp())
         return await self.select(where=[
-            f"timestamp >= {period_bound}", f"{chat_id = }"
+            self.timestamp >= period_bound, f"{chat_id = }"
         ])
 
         return 
