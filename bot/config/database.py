@@ -59,18 +59,15 @@ class Pidors(SQLTableBase):
             self.timestamp >= period_bound, f"{chat_id = }"
         ])
 
-        return
-
 
 class Polls(SQLTableBase):
     async def add_poll(self, user_id, chat_id,
                        poll_id, description):
-        period = datetime.timedelta(hours=24)
         now = datetime.datetime.now()
-        period_bound = int((now - period).timestamp())
+        period = int(now.timestamp())
 
         return await self.insert(chat_id, user_id, poll_id,
-                                 description, period_bound)
+                                 description, period)
 
 
     async def close_old(self):
@@ -78,8 +75,7 @@ class Polls(SQLTableBase):
         now = datetime.datetime.now()
         period_bound = int((now - period).timestamp())
 
-        where = self.timestamp >= period_bound
-
+        where = self.timestamp <= period_bound
         polls = await self.select(where=where)
 
         for poll in polls:
