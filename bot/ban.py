@@ -94,6 +94,14 @@ async def message_handler(message):
         print(code(traceback.format_exc()))
 
     try:
+        if message.from_user.id == 675257916 and \
+           message.forward_from_chat.id == -1001113237212:
+            await message.delete()
+    except Exception:
+        pass
+
+
+    try:
         response = await getNote(message.chat.id, "__enable_response__")
     except TypeError:
         response = "False"
