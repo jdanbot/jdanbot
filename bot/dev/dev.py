@@ -12,9 +12,12 @@ async def msg(message, params):
 @dp.message_handler(lambda message: message.chat.id == -1001189395000,
                     content_types=["document", "video"])
 async def delete_w10(message):
-    if message.video.file_size == 842295 or \
-       message.video.file_size == 912607:
-        await message.delete()
+    try:
+        if message.video.file_size == 842295 or \
+           message.video.file_size == 912607:
+            await message.delete()
+    except Exception:
+        pass
 
 
 @dp.message_handler(lambda message: False or
