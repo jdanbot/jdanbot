@@ -6,7 +6,7 @@ art
 beautifulsoup4
 coloredlogs
 feedparser
-googletrans==4.0.0-rc1
+googletrans==3.1.0a
 lxml
 pillow
 psutil
