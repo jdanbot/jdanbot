@@ -81,7 +81,9 @@ class Polls(SQLTableBase):
         for poll in polls:
             try:
                 poll_res = await bot.stop_poll(poll[0], poll[2])
-            except exceptions.PollHasAlreadyBeenClosed:
+
+            except (exceptions.PollHasAlreadyBeenClosed,
+                    exceptions.MessageWithPollNotFound):
                 await self.delete(where=[
                     where,
                     f"chat_id = {poll[0]}",
