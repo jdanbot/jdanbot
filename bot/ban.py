@@ -1,4 +1,5 @@
 from aiogram import types
+from aiogram.types import ContentType
 
 from .config import dp, bot
 from .locale import locale
@@ -86,19 +87,12 @@ async def left_john(message):
         await message.reply(f'{choice(locale.greatings)} ушел?')
 
 
-@dp.message_handler(lambda message: True)
+@dp.message_handler()
 async def message_handler(message):
     try:
         await activate_spy(message)
     except Exception:
         print(code(traceback.format_exc()))
-
-    try:
-        if message.from_user.id == 675257916 and \
-           message.forward_from_chat.id == -1001113237212:
-            await message.delete()
-    except Exception:
-        pass
 
 
     try:
@@ -189,3 +183,15 @@ async def detect_text_message(message):
 
     if msg.find("бот,") != -1 and msg.find("когда уйдет лукашенко") != -1:
         await random_lukash(message)
+
+
+@dp.message_handler(content_types=ContentType.ANY)
+async def unknown_message(message):
+    try:
+        if message.from_user.id == 675257916 and \
+           message.forward_from_chat.id == -1001113237212:
+            await message.delete()
+            return
+
+    except Exception:
+        pass
