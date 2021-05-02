@@ -5,14 +5,41 @@ import json
 
 from logging import debug
 
-from .config import conn, bot, RSS_FEEDS, videos
+from .config import conn, bot, RSS_FEEDS, videos, YOUTUBE_KEY
 from .lib.aioget import aioget
 
 import feedparser
 
 
+async def youtube_task(channelid, chatid):
+    url = "https://www.googleapis.com/youtube/v3/search"
+    response = await aioget(url, timeout=5, params={
+        "key": YOUTUBE_KEY,
+        "channelId": channelid,
+        "part": "id",
+        "order": "date",
+        "maxResults": 1
+    })
+
+    try:
+        video = await response.json()
+    except asyncio.exceptions.TimeoutError:
+        debug(f"[{channelid}] TimeoutError")
+        return
+
+    if video.get("error") is not None:
+        return
+
+    first_video = "https://www.youtube.com/watch?v={video_id}".format(
+        video_id=video["items"][0]["id"]["videoId"]
+    )
+
+    await save_post(str(channelid), channelid, chatid, first_video)
+
+
+
 async def rss_task(url, channelid, chatid):
-    response = await aioget(url, timeout=3)
+    response = await aioget(url, timeout=5)
 
     try:
         text = await response.text()
@@ -21,8 +48,12 @@ async def rss_task(url, channelid, chatid):
         return
 
     xml = feedparser.parse(text)
-    first_video = xml["entries"][0]["link"]
+    first_url = xml["entries"][0]["link"]
 
+    await save_post(url, channelid, chatid, first_url)
+
+
+async def save_post(url, channelid, chatid, first_video):
     channels = await videos.select(where=f"{channelid = }")
 
     if len(channels) == 0:
@@ -42,8 +73,3 @@ async def rss_task(url, channelid, chatid):
             await videos.save(channelid, first_video)
 
     await conn.commit()
-
-
-async def rss_timer():
-    for feed in RSS_FEEDS:
-        await rss_task(feed["url"], feed["channelid"], feed["chatid"])
