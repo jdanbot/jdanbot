@@ -1,6 +1,6 @@
 from ..lib.text import bold, cuteCrop, fixWords
 from ..locale import locale
-from ..config import bot, dp, logging
+from ..config import bot, dp, logging, WIKIPYA_BLOCKLIST
 
 import aiogram
 
@@ -80,13 +80,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         text = ""
 
     else:
-        page.blockList = [["table", {"class": "infobox"}],
-                          ["ol", {"class": "references"}],
-                          ["link"], ["style"], ["img"],
-                          ["table", {"class": "noprint"}],
-                          ["div", {"class": "plainlist"}],
-                          ["table", {"class": "sidebar"}],
-                          ["span", {"class": "mw-ext-cite-error"}]]
+        page.blockList = WIKIPYA_BLOCKLIST
         text = fixWords(page.parsed)
 
     try:
