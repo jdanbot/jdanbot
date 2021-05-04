@@ -3,7 +3,7 @@ from aiogram.types import ContentType
 
 from .config import dp, bot
 from .locale import locale
-from .memes.random import random_putin, random_lukash
+from .memes.random import random_putin, random_lukash, random_navalny
 
 from .spy import activate_spy
 from .lib.text import code
@@ -111,7 +111,19 @@ async def detect_text_message(message):
     for word in locale.love_words:
         if word in msg:
             await message.reply_sticker(locale.honka.send_love)
-            break
+            return
+
+    if msg.find("бот,") != -1 and msg.find("когда уйдет путин") != -1:
+        await random_putin(message)
+        return
+
+    if msg.find("бот,") != -1 and msg.find("когда уйдет лукашенко") != -1:
+        await random_lukash(message)
+        return
+
+    if msg.find("бот,") != -1 and msg.find("когда выйдет навальный") != -1:
+        await random_navalny(message)
+        return
 
     if msg.find("бот, сколько") != -1 and msg.find("?") != -1:
         number = randint(0, 10000)
@@ -177,12 +189,6 @@ async def detect_text_message(message):
 
     # if msg.find(" наки ") != -1:
     #     await message.reply("Майкл Наки — в жопе козинаки")
-
-    if msg.find("бот,") != -1 and msg.find("когда уйдет путин") != -1:
-        await random_putin(message)
-
-    if msg.find("бот,") != -1 and msg.find("когда уйдет лукашенко") != -1:
-        await random_lukash(message)
 
 
 @dp.message_handler(content_types=ContentType.ANY)

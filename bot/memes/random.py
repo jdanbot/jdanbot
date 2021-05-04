@@ -21,7 +21,13 @@ async def random_lukash(message):
                                          "Саша", "Саня"]))
 
 
-async def random_person(message, name):
+@dp.message_handler(commands=["random_navalny", "nav"])
+async def random_navalny(message):
+    await random_person(message, "Навальный", action="освободится из-под ареста")
+
+
+
+async def random_person(message, name, action="уйдёт"):
     number = randint(0, 500)
 
     if number == 1:
@@ -33,20 +39,19 @@ async def random_person(message, name):
         days_num = round((number - weeks_num) % 7)
 
         if weeks_num == 0:
-            await message.reply(f'{name} уйдет сегодня')
+            await message.reply(f'{name} {action} сегодня')
 
         elif days_num == 0:
             date = prettyword(int(weeks_num), locale.weeks)
-            await message.reply(f'{name} уйдет через {int(weeks_num)} {date}')
+            await message.reply(f'{name} {action} через {int(weeks_num)} {date}')
 
         else:
             weeks = prettyword(int(weeks_num), locale.weeks)
             days = prettyword(int(days_num), locale.days)
 
-            date = "{} {} и {} {}".format(weeks_num, weeks,
-                                          days_num, days)
+            date = f"{weeks_num} {weeks} и {days_num} {days}"
 
-            await message.reply(f'{name} уйдет через {date}')
+            await message.reply(f'{name} {action} через {date}')
 
 
 @dp.message_handler(commands=["da_net"])
