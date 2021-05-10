@@ -1,0 +1,27 @@
+ru:
+  me:
+    zero: Ты никогда не был %{status} дня
+    one: Одноразовый %{status}, тебе не стыдно?
+    few: Практикующий %{status}, ты был всего лишь %{count} раз, исправляйся
+    many: А ты опытный %{status}... Видел тебя %{count} раз
+
+  pidor: пидор
+  banned: забаненный
+
+  top_10: "Топ-10 <b>%{status}</b> за все время:"
+  members: Всего участников — <code>%{count}</code>
+
+  reg: Ты не в базе. Зарегайся через /pidorreg
+  in_db: Попался в базу, ищи себя в jdanbot.db
+  status_fixed: Пофиксил имя в бд
+  already_in_db: Ты уже в базе
+
+  templates: |
+    Сегодня <b>%{status} дня</b> — <b>%{user}</b>
+    <b>%{user}</b>, ну ты и <b>%{status} дня</b>
+    Ты <b>%{status} дня</b>, <b>%{user}</b>))) 
+
+  already_finded_templates: |
+    Сегодня <b>%{status} дня</b> уже был обнаружен, им является <b>%{user}</b>
+    Вы правда не помните, кто <b>%{status} дня</b>? Сегодня это <b>%{user}</b>
+    Напоминаю, <b>%{user}</b> — <b>%{status} дня</b>
