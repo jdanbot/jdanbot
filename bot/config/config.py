@@ -1,5 +1,6 @@
 import yaml
 
+from pathlib import Path
 from os import environ
 
 
@@ -34,3 +35,6 @@ config.get("katz_bots", default=False)
 config.get("youtube", default=False)
 config.get("youtube_channels", default=())
 config.get("youtube_key", default=None)
+
+BASE_DIR = Path(__file__).parent.parent
+LOCALES_DIR = BASE_DIR / 'i18n'

@@ -2,9 +2,8 @@ import asyncio
 import datetime
 from time import time
 from random import choice
-from ..locale import locale
 from ..lib.text import prettyword, italic
-from ..config import bot, conn, dp, pidors, pidorstats
+from ..config import bot, conn, dp, pidors, pidorstats, _
 
 
 async def getUserName(chat_id, user_id, enable_tag=False):
@@ -16,8 +15,8 @@ async def getUserName(chat_id, user_id, enable_tag=False):
         return pidorinfo.user.first_name
 
 
-@dp.locale_message_handler(commands=["pidor"])
-async def find_pidor(message, _):
+@dp.message_handler(commands=["pidor"])
+async def find_pidor(message, locale):
     user_id = message.from_user.id
     chat_id = message.chat.id
 
@@ -53,13 +52,13 @@ async def find_pidor(message, _):
                                     count=stats[-1][-1] + 1)
             await conn.commit()
 
-            # !!!
-            for phrase in choice(locale.pidor_finding):
-                if isinstance(phrase, list):
-                    phrase = phrase[0].replace(*phrase[1]) if is_katzbots else phrase[0]
+            #FIXME: WENT PHRASES
+            # for phrase in choice(locale.pidor_finding):
+            #     if isinstance(phrase, list):
+            #         phrase = phrase[0].replace(*phrase[1]) if is_katzbots else phrase[0]
                 
-                await message.answer(italic(phrase), parse_mode="HTML")
-                await asyncio.sleep(2.5)
+            #     await message.answer(italic(phrase), parse_mode="HTML")
+            #     await asyncio.sleep(2.5)
 
             await message.answer(
                 choice(_("pidor.templates", 
@@ -81,8 +80,8 @@ async def find_pidor(message, _):
                                 ).split("\n")[:-1]), parse_mode="HTML")
 
 
-@dp.locale_message_handler(commands=["pidorstats"])
-async def pidor_stats(message, _):
+@dp.message_handler(commands=["pidorstats"])
+async def pidor_stats(message, locale):
     chat_id = message.chat.id
     is_katzbots = chat_id == -1001176998310
     status = _("pidor.banned") if is_katzbots else _("pidor.pidor")
@@ -104,8 +103,8 @@ async def pidor_stats(message, _):
     await message.reply(msg, parse_mode="HTML")
 
 
-@dp.locale_message_handler(commands=["pidorme"])
-async def pidor_me(message, _):
+@dp.message_handler(commands=["pidorme"])
+async def pidor_me(message, locale):
     chat_id = message.chat.id
     user_id = message.from_user.id
 
@@ -120,8 +119,8 @@ async def pidor_me(message, _):
                         parse_mode="HTML")
 
 
-@dp.locale_message_handler(commands=["pidorreg"])
-async def reg_pidor(message, _):
+@dp.message_handler(commands=["pidorreg"])
+async def reg_pidor(message, locale):
     chat_id = message.chat.id
     user_id = message.from_user.id
 
