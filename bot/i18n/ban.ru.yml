@@ -1,0 +1,31 @@
+ru:
+  mute: |
+    <b>%{banchik}</b> выдал мут <a href="tg://user?id=%{userid}"><b>{name}</b></a>
+
+    <b>Причина:</b> %{why}
+    <b>Срок:</b> %{time} %{time_localed}
+
+    <b>Амнистия:</b> %{unban_time}
+
+  selfmute: |
+    <a href="tg://user?id=%{userid}"><b>%{banchik}</b></a> самозамутился
+
+    <b>Причина:</b> %{why}
+    <b>Срок:</b> %{time} %{time_localed}
+
+    <b>Амнистия:</b> %{unban_time}
+
+  warn: |
+    <b>%{banchik}</b> выдал %{i}-й пред <a href="tg://user?id=%{userid}"><b>%{name}</b></a>
+
+    <b>Причина:</b> %{why}
+
+  unwarn: |
+    <b>%{banchik}</b> отменил %{i}-й пред <a href="tg://user?id=%{userid}"><b>%{name}</b></a>
+
+    <b>Причина:</b> %{why}
+
+  warn_limit_reached: получено %{i}-е предупреждение
+  admin_cant_unwarn_self: Админ не может отменить пред сам себе
+  warns_is_not_found: Предов нет
+  reason_not_found: причина не указана

@@ -1,8 +1,7 @@
 import datetime
 import math
 
-from ..config import bot, TIMEZONE, warns, conn
-from ..locale import locale
+from ..config import bot, TIMEZONE, warns, conn, _
 from ..notes import getNote
 from .text import prettyword
 
@@ -11,33 +10,41 @@ async def ban(
         blocker_message,
         blockable_message,
         time=1,
-        reason="Причина не указана",
+        reason=_("ban.reason_not_found"),
         isRepostAllowed=True
-        ):
+    ):
 
     try:
         ban_time = max(1, math.ceil(float(time)))
 
     except ValueError:
-        bt = datetime.time.fromisoformat(time)
+        try:
+            bt = datetime.time.fromisoformat(time)
+        except ValueError:
+            await blocker_message.reply("Введи валидное кол-во минут")
+            return
+
         ban_time = bt.hour * 60 + bt.minute
 
     until_date = datetime.datetime.now(TIMEZONE) + datetime.timedelta(minutes=ban_time)
     await bot.restrict_chat_member(blocker_message.chat.id, blockable_message.from_user.id,
                                    until_date=until_date.timestamp())
 
-    time_localed=prettyword(ban_time, locale.minutes)
+    # time_localed=prettyword(ban_time, locale.minutes)
+    time_localed = "_MINUTES_"
     unban_time=until_date.isoformat()
+    is_selfmute = blockable_message.from_user.id == blocker_message.from_user.id
 
-    ban_log = locale.ban_template.format(
-        name=blockable_message.from_user.full_name,
+    ban_log = _(
+        f"ban.{'mute' if not is_selfmute else 'selfmute'}",
         banchik=blocker_message.from_user.full_name,
         userid=blockable_message.from_user.id,
         why=reason,
         time=str(ban_time),
         time_localed=time_localed,
-        unban_time=unban_time
-    )
+        unban_time=unban_time).format(
+            name=blockable_message.from_user.full_name
+        )
 
     if blocker_message.chat.id == -1001176998310 and isRepostAllowed:
         await bot.forward_message(-1001334412934,
@@ -61,7 +68,7 @@ async def ban(
 async def warn(
     blocker_message,
     blockable_message,
-    reason="Причина не указана"
+    reason=_("ban.reason_not_found")
     ):
 
     try:
@@ -75,7 +82,8 @@ async def warn(
                                       period=datetime.timedelta(hours=23))
     wtbans += 1
 
-    warn_log = locale.warn_template.format(
+    warn_log = _(
+        "ban.warn",
         name=blockable_message.from_user.full_name,
         banchik=blocker_message.from_user.full_name,
         userid=blockable_message.from_user.id,
@@ -99,7 +107,7 @@ async def warn(
 
     if wtbans >= WARNS_TO_BAN:
         await ban(blocker_message, blockable_message, "1440",
-                  f"получено {wtbans}-е предупреждение")
+                  _("ban.warn_limit_reached", i=wtbans))
     else:
         await blocker_message.delete()
 
@@ -112,7 +120,7 @@ async def unwarn(
     user_id = blockable_message.from_user.id
 
     if user_id == blocker_message.from_user.id:
-        await blocker_message.reply("Админ не может отменить пред сам себе")
+        await blocker_message.reply(_("ban.admin_cant_unwarn_self"))
         return
 
     period = datetime.timedelta(hours=24)
@@ -122,7 +130,7 @@ async def unwarn(
     user_warns = await warns.select(where=WHERE, order="timestamp")
 
     if len(user_warns) == 0:
-        await blocker_message.reply("Предов нет")
+        await blocker_message.reply(_("ban.warns_is_not_found"))
         return
 
     last_warn = user_warns[-1]
@@ -131,7 +139,8 @@ async def unwarn(
     await warns.delete(where=[f"{user_id = }", f"{timestamp = }"])
     await conn.commit()
 
-    unwarn_log = locale.unwarn_template.format(
+    unwarn_log = _(
+        "ban.unwarn",
         name=blockable_message.from_user.full_name,
         banchik=blocker_message.from_user.full_name,
         userid=blockable_message.from_user.id,
