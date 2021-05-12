@@ -1,8 +1,7 @@
 import hashlib
 from random import choice
 
-from ..config import dp
-from ..locale import locale
+from ..config import dp, _
 from ..lib import handlers
 from ..lib.text import code
 
@@ -22,16 +21,16 @@ async def password(message, options):
     try:
         password_len = int(options[1])
     except ValueError:
-        await message.reply("Введите число")
+        await message.reply(_("error.pass_len_required"))
         return
 
     if password_len > 4096:
-        await message.reply(locale.errors.message_len,
+        await message.reply(_("errors.message_len"),
                             parse_mode="Markdown")
         return
 
     elif password_len < 6:
-        await message.reply("Пароли меньше `6` символов запрещены",
+        await message.reply(_("errors.pass_crypt_is_low"),
                             parse_mode="Markdown")
         return
 
@@ -43,7 +42,7 @@ async def password(message, options):
     symbols.extend(list('~!@#$%^&*()_+-=`[]\\}{|;\':"<>,./?'))
     symbols.extend(list("0123456789"))
 
-    for _ in range(0, password_len):
+    for __ in range(0, password_len):
         password += choice(symbols)
 
     await message.reply(code(password), parse_mode="HTML")
