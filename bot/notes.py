@@ -1,6 +1,6 @@
 from sqlfocus.helpers import sstr
 
-from .config import bot, dp, conn, notes
+from .config import bot, dp, conn, notes, _
 from .lib import handlers
 from .lib.admin import check_admin
 from .lib.text import code, prettyword
@@ -42,13 +42,13 @@ async def cool_secret(message):
     opt = message.text.split(maxsplit=1)
 
     if len(opt) == 1:
-        await message.reply("Введи имя заметки для удаления")
+        await message.reply(_("notes.enter_note_name"))
 
     if opt[1] in locale.adminNotes and message.chat.type == "supergroup":
         if await check_admin(message, bot):
             await removeNote(message.chat.id, opt[1])
         else:
-            await message.reply("У вас нет прав для изменения этой заметки")
+            await message.reply(_("notes.no_rights_for_edit"))
     else:
         await removeNote(message.chat.id, opt[1])
 
@@ -61,12 +61,12 @@ async def set_(message, params):
     if name in locale.adminNotes and message.chat.type == "supergroup":
         if await check_admin(message, bot):
             await addNote(message.chat.id, name, params[2])
-            await message.reply("Добавил системную заметку в бд")
+            await message.reply(_("notes.add_system_note"))
         else:
-            await message.reply("У вас нет прав для изменения этой заметки")
+            await message.reply(_("notes.no_rights_for_edit"))
     else:
         await addNote(message.chat.id, name, params[2])
-        await message.reply("Добавил заметку в бд")
+        await message.reply(_("notes.add_note"))
 
 
 @dp.message_handler(commands=["get"])
@@ -81,7 +81,7 @@ async def get_(message, params):
     note = await getNote(message.chat.id, name)
 
     if note is None:
-        await message.reply("Создай переменную с помощью /set")
+        await message.reply(_("notes.create_var"))
         return
 
     try:
