@@ -52,18 +52,16 @@ async def find_pidor(message, locale):
                                     count=stats[-1][-1] + 1)
             await conn.commit()
 
-            #FIXME: WENT PHRASES
-            # for phrase in choice(locale.pidor_finding):
-            #     if isinstance(phrase, list):
-            #         phrase = phrase[0].replace(*phrase[1]) if is_katzbots else phrase[0]
+            for phrase in choice(_("pidor.pidor_finding")):
+                if isinstance(phrase, list):
+                    phrase = phrase[0].replace(*phrase[1]) if is_katzbots else phrase[0]
                 
-            #     await message.answer(italic(phrase), parse_mode="HTML")
-            #     await asyncio.sleep(2.5)
+                await message.answer(italic(phrase), parse_mode="HTML")
+                await asyncio.sleep(2.5)
 
             await message.answer(
-                choice(_("pidor.templates", 
-                         user=pidorname,
-                         status=status).split("\n")[:-1]),
+                choice(_("pidor.templates", user=pidorname,
+                         status=status)),
                        parse_mode="HTML")
 
             if is_katzbots:
@@ -77,7 +75,7 @@ async def find_pidor(message, locale):
             await message.reply(choice(_("pidor.already_finded_templates",
                                     status=status,
                                     user=pidorname
-                                ).split("\n")[:-1]), parse_mode="HTML")
+                                )), parse_mode="HTML")
 
 
 @dp.message_handler(commands=["pidorstats"])
@@ -93,9 +91,9 @@ async def pidor_stats(message, locale):
     msg += "\n\n"
 
     for num, pidor in enumerate(pidorstat):
-        # name = prettyword(pidor[-1], ["раз", "раза", "раз"])
+        count = prettyword(pidor[-1], _("cases.count"))
         msg += f"<i>{num + 1}.</i> "
-        msg += f"<b>{pidor[2]}</b> — <code>{pidor[-1]}</code> _COUNT_\n"
+        msg += f"<b>{pidor[2]}</b> — <code>{pidor[-1]}</code> {count}\n"
 
     msg += "\n"
     msg += _("pidor.members", count=len(pidorstat))

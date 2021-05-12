@@ -30,8 +30,7 @@ async def ban(
     await bot.restrict_chat_member(blocker_message.chat.id, blockable_message.from_user.id,
                                    until_date=until_date.timestamp())
 
-    # time_localed=prettyword(ban_time, locale.minutes)
-    time_localed = "_MINUTES_"
+    time_localed=prettyword(ban_time, _("cases.minutes"))
     unban_time=until_date.isoformat()
     is_selfmute = blockable_message.from_user.id == blocker_message.from_user.id
 
