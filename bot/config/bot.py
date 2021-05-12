@@ -6,7 +6,7 @@ from .config import TOKEN, LOCALES_DIR
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
-i18n = I18nMiddleware("bot", LOCALES_DIR)
+i18n = I18nMiddleware("bot", LOCALES_DIR, default="ru")
 dp.middleware.setup(i18n)
 
 _ = i18n.t
