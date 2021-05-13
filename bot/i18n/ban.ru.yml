@@ -27,5 +27,5 @@ ru:
 
   warn_limit_reached: получено %{i}-е предупреждение
   admin_cant_unwarn_self: Админ не может отменить пред сам себе
-  warns_is_not_found: Предов нет
+  warns_not_found: Предов нет
   reason_not_found: причина не указана

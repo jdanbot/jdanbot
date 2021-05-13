@@ -129,7 +129,7 @@ async def unwarn(
     user_warns = await warns.select(where=WHERE, order="timestamp")
 
     if len(user_warns) == 0:
-        await blocker_message.reply(_("ban.warns_is_not_found"))
+        await blocker_message.reply(_("ban.warns_not_found"))
         return
 
     last_warn = user_warns[-1]
