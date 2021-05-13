@@ -52,7 +52,7 @@ async def activate_spy(message):
         events.chatid == message.chat.id
     ])
 
-    if len(cur_users) == 0:
+    if len(cur_user) == 0:
         await events.insert(message.chat.id, user.id, user.full_name)
         await conn.commit()
     else:

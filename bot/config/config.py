@@ -35,6 +35,16 @@ config.get("katz_bots", default=False)
 config.get("youtube", default=False)
 config.get("youtube_channels", default=())
 config.get("youtube_key", default=None)
+config.get("langs_list", default=["ru", "en", "sv", "de", "ce",
+                                  "tt", "ba", "pl", "uk", "be",
+                                  "es", "he", "xh", "ab"])
+
+config.get("unique_commands", default={
+    "ru": ["wikiru2", "w", "wiki"],
+    "en": ["van", "wen", "v"],
+    "uk": ["wikiua", "wua", "pawuk"],
+    "be-tarask": ["wikibe-tarask", "wikibet", "wbet", "xbet"]
+})
 
 BASE_DIR = Path(__file__).parent.parent
 LOCALES_DIR = BASE_DIR / 'i18n'

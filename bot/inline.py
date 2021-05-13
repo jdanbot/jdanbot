@@ -1,5 +1,6 @@
-from .config import bot, dp, WIKIPYA_BLOCKLIST
+from .config import bot, dp, WIKIPYA_BLOCKLIST, _
 from .lib.text import code, bold
+
 from .locale import locale
 
 from aiogram.types import InputTextMessageContent, \
@@ -69,7 +70,9 @@ async def query_text(query):
                                                     thumb_url=img.source))
 
         except NotFound:
-            default_image = locale.default_wiki_image
+            default_image = ("https://upload.wikimedia.org/wikipedia"
+                             "/commons/thumb/8/80/Wikipedia-logo-v2.svg/"
+                             "75px-Wikipedia-logo-v2.svg.png")
             buttons.append(InlineQueryResultArticle(**btn_defaults,
                                                     thumb_url=default_image))
 
