@@ -1,4 +1,4 @@
-ru:
+ua:
   mute: |
     <b>%{banchik}</b> видав мут <a href="tg://user?id=%{userid}"><b>{name}</b></a>
 
