@@ -45,7 +45,7 @@ async def wget(message, params):
 
     for word in blacklist:
         if url.lower().find(word) != -1:
-            await message.reply("Ваша ссылка в черном списке")
+            await message.reply(_("errors.link_in_blocklist"))
             return
 
     try:
