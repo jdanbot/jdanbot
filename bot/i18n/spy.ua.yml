@@ -1,0 +1,11 @@
+ru:
+  about_user: |
+    *ПІ:* %{name}
+    *ID:* `%{id}`
+
+    *Загальні чати*: `%{chats}`
+    *Посада*: %{status}
+
+  users_info: |
+    У цьому чаті %{local_users} %{lu_label}
+    Усього %{global_users} %{gu_label}
