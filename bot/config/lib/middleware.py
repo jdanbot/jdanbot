@@ -12,7 +12,11 @@ class I18nMiddleware(I18nMiddlewareBase):
         self.i18n.load_path.append(self.path)
 
         res = self.gettext(singular, plural, n, locale)
+
         lang = self.ctx_locale.get()
+
+        lang = self.default if lang is None else lang
+        lang = "uk" if lang == "ua" else lang
 
         self.i18n.set("locale", lang)
         self.i18n.set("fallback", self.default)
