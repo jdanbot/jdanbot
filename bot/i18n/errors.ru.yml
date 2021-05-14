@@ -16,5 +16,7 @@ ru:
   reply_message: Ответь на сообщение
   reply_photo: Ответь на фото
 
+  hex_only: Введи цвет в формате hex
+
   url_in_blocklist: Ваша ссылка в чёрном списке
   invalid_post_id: Введи валидный id поста
