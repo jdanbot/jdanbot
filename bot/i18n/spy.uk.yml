@@ -1,4 +1,4 @@
-ua:
+uk:
   about_user: |
     *ПІ:* %{name}
     *ID:* `%{id}`
