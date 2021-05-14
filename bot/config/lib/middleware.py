@@ -24,7 +24,12 @@ class I18nMiddleware(I18nMiddlewareBase):
         try:
             return self.i18n.t(res, **kwargs)
         except TypeError:
-            with open(f"{self.path}/{res.split('.')[0]}.{lang}.yml",
+            path = f"{self.path}/{res.split('.')[0]}.{{lang}}.yml"
+
+            if not os.path.exists(path.format(lang=lang)):
+                lang = self.default
+
+            with open(path.format(lang=lang),
                       encoding="UTF-8") as f:
                 locale = yaml.safe_load(f.read())
                 translate = locale.get(lang).get(res.split(".")[1])
