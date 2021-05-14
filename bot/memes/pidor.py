@@ -28,6 +28,10 @@ async def find_pidor(message, locale):
     user_stats = await pidorstats.select(where=(f"{user_id = }",
                                                 f"{chat_id = }"))
 
+    if message.chat.id > 0:
+        await message.reply(_("pidor.work_only_in_chats"))
+        return
+
     if len(user_stats) < 1:
         await message.reply(_("pidor.reg"))
     else:

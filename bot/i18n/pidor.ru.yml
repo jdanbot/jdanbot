@@ -15,6 +15,7 @@ ru:
   in_db: Попался в базу, ищи себя в jdanbot.db
   status_fixed: Пофиксил имя в бд
   already_in_db: Ты уже в базе
+  work_only_in_chats: Пидор дня работает только в чятах!
 
   templates:
     - Сегодня <b>%{status} дня</b> — <b>%{user}</b>

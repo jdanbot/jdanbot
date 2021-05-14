@@ -35,19 +35,15 @@ async def removeNote(chatid, name):
 
 
 @dp.message_handler(commands=["remove_note"])
-async def cool_secret(message):
-    opt = message.text.split(maxsplit=1)
-
-    if len(opt) == 1:
-        await message.reply(_("notes.enter_note_name"))
-
-    if opt[1] in ADMIN_NOTES and message.chat.type == "supergroup":
+@handlers.parse_arguments(2)
+async def cool_secret(message, params):
+    if params[1] in ADMIN_NOTES and message.chat.type == "supergroup":
         if await check_admin(message, bot):
-            await removeNote(message.chat.id, opt[1])
+            await removeNote(message.chat.id, params[1])
         else:
             await message.reply(_("notes.no_rights_for_edit"))
     else:
-        await removeNote(message.chat.id, opt[1])
+        await removeNote(message.chat.id, params[1])
 
 
 @dp.message_handler(commands=["set"])

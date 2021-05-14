@@ -25,7 +25,7 @@ async def call_admins(message):
         types.InlineKeyboardButton(text=_("triggers.delete"),
                                    callback_data="delete"))
 
-    await message.reply(_(),
+    await message.reply(_("triggers.call_admin_warn"),
                         reply_markup=keyboard)
 
 
@@ -64,8 +64,11 @@ async def john(message):
     greatings = await getNote(message.chat.id, "__enable_greatings__")
     welcome = await getNote(message.chat.id, "__enable_welcome__")
 
-    if greatings == "True" or welcome == "True":
-        await message.reply(f"{choice(_('greatings'))}?")
+    if message.from_user.id == 795449748:
+        await message.reply(f"{choice(_('triggers.jdan_welcome'))}")
+
+    elif greatings == "True" or welcome == "True":
+        await message.reply(f"{choice(_('triggers.welcome'))}?")
 
     rules = await getNote(message.chat.id, "__rules__")
 
@@ -79,7 +82,7 @@ async def john(message):
 @dp.message_handler(content_types=["left_chat_member"])
 async def left_john(message):
     if message.chat.id != -1001319828458 and message.chat.id != -1001189395000:
-        await message.reply(f'{choice(_("greatings"))} ушел?')
+        await message.reply(f'{choice(_("triggers.welcome"))} ушел?')
 
 
 @dp.message_handler()
