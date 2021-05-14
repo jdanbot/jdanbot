@@ -1,0 +1,20 @@
+ua:
+  enter_wiki_query: "*Будь ласка, вкажіть назву статті*\nНаприклад так: `{} Назва статті`"
+  duckerror: "*Будь ласка, вкажіть запит*\nНаприклад так: `{} Назва статті`"
+  few_args: "*Недостатня кількість параметрів:*\nНеобхідно `{num}`"
+  egg_error: "A problem has been detected and KanobuOS has been shutdown to prevent damage to your computer.\n\nThe problem seems to be caused by the following file: canobu.exe\n\nSYSTEM_BAN_EXCEPTION_NOT_HANDLED\n\nIf this is the first time you've seen this stop error screen, restart your bot. If this screen appears again, follow these steps:\n\nCheck to make sure any new hardware or software is properly installed.If this is a new installation, ask your hardware or software manufacturer for any KanobuOS updates you might need.\n\nIf problems continue, disable or remove any newly installed hardware or software. Disable BAN memory options such as caching or shadowing. If you need to use safe mode to remove or disable components, restart your computer, press F to select Advanced Startup Options, and then select Safe Ban.\n\nTechnical Information:\n\n*** STOP: 0x1000007e (0xffffffffc0000005, 0xfffff80002e55151, 0xfffff880009a99d8, 0xfffff880009a9230)\n*** canobu.exe - Address 0x00001488 base at 0xfffff80002e0d000 DateStamp0x4ce7951a"
+
+  message_len: "*Телеграм підтримує повідомлення довжиною не більше* `4096` *символів*"
+  pass_crypt_is_low: Паролі менше `6` символів заборонені
+  pass_len_required: Введіть правильну довжину пароля
+
+  enter_value: Введіть вираз для обчислення
+  only_vars: Тільки змінні та числа!
+
+  not_found: Нічого не знайдено
+  error: Виникла помилка під час виконання
+
+  reply_message: Відповідай на повідомлення
+
+  url_in_blocklist: Ваше посилання в чорному списку
+  invalid_post_id: Введи дійсний id статті
