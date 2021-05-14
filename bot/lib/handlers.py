@@ -1,5 +1,4 @@
-from ..config import bot, IMAGE_PATH
-from ..locale import locale
+from ..config import bot, IMAGE_PATH, _
 from .admin import check_admin
 from .photo import Photo
 
@@ -10,7 +9,7 @@ def parse_arguments(limit, without_params=False):
             params = message.text.split(maxsplit=limit - 1)
 
             if len(params) < limit and not without_params:
-                await message.reply(locale.errors.few_args.format(num=limit),
+                await message.reply(_("errors.few_args", num=limit),
                                     parse_mode="Markdown")
             else:
                 await func(message, params)
@@ -31,7 +30,7 @@ def get_reply_photo(func):
             elif reply.document:
                 file_id = reply.document.thumb.file_id
         else:
-            await message.reply("Ответьте на фото командой")
+            await message.reply(_("errors.reply_photo"))
             return
 
         photo = await bot.get_file(file_id)
@@ -72,7 +71,7 @@ def get_text(func):
         elif len(params) == 2:
             text = params[1]
         else:
-            await message.reply(locale.errors.few_args.format(num=1),
+            await message.reply(_("errors.few_args", num=1),
                                 parse_mode="Markdown")
             return
 
