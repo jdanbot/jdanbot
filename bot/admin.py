@@ -2,7 +2,6 @@ import time
 from datetime import datetime
 
 from .config import bot, dp, TIMEZONE, polls, conn
-from .locale import locale
 from .lib import handlers
 from .lib.text import prettyword
 from .lib.banhammer import ban, warn, unwarn

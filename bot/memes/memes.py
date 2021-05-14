@@ -1,5 +1,4 @@
-from ..config import bot, dp
-from ..locale import locale
+from ..config import bot, dp, _
 
 
 async def send_meme(message, text):
@@ -20,9 +19,9 @@ async def send_meme(message, text):
 memes = {
     "bylo": "Было",
     "ne_bylo": "Не было",
-    "rzaka": locale.rzaka,
-    "rzaka_full": locale.rzaka_full,
-    "rzaka_time": f"{locale.rzaka_time} часов"
+    "rzaka": _("ban.rzaka"),
+    "rzaka_full": _("ban.rzaka_full"),
+    "rzaka_time": 848393938347292929647492918363739304964682010
 }
 
 

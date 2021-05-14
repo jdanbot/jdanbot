@@ -1,10 +1,7 @@
-from sqlfocus.helpers import sstr
-
-from .config import bot, dp, conn, notes, _
+from .config import bot, dp, conn, notes, _, ADMIN_NOTES
 from .lib import handlers
 from .lib.admin import check_admin
 from .lib.text import code, prettyword
-from .locale import locale
 
 
 async def addNote(chatid, name, text):
@@ -13,12 +10,12 @@ async def addNote(chatid, name, text):
     except Exception as e:
         print(e)
 
-    await notes.insert(chatid, sstr(name), sstr(text))
+    await notes.insert(chatid, name, text)
     await conn.commit()
 
 
 async def getNote(chatid, name):
-    e = await notes.select(where=[f"{chatid = }", f"name='{sstr(name)}'"])
+    e = await notes.select(where=[f"{chatid = }", f"{name = }"])
 
     if len(e) > 0:
         return e[-1][-1]
@@ -27,13 +24,13 @@ async def getNote(chatid, name):
 
 
 async def showNotes(chatid):
-    e = await notes.select(where=[f"chatid={chatid}"])
+    e = await notes.select(where=f"{chatid = }")
 
     return [item[1] for item in e]
 
 
 async def removeNote(chatid, name):
-    await notes.delete(where=[f"chatid={chatid}", f"name='{sstr(name)}'"])
+    await notes.delete(where=[f"{chatid = }", f"{name = }"])
     await conn.commit()
 
 
@@ -44,7 +41,7 @@ async def cool_secret(message):
     if len(opt) == 1:
         await message.reply(_("notes.enter_note_name"))
 
-    if opt[1] in locale.adminNotes and message.chat.type == "supergroup":
+    if opt[1] in ADMIN_NOTES and message.chat.type == "supergroup":
         if await check_admin(message, bot):
             await removeNote(message.chat.id, opt[1])
         else:
@@ -58,7 +55,7 @@ async def cool_secret(message):
 async def set_(message, params):
     name = params[1][1:] if params[1].startswith("#") else params[1]
 
-    if name in locale.adminNotes and message.chat.type == "supergroup":
+    if name in ADMIN_NOTES and message.chat.type == "supergroup":
         if await check_admin(message, bot):
             await addNote(message.chat.id, name, params[2])
             await message.reply(_("notes.add_system_note"))
