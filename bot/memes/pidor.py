@@ -20,9 +20,6 @@ async def find_pidor(message, locale):
     user_id = message.from_user.id
     chat_id = message.chat.id
 
-    is_katzbots = chat_id == -1001176998310
-    status = _("pidor.banned") if is_katzbots else _("pidor.pidor")
-
     curchat = await pidors.getPidorInfo(chat_id)
     all_pidors = await pidorstats.select(where=f"{chat_id = }")
     user_stats = await pidorstats.select(where=(f"{user_id = }",
@@ -64,8 +61,7 @@ async def find_pidor(message, locale):
                 await asyncio.sleep(2.5)
 
             await message.answer(
-                choice(_("pidor.templates", user=pidorname,
-                         status=status)),
+                choice(_("pidor.templates", user=pidorname)),
                        parse_mode="HTML")
 
             if is_katzbots:
@@ -77,7 +73,6 @@ async def find_pidor(message, locale):
         else:
             pidorname = await getUserName(chat_id, curchat[0][1])
             await message.reply(choice(_("pidor.already_finded_templates",
-                                    status=status,
                                     user=pidorname
                                 )), parse_mode="HTML")
 
@@ -85,13 +80,11 @@ async def find_pidor(message, locale):
 @dp.message_handler(commands=["pidorstats"])
 async def pidor_stats(message, locale):
     chat_id = message.chat.id
-    is_katzbots = chat_id == -1001176998310
-    status = _("pidor.banned") if is_katzbots else _("pidor.pidor")
 
     pidorstat = await pidorstats.select(where=f"{chat_id = }")
     pidorstat = sorted(pidorstat, key=lambda pidor: pidor[-1])[::-1][:10]
 
-    msg = _("pidor.top_10", status=status)
+    msg = _("pidor.top_10")
     msg += "\n\n"
 
     for num, pidor in enumerate(pidorstat):
@@ -110,14 +103,12 @@ async def pidor_me(message, locale):
     chat_id = message.chat.id
     user_id = message.from_user.id
 
-    is_katzbots = chat_id == -1001176998310
-    status = _("pidor.banned") if is_katzbots else _("pidor.pidor")
-
     pidor = await pidorstats.select(where=[f"{chat_id = }",
                                            f"{user_id = }"])
 
     count = pidor[-1][-1] if len(pidor) > 0 else 0
-    await message.reply(_("pidor.me", count=count, status=status),
+    await message.reply(_("pidor.me", count=count,
+                          fcount=prettyword(count, _("cases.count"))),
                         parse_mode="HTML")
 
 
@@ -134,7 +125,8 @@ async def reg_pidor(message, locale):
                                 username, 0)
         await conn.commit()
 
-        await message.reply(_("pidor.in_db"))
+        await message.reply(_("pidor.in_db"),
+                              parse_mode="Markdown")
 
     elif pidor[-1][2] != username:
         pidor = pidor[-1]
@@ -146,4 +138,5 @@ async def reg_pidor(message, locale):
         await message.reply(_("pidor.name_fixed"))
 
     else:
-        await message.reply(_("pidor.already_in_db"))
+        await message.reply(_("pidor.already_in_db"),
+                              parse_mode="Markdown")
