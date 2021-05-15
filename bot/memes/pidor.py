@@ -55,7 +55,7 @@ async def find_pidor(message, locale):
 
             for phrase in choice(_("pidor.pidor_finding")):
                 if isinstance(phrase, list):
-                    phrase = phrase[0].replace(*phrase[1]) if is_katzbots else phrase[0]
+                    phrase = phrase[0]
                 
                 await message.answer(italic(phrase), parse_mode="HTML")
                 await asyncio.sleep(2.5)
@@ -64,7 +64,7 @@ async def find_pidor(message, locale):
                 choice(_("pidor.templates", user=pidorname)),
                        parse_mode="HTML")
 
-            if is_katzbots:
+            if message.chat.id == -1001176998310:
                 try:
                     await bot.restrict_chat_member(chat_id, pidor_of_day,
                                                    until_date=time()+60)

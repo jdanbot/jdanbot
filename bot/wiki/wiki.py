@@ -1,4 +1,4 @@
-from ..lib.text import bold, cuteCrop, fixWords
+from ..lib.text import bold, code, cuteCrop, fixWords
 from ..config import (
     bot, dp, logging, WIKIPYA_BLOCKLIST, _,
     LANGS_LIST, UNIQUE_COMMANDS
