@@ -54,9 +54,6 @@ async def find_pidor(message, locale):
             await conn.commit()
 
             for phrase in choice(_("pidor.pidor_finding")):
-                if isinstance(phrase, list):
-                    phrase = phrase[0]
-                
                 await message.answer(italic(phrase), parse_mode="HTML")
                 await asyncio.sleep(2.5)
 

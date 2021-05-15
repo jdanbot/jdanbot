@@ -33,4 +33,7 @@ class I18nMiddleware(I18nMiddlewareBase):
                       encoding="UTF-8") as f:
                 locale = yaml.safe_load(f.read())
                 translate = locale.get(lang).get(res.split(".")[1])
-                return [_.format(**kwargs) for _ in translate]
+
+                print(translate)
+                return [_.format(**kwargs) if isinstance(_, str) else _
+                        for _ in translate]
