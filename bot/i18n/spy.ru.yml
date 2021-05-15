@@ -1,6 +1,6 @@
 ru:
   about_user: |
-    <b>*ФИ:</b> %{name}
+    <b>ФИ:</b> %{name}
     <b>ID:</b> %{id}
 
     <b>Общие чяты</b>: <b>%{chats}</b>
