@@ -2,9 +2,8 @@ import asyncio
 import datetime
 from time import time
 from random import choice
-from ..locale import locale
 from ..lib.text import prettyword, italic
-from ..config import bot, conn, dp, pidors, pidorstats
+from ..config import bot, conn, dp, pidors, pidorstats, _
 
 
 async def getUserName(chat_id, user_id, enable_tag=False):
@@ -17,20 +16,21 @@ async def getUserName(chat_id, user_id, enable_tag=False):
 
 
 @dp.message_handler(commands=["pidor"])
-async def find_pidor(message):
+async def find_pidor(message, locale):
     user_id = message.from_user.id
     chat_id = message.chat.id
-
-    is_katzbots = chat_id == -1001176998310
-    name = "забаненный" if is_katzbots else "пидор"
 
     curchat = await pidors.getPidorInfo(chat_id)
     all_pidors = await pidorstats.select(where=f"{chat_id = }")
     user_stats = await pidorstats.select(where=(f"{user_id = }",
                                                 f"{chat_id = }"))
 
+    if message.chat.id > 0:
+        await message.reply(_("pidor.work_only_in_chats"))
+        return
+
     if len(user_stats) < 1:
-        await message.reply("Ты не в базе. Зарегайся через /pidorreg")
+        await message.reply(_("pidor.reg"))
     else:
         if len(curchat) == 0:
             pidor_of_day = choice([pidor[1] for pidor in all_pidors])
@@ -53,20 +53,15 @@ async def find_pidor(message):
                                     count=stats[-1][-1] + 1)
             await conn.commit()
 
-            for phrase in choice(locale.pidor_finding):
-                if isinstance(phrase, list):
-                    phrase = phrase[0].replace(*phrase[1]) if is_katzbots else phrase[0]
-                
+            for phrase in choice(_("pidor.pidor_finding")):
                 await message.answer(italic(phrase), parse_mode="HTML")
                 await asyncio.sleep(2.5)
 
-            await message.answer(choice(locale.pidor_templates).format(
-                user=pidorname,
-                name=name
-            ), parse_mode="HTML")
+            await message.answer(
+                choice(_("pidor.templates", user=pidorname)),
+                       parse_mode="HTML")
 
-
-            if is_katzbots:
+            if message.chat.id == -1001176998310:
                 try:
                     await bot.restrict_chat_member(chat_id, pidor_of_day,
                                                    until_date=time()+60)
@@ -74,52 +69,48 @@ async def find_pidor(message):
                     pass
         else:
             pidorname = await getUserName(chat_id, curchat[0][1])
-            await message.reply(choice(locale.pidor_finded_templates).format(
-                name=name,
-                user=pidorname
-            ), parse_mode="HTML")
+            await message.reply(choice(_("pidor.already_finded_templates",
+                                    user=pidorname
+                                )), parse_mode="HTML")
 
 
 @dp.message_handler(commands=["pidorstats"])
-async def pidor_stats(message):
+async def pidor_stats(message, locale):
     chat_id = message.chat.id
-    is_katzbots = chat_id == -1001176998310
-    name = "забаненных" if is_katzbots else "пидоров"
 
     pidorstat = await pidorstats.select(where=f"{chat_id = }")
     pidorstat = sorted(pidorstat, key=lambda pidor: pidor[-1])[::-1][:10]
-    msg = f"Топ-10 <b>{name}</b> за все время:\n\n"
+
+    msg = _("pidor.top_10")
+    msg += "\n\n"
 
     for num, pidor in enumerate(pidorstat):
-        name = prettyword(pidor[-1], ["раз", "раза", "раз"])
+        count = prettyword(pidor[-1], _("cases.count"))
         msg += f"<i>{num + 1}.</i> "
-        msg += f"<b>{pidor[2]}</b> — <code>{pidor[-1]}</code> {name}\n"
+        msg += f"<b>{pidor[2]}</b> — <code>{pidor[-1]}</code> {count}\n"
 
-    msg += f"\nВсе участников — <code>{len(pidorstat)}</code>"
+    msg += "\n"
+    msg += _("pidor.members", count=len(pidorstat))
 
     await message.reply(msg, parse_mode="HTML")
 
 
 @dp.message_handler(commands=["pidorme"])
-async def pidor_me(message):
+async def pidor_me(message, locale):
     chat_id = message.chat.id
     user_id = message.from_user.id
-
-    is_katzbots = chat_id == -1001176998310
-    name = "забаненным" if is_katzbots else "пидором"
 
     pidor = await pidorstats.select(where=[f"{chat_id = }",
                                            f"{user_id = }"])
 
     count = pidor[-1][-1] if len(pidor) > 0 else 0
-
-    fcount = prettyword(count, ["раз", "раза", "раз"])
-    await message.reply(f"Ты был <b>{name} дня</b> {count} {fcount}",
+    await message.reply(_("pidor.me", count=count,
+                          fcount=prettyword(count, _("cases.count"))),
                         parse_mode="HTML")
 
 
 @dp.message_handler(commands=["pidorreg"])
-async def reg_pidor(message):
+async def reg_pidor(message, locale):
     chat_id = message.chat.id
     user_id = message.from_user.id
 
@@ -131,7 +122,8 @@ async def reg_pidor(message):
                                 username, 0)
         await conn.commit()
 
-        await message.reply("Попался в базу, ищи себя в jdanbot.db")
+        await message.reply(_("pidor.in_db"),
+                              parse_mode="Markdown")
 
     elif pidor[-1][2] != username:
         pidor = pidor[-1]
@@ -140,7 +132,8 @@ async def reg_pidor(message):
                                 username=username)
         await conn.commit()
 
-        await message.reply("Пофиксил имя в бд")
+        await message.reply(_("pidor.name_fixed"))
 
     else:
-        await message.reply("Ты уже в базе")
+        await message.reply(_("pidor.already_in_db"),
+                              parse_mode="Markdown")

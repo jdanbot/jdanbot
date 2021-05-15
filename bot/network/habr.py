@@ -1,4 +1,4 @@
-from ..config import dp
+from ..config import dp, _
 from ..lib import handlers
 from ..lib.habr import Habr
 
@@ -10,7 +10,7 @@ async def habr(message, params):
         id_ = int(params[1])
 
     except ValueError:
-        await message.reply("Введи валидный id поста")
+        await message.reply(_("errors.invalid_post_id"))
 
     h = Habr()
 

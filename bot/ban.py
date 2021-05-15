@@ -1,8 +1,7 @@
 from aiogram import types
 from aiogram.types import ContentType
 
-from .config import dp, bot
-from .locale import locale
+from .config import dp, bot, _
 from .memes.random import random_putin, random_lukash, random_navalny
 
 from .spy import activate_spy
@@ -20,10 +19,13 @@ import re
 async def call_admins(message):
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(
-        types.InlineKeyboardButton(text="Да", callback_data="call_admin"),
-        types.InlineKeyboardButton(text="Удолить", callback_data="delete"))
+        types.InlineKeyboardButton(text=_("triggers.yes_"),
+                                   callback_data="call_admin"),
 
-    await message.reply("Вы точно уверен, что хочешь призвать админов? 🌚",
+        types.InlineKeyboardButton(text=_("triggers.delete"),
+                                   callback_data="delete"))
+
+    await message.reply(_("triggers.call_admin_warn"),
                         reply_markup=keyboard)
 
 
@@ -35,7 +37,7 @@ async def delete_call(call):
 @dp.callback_query_handler(lambda call: call.data == "call_admin")
 async def call_admin(call):
     keyboard = types.InlineKeyboardMarkup()
-    keyboard.add(types.InlineKeyboardButton(text="Удолить",
+    keyboard.add(types.InlineKeyboardButton(text=_("triggers.delete"),
                                             callback_data="delete"))
 
     admins = await bot.get_chat_administrators(call.message.chat.id)
@@ -53,7 +55,7 @@ async def call_admin(call):
 
     await bot.edit_message_text(chat_id=call.message.chat.id,
                                 message_id=call.message.message_id,
-                                text=admins_call + "Все, вызвал админов, тiкай з чату",
+                                text=admins_call + _("triggers.admins_called"),
                                 reply_markup=keyboard)
 
 
@@ -62,21 +64,17 @@ async def john(message):
     greatings = await getNote(message.chat.id, "__enable_greatings__")
     welcome = await getNote(message.chat.id, "__enable_welcome__")
 
-    greatings = True if greatings == "True" else False
-    welcome = True if welcome == "True" else False
-
-    if greatings or welcome:
-        await message.reply(f"{choice(locale.greatings)}?")
-
     if message.from_user.id == 795449748:
-        await message.reply(f"{choice(locale.jdan_welcome)}?")
+        await message.reply(f"{choice(_('triggers.jdan_welcome'))}")
+
+    elif greatings == "True" or welcome == "True":
+        await message.reply(f"{choice(_('triggers.welcome'))}?")
 
     rules = await getNote(message.chat.id, "__rules__")
 
     if rules is not None:
         try:
-            await message.answer(rules,
-                                 parse_mode="MarkdownV2")
+            await message.answer(rules, parse_mode="MarkdownV2")
         except Exception:
             await message.answer(rules)
 
@@ -84,11 +82,20 @@ async def john(message):
 @dp.message_handler(content_types=["left_chat_member"])
 async def left_john(message):
     if message.chat.id != -1001319828458 and message.chat.id != -1001189395000:
-        await message.reply(f'{choice(locale.greatings)} ушел?')
+        await message.reply(f'{choice(_("triggers.welcome"))} ушел?')
 
 
 @dp.message_handler()
 async def message_handler(message):
+    try:
+        if message.from_user.id == 675257916 and \
+           message.forward_from_chat.id == -1001113237212:
+            await message.delete()
+            return
+
+    except Exception:
+        pass
+
     try:
         await activate_spy(message)
     except Exception:
@@ -108,9 +115,9 @@ async def detect_text_message(message):
     msg = message.text.lower().replace("_", "") \
                               .replace("-", "")
 
-    for word in locale.love_words:
+    for word in _("triggers.love_words"):
         if word in msg:
-            await message.reply_sticker(locale.honka.send_love)
+            await message.reply_sticker('CAACAgIAAx0CRieRpgABA7bCX1aW70b_1a0OspsDDXYk8iPACEkAArwBAAKUmWkvXbzmLd8q5dcbBA')
             return
 
     if msg.find("бот,") != -1 and msg.find("когда уйдет путин") != -1:
@@ -137,17 +144,17 @@ async def detect_text_message(message):
             await message.reply(f"{str(number)} {word}")
 
     elif msg.find("бот, почему") != -1 and msg.find("?") != -1:
-        await message.reply(choice(locale.why_list))
+        await message.reply(choice(_("triggers.why_list")))
 
     elif msg.find("бот,") != -1 and msg.find("?") != -1:
         await message.reply(choice(["Да", "Нет"]))
 
     if msg.find("бойкот") != -1:
-        await message.reply(locale.ban.boikot)
+        await message.reply(_("triggers.boikot"))
 
     if msg.find("яблоко") != -1 or \
        msg.find("яблочн") != -1:
-        await message.reply(locale.ban.apple)
+        await message.reply(_("triggers.apple"))
 
     if re.search(r"(^|[^a-zа-яё\d])[бb][\W]*[аa][\W]*[нnh]([^a-zа-яё\d]|$)",
                  message.text
@@ -163,9 +170,9 @@ async def detect_text_message(message):
             return
 
         try:
-            bwords = locale.ban_list.__dict__[message.from_user.id]
+            bwords = _("triggers.ban_messages")[message.from_user.id]
         except KeyError:
-            bwords = locale.ban_list.all
+            bwords = _("triggers.ban_messages")["all"]
 
         bword = choice(bwords)
 

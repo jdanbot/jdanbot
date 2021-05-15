@@ -5,6 +5,9 @@ TAG_SCHEMA = "<{tag}>{text}</{tag}>"
 
 
 def prettyword(n, forms):
+    if isinstance(forms, str):
+        return forms
+
     if n % 100 in [11, 12, 13, 14]:
         return forms[2]
 

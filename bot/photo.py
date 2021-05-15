@@ -1,6 +1,6 @@
 from random import choice
 
-from .config import bot, dp
+from .config import bot, dp, _
 from .lib import handlers
 from .lib.text import bold, code
 from .lib.photo import Photo
@@ -15,7 +15,7 @@ async def resize(message, params, img):
     try:
         img.resize([int(params[1]), int(params[2])])
     except Exception as e:
-        await message.reply(f"Произошла ошибка\n{code(e)}",
+        await message.reply(f"{bold(_('errors.error'))}\n{code(e)}",
                             parse_mode="HTML")
         return
 
@@ -33,7 +33,7 @@ async def text(message, params, img):
         img.font("media/fonts/OpenSans-Bold.ttf", int(params[1]))
         img.text(params[2], img.parseXY(params[3]), params[4])
     except Exception as e:
-        await message.reply(f"{bold('Произошла ошибка')}\n{code(e)}",
+        await message.reply(f"{bold(_('errors.error'))}\n{code(e)}",
                             parse_mode="HTML")
         return
 
@@ -51,7 +51,7 @@ async def t(message, params, img):
         img.font("media/fonts/OpenSans-Bold.ttf", 75)
         img.text("black", (50, 50), params[1])
     except Exception as e:
-        await message.reply(f"{bold('Произошла ошибка')}\n{code(e)}",
+        await message.reply(f"{bold(_('errors.error'))}\n{code(e)}",
                             parse_mode="HTML")
         return
 
@@ -70,7 +70,7 @@ async def rectangle(message, params, img):
                       img.parseXY(params[3]),
                       params[1])
     except Exception as e:
-        await message.reply(f"{bold('Произошла ошибка')}\n{code(e)}",
+        await message.reply(f"{bold(_('errors.error'))}\n{code(e)}",
                             parse_mode="HTML")
         return
 
@@ -95,7 +95,7 @@ async def random_color(message, params):
         if params[1].startswith("#"):
             color = params[1]
         else:
-            await message.reply("Вводи цвет в формате hex")
+            await message.reply(_("errors.hex_only"))
             return
 
     img = Photo(xy=(200, 200))
@@ -103,7 +103,7 @@ async def random_color(message, params):
     try:
         img.rectangle((0, 0), (200, 200), color)
     except Exception as e:
-        await message.reply(f"{bold('Произошла ошибка')}\n{code(e)}",
+        await message.reply(f"{bold(_('errors.error'))}\n{code(e)}",
                             parse_mode="HTML")
         return
 

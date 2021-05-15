@@ -1,6 +1,6 @@
 import pymemeru
 
-from ..config import dp
+from ..config import dp, _
 from ..lib import handlers
 from ..lib.text import cuteCrop
 
@@ -11,7 +11,7 @@ async def mempep(message, params):
     try:
         search = await pymemeru.search(params[1])
     except AttributeError:
-        await message.reply("Не удалось найти")
+        await message.reply(_("errors.not_found"))
         return
 
     page = await pymemeru.page(search[0]["name"])

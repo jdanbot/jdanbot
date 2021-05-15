@@ -1,6 +1,5 @@
-from .config import bot, dp, WIKIPYA_BLOCKLIST
+from .config import bot, dp, WIKIPYA_BLOCKLIST, _, LANGS_LIST
 from .lib.text import code, bold
-from .locale import locale
 
 from aiogram.types import InputTextMessageContent, \
                           InlineQueryResultAudio, InlineQueryResultArticle
@@ -9,9 +8,6 @@ from bs4 import BeautifulSoup
 from random import randint, choice
 
 from .lib import chez
-
-
-WIKIPEDIA_LANGS = ['aa', 'ab', 'ae', 'af', 'ak', 'am', 'an', 'ar', 'as', 'av', 'ay', 'az', 'ba', 'be', 'bg', 'bh', 'bi', 'bm', 'bn', 'bo', 'br', 'bs', 'ca', 'ce', 'ch', 'co', 'cr', 'cs', 'cu', 'cv', 'cy', 'da', 'de', 'dv', 'dz', 'ee', 'el', 'en', 'eo', 'es', 'et', 'eu', 'fa', 'ff', 'fi', 'fj', 'fo', 'fr', 'fy', 'ga', 'gd', 'gl', 'gn', 'gu', 'gv', 'gv', 'ha', 'he', 'hi', 'ho', 'hr', 'ht', 'hu', 'hy', 'hz', 'ia', 'id', 'ie', 'ig', 'ii', 'ii', 'ik', 'io', 'is', 'it', 'iu', 'ja', 'jv', 'ka', 'kg', 'ki', 'kj', 'kk', 'kl', 'kl', 'km', 'kn', 'ko', 'kr', 'ks', 'ku', 'kv', 'kw', 'ky', 'la', 'lb', 'lg', 'li', 'ln', 'lo', 'lt', 'lu', 'lv', 'mg', 'mh', 'mi', 'mk', 'ml', 'mn', 'mo', 'mr', 'ms', 'mt', 'my', 'na', 'nb', 'nd', 'ne', 'ng', 'nl', 'nn', 'no', 'nr', 'nv', 'ny', 'oc', 'oj', 'om', 'or', 'os', 'pa', 'pi', 'pl', 'ps', 'pt', 'qu', 'rm', 'rn', 'ro', 'ru', 'rw', 'sa', 'sd', 'se', 'sg', 'sh', 'si', 'sk', 'sl', 'sm', 'sn', 'so', 'sq', 'sr', 'ss', 'ss', 'st', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'ti', 'tk', 'tl', 'tn', 'to', 'tr', 'ts', 'tt', 'tw', 'ty', 'ug', 'uk', 'ur', 'uz', 've', 'vi', 'vo', 'wa', 'wo', 'xh', 'yi', 'yo', 'za', 'zh', 'zu']
 
 
 @dp.inline_handler(lambda query: True and
@@ -24,7 +20,7 @@ async def query_text(query):
     lang = params[0].split(":", maxsplit=1)
     lang = "ru" if len(lang) == 0 else lang[1]
 
-    if not (lang in WIKIPEDIA_LANGS):
+    if not (lang in LANGS_LIST):
         return
 
     wiki = Wikipya(lang)
@@ -69,7 +65,9 @@ async def query_text(query):
                                                     thumb_url=img.source))
 
         except NotFound:
-            default_image = locale.default_wiki_image
+            default_image = ("https://upload.wikimedia.org/wikipedia"
+                             "/commons/thumb/8/80/Wikipedia-logo-v2.svg/"
+                             "75px-Wikipedia-logo-v2.svg.png")
             buttons.append(InlineQueryResultArticle(**btn_defaults,
                                                     thumb_url=default_image))
 
@@ -83,7 +81,7 @@ async def cock(query):
     if cock_size == 46:
         cock_size = 1488
 
-    person = choice(locale.persons)
+    person = choice(_("triggers.persons"))
 
     await bot.answer_inline_query(query.id, [
         InlineQueryResultArticle(
