@@ -1,10 +1,10 @@
 uk:
   about_user: |
-    *ПІ:* %{name}
-    *ID:* `%{id}`
+    <b>ПІ:</b> %{name}
+    <b>ID:</b> %{id}
 
-    *Загальні чати*: `%{chats}`
-    *Посада*: %{status}
+    <b>Загальні чати</b>: %{chats}
+    <b>Посада</b>: %{status}
 
   users_info: |
     У цьому чаті %{local_users} %{lu_label}

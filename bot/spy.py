@@ -1,7 +1,8 @@
 from sqlfocus import SQLTable
 
 from .config import bot, dp, conn, events, _
-from .lib.text import code, prettyword
+from .lib.text import code, bold, prettyword, fixHTML
+from .lib.libtree import make_tree
 
 
 def _user_counter(users):
@@ -11,7 +12,6 @@ def _user_counter(users):
 @dp.message_handler(commands=["me"])
 async def me_info(message):
     chats = await events.select(where=events.id == message.from_user.id)
-
     user = await bot.get_chat_member(
         message.chat.id,
         message.from_user.id
@@ -19,11 +19,11 @@ async def me_info(message):
 
     await message.reply(_(
         "spy.about_user",
-        name=message.from_user.full_name,
-        id=message.from_user.id,
-        chats=len(chats),
-        status=user.status
-    ), parse_mode="Markdown")
+        name=fixHTML(message.from_user.full_name),
+        id=code(message.from_user.id),
+        chats=code(len(chats)),
+        status=code(user.status)
+    ), parse_mode="HTML")
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,

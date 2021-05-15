@@ -1,10 +1,10 @@
 ru:
   about_user: |
-    *ФИ:* %{name}
-    *ID:* `%{id}`
+    <b>*ФИ:</b> %{name}
+    <b>ID:</b> %{id}
 
-    *Общие чяты*: `%{chats}`
-    *Должность*: %{status}
+    <b>Общие чяты</b>: <b>%{chats}</b>
+    <b>Должность</b>: %{status}
 
   users_info: |
     В этом чяте %{local_users} %{lu_label}
