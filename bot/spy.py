@@ -33,7 +33,10 @@ async def calc_users(message):
     chats_users = await events.select()
 
     users = []
-    users = [user[1] for user in chats_users if user[1] not in users]
+
+    for user in chats_users:
+        if user[1] not in users:
+            users.append(user[1])
 
     await message.reply(_(
         "spy.users_info", 
