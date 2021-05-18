@@ -1,8 +1,7 @@
 import datetime
 import math
 
-from ..config import bot, TIMEZONE, warns, conn, _
-from ..notes import getNote
+from ..config import bot, TIMEZONE, warns, conn, _, notes
 from .text import prettyword
 
 
@@ -71,7 +70,7 @@ async def warn(
     ):
 
     try:
-        WARNS_TO_BAN = await getNote(blocker_message.chat.id, "__warns_to_ban__")
+        WARNS_TO_BAN = await notes.get(blocker_message.chat.id, "__warns_to_ban__")
         WARNS_TO_BAN = int(WARNS_TO_BAN)
     except Exception:
         WARNS_TO_BAN = 3

@@ -1,7 +1,6 @@
 import aiosqlite
 from aiogram.utils import exceptions
 from sqlfocus import SQLTableBase, SQLTable
-from sqlfocus.helpers import sstr
 
 import asyncio
 import json
@@ -46,7 +45,7 @@ class Warns(SQLTableBase):
 
     async def mark_chat_member(self, user_id, chat_id, admin_id, reason):
         await self.insert(user_id, admin_id, chat_id,
-                          int(datetime.datetime.now().timestamp()), sstr(reason))
+                          int(datetime.datetime.now().timestamp()), reason)
 
         await conn.commit()
 
@@ -97,12 +96,43 @@ class Polls(SQLTableBase):
                 await bot.stop_poll(poll[0], poll[2])
 
 
+class Notes(SQLTableBase):
+    async def add(self, chatid, name, text):
+        try:
+            await self.remove(chatid, name)
+        except Exception:
+            pass
+
+        await self.insert(chatid, name, text)
+        await self._conn.commit()
+
+
+    async def get(self, chatid, name):
+        e = await self.select(where=[f"{chatid = }", f"{name = }"])
+
+        if len(e) > 0:
+            return e[-1][-1]
+        else:
+            return None
+
+
+    async def show(self, chatid):
+        e = await self.select(where=f"{chatid = }")
+
+        return [item[1] for item in e]
+
+
+    async def remove(self, chatid, name):
+        await self.delete(where=[f"{chatid = }", f"{name = }"])
+        await self._conn.commit()
+
+
 conn = asyncio.run(connect_db())
 
 events = SQLTable("events", conn)
 videos = Videos(conn)
 warns = Warns(conn)
-notes = SQLTable("notes", conn)
+notes = Notes(conn)
 pidors = Pidors(conn)
 pidorstats = SQLTable("pidorstats", conn)
 polls = Polls(conn)

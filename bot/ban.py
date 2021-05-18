@@ -1,14 +1,13 @@
 from aiogram import types
 from aiogram.types import ContentType
 
-from .config import dp, bot, _
+from .config import dp, bot, _, notes
 from .memes.random import random_putin, random_lukash, random_navalny
 
 from .spy import activate_spy
 from .lib.text import code
 
 from random import choice, randint
-from .notes import getNote
 
 import traceback
 import time
@@ -61,8 +60,8 @@ async def call_admin(call):
 
 @dp.message_handler(content_types=["new_chat_members"])
 async def john(message):
-    greatings = await getNote(message.chat.id, "__enable_greatings__")
-    welcome = await getNote(message.chat.id, "__enable_welcome__")
+    greatings = await notes.get(message.chat.id, "__enable_greatings__")
+    welcome = await notes.get(message.chat.id, "__enable_welcome__")
 
     if message.from_user.id == 795449748:
         await message.reply(f"{choice(_('triggers.jdan_welcome'))}")
@@ -70,7 +69,7 @@ async def john(message):
     elif greatings == "True" or welcome == "True":
         await message.reply(f"{choice(_('triggers.welcome'))}?")
 
-    rules = await getNote(message.chat.id, "__rules__")
+    rules = await notes.get(message.chat.id, "__rules__")
 
     if rules is not None:
         try:
@@ -103,7 +102,7 @@ async def message_handler(message):
 
 
     try:
-        response = await getNote(message.chat.id, "__enable_response__")
+        response = await notes.get(message.chat.id, "__enable_response__")
     except TypeError:
         response = "False"
 

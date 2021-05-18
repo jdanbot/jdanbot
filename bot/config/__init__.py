@@ -9,7 +9,8 @@ from datetime import datetime
 
 from .logger import logging
 from .vk_api import vk_api
-from .bot import bot, dp, _
+from .bot import bot, dp
+from .i18n import _
 
 START_TIME = datetime.now()
 TIMEZONE = timezone("Europe/Moscow")
