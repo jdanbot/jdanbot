@@ -18,3 +18,4 @@ python-i18n
 sqlfocus
 tghtml==1.0.4
 wikipya==2.0.1
+unsync

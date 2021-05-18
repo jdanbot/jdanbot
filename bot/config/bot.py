@@ -1,12 +1,5 @@
-from aiogram import Bot, Dispatcher, executor, types
-from .lib.middleware import I18nMiddleware
-
-from .config import TOKEN, LOCALES_DIR
+from aiogram import Bot, Dispatcher
+from .config import TOKEN
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
-
-i18n = I18nMiddleware("bot", LOCALES_DIR, default="ru")
-dp.middleware.setup(i18n)
-
-_ = i18n.t

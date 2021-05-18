@@ -1,12 +1,23 @@
-import os
+import os, sys
 
 import yaml
 import i18n
+import asyncio
+from unsync import unsync
 
 from .text import fixHTML
+from ..database import notes
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
 from aiogram import types
+
+
+@unsync
+async def get_chat_locale(chat):
+    return None if chat is None else await notes.get(
+        chat.id,
+        "__chat_lang__"
+    )
 
 
 class I18nMiddleware(I18nMiddlewareBase):
@@ -17,9 +28,12 @@ class I18nMiddleware(I18nMiddlewareBase):
 
         res = self.gettext(singular, plural, n, locale)
 
-        lang = self.ctx_locale.get()
+        chat = types.Chat.get_current()
+        chat_lang = get_chat_locale(chat).result()
 
-        lang = self.default if lang is None else lang
+        user_lang = self.ctx_locale.get()
+
+        lang = chat_lang or user_lang or self.default
         lang = "uk" if lang == "ua" else lang
 
         self.i18n.set("locale", lang)
