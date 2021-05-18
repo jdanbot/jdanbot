@@ -6,6 +6,7 @@ import i18n
 from .text import fixHTML
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
+from aiogram import types
 
 
 class I18nMiddleware(I18nMiddlewareBase):
@@ -45,7 +46,7 @@ class I18nMiddleware(I18nMiddlewareBase):
                 translate = locale.get(lang).get(res.split(".")[1])
 
                 if isinstance(translate, str):
-                    return translate
+                    return translate.format(**kwargs)
 
-                return [_.format(**kwargs) if isinstance(_, list) else _
+                return [_.format(**kwargs) if isinstance(_, list) else _.format(**kwargs)
                         for _ in translate]
