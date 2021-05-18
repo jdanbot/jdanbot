@@ -1,0 +1,11 @@
+uk:
+  about_user: |
+    <b>ПІ:</b> %{name}
+    <b>ID:</b> %{id}
+
+    <b>Загальні чати</b>: %{chats}
+    <b>Посада</b>: %{status}
+
+  users_info: |
+    У цьому чаті %{local_users} %{lu_label}
+    Усього %{global_users} %{gu_label}

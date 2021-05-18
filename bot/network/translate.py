@@ -1,5 +1,5 @@
 from googletrans import Translator
-from ..config import dp, bot
+from ..config import dp, bot, _
 
 t = Translator()
 
@@ -17,11 +17,11 @@ async def getTranslate(message, lang):
             try:
                 text = message.reply_to_message.text
             except Exception as e:
-                await message.reply("Ошибка")
+                await message.reply(_("errors.error"))
                 await bot.send_message("795449748", e)
                 return
     else:
-        await message.reply("Ответь на сообщение")
+        await message.reply(_("errors.reply_message"))
         return
 
     try:
@@ -30,7 +30,7 @@ async def getTranslate(message, lang):
             translated = translated[:4096]
     except Exception as e:
         await bot.send_message("795449748", e)
-        translated = f"Ошибка при переводе\n{e}"
+        translated = e
 
     await message.reply(translated)
 

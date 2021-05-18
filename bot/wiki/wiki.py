@@ -1,9 +1,10 @@
-from ..lib.text import bold, cuteCrop, fixWords
-from ..locale import locale
-from ..config import bot, dp, logging, WIKIPYA_BLOCKLIST
+from ..lib.text import bold, code, cuteCrop, fixWords
+from ..config import (
+    bot, dp, logging, WIKIPYA_BLOCKLIST, _,
+    LANGS_LIST, UNIQUE_COMMANDS
+)
 
-import aiogram
-
+from aiogram import types
 from wikipya.aiowiki import Wikipya, NotFound
 
 
@@ -21,8 +22,9 @@ WRW_FLAG = (
 
 async def wikiSearch(message, lang="ru", logs=False):
     opts = message.text.split(maxsplit=1)
+
     if len(opts) == 1:
-        await message.reply(locale.wikierror.format(opts[0]),
+        await message.reply(_("errors.enter_wiki_query").format(opts[0]),
                             parse_mode="Markdown")
         return
 
@@ -34,7 +36,7 @@ async def wikiSearch(message, lang="ru", logs=False):
     r = await wiki.search(query, 20)
 
     if r == -1:
-        await message.reply("Ничего не найдено")
+        await message.reply(_("error.not_found")) 
         return
 
     text = ""
@@ -52,7 +54,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
     if name is None:
         opts = message.text.split(maxsplit=1)
         if len(opts) == 1:
-            await message.reply(locale.wikierror.format(opts[0]),
+            await message.reply(_("errors.enter_wiki_query").format(opts[0]),
                                 parse_mode="Markdown")
             return
 
@@ -65,7 +67,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
         search = await wiki.search(name)
 
     except NotFound:
-        await message.reply("Ничего не найдено")
+        await message.reply(_("errors.not_found"))
         return
 
     opensearch = await wiki.opensearch(search[0].title)
@@ -91,7 +93,7 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
     except NotFound:
         image = -1
 
-    keyboard = aiogram.types.InlineKeyboardMarkup()
+    keyboard = types.InlineKeyboardMarkup()
 
     try:
         name = search[0].title
@@ -103,8 +105,8 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
     except NameError:
         url = f"https://{lang}.wikipedia.org/wiki/{name}"
 
-    keyboard.add(aiogram.types.InlineKeyboardButton(text="Читать полностью",
-                                                    url=url))
+    keyboard.add(types.InlineKeyboardButton(text=_("wiki.read_full"),
+                                            url=url))
 
     if type(image) is int:
         await bot.send_chat_action(message.chat.id, "typing")
@@ -128,23 +130,23 @@ async def getWiki(message=None, lang="ru", logs=False, name=None):
                                       reply_markup=keyboard)
 
         except Exception as e:
-            await message.reply(f"*Не удалось отправить статью*\n`{e}`",
-                                parse_mode="Markdown")
+            await message.reply(bold(_("errors.error")) + "\n" + code(e),
+                                parse_mode="HTML")
 
 
 @dp.message_handler(commands=["langs", "wikilangs", "wiki_langs"])
 async def getLangs(message):
-    await message.reply(locale.langs, parse_mode="Markdown",
+    await message.reply(_("wiki.langs"), parse_mode="Markdown",
                         disable_web_page_preview=True)
 
 
 wikicommands = []
 
-for lang in locale.langs_list:
+for lang in LANGS_LIST:
     wikicommands.extend([f"wiki{lang}", f"w{lang}"])
 
-for lang in locale.unique_commands.__dict__:
-    wikicommands.extend(locale.unique_commands.__dict__[lang])
+for lang in UNIQUE_COMMANDS:
+    wikicommands.extend(UNIQUE_COMMANDS[lang])
 
 
 @dp.message_handler(commands=wikicommands)
@@ -153,13 +155,13 @@ async def wikihandler(message):
     lang = command.replace("/wiki", "") \
                   .replace("/w", "")
 
-    if lang in locale.langs_list:
+    if lang in LANGS_LIST:
         await getWiki(message, lang)
         return
 
     else:
-        for lang in locale.unique_commands.__dict__:
-            if command[1:] in locale.unique_commands.__dict__[lang]:
+        for lang in UNIQUE_COMMANDS:
+            if command[1:] in UNIQUE_COMMANDS[lang]:
                 await getWiki(message, lang)
                 break
 
@@ -171,7 +173,7 @@ async def wikis(message):
 
 @dp.message_handler(commands=["wiki_usage"])
 async def wiki_usage(message):
-    await message.reply(locale.wiki_query_example, parse_mode="Markdown")
+    await message.reply(_("wiki."), parse_mode="Markdown")
 
 
 @dp.message_handler(lambda message: message.text.startswith("/w_"))

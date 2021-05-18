@@ -1,0 +1,11 @@
+ru:
+  about_user: |
+    <b>ФИ:</b> %{name}
+    <b>ID:</b> %{id}
+
+    <b>Общие чяты</b>: <b>%{chats}</b>
+    <b>Должность</b>: %{status}
+
+  users_info: |
+    В этом чяте %{local_users} %{lu_label}
+    Всего %{global_users} %{gu_label}

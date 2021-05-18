@@ -1,6 +1,6 @@
 import pyscp
 
-from ..config import dp, logging
+from ..config import dp, logging, _
 from ..lib import handlers
 from ..lib.text import bold, code, cuteCrop, fixHTML
 
@@ -63,7 +63,7 @@ async def detectscp(message, params):
             p = scp("scp-" + params[1])
             p.title
         except AttributeError:
-            await message.reply(bold("Не удалось найти scp"),
+            await message.reply(bold(_("errors.not_found")),
                                 parse_mode="HTML")
             return
 
