@@ -16,7 +16,7 @@ async def getUserName(chat_id, user_id, enable_tag=False):
 
 
 @dp.message_handler(commands=["pidor"])
-async def find_pidor(message, locale):
+async def find_pidor(message, locale=None):
     user_id = message.from_user.id
     chat_id = message.chat.id
 
@@ -75,7 +75,7 @@ async def find_pidor(message, locale):
 
 
 @dp.message_handler(commands=["pidorstats"])
-async def pidor_stats(message, locale):
+async def pidor_stats(message, locale=None):
     chat_id = message.chat.id
 
     pidorstat = await pidorstats.select(where=f"{chat_id = }")
@@ -96,7 +96,7 @@ async def pidor_stats(message, locale):
 
 
 @dp.message_handler(commands=["pidorme"])
-async def pidor_me(message, locale):
+async def pidor_me(message, locale=None):
     chat_id = message.chat.id
     user_id = message.from_user.id
 
@@ -110,7 +110,7 @@ async def pidor_me(message, locale):
 
 
 @dp.message_handler(commands=["pidorreg"])
-async def reg_pidor(message, locale):
+async def reg_pidor(message, locale=None):
     chat_id = message.chat.id
     user_id = message.from_user.id
 
