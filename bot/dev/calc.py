@@ -14,7 +14,7 @@ async def eban(message, locale):
     options = message.text.split(maxsplit=1)
 
     if len(options) == 1:
-        await message.reply(_("math.enter_value"))
+        await message.reply(_("errors.enter_value"))
         return
 
     query = options[1]
@@ -27,17 +27,17 @@ async def eban(message, locale):
     match_symbols = re.search(r"[\[\]\^\{\}]|\*\*", query)
 
     if type(match).__name__ == "Match":
-        await message.reply(_("math.only_vars"))
+        await message.reply(_("errors.only_vars"))
         return
 
     if type(match_symbols).__name__ == "Match" and \
        message.from_user.id != 795449748:
-        await message.reply(_("math.only_vars"))
+        await message.reply(_("errors.only_vars"))
         return
 
     try:
         result = await asyncio.wait_for(calc(query), 1)
     except Exception as e:
-        result = bold(_("math.error")) + "\n" + code(e)
+        result = bold(_("errors.error")) + "\n" + code(e)
 
     await message.reply(str(result)[:4096], parse_mode="HTML")
