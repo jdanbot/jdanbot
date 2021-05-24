@@ -1,68 +1,69 @@
 en:
     main: |
-        <b>✋ Привет!</b> Я бот для бана и прочего. Выбери команды внизу, сперва нажав на кнопки. Если бот не будет работать, то напиши <a href="t.me/jdan734">jDan734</a>
+        <b>✋ Hello!</b> I multifunctional telegram bot for banning and stuff :) Select the commands at the bottom by first clicking on the buttons. If the bot does not work, then write <a href="t.me/jdan734">jDan734</a>
 
-        Донаты — /donate
+        Donate — /donate
+        Author's page — jdan734.me
 
     network: |
-        <b>Онлайн-ресурсы</b>
+        <b>Internet</b>
 
-        /wiki<code>[код страны (ru, uk, en, de)] [название статьи]</code>
-        /wiki_langs - языки википедии, которые бот поддерживает
-        /wget - Информация о скорости загрузки страницы
-        /lurk - Луркоморье
-        /preview - Качает превью с ютуба по ссылке
+        /wiki<code>[lang code (ru, uk, en, de)] [name of page]</code>
+        /wiki_langs - supported wikipedia languages
+        /wget - page's information (time for load, size)
+        /lurk - lurkmoare
+        /preview - download youtube preview
 
     math: |
-        <b>Математика</b>
+        <b>Math</b>
 
-        /calc - Выполнить одну арифметическую операцию <i>(числа и операторы писать раздельно)</i>
-        /sqrt - Квадрат от числа
+        /calc - calculate
+        /sqrt - the square root of a number
 
     text: |
-        <b>Трансформация текста</b>
+        <b>Text formating</b>
 
-        /title - все слова с большой буквы
-        /upper - все слова капсом
-        /lower - все слова с маленькой буквы
+        /title - all in title case
+        /upper - all in upper case
+        /lower - all in lower case
 
     images: |
-        <b>Редактирование фото</b>
+        <b>Photo editing</b>
 
-        /resize <code>[x] [y]</code> - Изменить размер фото по пропорциям
-        /text <code>[size] [color] [XxY] [text]</code> - Нанести на фото текст
-        /rectangle - Нарисовать квадрат
+        /resize <code>[x] [y]</code> - change photo's size
+        /text <code>[size] [color] [XxY] [text]</code> - draw text in photo
+        /rectangle - draw rectangle in photo
 
     commands: |
-        <b>Системные команды</b>
+        <b>System commands</b>
 
-        /delete - удаляет сообщение, если на него ответить
-        /to_json - переводит обычный python объект (str) в json
-        /status - Статус бота
+        /delete - delete replied message
+        /to_json - str(dict) => json
+        /status - bot's status
 
     crypt: |
-        <b>Шифрование</b>
+        <b>Cryptography</b>
 
-        /sha256 - хеширует ваш текст в sha256
-        /generate_password <code>[кол-во знаков]</code> - генерирует пароль
+        /sha256 - text => sha256
+        /password <code>[password len]</code> - generate password
 
     memes: |
-        <b>Мемы</b>
+        <b>Memes</b>
 
-        /rzaka - отправляет короткий вариант "РЖАКА-СМЕЯКА..."
-        /rzaka_full - отправляет полный вариант "РЖАКА-СМЕЯКА..."
-        /fake - отправляет фото с джонами/поляками
-        /pizda - отправляет мем "пизда"
-        /tebe_pizda - отправляет мем "тебе пизда"
-        /net_pizdy - отправляет мем "нет пизда"
-        /xui - отправляет мем "хуй"
+        /rzaka - sends short version of "РЖАКА-СМЕЯКА..."
+        /rzaka_full - sends full version of "РЖАКА-СМЕЯКА..."
+        /fake - sends photo with джонами/поляками
+        /pizda - sends meme "пизда"
+        /tebe_pizda - sends meme "тебе пизда"
+        /net_pizdy - sends meme "нет пизда"
+        /xui - sends meme "хуй"
 
     buttons:
-        main: Главная
-        math: Математика
-        network: Онлайн-ресурсы
-        text: Трансформация текста
-        images: Редактирование фото
-        commands: Системные команды
-        crypt: Шифрование
-        memes: Мемы
+        main: Main
+        math: Math
+        network: Internet
+        text: Text formating
+        images: Photo editing
+        commands: System commands
+        crypt: Cryptography
+        memes: Memes

@@ -1,28 +1,28 @@
 en:
   me:
-    zero: Ты никогда не был пидором дня
-    one: Одноразовый пидор, тебе не стыдно?
-    few: Практикующий пидор, ты был всего лишь %{count} %{fcount}, исправляйся
-    many: А ты опытный пидор... Видел тебя %{count} %{fcount}
+    zero: You've never been pidor of the day
+    one: One-time pidor, aren't you ashamed?
+    few: Practicing pidor, you've only been %{count} %{fcount}, get better
+    many: And you're an experienced pidor... I saw you %{count} %{fcount}
 
-  top_10: "Топ-10 <b>пидоров</b> за все время:"
-  members: Всего участников — <code>%{count}</code>
+  top_10: "Top 10 <b>pidors</b> of all time:"
+  members: All members — <code>%{count}</code>
 
-  reg: Ты не в базе. Зарегайся через /pidorreg
-  in_db: Попался в базу, ищи себя в `jdanbot.db`
-  status_fixed: Пофиксил имя в бд
-  already_in_db: Ищи себя в `jdanbot.db`
-  work_only_in_chats: Пидор дня работает только в чятах!
+  reg: You're not in the database. Sign up via /pidorreg
+  in_db: Caught in the database, look for yourself in `jdanbot.db`
+  status_fixed: Name in DB fixed
+  already_in_db: Find youself in `jdanbot.db`
+  work_only_in_chats: Pidor of the day only works in chats!
 
   templates:
-    - Сегодня <b>пидор дня</b> — <b>{user}</b>
-    - <b>{user}</b>, ну ты и <b>пидор дня</b>
-    - Ты <b>пидор дня</b>, <b>{user}</b>)))
+    - Today <b>pidor of day</b> is <b>{user}</b>
+    - <b>{user}</b>, you're the <b>pidor of day</b>
+    - You <b>pidor of day</b>, <b>{user}</b>)))
 
   already_finded_templates:
-    - Сегодня <b>пидор дня</b> уже был обнаружен, им является <b>{user}</b>
-    - Вы правда не помните, кто <b>пидор дня</b>? Сегодня это <b>{user}</b>
-    - Напоминаю, <b>{user}</b> — <b>пидор дня</b>
+    - Today <b>pidor of the day</b> has already been discovered, it is <b>{user}</b>
+    - You really don't remember who the <b>pidor of the day</b> is? Today it is <b>{user}</b>
+    - Remind, <b>{user}</b> is <b>pidor of day</b>
 
   pidor_finding:
     - |

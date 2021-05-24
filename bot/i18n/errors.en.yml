@@ -1,22 +1,22 @@
 en:
-  enter_wiki_query: "*Пожалуйста, напишите название статьи*\nНапример так: `{} Название Статьи`"
-  duckerror: "*Пожалуйста, напишите запрос*\nНапример так: `{} Название Статьи`"
-  few_args: "*Недостаточное количество параметров:*\nНеобходимо `%{num}`"
+  enter_wiki_query: "*Please, enter name of article*\nFor example: `{}` Name of article"
+  duckerror: "*Please, enter query*\nFor example: `{}` Name of article"
+  few_args: "*Insufficient number of parameters:*\nRequired `%{num}`"
 
-  message_len: "*Телеграм поддерживает сообщения длиной не больше* `4096` *символов*"
-  pass_crypt_is_low: Пароли меньше `6` символов запрещены
-  pass_len_required: Введите валидную длину пароля
+  message_len: "*Telegram support messages with a maximum length of 4096 characters*"
+  pass_crypt_is_low: Passwords less than '6' characters are forbidden
+  pass_len_required: Enter valid password length
 
-  enter_value: Введите выражение для вычисления
-  only_vars: Только переменные и числа!
+  enter_value: Enter the expression to calculate
+  only_vars: Only variables and numbers!
 
-  not_found: Ничего не найдено
-  error: При выполнении возникла ошибка
+  not_found: Nothing found
+  error: An error occurred during execution
 
-  reply_message: Ответь на сообщение
-  reply_photo: Ответь на фото
+  reply_message: Reply to message
+  reply_photo: Reply to photo
 
-  hex_only: Введи цвет в формате hex
+  hex_only: Enter color in HEX
 
-  url_in_blocklist: Ваша ссылка в чёрном списке
-  invalid_post_id: Введи валидный id поста
+  url_in_blocklist: Your URL in blocklist
+  invalid_post_id: Enter valid ID of post

@@ -1,6 +1,6 @@
 en:
-  enter_note_name: Введи имя заметки для удаления
-  no_rights_for_edit: У вас нет прав для изменения этой заметки
-  add_note: Добавил заметку в бд
-  add_system_note: Добавил системную заметку в бд
-  create_var: Создай переменную с помощью /set
+  enter_note_name: Enter name of note to delete
+  no_rights_for_edit: No rights for edit this note
+  add_note: Note added to DB
+  add_system_note: System note added to DB
+  create_var: Create variable with /set

@@ -123,10 +123,10 @@ en:
     - Ave Кайзер
     - " "
 
-  yes_: Да
-  delete: Удолить
-  call_admin_warn: Ты точно уверен, что хочешь призвать админов? 🌚
-  admins_called: Все, вызвал админов, тiкай з чату
+  yes_: "Yes"
+  delete: Delet
+  call_admin_warn: Are you sure you want to call admins? 🌚
+  admins_called: Called the admins run from chat
 
   why_list:
     - Лень

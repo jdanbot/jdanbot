@@ -1,11 +1,11 @@
 en:
   about_user: |
-    <b>ФИ:</b> %{name}
+    <b>Full name:</b> %{name}
     <b>ID:</b> %{id}
 
-    <b>Общие чяты</b>: <b>%{chats}</b>
-    <b>Должность</b>: %{status}
+    <b>Common chats</b>: <b>%{chats}</b>
+    <b>Status</b>: %{status}
 
   users_info: |
-    В этом чяте %{local_users} %{lu_label}
-    Всего %{global_users} %{gu_label}
+    In this chat %{local_users} %{lu_label}
+    All %{global_users} %{gu_label}
