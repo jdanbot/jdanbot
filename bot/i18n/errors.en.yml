@@ -3,7 +3,7 @@ en:
   duckerror: "*Please, enter query*\nFor example: `{}` Name of article"
   few_args: "*Insufficient number of parameters:*\nRequired `%{num}`"
 
-  message_len: "*Telegram support messages with a maximum length of 4096 characters*"
+  message_len: "*Telegram supports messages with a maximum length of 4096 characters*"
   pass_crypt_is_low: Passwords less than '6' characters are forbidden
   pass_len_required: Enter valid password length
 

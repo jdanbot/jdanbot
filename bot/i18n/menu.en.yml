@@ -1,6 +1,6 @@
 en:
     main: |
-        <b>✋ Hello!</b> I multifunctional telegram bot for banning and stuff :) Select the commands at the bottom by first clicking on the buttons. If the bot does not work, then write <a href="t.me/jdan734">jDan734</a>
+        <b>✋ Hello!</b> I'm a multifunctional telegram bot for banning and stuff :) Select the commands at the bottom by first clicking on the buttons. If the bot does not work, then write <a href="t.me/jdan734">jDan734</a>
 
         Donate — /donate
         Author's page — jdan734.me
@@ -31,15 +31,15 @@ en:
         <b>Photo editing</b>
 
         /resize <code>[x] [y]</code> - change photo's size
-        /text <code>[size] [color] [XxY] [text]</code> - draw text in photo
-        /rectangle - draw rectangle in photo
+        /text <code>[size] [color] [XxY] [text]</code> - draw text on photo
+        /rectangle - draw rectangle on photo
 
     commands: |
         <b>System commands</b>
 
         /delete - delete replied message
         /to_json - str(dict) => json
-        /status - bot's status
+        /status - bot status
 
     crypt: |
         <b>Cryptography</b>
