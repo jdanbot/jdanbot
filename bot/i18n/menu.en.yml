@@ -1,0 +1,69 @@
+en:
+    main: |
+        <b>✋ Hello!</b> I'm a multifunctional telegram bot for banning and stuff :) Select the commands at the bottom by first clicking on the buttons. If the bot does not work, then write <a href="t.me/jdan734">jDan734</a>
+
+        Donate — /donate
+        Author's page — jdan734.me
+
+    network: |
+        <b>Internet</b>
+
+        /wiki<code>[lang code (ru, uk, en, de)] [name of page]</code>
+        /wiki_langs - supported wikipedia languages
+        /wget - page's information (time for load, size)
+        /lurk - lurkmoare
+        /preview - download youtube preview
+
+    math: |
+        <b>Math</b>
+
+        /calc - calculate
+        /sqrt - the square root of a number
+
+    text: |
+        <b>Text formating</b>
+
+        /title - all in title case
+        /upper - all in upper case
+        /lower - all in lower case
+
+    images: |
+        <b>Photo editing</b>
+
+        /resize <code>[x] [y]</code> - change photo's size
+        /text <code>[size] [color] [XxY] [text]</code> - draw text on photo
+        /rectangle - draw rectangle on photo
+
+    commands: |
+        <b>System commands</b>
+
+        /delete - delete replied message
+        /to_json - str(dict) => json
+        /status - bot status
+
+    crypt: |
+        <b>Cryptography</b>
+
+        /sha256 - text => sha256
+        /password <code>[password len]</code> - generate password
+
+    memes: |
+        <b>Memes</b>
+
+        /rzaka - sends short version of "РЖАКА-СМЕЯКА..."
+        /rzaka_full - sends full version of "РЖАКА-СМЕЯКА..."
+        /fake - sends photo with джонами/поляками
+        /pizda - sends meme "пизда"
+        /tebe_pizda - sends meme "тебе пизда"
+        /net_pizdy - sends meme "нет пизда"
+        /xui - sends meme "хуй"
+
+    buttons:
+        main: Main
+        math: Math
+        network: Internet
+        text: Text formating
+        images: Photo editing
+        commands: System commands
+        crypt: Cryptography
+        memes: Memes

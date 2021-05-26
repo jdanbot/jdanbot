@@ -1,0 +1,35 @@
+en:
+  mute: |
+    <b>%{banchik}</b> muted <a href="tg://user?id=%{userid}"><b>{name}</b></a>
+
+    <b>Reason:</b> %{why}
+    <b>Term:</b> %{time} %{time_localed}
+
+    <b>Unmute date:</b> %{unban_time}
+
+  selfmute: |
+    <a href="tg://user?id=%{userid}"><b>%{banchik}</b></a> selfmuted
+
+    <b>Reason:</b> %{why}
+    <b>Term:</b> %{time} %{time_localed}
+
+    <b>Ummute date:</b> %{unban_time}
+
+  warn: |
+    <b>%{banchik}</b> warned %{i} time <a href="tg://user?id=%{userid}"><b>%{name}</b></a>
+
+    <b>Reason:</b> %{why}
+
+  unwarn: |
+    <b>%{banchik}</b> unwarned %{i} time <a href="tg://user?id=%{userid}"><b>%{name}</b></a>
+
+    <b>Reason:</b> %{why}
+
+  warn_limit_reached: got %{i} warn
+  admin_cant_unwarn_self: Admin can't unwarn self
+  warns_not_found: No warns
+  reason_not_found: no reason
+
+  rzaka: RZHAKA-SMEYAKA 🤣🤣🤣🤣😋😋😋😋😋😋 IMMEDIATELY VISIBLE A RUSSIAN MAN DUMMY PENDOS IN HIS OMERICA BEFORE THAT DIDN'T THINK 😡😡😡😡😡😡👎👎👎👎👎🇺🇸🇺🇸🇺🇸🇺🇸🇺🇸🇺🇸
+
+  rzaka_full: RZHAKA-SMEYAKA 🤣🤣🤣🤣😋😋😋😋😋😋 IMMEDIATELY VISIBLE A RUSSIAN MAN DUMMY PENDOS IN HIS OMERICA BEFORE THAT DIDN'T THINK 😡😡😡😡😡😡👎👎👎👎👎🇺🇸🇺🇸🇺🇸🇺🇸🇺🇸🇺🇸 RUSSIA AHEAD😊😊😊😊😊😊😃😃😃😃😃😃😋😋😋😋🇷🇺🇷🇺🇷🇺🇷 🇺🇷🇺🇷🇺AHAHAHAHAKH FUNNY JOKE DUDE THIS CAN BE SEEN ONLY IN RUSSIA HAAHAHA THAT IS A FUNNY AMERICA BREAKED FROM LAUGHTER ALL EUROPE IS IN SHOCK 😂😂🤔😂😂😹😹😹😹😹😹😹😹😹😂😂😂😂👍👍👍👍👍👍👍👍👍👍AHAHA, HOW FUNNY !!!!! I CAN'T HELP, I gasp for LAUGHTER 😂🤣🤣😄🤣😂🤣🤣🤣 THANKS, YOU HAVE MADE MY DAY !!! LIKE ORIGINAL !!! I AM LOVED !!!!!! 😀😃😀😃🤣😁🤣🤣🤣🤣🤣😀🤣😀😀🤣🤣😀🤣😀🤣😀🤣😀🤣😀🤣😀😀🤣😀🤣😁🤣😁🤣😁🤣😁😁🤣 😁

@@ -1,0 +1,54 @@
+en:
+  me:
+    zero: You've never been pidor of the day
+    one: One-time pidor, aren't you ashamed?
+    few: Practicing pidor, you've only been %{count} %{fcount}, get better
+    many: And you're an experienced pidor... I saw you %{count} %{fcount}
+
+  top_10: "Top 10 <b>pidors</b> of all time:"
+  members: All members — <code>%{count}</code>
+
+  reg: You're not in the database. Sign up via /pidorreg
+  in_db: Caught in the database, look for yourself in `jdanbot.db`
+  status_fixed: Name in DB fixed
+  already_in_db: Find youself in `jdanbot.db`
+  work_only_in_chats: Pidor of the day only works in chats!
+
+  templates:
+    - Today <b>pidor of day</b> is <b>{user}</b>
+    - <b>{user}</b>, you're the <b>pidor of day</b>
+    - You <b>pidor of day</b>, <b>{user}</b>)))
+
+  already_finded_templates:
+    - Today <b>pidor of the day</b> has already been discovered, it is <b>{user}</b>
+    - You really don't remember who the <b>pidor of the day</b> is? Today it is <b>{user}</b>
+    - Remind, <b>{user}</b> is <b>pidor of day</b>
+
+  pidor_finding:
+    - |
+        Поиск пидора начат...
+        Тебе уже никуда не уйти)
+        Обход защиты выполнен успешно!
+        Пидор обнаружен... никуда не уходите!
+
+    - |
+        Не стоило вызывать эту команду...
+        Обратного пути нет!
+
+    - |
+        Вы точно уверены, что хотите ЭТО знать???
+        Я понимаю, как вам нетерпиться узнать...
+        Думаю, /donate решит проблему)
+        *Шучу*
+
+    - |
+        Запускаю систему обнаружения пидора
+        ZeroDivisionError: division by zero
+        Ммм, приколы от автора
+        Не важно, потому что пидор найден
+
+    - |
+        Взлом системы поиска пидора... РѕС€РёР±РєР°
+        РџРёР·РґРµС†, С‡С‚Рѕ РїСЂРѕРёР·РѕС€Р»Рѕ?
+        РџРѕРїСЂРѕР±СѓСЋ РїРёСЃР°С‚СЊ С‚СЂР°РЅСЃР»РёС‚РѕРј...
+        Pidor dnya naiden
