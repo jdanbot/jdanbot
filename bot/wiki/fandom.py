@@ -58,7 +58,7 @@ async def fandom(message, fname, url):
         try:
             # Send page in normal mode
             await bot.send_chat_action(message.chat.id, "upload_photo")
-            await message.reply_photo(i, caption=f.parse(p)[:1000] + "️",
+            await message.reply_photo(i, caption=f.parse(p)[:1000],
                                       parse_mode="HTML", reply_markup=keyboard)
         except Exception as e:
             # Send error message
@@ -67,13 +67,13 @@ async def fandom(message, fname, url):
 
             try:
                 # Try send only html
-                await message.reply(f.parse(p)[:4096] + "️", reply_markup=keyboard,
+                await message.reply(f.parse(p)[:4096], reply_markup=keyboard,
                                     parse_mode="HTML")
             except Exception:
                 # Try send only text
                 await message.reply(f.parse(p)[:4096], reply_markup=keyboard)
     else:
-        parsed_text = f.parse(p)[:4096] + "️"
+        parsed_text = f.parse(p)[:4096]
         try:
             # Send html in normal mode
             await message.reply(parsed_text, reply_markup=keyboard,
