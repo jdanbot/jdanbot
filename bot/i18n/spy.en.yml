@@ -7,5 +7,5 @@ en:
     <b>Status</b>: %{status}
 
   users_info: |
-    In this chat %{local_users} %{lu_label}
-    All %{global_users} %{gu_label}
+    In this chat %{local_users} %{lu_label} and %{local_commands} %{lc_label}
+    All %{global_users} %{gu_label} and %{global_commands} %{gc_label}
