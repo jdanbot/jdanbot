@@ -188,13 +188,13 @@ async def detect(message):
         id_ = int(text)
 
     except Exception:
-        message.reply("id должен быть числом")
+        message.reply(_("errors.invalid_post_id"))
         return
 
     name = await w.getPageName(id_)
 
     if name == -1:
-        await message.reply("Не получилось найти статью по айди")
+        await message.reply(_("errors.not_found"))
         return
 
     await getWiki(message, name=name)

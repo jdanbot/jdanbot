@@ -1,4 +1,4 @@
-from ..config import dp, bot
+from ..config import dp, bot, _
 from ..lib.lurkmore import Lurkmore
 from ..lib.text import code
 
@@ -16,6 +16,11 @@ async def fallout(message):
     await fandom(message, "Fallout", "https://fallout.fandom.com/ru/api.php")
 
 
+@dp.message_handler(commands=["kaiser", "kaiserreich"])
+async def kaiser(message):
+    await fandom(message, "Kaiserreich", "https://kaiserreich.fandom.com/ru/api.php")
+
+
 @dp.message_handler(commands=["doom"])
 async def doom(message):
     await fandom(message, "DooM", "https://doom.fandom.com/api.php")
@@ -28,7 +33,8 @@ async def fandom(message, fname, url):
 
     options = message.text.split(maxsplit=1)
     if len(options) == 1:
-        await message.reply("Напишите название статьи")
+        await message.reply(_("errors.enter_wiki_query").format(options[0]),
+                            parse_mode="Markdown")
         return
 
     name = options[1]
@@ -37,7 +43,7 @@ async def fandom(message, fname, url):
     s = await f.opensearch(name)
 
     if len(s[1]) == 0:
-        await message.reply("Не удалось найти статью")
+        await message.reply(_("error.not_found")) 
         return
 
     p = await f.getPage(s[1][0])
@@ -45,14 +51,14 @@ async def fandom(message, fname, url):
     url = s[-1][0]
 
     keyboard = aiogram.types.InlineKeyboardMarkup()
-    keyboard.add(aiogram.types.InlineKeyboardButton(text="Читать полностью",
+    keyboard.add(aiogram.types.InlineKeyboardButton(text=_("wiki.read_full"),
                                                     url=url))
 
     if i != 404:
         try:
             # Send page in normal mode
             await bot.send_chat_action(message.chat.id, "upload_photo")
-            await message.reply_photo(i, caption=f.parse(p)[:1000],
+            await message.reply_photo(i, caption=f.parse(p)[:1000] + "️",
                                       parse_mode="HTML", reply_markup=keyboard)
         except Exception as e:
             # Send error message
@@ -61,13 +67,13 @@ async def fandom(message, fname, url):
 
             try:
                 # Try send only html
-                await message.reply(f.parse(p)[:4096], reply_markup=keyboard,
+                await message.reply(f.parse(p)[:4096] + "️", reply_markup=keyboard,
                                     parse_mode="HTML")
             except Exception:
                 # Try send only text
                 await message.reply(f.parse(p)[:4096], reply_markup=keyboard)
     else:
-        parsed_text = f.parse(p)[:4096]
+        parsed_text = f.parse(p)[:4096] + "️"
         try:
             # Send html in normal mode
             await message.reply(parsed_text, reply_markup=keyboard,

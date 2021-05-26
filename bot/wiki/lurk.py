@@ -1,4 +1,4 @@
-from ..config import bot, dp
+from ..config import bot, dp, _
 from ..lib.text import code
 from ..lib.lurkmore import Lurkmore
 
@@ -45,7 +45,8 @@ async def getOldWiki(message, n="Lurkmore",
                      url2="https://ipv6.lurkmo.re", host=""):
     options = message.text.split(maxsplit=1)
     if len(options) == 1:
-        await message.reply("Напишите название статьи")
+        await message.reply(_("errors.enter_wiki_query").format(options[0]),
+                            parse_mode="Markdown")
         return
 
     lurk.url = url
@@ -60,7 +61,7 @@ async def getOldWiki(message, n="Lurkmore",
         s = await lurk.search(name)
 
         if len(s) == 0:
-            await message.reply("Не найдено")
+            await message.reply(_("error.not_found")) 
             return
     else:
         s = s[1]

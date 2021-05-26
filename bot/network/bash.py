@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from ..config import dp
+from ..config import dp, _
 from ..lib import handlers
 from ..lib.aioget import aioget
 
@@ -14,7 +14,7 @@ async def bashorg(message, params):
         try:
             num = int(params[1])
         except ValueError:
-            await message.reply("Введи число")
+            message.reply(_("errors.invalid_post_id"))
             return
 
         page = await aioget(f"https://bash.im/quote/{num}")

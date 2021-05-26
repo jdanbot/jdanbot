@@ -1,6 +1,6 @@
 en:
-  enter_wiki_query: "*Please, enter name of article*\nFor example: `{}` Name of article"
-  duckerror: "*Please, enter query*\nFor example: `{}` Name of article"
+  enter_wiki_query: "*Please, enter name of article*\nFor example: `{} Name of article`"
+  duckerror: "*Please, enter query*\nFor example: `{} Name of article`"
   few_args: "*Insufficient number of parameters:*\nRequired `%{num}`"
 
   message_len: "*Telegram supports messages with a maximum length of 4096 characters*"
