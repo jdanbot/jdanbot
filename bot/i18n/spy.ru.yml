@@ -7,5 +7,5 @@ ru:
     <b>Должность</b>: %{status}
 
   users_info: |
-    В этом чяте %{local_users} %{lu_label}
-    Всего %{global_users} %{gu_label}
+    В этом чяте %{local_users} %{lu_label} и %{local_commands} %{lc_label}
+    Всего %{global_users} %{gu_label} и %{global_commands} %{gc_label}

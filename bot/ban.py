@@ -4,7 +4,6 @@ from aiogram.types import ContentType
 from .config import dp, bot, _, notes
 from .memes.random import random_putin, random_lukash, random_navalny
 
-from .spy import activate_spy
 from .lib.text import code
 
 from random import choice, randint
@@ -94,12 +93,6 @@ async def message_handler(message):
 
     except Exception:
         pass
-
-    try:
-        await activate_spy(message)
-    except Exception:
-        print(code(traceback.format_exc()))
-
 
     try:
         response = await notes.get(message.chat.id, "__enable_response__")

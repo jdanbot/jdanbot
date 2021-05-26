@@ -7,5 +7,5 @@ uk:
     <b>Посада</b>: %{status}
 
   users_info: |
-    У цьому чаті %{local_users} %{lu_label}
-    Усього %{global_users} %{gu_label}
+    У цьому чаті %{local_users} %{lu_label} та %{local_commands} %{lc_label}
+    Усього %{global_users} %{gu_label} та %{global_commands} %{gc_label}

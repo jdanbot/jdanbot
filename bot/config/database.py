@@ -136,6 +136,7 @@ notes = Notes(conn)
 pidors = Pidors(conn)
 pidorstats = SQLTable("pidorstats", conn)
 polls = Polls(conn)
+command_stats = SQLTable("command_stats", conn)
 
 
 async def init_db():
@@ -175,6 +176,12 @@ async def init_db():
         ("user_id", "INTEGER"),
         ("username", "TEXT"),
         ("count", "INTEGER")
+    ))
+
+    await command_stats.create(exists=True, schema=(
+        ("chat_id", "INTEGER"),
+        ("user_id", "INTEGER"),
+        ("command", "TEXT")
     ))
 
     await polls.create(exists=True, schema=(

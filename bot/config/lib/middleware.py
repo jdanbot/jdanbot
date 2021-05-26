@@ -6,10 +6,13 @@ import asyncio
 from unsync import unsync
 
 from .text import fixHTML
-from ..database import notes
+from ..database import notes, command_stats, events
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
-from aiogram import types
+from aiogram.dispatcher.middlewares import BaseMiddleware
+from aiogram.dispatcher.handler import CancelHandler, current_handler
+from aiogram import types, Dispatcher
+from aiogram.utils.exceptions import Throttled
 
 
 @unsync
@@ -64,3 +67,30 @@ class I18nMiddleware(I18nMiddlewareBase):
 
                 return [_.format(**kwargs) if isinstance(_, list) else _.format(**kwargs)
                         for _ in translate]
+
+
+class SpyMiddleware(BaseMiddleware):
+    async def on_process_message(self, message, data):
+        command = message.get_full_command()
+
+        await self.reg_user_in_db(message)
+
+        if command is None:
+            return
+        else:
+            await command_stats.insert(
+                message.chat.id, message.from_user.id,
+                command[0][1:]
+            )
+            await command_stats._conn.commit()
+
+    async def reg_user_in_db(self, message):
+        user = message.from_user
+        cur_user = await events.select(where=[
+            events.id == user.id,
+            events.chatid == message.chat.id
+        ])
+
+        if len(cur_user) == 0:
+            await events.insert(message.chat.id, user.id, user.full_name)
+            await conn.commit()
