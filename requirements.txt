@@ -16,6 +16,6 @@ pyscp
 pyyaml
 python-i18n
 sqlfocus
-tghtml==1.0.4
+tghtml==1.0.5
 wikipya==2.0.1
 unsync
