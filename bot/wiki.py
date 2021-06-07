@@ -8,17 +8,8 @@ from aiogram import types
 from wikipya.aiowiki import Wikipya, NotFound
 from .lib.lurkmore import blocklist
 
-
-WGR_FLAG = (
-    "https://upload.wikimedia.org/wikipedia/commons/thumb" +
-    "/8/85/Flag_of_Belarus.svg/1000px-Flag_of_Belarus.svg.png"
-)
-
-WRW_FLAG = (
-    "https://upload.wikimedia.org/wikipedia/commons/thumb" +
-    "/5/50/Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg" +
-    "/1000px-Flag_of_Belarus_%281918%2C_1991%E2%80%931995%29.svg.png"
-)
+from bs4 import BeautifulSoup
+from tghtml import TgHTML
 
 
 # Fandom
@@ -27,13 +18,14 @@ WRW_FLAG = (
 @dp.message_handler(commands=["railgun"])
 async def railgun(message):
     await wiki(message, "Railgun",
-               "https://toarumajutsunoindex.fandom.com/api.php")
+               "https://toarumajutsunoindex.fandom.com/api.php",
+               lurk=True)
 
 
 @dp.message_handler(commands=["fallout"])
 async def fallout(message):
     await wiki(message, "Fallout",
-               "https://fallout.fandom.com/ru/api.php")
+               "https://fallout.fandom.com/ru/api.php", lurk=True)
 
 
 @dp.message_handler(commands=["kaiser", "kaiserreich"])
@@ -43,30 +35,34 @@ async def kaiser(message):
                lurk=True)
 
 
+# Off?
 @dp.message_handler(commands=["doom"])
 async def doom(message):
-    await wiki(message, "DooM", "https://doom.fandom.com/api.php")
+    await wiki(message, "DooM", "https://doom.fandom.com/api.php",
+               lurk=True)
 
 
-# LurkMore
+# LurkMore !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 @dp.message_handler(commands=["lurk"])
 async def Lurk(message):
     await wiki(message, "Lurkmore",
                "https://ipv6.lurkmo.re/api.php", lurk=True,
+               prefix="wiki",
                img_blocklist=blocklist["images"])
 
 # Фиксить нада
 @dp.message_handler(commands=["absurd"])
 async def absurd(message):
     await wiki(message, "Absurdopedia",
-               "https://absurdopedia.net/w/api.php", lurk=True)
+               "https://absurdopedia.net/w/api.php", lurk=True,
+               prefix="wiki")
 
 
 @dp.message_handler(commands=["mrakopedia"])
 async def pizdec(message):
     await wiki(message, "mrakopedia",
                "https://mrakopedia.net/w/api.php",
-               host="//mrakopedia.net")
+               host="//mrakopedia.net", prefix="wiki")
 
 
 @dp.message_handler(commands=["archwiki"])
@@ -78,23 +74,80 @@ async def archwiki(message):
 @dp.message_handler(commands=["encycl"])
 async def encyclopedia(message):
     await wiki(message, "encyclopedia",
-               "https://encyclopatia.ru/w/api.php")
+               "https://encyclopatia.ru/w/api.php", lurk=True,
+               host="//encyclopatia.ru", prefix="wiki")
 
 
 # Wikipedia
-@dp.message_handler(commands=["wru"])
-async def wru(message):
-    await wiki(message, "Wiki:RU",
-               "https://ru.wikipedia.org/w/api.php",
-               version="1.35")
+# @dp.message_handler(commands=["w", "wru"])
+# async def wru(message):
+#     await wiki(message, "Wiki:RU",
+#                "https://ru.wikipedia.org/w/api.php",
+#                version="1.35")
 
 
-async def wiki(message, fname, url, lang=None, lurk=False,
-               img_blocklist=(), query=None, version="1.0",
-               host=""):
+@dp.message_handler(commands=["langs", "wikilangs", "wiki_langs"])
+async def getLangs(message):
+    await message.reply(_("wiki.langs"), parse_mode="Markdown",
+                        disable_web_page_preview=True)
 
-    w = Wikipya(url=url, lang=lang, version=version,
-                img_blocklist=img_blocklist, host=host)
+wikicommands = []
+
+for lang in LANGS_LIST:
+    wikicommands.extend([f"wiki{lang}", f"w{lang}"])
+
+for lang in UNIQUE_COMMANDS:
+    wikicommands.extend(UNIQUE_COMMANDS[lang])
+
+
+@dp.message_handler(commands=wikicommands)
+async def wikihandler(message):
+    command = message.text.split()[0]
+    lang = command.replace("/wiki", "") \
+                  .replace("/w", "")
+
+    if lang in LANGS_LIST:
+        await wiki(message, "Wiki",
+                   "https://{lang}.wikipedia.org/w/api.php", lang=lang,
+                   version="1.35")
+        return
+
+    else:
+        for lang in UNIQUE_COMMANDS:
+            if command[1:] in UNIQUE_COMMANDS[lang]:
+                await wiki(message, "Wiki",
+                           "https://{lang}.wikipedia.org/w/api.php",
+                           version="1.35", lang=lang)
+                break
+
+
+@dp.message_handler(lambda message: message.text.startswith("/w_"))
+async def detect(message):
+    text = message.text.replace("/w_", "")
+    if text.find("@") != -1:
+        text = text.split("@", maxsplit=1)[0]
+
+    w = Wikipya("ru")
+
+    try:
+        id_ = int(text)
+
+    except Exception:
+        message.reply(_("errors.invalid_post_id"))
+        return
+
+    name = await w.getPageName(id_)
+
+    if name == -1:
+        await message.reply(_("errors.not_found"))
+        return
+
+    await wiki(message, lang="ru", name=name)
+
+
+async def wiki(message, fname, url, query=None, lang=None,
+               lurk=False, **kwargs):
+    w = Wikipya(url=url, lang=lang, **kwargs)
 
     try:
         if query is None:
@@ -105,112 +158,64 @@ async def wiki(message, fname, url, lang=None, lurk=False,
             blocklist=WIKIPYA_BLOCKLIST
         )
         text = fixWords(page.parsed)
-    except ValueError:
-        await message.reply(
-            _("errors.enter_wiki_query").format(message.text),
-            parse_mode="Markdown")
-        return
-    except Exception as e:
-        await message.reply(bold(_("errors.error")) + "\n" + code(e),
-                            parse_mode="HTML")
-        return
-
-    if image != -1:
-        await message.reply_photo(
-            image, caption=cuteCrop(text, limit=1024),
-            parse_mode="HTML")
-    else:
-        await message.reply(cuteCrop(text, limit=4096),
-                            parse_mode="HTML")
-
-
-async def _wiki(message, fname, url, lang=None, lurk=False,
-               img_blocklist=(), name=None, version="1.0"):
-    wiki = Wikipya(url=url, lang=lang, version=version,
-                   img_blocklist=img_blocklist)
-    # wiki = Wikipya(url="https://kaiserreich.fandom.com/ru/api.php")
-
-    if name is None:
-        opts = message.text.split(maxsplit=1)
-        if len(opts) == 1:
-            await message.reply(_("errors.enter_wiki_query").format(opts[0]),
-                                parse_mode="Markdown")
-            return
-
-        name = opts[1]
-
-    try:
-        search = await wiki.search(name)
 
     except NotFound:
         await message.reply(_("errors.not_found"))
         return
 
-    if lurk:
-        opensearch = await wiki.opensearch(name)
-        url = "example.com"
-
-        page = await wiki.page(opensearch[0])
-
-    else:
-        opensearch = await wiki.opensearch(search[0].title)
-        url = opensearch[-1][0]
-
-        page = await wiki.page(search[0])
-
-    page.blockList = WIKIPYA_BLOCKLIST
-    text = fixWords(page.parsed)
-
-    try:
-        image = await page.image()
-        image = image.source
+    except ValueError:
+        await message.reply(
+            _("errors.enter_wiki_query").format(message.text),
+            parse_mode="Markdown")
+        return
 
     except Exception as e:
-        print(e)
-        image = -1
+        await message.reply(bold(_("errors.error")) + "\n" + code(e),
+                            parse_mode="HTML")
+        return
 
-    keyboard = types.InlineKeyboardMarkup()
+    soup = BeautifulSoup(text, "lxml")
+
+    i = soup.find_all("i")
+    b = soup.find_all("b")
+
+    if len(i) != 0:
+        i[0].unwrap()
+
+    if len(b) != 0:
+        if url is not None:
+            b = b[0]
+            b.name = "a"
+            b["href"] = url
+            b = b.wrap(soup.new_tag("b"))
+
+    text = unbody(soup)
+
+    print(image)
 
     try:
-        name = search[0].title
-    except KeyError:
-        name = name
+        if image != -1:
+            cropped = cuteCrop(text, limit=1024)
 
-    # url = "https://jdan734.me"
+            if cropped == "":
+                cropped = text[:1024]
 
-    keyboard.add(types.InlineKeyboardButton(text=_("wiki.read_full"),
-                                            url=url))
+            await message.reply_photo(
+                image, caption=cropped,
+                parse_mode="HTML")
+        else:
+            await message.reply(cuteCrop(text, limit=4096),
+                                parse_mode="HTML")
 
-    if type(image) is int:
-        await bot.send_chat_action(message.chat.id, "typing")
-        try:
-            await message.reply(cuteCrop(text, limit=4096), parse_mode="HTML",
-                                reply_markup=keyboard)
+    except Exception as e:
+        await message.reply(bold(_("errors.error")) + "\n" + code(e),
+                            parse_mode="HTML")
+        await message.answer(cuteCrop(text, limit=4096),
+                             disable_web_page_preview=True)
+        return
 
-        except Exception:
-            pass
 
-    else:
-        if image == WGR_FLAG:
-            image = WRW_FLAG
-
-        await bot.send_chat_action(message.chat.id, "upload_photo")
-
-        try:
-            await message.reply_photo(image,
-                                      caption=cuteCrop(text, limit=1024),
-                                      parse_mode="HTML",
-                                      reply_markup=keyboard)
-
-        except Exception as e:
-            await bot.send_chat_action(message.chat.id, "typing")
-
-            try:
-                await message.reply(cuteCrop(text, limit=4096),
-                                    parse_mode="HTML",
-                                    reply_markup=keyboard)
-
-            except Exception:
-                pass
-                await message.reply(bold(_("errors.error")) + "\n" + code(e),
-                                    parse_mode="HTML")
+def unbody(html):
+    return str(html).replace("<p>", "").replace("</p>", "") \
+                    .replace("<html><body>", "") \
+                    .replace("</body></html>", "")
