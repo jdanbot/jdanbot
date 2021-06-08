@@ -6,10 +6,14 @@ from .config import (
 
 from aiogram import types
 from wikipya.aiowiki import Wikipya, NotFound
-from .lib.lurkmore import blocklist
 
+import yaml
 from bs4 import BeautifulSoup
 from tghtml import TgHTML
+
+
+with open("bot/lib/blocklist.yml") as file:
+    blocklist = yaml.safe_load(file.read())
 
 
 @dp.message_handler(commands=["railgun"])
