@@ -39,6 +39,8 @@ class I18nMiddleware(I18nMiddlewareBase):
         lang = chat_lang or user_lang or self.default
         lang = "uk" if lang == "ua" else lang
 
+        lang = "en"
+
         self.i18n.set("locale", lang)
         self.i18n.set("fallback", self.default)
 
@@ -93,4 +95,4 @@ class SpyMiddleware(BaseMiddleware):
 
         if len(cur_user) == 0:
             await events.insert(message.chat.id, user.id, user.full_name)
-            await conn.commit()
+            await events.conn.commit()
