@@ -6,10 +6,6 @@ WORKDIR /app
 
 COPY ./requirements.txt .
 
-RUN pip3 install beautifulsoup4
-RUN pip3 install aiohttp
-RUN pip3 install tghtml
-RUN pip3 install pymemeru
 RUN pip3 install -r requirements.txt
 
 CMD [ "python", "./bot.py" ]
