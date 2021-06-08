@@ -34,7 +34,18 @@ async def find_pidor(message, locale=None):
     else:
         if len(curchat) == 0:
             pidor_of_day = choice([pidor[1] for pidor in all_pidors])
-            pidorname = await getUserName(chat_id, pidor_of_day, True)
+            pidorinfo = await bot.get_chat_member(chat_id, pidor_of_day)
+
+            if pidorinfo.status == "left":
+                await message.reply(_("pidor.pidor_left"),
+                                    parse_mode="HTML")
+                return
+
+            try:
+                pidorname = ("@" if enable_tag else "") + \
+                            pidorinfo.user.username
+            except Exception:
+                pidorname =  pidorinfo.user.first_name
 
             period = int(datetime.datetime.now().timestamp())
             curchat = await pidors.select(where=f"{chat_id}")

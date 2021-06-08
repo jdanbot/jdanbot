@@ -13,6 +13,7 @@ en:
   status_fixed: Name in DB fixed
   already_in_db: Find youself in `jdanbot.db`
   work_only_in_chats: Pidor of the day only works in chats!
+  pidor_left: I found the pidor of the day, but it looks like he left from this chat (wow pidor!), So try again!
 
   templates:
     - Today <b>pidor of day</b> is <b>{user}</b>
