@@ -17,5 +17,5 @@ pyyaml
 python-i18n
 sqlfocus
 tghtml==1.0.6
-wikipya==3.0.0b3
+wikipya==3.0.0b4
 unsync
