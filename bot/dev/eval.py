@@ -3,23 +3,32 @@ import subprocess
 
 from ..config import bot, dp
 from ..lib.text import code
+from ..lib import handlers
 
 
-@dp.message_handler(lambda message: message.from_user.id == 795449748,
-                    commands=["e"])
+@handlers.only_jdan
+@dp.message_handler(commands=["e"])
 async def supereval(message):
-    code = message.text.split(maxsplit=1)[1]
+    command, query = message.text.split(maxsplit=1)
+
+    q = [f"\n {line}" for line in query.split("\n")]
+    q[-1] = q[-1].replace("\n ", "\n return ")
 
     exec(
         "async def __ex(message, bot): " +
-        "".join(f"\n {L}" for L in code.split("\n"))
+        "".join(q)
     )
 
     try:
-        await locals()["__ex"](message, bot)
+        output = await locals()["__ex"](message, bot)
     except Exception:
-        await message.reply(code(traceback.format_exc()),
-                            parse_mode="HTML")
+        output = traceback.format_exc()
+
+    if output == "disable_stdout":
+        return
+
+    await message.reply(code(output),
+                        parse_mode="HTML")
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,
@@ -31,7 +40,8 @@ async def bash(message):
         command = options[1].split()
         output = subprocess.check_output(command).decode("utf-8")
 
-        await message.reply(code(output), parse_mode="HTML")
     except Exception:
-        await message.reply(code(traceback.format_exc()),
-                            parse_mode="HTML")
+        output = traceback.format_exc()
+
+    await message.reply(code(str(output)),
+                        parse_mode="HTML")
