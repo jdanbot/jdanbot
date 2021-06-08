@@ -39,8 +39,6 @@ class I18nMiddleware(I18nMiddlewareBase):
         lang = chat_lang or user_lang or self.default
         lang = "uk" if lang == "ua" else lang
 
-        lang = "en"
-
         self.i18n.set("locale", lang)
         self.i18n.set("fallback", self.default)
 
