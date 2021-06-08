@@ -133,11 +133,12 @@ async def detect(message):
         await message.reply(_("errors.not_found"))
         return
 
-    await wiki(message, lang="ru", name=name)
+    await wiki(message, "wikipedia", lang="ru", query=name,
+               version="1.35")
 
 
-async def wiki(message, fname, url, query=None, lang=None,
-               lurk=False, **kwargs):
+async def wiki(message, fname, url="https://{lang}.wikipedia.org/w/api.php",
+               query=None, lang=None, lurk=False, **kwargs):
     w = Wikipya(url=url, lang=lang, **kwargs)
 
     try:
@@ -210,3 +211,37 @@ def unbody(html):
     return str(html).replace("<p>", "").replace("</p>", "") \
                     .replace("<html><body>", "") \
                     .replace("</body></html>", "")
+
+
+def Wikipedia(lang="ru"):
+    return Wikipya(url="https://{lang}.wikipedia.org/w/api.php",
+                   lang=lang, version="1.35")
+
+
+
+@dp.message_handler(commands="s")
+async def wikiSearch(message, lang="ru"):
+    opts = message.text.split(maxsplit=1)
+
+    if len(opts) == 1:
+        await message.reply(_("errors.enter_wiki_query").format(opts[0]),
+                            parse_mode="Markdown")
+        return
+
+    query = opts[1]
+
+    wiki = Wikipedia(lang=lang)
+
+    r = await wiki.search(query, 20)
+
+    if r == -1:
+        await message.reply(_("error.not_found")) 
+        return
+
+    text = ""
+
+    for item in r:
+        text += bold(fixWords(item.title)) + "\n"
+        text += f"└─/w_{item.pageid}\n"
+
+    await message.reply(text, parse_mode="HTML")
