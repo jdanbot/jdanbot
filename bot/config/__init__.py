@@ -39,5 +39,8 @@ WIKIPYA_BLOCKLIST = [
     ["div", {"class": arch_class}],
 
     [None, {"class": "noprint"}],
-    ["span", {"id": "w4g_rb_area-1"}]
+    ["span", {"id": "w4g_rb_area-1"}],
+
+    ["p", {"class": "caption"}],
+    ["div", {"class": "gametabs"}]
 ]

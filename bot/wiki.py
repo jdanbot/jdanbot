@@ -12,9 +12,6 @@ from bs4 import BeautifulSoup
 from tghtml import TgHTML
 
 
-# Fandom
-
-
 @dp.message_handler(commands=["railgun"])
 async def railgun(message):
     await wiki(message, "Railgun",
@@ -35,34 +32,32 @@ async def kaiser(message):
                lurk=True)
 
 
-# Off?
 @dp.message_handler(commands=["doom"])
 async def doom(message):
     await wiki(message, "DooM", "https://doom.fandom.com/api.php",
                lurk=True)
 
 
-# LurkMore !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 @dp.message_handler(commands=["lurk"])
 async def Lurk(message):
     await wiki(message, "Lurkmore",
                "https://ipv6.lurkmo.re/api.php", lurk=True,
-               prefix="wiki",
+               prefix="",
                img_blocklist=blocklist["images"])
 
-# Фиксить нада
+
 @dp.message_handler(commands=["absurd"])
 async def absurd(message):
     await wiki(message, "Absurdopedia",
                "https://absurdopedia.net/w/api.php", lurk=True,
-               prefix="wiki")
+               prefix="/wiki")
 
 
-@dp.message_handler(commands=["mrakopedia"])
+@dp.message_handler(commands=["mrakopedia", "pizdec"])
 async def pizdec(message):
     await wiki(message, "mrakopedia",
                "https://mrakopedia.net/w/api.php",
-               host="//mrakopedia.net", prefix="wiki")
+               host="//mrakopedia.net", prefix="/wiki")
 
 
 @dp.message_handler(commands=["archwiki"])
@@ -75,15 +70,7 @@ async def archwiki(message):
 async def encyclopedia(message):
     await wiki(message, "encyclopedia",
                "https://encyclopatia.ru/w/api.php", lurk=True,
-               host="//encyclopatia.ru", prefix="wiki")
-
-
-# Wikipedia
-# @dp.message_handler(commands=["w", "wru"])
-# async def wru(message):
-#     await wiki(message, "Wiki:RU",
-#                "https://ru.wikipedia.org/w/api.php",
-#                version="1.35")
+               host="//encyclopatia.ru", prefix="/wiki")
 
 
 @dp.message_handler(commands=["langs", "wikilangs", "wiki_langs"])
@@ -191,8 +178,6 @@ async def wiki(message, fname, url, query=None, lang=None,
 
     text = unbody(soup)
 
-    print(image)
-
     try:
         if image != -1:
             cropped = cuteCrop(text, limit=1024)
@@ -204,15 +189,17 @@ async def wiki(message, fname, url, query=None, lang=None,
                 image, caption=cropped,
                 parse_mode="HTML")
         else:
-            await message.reply(cuteCrop(text, limit=4096),
-                                parse_mode="HTML")
+            await message.reply(
+                cuteCrop(text, limit=4096),
+                parse_mode="HTML",
+                disable_web_page_preview=True
+            )
 
     except Exception as e:
         await message.reply(bold(_("errors.error")) + "\n" + code(e),
                             parse_mode="HTML")
         await message.answer(cuteCrop(text, limit=4096),
                              disable_web_page_preview=True)
-        return
 
 
 def unbody(html):
