@@ -42,8 +42,7 @@ async def find_pidor(message, locale=None):
                 return
 
             try:
-                pidorname = ("@" if enable_tag else "") + \
-                            pidorinfo.user.username
+                pidorname = "@" + pidorinfo.user.username
             except Exception:
                 pidorname =  pidorinfo.user.first_name
 
