@@ -1,9 +1,9 @@
 import os, sys
 
 import yaml
+import time
 import i18n
 import asyncio
-from unsync import unsync
 
 from .text import fixHTML
 from ..database import notes, command_stats, events
@@ -13,6 +13,7 @@ from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.handler import CancelHandler, current_handler
 from aiogram import types, Dispatcher
 from aiogram.utils.exceptions import Throttled
+from unsync import unsync
 
 
 @unsync
@@ -65,8 +66,11 @@ class I18nMiddleware(I18nMiddlewareBase):
                 if isinstance(translate, str):
                     return translate.format(**kwargs)
 
-                return [_.format(**kwargs) if isinstance(_, list) else _.format(**kwargs)
-                        for _ in translate]
+                elif isinstance(translate, dict):
+                    return translate
+
+                return [[__.format(**kwargs) for __ in translate] if isinstance(_, list)
+                        else _.format(**kwargs) for _ in translate]
 
 
 class SpyMiddleware(BaseMiddleware):
