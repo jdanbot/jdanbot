@@ -58,3 +58,8 @@ async def tbe(message):
 @dp.message_handler(commands=["tpl"])
 async def tpl(message):
     await getTranslate(message, "pl")
+
+
+@dp.message_handler(commands=["tde"])
+async def tpl(message):
+    await getTranslate(message, "de")
