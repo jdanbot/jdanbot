@@ -1,27 +1,14 @@
-import os, sys
+import os
 
 import yaml
-import time
 import i18n
-import asyncio
 
 from .text import fixHTML
 from ..database import notes, command_stats, events
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
 from aiogram.dispatcher.middlewares import BaseMiddleware
-from aiogram.dispatcher.handler import CancelHandler, current_handler
-from aiogram import types, Dispatcher
-from aiogram.utils.exceptions import Throttled
-from unsync import unsync
-
-
-@unsync
-async def get_chat_locale(chat):
-    return None if chat is None else await notes.get(
-        chat.id,
-        "__chat_lang__"
-    )
+from aiogram import types
 
 
 class I18nMiddleware(I18nMiddlewareBase):
@@ -32,12 +19,7 @@ class I18nMiddleware(I18nMiddlewareBase):
 
         res = self.gettext(singular, plural, n, locale)
 
-        chat = types.Chat.get_current()
-        chat_lang = get_chat_locale(chat).result()
-
-        user_lang = self.ctx_locale.get()
-
-        lang = chat_lang or user_lang or self.default
+        lang = self.ctx_locale.get()
         lang = "uk" if lang == "ua" else lang
 
         self.i18n.set("locale", lang)
@@ -52,6 +34,7 @@ class I18nMiddleware(I18nMiddlewareBase):
                 raise TypeError
 
             return self.i18n.t(res, **kwargs)
+
         except TypeError:
             path = f"{self.path}/{res.split('.')[0]}.{{lang}}.yml"
 
@@ -71,6 +54,21 @@ class I18nMiddleware(I18nMiddlewareBase):
 
                 return [[__.format(**kwargs) for __ in translate] if isinstance(_, list)
                         else _.format(**kwargs) for _ in translate]
+
+
+    async def get_user_locale(self, action: str, args: None):
+        user = types.User.get_current()
+        chat = types.Chat.get_current()
+
+        chat_locale = await notes.get(chat.id, "__chat_lang__")
+        locale = user.locale if user else None
+
+        if locale or chat_locale:
+            *_, data = args
+            language = data["locale"] = locale.language
+            return chat_locale or language
+
+        return None
 
 
 class SpyMiddleware(BaseMiddleware):
