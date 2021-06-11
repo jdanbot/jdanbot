@@ -40,12 +40,13 @@ async def admin_unwarn(message, params):
 @dp.message_handler(commands=["katz_poll", "poll"])
 @handlers.parse_arguments(2)
 async def kz_poll(message, params):
-    poll = await bot.send_poll(message.chat.id, params[1], [
-                            "Да",
-                            "Нет",
-                            "Воздержусь",
-                            "Нет прав"
-                        ], is_anonymous=False)
+    options = ["Да", "Нет", "Воздержусь"]
+
+    if message.chat.id == -1001334412934:
+        options.append("Нет прав")
+
+    poll = await bot.send_poll(message.chat.id, params[1],
+                               options, is_anonymous=False)
 
     if poll.chat.id == -1001334412934:
         await poll.pin(disable_notification=True)
@@ -56,4 +57,3 @@ async def kz_poll(message, params):
         await conn.commit()
 
     await message.delete()
-
