@@ -79,3 +79,7 @@ Config(
 
 BASE_DIR = Path(__file__).parent.parent
 LOCALES_DIR = BASE_DIR / "i18n"
+
+
+MAX_URL = "https://img.youtube.com/vi/{id}/maxresdefault.jpg"
+HQ_URL = "https://img.youtube.com/vi/{id}/hqdefault.jpg"

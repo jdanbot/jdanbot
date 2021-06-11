@@ -1,6 +1,6 @@
 import urllib
 
-from ..config import bot, dp
+from ..config import bot, dp, MAX_URL, HQ_URL
 from ..lib import handlers
 
 
@@ -14,8 +14,6 @@ def get_video_id(url):
 @dp.message_handler(commands=["preview"])
 @handlers.get_text
 async def preview(message, url):
-    MAX_URL = "https://img.youtube.com/vi/{id}/maxresdefault.jpg"
-    HQ_URL = "https://img.youtube.com/vi/{id}/hqdefault.jpg"
     video_id = get_video_id(url)
 
     await bot.send_chat_action(message.chat.id, "upload_photo")
