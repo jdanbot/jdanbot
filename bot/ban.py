@@ -5,6 +5,7 @@ from .config import dp, bot, _, notes
 from .memes.random import random_putin, random_lukash, random_navalny
 
 from .lib.text import code
+from .lib import handlers
 
 from random import choice, randint
 
@@ -14,6 +15,7 @@ import re
 
 
 @dp.message_handler(commands=["admins"])
+@handlers.check("__enable_admin__")
 async def call_admins(message):
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(

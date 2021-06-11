@@ -1,6 +1,7 @@
 from ..config import bot, IMAGE_PATH, _
 from .admin import check_admin
 from .photo import Photo
+from ..config import notes
 
 
 def parse_arguments(limit, without_params=False):
@@ -13,6 +14,22 @@ def parse_arguments(limit, without_params=False):
                                     parse_mode="Markdown")
             else:
                 await func(message, params)
+
+        return wrapper
+
+    return argument_wrapper
+
+
+def check(var, without_params=False):
+    def argument_wrapper(func):
+        async def wrapper(message):
+            res = await notes.get(message.chat.id, var)
+
+            if res is None:
+                res = "True"
+
+            if str(res).title() == "True":
+                await func(message)
 
         return wrapper
 

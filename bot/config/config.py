@@ -57,7 +57,8 @@ Config(
         "__enable_welcome__",
         "__enable_greatings__",
         "__warns_to_ban__",
-        "__chat_lang__"],
+        "__chat_lang__",
+        "__enable_admin__"],
 
     eggs=[
         {"commands": ["java1"], "audio": "java.ogg"},

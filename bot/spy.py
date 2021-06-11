@@ -46,7 +46,7 @@ async def calc_stats(message):
     chats_commands = await command_stats.select()
 
     await message.reply(_(
-        "spy.users_info", 
+        "spy.users_info",
         local_users=len(chat_users),
         lu_label=_user_counter(chat_users),
 

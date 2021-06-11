@@ -8,6 +8,7 @@ from .lib.banhammer import ban, warn, unwarn
 
 
 @dp.message_handler(commands=["mute"])
+@handlers.check("__enable_admin__")
 @handlers.only_admins
 @handlers.parse_arguments(3, True)
 async def admin_mut(message, params):
@@ -16,12 +17,14 @@ async def admin_mut(message, params):
 
 
 @dp.message_handler(commands=["selfmute", "selfban"])
+@handlers.check("__enable_admin__")
 @handlers.parse_arguments(3, True)
 async def self_mut(message, params):
     await ban(message, message, *params[1:], isRepostAllowed=False)
 
 
 @dp.message_handler(commands=["warn"])
+@handlers.check("__enable_admin__")
 @handlers.only_admins
 @handlers.parse_arguments(2, True)
 async def admin_warn(message, params):
@@ -30,6 +33,7 @@ async def admin_warn(message, params):
 
 
 @dp.message_handler(commands=["unwarn"])
+@handlers.check("__enable_admin__")
 @handlers.only_admins
 @handlers.parse_arguments(2, True)
 async def admin_unwarn(message, params):
