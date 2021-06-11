@@ -190,6 +190,7 @@ async def wiki(message, fname, url="https://{lang}.wikipedia.org/w/api.php",
             if cropped == "":
                 cropped = text[:1024]
 
+            await bot.send_chat_action(message.chat.id, "upload_photo")
             await message.reply_photo(
                 image, caption=cropped,
                 parse_mode="HTML")
