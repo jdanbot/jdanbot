@@ -74,7 +74,8 @@ Config(
         "xui": "CAACAgIAAx0CUDyGjwACAQ5fCFkeR-pVhI_PUTcTbDGUOgzwfAAC4QADlJlpL9ZRhbtO0tQzGgQ",
         "net_xua": "CAACAgIAAx0CUDyGjwACAQ9fCFkfgfI9pH9Hr96q7dH0biVjEwAC4gADlJlpL_foG56vPzRPGgQ"},
 
-    token=None
+    token=None,
+    granslate_langs=["ru", "en", "uk", "be", "pl", "de"]
 )
 
 BASE_DIR = Path(__file__).parent.parent

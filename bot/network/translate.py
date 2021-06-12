@@ -1,5 +1,8 @@
 from googletrans import Translator
-from ..config import dp, bot, _
+from ..config import dp, bot, _, GTRANSLATE_LANGS
+from ..lib import handlers
+
+from random import choice
 
 t = Translator()
 
@@ -61,5 +64,14 @@ async def tpl(message):
 
 
 @dp.message_handler(commands=["tde"])
-async def tpl(message):
+async def tde(message):
     await getTranslate(message, "de")
+
+
+@dp.message_handler(commands=["crazy"])
+@handlers.get_text
+async def crazy_translator(message, text):
+    for _ in range(0, 10):
+        text = t.translate(text, dest=choice(GTRANSLATE_LANGS)).text
+
+    await message.reply(t.translate(text, dest="ru").text)
