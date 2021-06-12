@@ -4,9 +4,11 @@ from .lib.admin import check_admin
 from .lib.text import code, prettyword
 
 
-@dp.message_handler(commands=["remove_note"])
+@dp.message_handler(commands=["remove", "remove_note"])
 @handlers.parse_arguments(2)
 async def cool_secret(message, params):
+    params[1] = params[1][1:] if params[1].startswith("#") else params[1]
+
     if params[1] in ADMIN_NOTES and message.chat.type == "supergroup":
         if await check_admin(message, bot):
             await notes.remove(message.chat.id, params[1])
