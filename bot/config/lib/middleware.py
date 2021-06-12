@@ -4,7 +4,7 @@ import yaml
 import i18n
 
 from .text import fixHTML
-from ..database import notes, command_stats, events
+from ..database import notes, command_stats
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
 from aiogram.dispatcher.middlewares import BaseMiddleware
@@ -63,7 +63,7 @@ class I18nMiddleware(I18nMiddlewareBase):
         chat_locale = await notes.get(chat.id, "__chat_lang__")
         locale = user.locale if user else None
 
-        if locale or chat_locale:
+        if locale:
             *_, data = args
             language = data["locale"] = locale.language
             return chat_locale or language
@@ -75,24 +75,11 @@ class SpyMiddleware(BaseMiddleware):
     async def on_process_message(self, message, data):
         command = message.get_full_command()
 
-        await self.reg_user_in_db(message)
-
-        if command is None:
-            return
-        else:
+        if command is not None:
             await command_stats.insert(
                 message.chat.id, message.from_user.id,
                 command[0][1:]
             )
             await command_stats._conn.commit()
 
-    async def reg_user_in_db(self, message):
-        user = message.from_user
-        cur_user = await events.select(where=[
-            events.id == user.id,
-            events.chatid == message.chat.id
-        ])
 
-        if len(cur_user) == 0:
-            await events.insert(message.chat.id, user.id, user.full_name)
-            await events.conn.commit()

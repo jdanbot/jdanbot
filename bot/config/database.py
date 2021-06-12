@@ -127,9 +127,22 @@ class Notes(SQLTableBase):
         await self._conn.commit()
 
 
+class Events(SQLTableBase):
+    async def reg_user_in_db(self, message):
+        user = message.from_user
+        cur_user = await self.select(where=[
+            self.id == user.id,
+            self.chatid == message.chat.id
+        ])
+
+        if len(cur_user) == 0:
+            await self.insert(message.chat.id, user.id, user.full_name)
+            await self.conn.commit()
+
+
 conn = asyncio.run(connect_db())
 
-events = SQLTable("events", conn)
+events = Events(conn)
 videos = Videos(conn)
 warns = Warns(conn)
 notes = Notes(conn)
