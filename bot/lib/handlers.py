@@ -80,6 +80,9 @@ def get_text(func):
             if reply.text:
                 text = reply.text
 
+            elif reply.caption:
+                text = reply.caption
+
             elif reply.document:
                 file_id = reply.document.file_id
 
