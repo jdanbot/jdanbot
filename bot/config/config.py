@@ -23,7 +23,7 @@ class Config:
             self.config.get(param, default))
 
 
-config_path = self.environ.get("CONFIG_PATH", "config.yml")
+config_path = environ.get("CONFIG_PATH", "config.yml")
 
 
 Config(
