@@ -23,7 +23,11 @@ class Config:
             self.config.get(param, default))
 
 
+config_path = self.environ.get("CONFIG_PATH", "config.yml")
+
+
 Config(
+    config_path=config_path,
     db_path="jdanbot.db",
     delay=30,
     rss_feeds=(),
