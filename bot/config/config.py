@@ -88,3 +88,12 @@ LOCALES_DIR = BASE_DIR / "i18n"
 
 MAX_URL = "https://img.youtube.com/vi/{id}/maxresdefault.jpg"
 HQ_URL = "https://img.youtube.com/vi/{id}/hqdefault.jpg"
+
+
+WIKICOMMANDS = []
+
+for lang in LANGS_LIST:
+    WIKICOMMANDS.extend([f"wiki{lang}", f"w{lang}"])
+
+for lang in UNIQUE_COMMANDS:
+    WIKICOMMANDS.extend(UNIQUE_COMMANDS[lang])

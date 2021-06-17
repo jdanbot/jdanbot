@@ -1,7 +1,7 @@
 from .lib.text import bold, code, cuteCrop, fixWords
 from .config import (
-    bot, dp, logging, WIKIPYA_BLOCKLIST, _,
-    LANGS_LIST, UNIQUE_COMMANDS
+    bot, dp, logging, WIKIPYA_BLOCKLIST,
+    WIKICOMMANDS, _, LANGS_LIST, UNIQUE_COMMANDS
 )
 
 from aiogram import types
@@ -82,34 +82,23 @@ async def getLangs(message):
     await message.reply(_("wiki.langs"), parse_mode="Markdown",
                         disable_web_page_preview=True)
 
-wikicommands = []
 
-for lang in LANGS_LIST:
-    wikicommands.extend([f"wiki{lang}", f"w{lang}"])
-
-for lang in UNIQUE_COMMANDS:
-    wikicommands.extend(UNIQUE_COMMANDS[lang])
-
-
-@dp.message_handler(commands=wikicommands)
+@dp.message_handler(commands=WIKICOMMANDS)
 async def wikihandler(message):
     command = message.text.split()[0]
     lang = command.replace("/wiki", "") \
                   .replace("/w", "")
 
-    if lang in LANGS_LIST:
-        await wiki(message, "Wiki",
-                   "https://{lang}.wikipedia.org/w/api.php", lang=lang,
-                   version="1.35")
+    for lang in UNIQUE_COMMANDS:
+        if command[1:] in UNIQUE_COMMANDS[lang]:
+            break
+
+    if lang not in LANGS_LIST:
         return
 
-    else:
-        for lang in UNIQUE_COMMANDS:
-            if command[1:] in UNIQUE_COMMANDS[lang]:
-                await wiki(message, "Wiki",
-                           "https://{lang}.wikipedia.org/w/api.php",
-                           version="1.35", lang=lang)
-                break
+    await wiki(message, "Wiki",
+               "https://{lang}.wikipedia.org/w/api.php",
+               version="1.35", lang=lang)
 
 
 @dp.message_handler(lambda message: message.text.startswith("/w_"))
