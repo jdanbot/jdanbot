@@ -1,4 +1,8 @@
 version: '3'
+
+volumes:
+  data:
+
 services:
   bot:
     image: jdan734-bot:dev
@@ -6,4 +10,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     volumes:
-      - .:/app
+      - data:/var/jdanbot
+    environment:
+      DP_PATH: /var/jdanbot/jdanbot.db
+      TOKEN:
