@@ -7,45 +7,13 @@ from random import choice
 t = Translator()
 
 
-@dp.message_handler(commands=["tru"])
-@handlers.get_text
-async def tru(message, text):
-    await message.reply(t.translate(text, dest="ru").text[:4096],
-                        disable_web_page_preview=True)
+@dp.message_handler(commands=[f"t{lang}" for lang in GTRANSLATE_LANGS])
+@handlers.parse_arguments(2)
+async def translate(message, params):
+    command, text = params
+    lang = command[2:] if command != "/tua" else "uk"
 
-
-@dp.message_handler(commands=["ten"])
-@handlers.get_text
-async def tru(message, text):
-    await message.reply(t.translate(text, dest="en").text[:4096],
-                        disable_web_page_preview=True)
-
-
-@dp.message_handler(commands=["tuk", "tua"])
-@handlers.get_text
-async def tru(message, text):
-    await message.reply(t.translate(text, dest="ua").text[:4096],
-                        disable_web_page_preview=True)
-
-
-@dp.message_handler(commands=["tbe", "tby"])
-@handlers.get_text
-async def tru(message, text):
-    await message.reply(t.translate(text, dest="be").text[:4096],
-                        disable_web_page_preview=True)
-
-
-@dp.message_handler(commands=["tpl"])
-@handlers.get_text
-async def tru(message, text):
-    await message.reply(t.translate(text, dest="pl").text[:4096],
-                        disable_web_page_preview=True)
-
-
-@dp.message_handler(commands=["tde"])
-@handlers.get_text
-async def tru(message, text):
-    await message.reply(t.translate(text, dest="de").text[:4096],
+    await message.reply(t.translate(text, dest=lang).text[:4096],
                         disable_web_page_preview=True)
 
 
@@ -55,4 +23,5 @@ async def crazy_translator(message, text):
     for _ in range(0, 10):
         text = t.translate(text, dest=choice(GTRANSLATE_LANGS)).text
 
-    await message.reply(t.translate(text, dest="ru").text)
+    await message.reply(t.translate(text, dest="ru").text,
+                        disable_web_page_preview=True)
