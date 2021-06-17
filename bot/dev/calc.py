@@ -1,6 +1,9 @@
 import asyncio
 import re
 
+from math import sqrt
+
+from ..lib import handlers
 from ..lib.text import bold, code
 from ..config import dp, _
 
@@ -41,3 +44,18 @@ async def eban(message, locale):
         result = bold(_("errors.error")) + "\n" + code(e)
 
     await message.reply(str(result)[:4096], parse_mode="HTML")
+
+
+@dp.message_handler(commands=["sqrt"])
+@handlers.parse_arguments(2)
+async def sqrt_(message, params):
+    command, num = params
+
+    try:
+        res = sqrt(int(num))
+    except ValueError as e:
+        await message.reply(bold(_("errors.error")) + "\n" + code(e),
+                            parse_mode="HTML")
+        return
+
+    await message.reply(code(res), parse_mode="HTML")
