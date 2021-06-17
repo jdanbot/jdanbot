@@ -1,9 +1,12 @@
 en:
     main: |
-        <b>✋ Hello!</b> I'm a multifunctional telegram bot for banning and stuff :) Select the commands at the bottom by first clicking on the buttons. If the bot does not work, then write <a href="t.me/jdan734">jDan734</a>
+        <b>✋ Hello!</b> I am made to receive articles from ****pedia in Telegram, smart work with other services (/duck, /b), administration of chats, and also lulz
 
-        Donate — /donate
-        Author's page — jdan734.me
+        💳 Donates - /donate
+        🧑‍💻 Author's page - jdan734.me
+        📰 Author's channel - @jdan734notes
+
+        ⚠️ <i>If the bot doesn't work, try the /status command, because it sometimes helps. The final decision may be to grant administrator rights (to allow the message to be read)</i>
 
     network: |
         <b>Internet</b>
