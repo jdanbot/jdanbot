@@ -8,9 +8,9 @@ t = Translator()
 
 
 @dp.message_handler(commands=[f"t{lang}" for lang in GTRANSLATE_LANGS])
-@handlers.parse_arguments(2)
-async def translate(message, params):
-    command, text = params
+@handlers.get_text
+async def translate(message, text):
+    command = message.text.split(" ", maxsplit=1)[0]
     lang = command[2:] if command != "/tua" else "uk"
 
     await message.reply(t.translate(text, dest=lang).text[:4096],
