@@ -13,7 +13,7 @@ async def calc(query):
 
 
 @dp.message_handler(commands=["calc"])
-async def eban(message, locale):
+async def eban(message):
     options = message.text.split(maxsplit=1)
 
     if len(options) == 1:
