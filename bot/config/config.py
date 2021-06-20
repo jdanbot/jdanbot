@@ -79,7 +79,8 @@ Config(
         "net_xua": "CAACAgIAAx0CUDyGjwACAQ9fCFkfgfI9pH9Hr96q7dH0biVjEwAC4gADlJlpL_foG56vPzRPGgQ"},
 
     token=None,
-    gtranslate_langs=["ru", "en", "ua", "uk", "be", "pl", "de", "fr"]
+    gtranslate_langs=["ru", "en", "ua", "uk", "be", "pl", "de", "fr"],
+    logging_chat=None
 )
 
 BASE_DIR = Path(__file__).parent.parent

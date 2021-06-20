@@ -1,10 +1,10 @@
 from aiogram import types
 from aiogram.types import ContentType
 
-from .config import dp, bot, _, notes, events
+from .config import dp, bot, _, notes, events, LOGGING_CHAT
 from .memes.random import random_putin, random_lukash, random_navalny
 
-from .lib.text import code
+from .lib.text import code, bold
 from .lib import handlers
 
 from random import choice, randint
@@ -191,6 +191,19 @@ async def detect_text_message(message):
 
     # if msg.find(" наки ") != -1:
     #     await message.reply("Майкл Наки — в жопе козинаки")
+
+
+@dp.errors_handler()
+async def catch_error(callback, exception):
+    error = traceback.format_exc()
+
+    await callback.message.reply(bold(_("errors.error")) + "\n"
+                                 + code(error.split("\n")[-2]),
+                                 parse_mode="HTML")
+
+    if LOGGING_CHAT is not None:
+        await bot.send_message(LOGGING_CHAT, code(error),
+                               parse_mode="HTML")
 
 
 @dp.message_handler(content_types=ContentType.ANY)

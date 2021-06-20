@@ -10,14 +10,7 @@ from .lib.photo import Photo
 @handlers.parse_arguments(4)
 @handlers.init_photo_file
 async def resize(message, params, img):
-    print(params)
-
-    try:
-        img.resize([int(params[1]), int(params[2])])
-    except Exception as e:
-        await message.reply(f"{bold(_('errors.error'))}\n{code(e)}",
-                            parse_mode="HTML")
-        return
+    img.resize([int(params[1]), int(params[2])])
 
     await bot.send_photo(message.chat.id, img.save())
     img.clean()
@@ -27,15 +20,8 @@ async def resize(message, params, img):
 @handlers.parse_arguments(5)
 @handlers.init_photo_file
 async def text(message, params, img):
-    print(params)
-
-    try:
-        img.font("media/fonts/OpenSans-Bold.ttf", int(params[1]))
-        img.text(params[2], img.parseXY(params[3]), params[4])
-    except Exception as e:
-        await message.reply(f"{bold(_('errors.error'))}\n{code(e)}",
-                            parse_mode="HTML")
-        return
+    img.font("media/fonts/OpenSans-Bold.ttf", int(params[1]))
+    img.text(params[2], img.parseXY(params[3]), params[4])
 
     await message.reply_photo(img.save())
     img.clean()
@@ -45,15 +31,8 @@ async def text(message, params, img):
 @handlers.parse_arguments(2)
 @handlers.init_photo_file
 async def t(message, params, img):
-    print(params)
-
-    try:
-        img.font("media/fonts/OpenSans-Bold.ttf", 75)
-        img.text("black", (50, 50), params[1])
-    except Exception as e:
-        await message.reply(f"{bold(_('errors.error'))}\n{code(e)}",
-                            parse_mode="HTML")
-        return
+    img.font("media/fonts/OpenSans-Bold.ttf", 75)
+    img.text("black", (50, 50), params[1])
 
     await message.reply_photo(img.save())
     img.clean()
@@ -63,16 +42,9 @@ async def t(message, params, img):
 @handlers.parse_arguments(4)
 @handlers.init_photo_file
 async def rectangle(message, params, img):
-    print(params)
-
-    try:
-        img.rectangle(img.parseXY(params[2]),
-                      img.parseXY(params[3]),
-                      params[1])
-    except Exception as e:
-        await message.reply(f"{bold(_('errors.error'))}\n{code(e)}",
-                            parse_mode="HTML")
-        return
+    img.rectangle(img.parseXY(params[2]),
+                  img.parseXY(params[3]),
+                  params[1])
 
     await message.reply_photo(img.save())
     img.clean()
@@ -99,13 +71,7 @@ async def random_color(message, params):
             return
 
     img = Photo(xy=(200, 200))
-
-    try:
-        img.rectangle((0, 0), (200, 200), color)
-    except Exception as e:
-        await message.reply(f"{bold(_('errors.error'))}\n{code(e)}",
-                            parse_mode="HTML")
-        return
+    img.rectangle((0, 0), (200, 200), color)
 
     caption = code("#") + bold(color[1:])
     await message.reply_photo(img.save(), caption=caption,

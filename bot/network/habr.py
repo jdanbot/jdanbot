@@ -14,11 +14,7 @@ async def habr(message, params):
 
     h = Habr()
 
-    try:
-        habrPage = await h.page(id_)
-        await message.reply(habrPage[:4096],
-                            parse_mode="HTML",
-                            disable_web_page_preview=True)
-
-    except Exception as e:
-        await message.reply(e)
+    habrPage = await h.page(id_)
+    await message.reply(habrPage[:4096],
+                        parse_mode="HTML",
+                        disable_web_page_preview=True)

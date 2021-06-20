@@ -13,32 +13,27 @@ def format_scp(p):
 
     # print("\n\n".join(text))
 
-    try:
-        for number, string in enumerate(text):
-            if string.find("рейтинг:") != -1:
-                del(text[number])
+    for number, string in enumerate(text):
+        if string.find("рейтинг:") != -1:
+            del(text[number])
 
-        for number, string in enumerate(text):
-            test = ["Объект №:",
-                    "Класс объекта:",
-                    "Примеры объектов:",
-                    "Описание:",
-                    "Особые условия содержания:"]
-            for k in test:
-                if string.find(k) != -1:
-                    o = string.split(":")[0]
-                    text[number] = text[number].replace(o, bold(o))
+    for number, string in enumerate(text):
+        test = ["Объект №:",
+                "Класс объекта:",
+                "Примеры объектов:",
+                "Описание:",
+                "Особые условия содержания:"]
 
-        if text[0] == "":
-            del(text[0])
+    for k in test:
+        if string.find(k) != -1:
+            o = string.split(":")[0]
+            text[number] = text[number].replace(o, bold(o))
 
-        if len(p.images) != 0:
-            del(text[0])
+    if text[0] == "":
+        del(text[0])
 
-    #     text = "\n".join(text[:u])
-
-    except Exception as e:
-        print(e)
+    if len(p.images) != 0:
+        del(text[0])
 
     text = cuteCrop("\n".join(text), 4096)
 
@@ -52,7 +47,6 @@ def format_scp(p):
 @handlers.parse_arguments(2)
 async def detectscp(message, params):
     scp = pyscp.wikidot.Wiki('http://scpfoundation.net')
-    logging.info(f"[SCP RU] {params[1]}")
 
     try:
         p = scp(params[1])
@@ -71,14 +65,7 @@ async def detectscp(message, params):
     msg = format_scp(p)
 
     if len(images) != 0:
-        try:
-            await message.reply_photo(images[0], msg[:1024],
+        await message.reply_photo(images[0], msg[:1024],
                                       parse_mode="HTML")
-        except Exception as e:
-            await message.reply(code(e), parse_mode="HTML")
-
     else:
-        try:
-            await message.reply(msg[:4096], parse_mode="HTML")
-        except Exception as e:
-            await message.reply(e)
+        await message.reply(msg[:4096], parse_mode="HTML")

@@ -150,11 +150,6 @@ async def wiki(message, fname, url="https://{lang}.wikipedia.org/w/api.php",
             parse_mode="Markdown")
         return
 
-    except Exception as e:
-        await message.reply(bold(_("errors.error")) + "\n" + code(e),
-                            parse_mode="HTML")
-        return
-
     soup = BeautifulSoup(text, "lxml")
 
     i = soup.find_all("i")

@@ -48,11 +48,7 @@ async def wget(message, params):
             await message.reply(_("errors.link_in_blocklist"))
             return
 
-    try:
-        response = await aioget(url)
-    except Exception as e:
-        await message.reply(code(e), parse_mode="HTML")
-        return
+    response = await aioget(url)
 
     load_time = datetime.now() - time
     main = str(load_time).split(":")

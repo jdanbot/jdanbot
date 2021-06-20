@@ -38,10 +38,7 @@ async def eban(message, locale):
         await message.reply(_("errors.only_vars"))
         return
 
-    try:
-        result = await asyncio.wait_for(calc(query), 1)
-    except Exception as e:
-        result = bold(_("errors.error")) + "\n" + code(e)
+    result = await asyncio.wait_for(calc(query), 1)
 
     await message.reply(str(result)[:4096], parse_mode="HTML")
 
@@ -50,12 +47,6 @@ async def eban(message, locale):
 @handlers.parse_arguments(2)
 async def sqrt_(message, params):
     command, num = params
-
-    try:
-        res = sqrt(int(num))
-    except ValueError as e:
-        await message.reply(bold(_("errors.error")) + "\n" + code(e),
-                            parse_mode="HTML")
-        return
+    res = sqrt(int(num))
 
     await message.reply(code(res), parse_mode="HTML")
