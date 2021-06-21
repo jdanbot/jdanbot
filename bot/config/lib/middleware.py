@@ -60,8 +60,11 @@ class I18nMiddleware(I18nMiddlewareBase):
         user = types.User.get_current()
         chat = types.Chat.get_current()
 
-        chat_locale = await notes.get(chat.id, "__chat_lang__")
         locale = user.locale if user else None
+        chat_locale = await notes.get(
+            chat.id,
+            "__chat_lang__"
+        ) if chat is not None else None
 
         if locale:
             *_, data = args
