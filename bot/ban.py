@@ -197,13 +197,16 @@ async def detect_text_message(message):
 async def catch_error(callback, exception):
     error = traceback.format_exc()
 
-    await callback.message.reply(bold(_("errors.error")) + "\n"
-                                 + code(error.split("\n")[-2]),
-                                 parse_mode="HTML")
-
     if LOGGING_CHAT is not None:
         await bot.send_message(LOGGING_CHAT, code(error),
                                parse_mode="HTML")
+
+    if callback.message is None:
+        return
+
+    await callback.message.reply(bold(_("errors.error")) + "\n"
+                                 + code(error.split("\n")[-2]),
+                                 parse_mode="HTML")
 
 
 @dp.message_handler(content_types=ContentType.ANY)
