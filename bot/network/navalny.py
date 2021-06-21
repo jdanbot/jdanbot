@@ -1,7 +1,7 @@
 from aiogram.utils import json
 
-from .config import dp
-from .lib.aioget import aioget
+from ..config import dp
+from ..lib.aioget import aioget
 
 
 @dp.message_handler(commands=["navalny"])
