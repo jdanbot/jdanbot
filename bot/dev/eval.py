@@ -6,8 +6,8 @@ from ..lib.text import code
 from ..lib import handlers
 
 
-@handlers.only_jdan
 @dp.message_handler(commands=["e"])
+@handlers.only_jdan
 async def supereval(message):
     command, query = message.text.split(maxsplit=1)
 
