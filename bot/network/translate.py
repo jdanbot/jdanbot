@@ -20,8 +20,13 @@ async def translate(message, text):
 @dp.message_handler(commands=["crazy"])
 @handlers.get_text
 async def crazy_translator(message, text):
-    for _ in range(0, 10):
-        text = t.translate(text, dest=choice(GTRANSLATE_LANGS)).text
+    for _ in range(0, 14):
+        lang = choice(GTRANSLATE_LANGS)
+
+        if lang == "ua":
+            lang = "uk"
+
+        text = t.translate(text, dest=lang).text
 
     await message.reply(t.translate(text, dest="ru").text,
                         disable_web_page_preview=True)
