@@ -89,8 +89,9 @@ async def wikihandler(message):
     lang = command.replace("/wiki", "") \
                   .replace("/w", "")
 
-    for lang in UNIQUE_COMMANDS:
-        if command[1:] in UNIQUE_COMMANDS[lang]:
+    for lang_ in UNIQUE_COMMANDS:
+        if command[1:] in UNIQUE_COMMANDS[lang_]:
+            lang = lang_
             break
 
     if lang not in LANGS_LIST:
