@@ -3,12 +3,12 @@ import aioschedule
 
 from aiogram import executor
 
-from bot import *  # noqa
-from bot.config import (
+from . import *  # noqa
+from .config import (
     dp, polls, DELAY, RSS, VK, SCHEDULE, 
     KATZ_BOTS, RSS_FEEDS, YOUTUBE, YOUTUBE_CHANNELS)
-from bot.timer import rss_task, youtube_task
-from bot.vk import vk_timer
+from .timer import rss_task, youtube_task
+from .vk import vk_timer
 
 
 loop = asyncio.new_event_loop()
