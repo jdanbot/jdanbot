@@ -9,9 +9,11 @@ async def ban(
         blocker_message,
         blockable_message,
         time=1,
-        reason=_("ban.reason_not_found"),
+        reason=None,
         isRepostAllowed=True
     ):
+    if reason is None:
+        reason = _("ban.reason_not_found")
 
     try:
         ban_time = max(1, math.ceil(float(time)))
@@ -33,6 +35,8 @@ async def ban(
     unban_time=until_date.isoformat()
     is_selfmute = blockable_message.from_user.id == blocker_message.from_user.id
 
+    name = {"name": blockable_message.from_user.full_name} if not is_selfmute else {}
+
     ban_log = _(
         f"ban.{'mute' if not is_selfmute else 'selfmute'}",
         banchik=blocker_message.from_user.full_name,
@@ -40,9 +44,9 @@ async def ban(
         why=reason,
         time=str(ban_time),
         time_localed=time_localed,
-        unban_time=unban_time).format(
-            name=blockable_message.from_user.full_name
-        )
+        unban_time=unban_time,
+        **name
+    )
 
     if blocker_message.chat.id == -1001176998310 and isRepostAllowed:
         await bot.forward_message(-1001334412934,
@@ -66,8 +70,10 @@ async def ban(
 async def warn(
     blocker_message,
     blockable_message,
-    reason=_("ban.reason_not_found")
+    reason=None
     ):
+    if reason is None:
+        reason = _("ban.reason_not_found")
 
     try:
         WARNS_TO_BAN = await notes.get(blocker_message.chat.id, "__warns_to_ban__")
