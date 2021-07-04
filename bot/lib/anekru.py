@@ -11,8 +11,7 @@ class Anekru:
 
     async def get_random(self):
         anek = await aioget(self.url)
-        text = await anek.text()
-        text = text[135:-523]
+        text = anek.text[135:-523]
 
         fixed_anek = ast.literal_eval(f"'{text}'")
         anek_parsed = "\n\n--------------\n\n".join(json.loads(fixed_anek))

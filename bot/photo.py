@@ -13,7 +13,6 @@ async def resize(message, params, img):
     img.resize([int(params[1]), int(params[2])])
 
     await bot.send_photo(message.chat.id, img.save())
-    img.clean()
 
 
 @dp.message_handler(commands=["text"])
@@ -24,7 +23,6 @@ async def text(message, params, img):
     img.text(params[2], img.parseXY(params[3]), params[4])
 
     await message.reply_photo(img.save())
-    img.clean()
 
 
 @dp.message_handler(commands=["t"])
@@ -35,7 +33,6 @@ async def t(message, params, img):
     img.text("black", (50, 50), params[1])
 
     await message.reply_photo(img.save())
-    img.clean()
 
 
 @dp.message_handler(commands=["rectangle"])
@@ -47,7 +44,6 @@ async def rectangle(message, params, img):
                   params[1])
 
     await message.reply_photo(img.save())
-    img.clean()
 
 
 @dp.message_handler(commands=["random_color", "color"])
@@ -76,4 +72,3 @@ async def random_color(message, params):
     caption = code("#") + bold(color[1:])
     await message.reply_photo(img.save(), caption=caption,
                               parse_mode="HTML")
-    img.clean()

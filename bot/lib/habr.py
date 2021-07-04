@@ -8,7 +8,7 @@ class Habr:
 
     async def page(self, id_):
         r = await aioget(f"{self.url}{id_}/")
-        soup = BeautifulSoup(await r.text(), "lxml")
+        soup = BeautifulSoup(r.text, "lxml")
 
         page = f'<b>{soup.find("h1").span.text.upper()}</b>\n\n'
         page += soup.findAll("div", {"id": "post-content-body"})[0].text

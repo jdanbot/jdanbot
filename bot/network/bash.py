@@ -19,17 +19,19 @@ async def bashorg(message, params):
 
         page = await aioget(f"https://bash.im/quote/{num}")
 
-    text = await page.text()
+    text = page.text
 
-    soup = BeautifulSoup(text.replace("<br>", "\n"), 'lxml')
-    soup2 = soup.find("div", class_="quote__body")
+    soup = BeautifulSoup(text, 'lxml')
+    body = soup.find("div", class_="quote__body")
 
-    for tag in soup2.find_all("div", {"class": "quote__strips"}):
+    for br in body.find_all("br"):
+        br.replace_with("\n")
+
+    for tag in body.find_all("div", {"class": "quote__strips"}):
         tag.replace_with("")
 
-    soup2 = soup2.text \
-                 .replace('<div class="quote__body">', "") \
-                 .replace("</div>", "") \
-                 .replace("<br\\>", "\n")
+    body = body.div.text \
+               .replace('<div class="quote__body">', "") \
+               .replace("</div>", "")
 
-    await message.reply(soup2)
+    await message.reply(body)

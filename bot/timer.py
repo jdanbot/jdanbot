@@ -42,7 +42,7 @@ async def rss_task(url, channelid, chatid):
     response = await aioget(url, timeout=5)
 
     try:
-        text = await response.text()
+        text = response.text
     except asyncio.exceptions.TimeoutError:
         debug(f"[{channelid}] TimeoutError")
         return
