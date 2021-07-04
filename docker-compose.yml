@@ -5,10 +5,10 @@ volumes:
 
 services:
   bot:
-    image: jdan734-bot:dev
+    image: jdan734-bot:stable
     build: 
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     volumes:
       - data:/var/jdanbot
     environment:
