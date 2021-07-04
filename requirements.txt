@@ -14,7 +14,6 @@ psutil
 pyduckgo==0.1.4
 pymemeru
 pyyaml
-python-i18n
 sqlfocus
 tghtml==1.0.6
 wikipya==3.0.0b5

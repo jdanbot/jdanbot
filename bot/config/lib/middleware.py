@@ -1,7 +1,7 @@
 import os
-
 import yaml
-import i18n
+
+from dataclasses import dataclass
 
 from .text import fixHTML
 from ..database import notes, command_stats
@@ -11,50 +11,77 @@ from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram import types
 
 
+@dataclass
+class Locale:
+    name: str = "None"
+    lang: str = None
+
+    def load(self, path):
+        self.locale = {}
+
+        for file in os.listdir(path):
+            name, lang, ext = file.split(".", maxsplit=2)
+
+            if lang != self.lang:
+                continue
+
+            with open(f"{path}/{file}", encoding="UTF-8") as f:
+                self.locale[name] = yaml.safe_load(f.read())[lang]
+
+
 class I18nMiddleware(I18nMiddlewareBase):
-    def t(self, singular, plural=None, n=1, locale=None,
-          enable_patch=False, prepare_kwargs=False, **kwargs):
-        self.i18n = i18n
-        self.i18n.load_path.append(self.path)
+    def find_locales(self):
+        locales = {}
 
-        res = self.gettext(singular, plural, n, locale)
+        for name in os.listdir(self.path):
+            lang = name.split(".", maxsplit=2)[1]
 
+            if locales.get(lang) is None:
+                locales[lang] = Locale(lang=lang)
+                locales[lang].load(self.path)
+
+        return locales
+
+    def t(self, singular, plural=None, n=1, locale=None, **kwargs):
         lang = self.ctx_locale.get()
         lang = "uk" if lang == "ua" else lang
+        
+        section, name = singular.split(".", maxsplit=1)
 
-        self.i18n.set("locale", lang)
-        self.i18n.set("fallback", self.default)
+        if lang is None:
+            lang = "ru"
 
-        if prepare_kwargs:
-            for arg in kwargs:
-                kwargs[arg] = fixHTML(kwargs[arg])
+        translate = self.locales[lang].locale[section]
+        n_ = name.split(".", maxsplit=1)
 
-        try:
-            if enable_patch:
-                raise TypeError
+        if len(n_) > 1:
+            name, post = n_
+            translate = translate[name][post]
+        else:
+            translate = translate[name]
 
-            return self.i18n.t(res, **kwargs)
+        if isinstance(translate, str):
+            return translate.replace("%{", "{").format(**kwargs)
 
-        except TypeError:
-            path = f"{self.path}/{res.split('.')[0]}.{{lang}}.yml"
-
-            if not os.path.exists(path.format(lang=lang)):
-                lang = self.default
-
-            with open(path.format(lang=lang),
-                      encoding="UTF-8") as f:
-                locale = yaml.safe_load(f.read())
-                translate = locale.get(lang).get(res.split(".")[1])
-
-                if isinstance(translate, str):
-                    return translate.format(**kwargs)
-
-                elif isinstance(translate, dict):
+        elif isinstance(translate, dict):
+            for key in translate:
+                if isinstance(translate[key], list) or isinstance(translate[key], dict):
                     return translate
 
-                return [[__.format(**kwargs) for __ in translate] if isinstance(_, list)
-                        else _.format(**kwargs) for _ in translate]
+                translate[key] = translate[key].format(**kwargs)
 
+            return translate
+
+        elif isinstance(translate, list):
+            trans = []
+
+            for item in translate:
+                if isinstance(item, list) or isinstance(item, dict):
+                    trans.append(translate)
+                else:
+                    trans.append(item.format(**kwargs))
+
+            return trans
 
     async def get_user_locale(self, action: str, args: None):
         user = types.User.get_current()
