@@ -17,7 +17,7 @@ from ..lib.libtree import make_tree
 @handlers.get_text
 async def download(message, query):
     response = await aioget(query)
-    text = await response.text()
+    text = await response.text
 
     try:
         text = yaml.dump(json.loads(text))
@@ -29,6 +29,7 @@ async def download(message, query):
 
 
 @dp.message_handler(commands=["wget", "r", "request"])
+@handlers.only_jdan
 @handlers.parse_arguments(2)
 async def wget(message, params):
     time = datetime.now()
@@ -53,12 +54,12 @@ async def wget(message, params):
     load_time = datetime.now() - time
     main = str(load_time).split(":")
 
-    page = await response.text()
+    page = response.text
 
-    tree = make_tree({
-        "status": response.status,
-        "size": convert_bytes(sys.getsizeof(page)),
-        "time": f"{main[1]}:{main[2][:main[2].find('.')]}"
-    }, url)
+    tree = make_tree(dict(
+        status=response.status_code,
+        size=convert_bytes(len(response.content)),
+        time=f"{main[1]}:{main[2][:main[2].find('.')]}"
+    ), url)
 
     await message.reply(code(tree), parse_mode="HTML")

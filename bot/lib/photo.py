@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 
-import os
+import io
 import random
 
 from ..config import IMAGE_PATH
@@ -8,18 +8,8 @@ from ..config import IMAGE_PATH
 
 class Photo:
     def __init__(self, path=None, xy=(220, 220)):
-        if path is not None:
-            self.path = path
-            self.saved_path = path.split(".")[0] + "_saved.jpg"
-            self.image = Image.open(path)
-            self.idraw = ImageDraw.Draw(self.image)
-        else:
-            self.path = IMAGE_PATH.format(
-                image=random.randint(0, 1000000000000000)
-            )
-            self.saved_path = f"{self.path.split('.')[0]}_saved.jpg"
-            self.image = Image.new("RGB", xy, (255, 255, 255))
-            self.idraw = ImageDraw.Draw(self.image)
+        self.image = Image.new("RGB", xy, (255, 255, 255))
+        self.idraw = ImageDraw.Draw(self.image)
 
     def resize(self, size):
         self.image.thumbnail((size[0], size[1]))
@@ -56,18 +46,11 @@ class Photo:
         return (int(xy[0]), int(xy[1]))
 
     def save(self):
-        self.image.save(self.saved_path)
-        return open(self.saved_path, "rb")
+        file = io.BytesIO()
+        self.image.save(file, "PNG")
+        file.seek(0)
 
-    def clean(self):
-        self._remove(self.path)
-        self._remove(self.saved_path)
+        return file
 
     def font(self, path, size):
         self.font = ImageFont.truetype(path, size=size)
-
-    def _remove(self, path):
-        try:
-            os.remove(path)
-        except FileNotFoundError:
-            pass

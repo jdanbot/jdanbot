@@ -19,7 +19,7 @@ from ..lib.libtree import make_tree
 @handlers.get_text
 async def netscape(message, url):
     res = await aioget(url)
-    html = await res.text()
+    html = res.text
 
     parsed_html = TgHTML(html, blocklist=WIKIPYA_BLOCKLIST)
     text = cuteCrop(str(parsed_html), limit=4096)
