@@ -7,14 +7,14 @@ beautifulsoup4
 coloredlogs
 feedparser
 googletrans==3.1.0a
+httpx
 lxml
 pillow
 psutil
 pyduckgo==0.1.4
 pymemeru
-pyscp
 pyyaml
-python-i18n
 sqlfocus
 tghtml==1.0.6
 wikipya==3.0.0b5
+requests

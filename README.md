@@ -4,7 +4,7 @@ Multifunctional Telegram Bot for banning and stuff.
 ## 🚀 Start
 To start, clone this repo and run this code:
 ```sh
-python bot.py
+python -m bot
 ```
 
 ## ⚙️ Configuring

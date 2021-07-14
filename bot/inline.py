@@ -18,7 +18,7 @@ async def query_text(query):
 
     q = params[1]
     lang = params[0].split(":", maxsplit=1)
-    lang = "ru" if len(lang) == 0 else lang[1]
+    lang = "ru" if len(lang) == 1 else lang[1]
 
     if not (lang in LANGS_LIST):
         return
@@ -45,31 +45,22 @@ async def query_text(query):
         return
 
     buttons = []
+
     for item in search:
         page = await wiki.page(item)
         page.blockList = WIKIPYA_BLOCKLIST
+
         soup = BeautifulSoup(page.text, "lxml")
         text = page.fixed
 
         btn_defaults = {"id": page.pageid, "title": page.title,
                         "description": soup.text[:100],
-                        "thumb_width": 48, "thumb_height": 48,
                         "input_message_content": InputTextMessageContent(
                             message_text=text,
                             parse_mode="HTML"
                         )}
 
-        try:
-            img = await page.image(75)
-            buttons.append(InlineQueryResultArticle(**btn_defaults,
-                                                    thumb_url=img.source))
-
-        except NotFound:
-            default_image = ("https://upload.wikimedia.org/wikipedia"
-                             "/commons/thumb/8/80/Wikipedia-logo-v2.svg/"
-                             "75px-Wikipedia-logo-v2.svg.png")
-            buttons.append(InlineQueryResultArticle(**btn_defaults,
-                                                    thumb_url=default_image))
+        buttons.append(InlineQueryResultArticle(**btn_defaults))
 
     await bot.answer_inline_query(query.id, buttons)
 
@@ -81,7 +72,7 @@ async def cock(query):
     if cock_size == 46:
         cock_size = 1488
 
-    person = choice(_("triggers.persons"))
+    person = choice(_("triggers.persons")[0])
 
     await bot.answer_inline_query(query.id, [
         InlineQueryResultArticle(

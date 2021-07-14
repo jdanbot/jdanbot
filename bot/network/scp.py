@@ -1,71 +1,62 @@
-import pyscp
+from bs4 import BeautifulSoup
+from ..lib.aioget import aioget
+from tghtml import TgHTML
 
-from ..config import dp, logging, _
+from ..config import dp, _
 from ..lib import handlers
-from ..lib.text import bold, code, cuteCrop, fixHTML
+from ..lib.text import bold, cuteCrop
 
 
-def format_scp(p):
-    text = p.text
-
-    text = fixHTML(text)
-    text = text.split("\n")
-
-    # print("\n\n".join(text))
-
-    for number, string in enumerate(text):
-        if string.find("рейтинг:") != -1:
-            del(text[number])
-
-    for number, string in enumerate(text):
-        test = ["Объект №:",
-                "Класс объекта:",
-                "Примеры объектов:",
-                "Описание:",
-                "Особые условия содержания:"]
-
-    for k in test:
-        if string.find(k) != -1:
-            o = string.split(":")[0]
-            text[number] = text[number].replace(o, bold(o))
-
-    if text[0] == "":
-        del(text[0])
-
-    if len(p.images) != 0:
-        del(text[0])
-
-    text = cuteCrop("\n".join(text), 4096)
-
-    title = fixHTML(p.title.replace('\n', ''))
-    msg = f"<b>{title}</b>\n\n{text}"
-    msg = msg.replace("</b>\n\n<b>", "</b>\n<b>")
-    return msg
-
-
-@dp.message_handler(commands=["scp"])
+@dp.message_handler(commands="scp")
 @handlers.parse_arguments(2)
-async def detectscp(message, params):
-    scp = pyscp.wikidot.Wiki('http://scpfoundation.net')
+async def scp(message, params):
+    query = params[1]
 
-    try:
-        p = scp(params[1])
-        p.title
+    search = await aioget(f"http://scp-ru.wikidot.com/search:site/q/{query}")
+    soup = BeautifulSoup(search.text, "lxml")
+    search_box = soup.find("div", {"id": "page-content"})
 
-    except AttributeError:
-        try:
-            p = scp("scp-" + params[1])
-            p.title
-        except AttributeError:
-            await message.reply(bold(_("errors.not_found")),
-                                parse_mode="HTML")
-            return
+    search_items = []
 
-    images = p.images
-    msg = format_scp(p)
+    for item in search_box.find_all("div", {"class": "item"}):
+        search_items.append({
+            "title": item.find("div", class_="title").a.text.strip(),
+            "description": item.find("div", class_="preview").text.strip(),
+            "url": item.find("div", class_="url").text.strip()
+        })
 
-    if len(images) != 0:
-        await message.reply_photo(images[0], msg[:1024],
-                                      parse_mode="HTML")
+
+    def get_scp_number(q):
+        title = q["title"].split(" - ", maxsplit=1)
+
+        if len(title) == 1:
+            return 9999999999999
+        else:
+            return int(title[0].split("-", maxsplit=2)[1])
+
+    search_items = sorted(search_items, key=get_scp_number)
+
+    if len(search_items) == 0:
+        await message.reply(bold(_("errors.not_found")), "HTML")
+        return
+
+    page = await aioget(search_items[0]["url"])
+    soup = BeautifulSoup(page.text, "lxml")
+
+    content = soup.find_all("div", {"id": "page-content"})[0]
+    images = content.find_all("img")
+
+    parsed_text = (
+        f"<b>{search_items[0]['title']}</b>\n\n" +
+        TgHTML(str(content), ["div", {"class": "block-right"}]).parsed
+    )
+
+    if len(images) > 0:
+        await message.answer_photo(
+            images[0]["src"],
+            cuteCrop(parsed_text, 1024),
+            parse_mode="HTML"
+        )
+
     else:
-        await message.reply(msg[:4096], parse_mode="HTML")
+        await message.reply(cuteCrop(parsed_text, 4096), "HTML")
