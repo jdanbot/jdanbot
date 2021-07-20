@@ -4,7 +4,7 @@ import yaml
 from dataclasses import dataclass
 
 from .text import fixHTML
-from ..database import notes, command_stats
+from ..database import Note, command_stats
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
 from aiogram.dispatcher.middlewares import BaseMiddleware
@@ -88,7 +88,7 @@ class I18nMiddleware(I18nMiddlewareBase):
         chat = types.Chat.get_current()
 
         locale = user.locale if user else None
-        chat_locale = await notes.get(
+        chat_locale = await Note.get(
             chat.id,
             "__chat_lang__"
         ) if chat is not None else None

@@ -1,7 +1,7 @@
 import datetime
 import math
 
-from ..config import bot, TIMEZONE, warns, conn, _, notes
+from ..config import bot, TIMEZONE, warns, conn, _, Note
 from .text import prettyword
 
 
@@ -76,8 +76,9 @@ async def warn(
         reason = _("ban.reason_not_found")
 
     try:
-        WARNS_TO_BAN = await notes.get(blocker_message.chat.id, "__warns_to_ban__")
-        WARNS_TO_BAN = int(WARNS_TO_BAN)
+        WARNS_TO_BAN = int(await Note.get(
+            blocker_message.chat.id, "__warns_to_ban__"))
+
     except Exception:
         WARNS_TO_BAN = 3
 

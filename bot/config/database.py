@@ -3,11 +3,23 @@ from aiogram.utils import exceptions
 from sqlfocus import SQLTableBase, SQLTable
 
 import asyncio
-import json
+# import json
 import datetime
 
 from .config import DB_PATH
 from .bot import bot
+
+
+import asyncio
+import json
+
+from peewee import *
+from peewee_async import Manager
+
+from .lib.async_sqlite import SqliteDatabase, onefor
+
+
+db = SqliteDatabase(DB_PATH)
 
 
 async def connect_db():
@@ -96,35 +108,45 @@ class Polls(SQLTableBase):
                 await bot.stop_poll(poll[0], poll[2])
 
 
-class Notes(SQLTableBase):
-    async def add(self, chatid, name, text):
-        try:
-            await self.remove(chatid, name)
-        except Exception:
-            pass
+class Note(Model):
+    chatid = IntegerField()
+    content = CharField()
+    name = CharField()
 
-        await self.insert(chatid, name, text)
-        await self._conn.commit()
+    class Meta:
+        db_table = "notes"
+        database = db
+        primary_key = False
 
+    async def add(chatid, name, text):
+        await Note.remove(chatid, name)
 
-    async def get(self, chatid, name):
-        e = await self.select(where=[f"{chatid = }", f"{name = }"])
+        return await manager.execute(
+            Note.insert(chatid=chatid, name=name, content=text)
+        )
 
-        if len(e) > 0:
-            return e[-1][-1]
-        else:
-            return None
+    async def get(chatid, name):
+        note = onefor(await manager.execute(
+            Note.select()
+                .where(Note.chatid == chatid, Note.name == name)
+        ))
 
+        if note is not None:
+            return note.content
 
-    async def show(self, chatid):
-        e = await self.select(where=f"{chatid = }")
+    async def show(chatid):
+        notes = await manager.execute(
+            Note.select()
+                .where(Note.chatid == chatid)
+        )
 
-        return [item[1] for item in e]
+        return [note.name for note in notes]
 
-
-    async def remove(self, chatid, name):
-        await self.delete(where=[f"{chatid = }", f"{name = }"])
-        await self._conn.commit()
+    async def remove(chatid, name):
+        return await manager.execute(
+            Note.delete()
+                .where(Note.chatid == chatid, Note.name == name)
+        )
 
 
 class Events(SQLTableBase):
@@ -145,11 +167,19 @@ conn = asyncio.run(connect_db())
 events = Events(conn)
 videos = Videos(conn)
 warns = Warns(conn)
-notes = Notes(conn)
 pidors = Pidors(conn)
 pidorstats = SQLTable("pidorstats", conn)
 polls = Polls(conn)
 command_stats = SQLTable("command_stats", conn)
+
+
+for model in (Note):
+    model.create_table(True)
+
+manager = Manager(db)
+
+db.close()
+db.set_allow_sync(False)
 
 
 async def init_db():
@@ -170,12 +200,6 @@ async def init_db():
         ("chat_id", "INTEGER"),
         ("timestamp", "INTEGER"),
         ("reason", "TEXT")
-    ))
-
-    await notes.create(exists=True, schema=(
-        ("chatid", "INTEGER"),
-        ("name", "TEXT"),
-        ("content", "TEXT")
     ))
 
     await pidors.create(exists=True, schema=(
