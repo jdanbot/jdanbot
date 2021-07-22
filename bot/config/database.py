@@ -44,22 +44,37 @@ class Videos(SQLTableBase):
         await self.conn.commit()
 
 
-class Warns(SQLTableBase):
-    async def count_wtbans(self, user_id, chat_id,
+class Warn(Model):
+    admin_id = IntegerField()
+    user_id = IntegerField()
+    chat_id = IntegerField()
+    timestamp = IntegerField()
+    reason = CharField()
+
+    class Meta:
+        db_table = "warns"
+        database = db
+        primary_key = False
+
+    async def count_wtbans(user_id, chat_id,
                            period=datetime.timedelta(hours=24)):
         period_bound = int((datetime.datetime.now() - period).timestamp())
-        w = await self.select(where=[
-            self.timestamp >= period_bound,
-            f"{user_id = }", f"{chat_id = }"
-        ])
 
-        return len(w)
+        return get_count(await manager.execute(
+            Warn.select(fn.Count(SQL("*")))
+                .where(
+                    Warn.timestamp >= period_bound,
+                    Warn.user_id == user_id,
+                    Warn.chat_id == chat_id
+                )
+        ))
 
-    async def mark_chat_member(self, user_id, chat_id, admin_id, reason):
-        await self.insert(user_id, admin_id, chat_id,
-                          int(datetime.datetime.now().timestamp()), reason)
-
-        await conn.commit()
+    async def mark_chat_member(user_id, chat_id, admin_id, reason):
+        await manager.execute(
+            Warn.insert(user_id=user_id, admin_id=admin_id,
+                        chat_id=chat_id, reason=reason,
+                        timestamp=int(datetime.datetime.now().timestamp()))
+        )
 
 
 class Pidors(SQLTableBase):
@@ -192,13 +207,13 @@ class Event(Model):
 conn = asyncio.run(connect_db())
 
 videos = Videos(conn)
-warns = Warns(conn)
 pidors = Pidors(conn)
-pidorstats = SQLTable("pidorstats", conn)
 polls = Polls(conn)
 
+pidorstats = SQLTable("pidorstats", conn)
 
-for model in (Note, Event, CommandStats):
+
+for model in (Note, Event, CommandStats, Warn):
     model.create_table(True)
 
 manager = Manager(db)
@@ -211,14 +226,6 @@ async def init_db():
     await videos.create(exists=True, schema=(
         ("channelid", "TEXT"),
         ("links", "TEXT")
-    ))
-
-    await warns.create(exists=True, schema=(
-        ("user_id", "INTEGER"),
-        ("admin_id", "INTEGER"),
-        ("chat_id", "INTEGER"),
-        ("timestamp", "INTEGER"),
-        ("reason", "TEXT")
     ))
 
     await pidors.create(exists=True, schema=(
