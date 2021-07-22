@@ -22,7 +22,7 @@ async def youtube_task(channelid, chatid):
     })
 
     try:
-        video = await response.json()
+        video = response.json()
     except asyncio.exceptions.TimeoutError:
         debug(f"[{channelid}] TimeoutError")
         return
