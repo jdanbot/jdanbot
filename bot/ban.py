@@ -1,7 +1,7 @@
 from aiogram import types
 from aiogram.types import ContentType
 
-from .config import dp, bot, _, Note, events, LOGGING_CHAT
+from .config import dp, bot, _, Note, Event, LOGGING_CHAT
 from .memes.random import random_putin, random_lukash, random_navalny
 
 from .lib.text import code, bold
@@ -71,7 +71,7 @@ async def john(message):
         await message.reply(f"{choice(_('triggers.welcome'))}?")
 
     rules = await Note.get(message.chat.id, "__rules__")
-    await events.reg_user_in_db(message)
+    await Event.reg_user_in_db(message)
 
     if rules is not None:
         try:

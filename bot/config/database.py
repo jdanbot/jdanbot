@@ -16,7 +16,7 @@ import json
 from peewee import *
 from peewee_async import Manager
 
-from .lib.async_sqlite import SqliteDatabase, onefor
+from .lib.async_sqlite import SqliteDatabase, onefor, get_count
 
 
 db = SqliteDatabase(DB_PATH)
@@ -149,31 +149,56 @@ class Note(Model):
         )
 
 
-class Events(SQLTableBase):
-    async def reg_user_in_db(self, message):
-        user = message.from_user
-        cur_user = await self.select(where=[
-            self.id == user.id,
-            self.chatid == message.chat.id
-        ])
+class CommandStats(Model):
+    chat_id = IntegerField()
+    user_id = IntegerField()
+    command = CharField()
 
-        if len(cur_user) == 0:
-            await self.insert(message.chat.id, user.id, user.full_name)
-            await self.conn.commit()
+    class Meta:
+        db_table = "command_stats"
+        database = db
+        primary_key = False
+
+
+class Event(Model):
+    chatid = IntegerField()
+    id = IntegerField()
+    name = CharField()
+
+    class Meta:
+        db_table = "events"
+        database = db
+        primary_key = False
+
+    async def reg_user_in_db(message):
+        user = message.from_user
+
+        cur_user = onefor(await manager.execute(
+            Event.select()
+                 .where(Event.id == user.id,
+                        Event.chatid == message.chat.id)
+        ))
+
+        if cur_user is None:
+            await manager.execute(
+                Event.insert(
+                    chatid=message.chat.id,
+                    id=user.id,
+                    name=user.full_name
+                )
+            )
 
 
 conn = asyncio.run(connect_db())
 
-events = Events(conn)
 videos = Videos(conn)
 warns = Warns(conn)
 pidors = Pidors(conn)
 pidorstats = SQLTable("pidorstats", conn)
 polls = Polls(conn)
-command_stats = SQLTable("command_stats", conn)
 
 
-for model in (Note):
+for model in (Note, Event, CommandStats):
     model.create_table(True)
 
 manager = Manager(db)
@@ -183,12 +208,6 @@ db.set_allow_sync(False)
 
 
 async def init_db():
-    await events.create(exists=True, schema=(
-        ("chatid", "INTEGER"),
-        ("id", "INTEGER"),
-        ("name", "TEXT")
-    ))
-
     await videos.create(exists=True, schema=(
         ("channelid", "TEXT"),
         ("links", "TEXT")
@@ -213,12 +232,6 @@ async def init_db():
         ("user_id", "INTEGER"),
         ("username", "TEXT"),
         ("count", "INTEGER")
-    ))
-
-    await command_stats.create(exists=True, schema=(
-        ("chat_id", "INTEGER"),
-        ("user_id", "INTEGER"),
-        ("command", "TEXT")
     ))
 
     await polls.create(exists=True, schema=(

@@ -4,7 +4,7 @@ import yaml
 from dataclasses import dataclass
 
 from .text import fixHTML
-from ..database import Note, command_stats
+from ..database import Note, CommandStats, manager
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
 from aiogram.dispatcher.middlewares import BaseMiddleware
@@ -106,10 +106,10 @@ class SpyMiddleware(BaseMiddleware):
         command = message.get_full_command()
 
         if command is not None:
-            await command_stats.insert(
-                message.chat.id, message.from_user.id,
-                command[0][1:]
+            await manager.execute(
+                CommandStats.insert(
+                    chat_id=message.chat.id,
+                    user_id=message.from_user.id,
+                    command=command[0][1:]
+                )
             )
-            await command_stats._conn.commit()
-
-
