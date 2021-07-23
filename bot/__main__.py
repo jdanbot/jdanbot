@@ -25,14 +25,6 @@ async def scheduler():
                 feed["chatid"]
             )
 
-    if YOUTUBE:
-        for channel in YOUTUBE_CHANNELS:
-            aioschedule.every(15).minutes.do(
-                youtube_task,
-                channel["channelid"],
-                channel["chatid"]
-            )
-
     if VK:
         aioschedule.every(DELAY).seconds.do(vk_timer)
 

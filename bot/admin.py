@@ -2,6 +2,7 @@ import time
 from datetime import datetime
 
 from .config import bot, dp, TIMEZONE, Poll, conn
+from .timer import youtube_task
 from .lib import handlers
 from .lib.text import prettyword
 from .lib.banhammer import ban, warn, unwarn
@@ -60,3 +61,13 @@ async def kz_poll(message, params):
                        description=params[1])
 
     await message.delete()
+
+
+@dp.message_handler(commands=["reload_pin"])
+@handlers.only_admins
+async def kz_poll(message):
+    if message.chat.id != -1001176998310:
+        return
+
+    KATZ_CHANNEL = "UCUGfDbfRIx51kJGGHIFo8Rw"
+    await youtube_task(KATZ_CHANNEL, -1001176998310)
