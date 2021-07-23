@@ -26,22 +26,40 @@ async def connect_db():
     return await aiosqlite.connect(DB_PATH)
 
 
-class Videos(SQLTableBase):
-    async def save(self, channelid, link):
-        links = await self.select(where=f"{channelid = }")
+class Video(Model):
+    channelid = CharField()
+    link = CharField()
 
-        try:
-            links = json.loads(links[0][1])[-15:]
+    class Meta:
+        db_table = "videos"
+        database = db
+        primary_key = False
+
+    async def save(channelid, link):
+        links = list(await manager.execute(
+            Video.select()
+                 .where(Video.channelid == channelid)
+        ))
+
+        if len(links) > 0:
+            links = json.loads(links[0].link)[-15:]
             links.append(link)
-        except IndexError:
+
+            links_str = json.dumps(links)
+
+            await manager.execute(
+                Video.update(link=links_str)
+                     .where(Video.channelid == channelid)
+            )
+
+        else:
             links = [link]
+            links_str = json.dumps(links)
 
-        links_str = json.dumps(links)
-
-        await self.delete(where=f"{channelid = }")
-        await self.insert(channelid, links_str)
-
-        await self.conn.commit()
+            await manager.execute(
+                Video.insert(channelid=channelid,
+                             link=links_str)
+            )
 
 
 class Warn(Model):
@@ -226,15 +244,16 @@ class Event(Model):
             )
 
 
-conn = asyncio.run(connect_db())
+# conn = asyncio.run(connect_db())
+conn = None
 
-videos = Videos(conn)
+videos = Video
 pidors = Pidors(conn)
 
 pidorstats = SQLTable("pidorstats", conn)
 
 
-for model in (Note, Event, CommandStats, Warn, Poll):
+for model in (Note, Event, CommandStats, Warn, Poll, Video):
     model.create_table(True)
 
 manager = Manager(db)
@@ -244,11 +263,6 @@ db.set_allow_sync(False)
 
 
 async def init_db():
-    await videos.create(exists=True, schema=(
-        ("channelid", "TEXT"),
-        ("links", "TEXT")
-    ))
-
     await pidors.create(exists=True, schema=(
         ("chat_id", "INTEGER"),
         ("user_id", "INTEGER"),
@@ -261,5 +275,3 @@ async def init_db():
         ("username", "TEXT"),
         ("count", "INTEGER")
     ))
-
-asyncio.run(init_db())
