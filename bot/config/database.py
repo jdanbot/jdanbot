@@ -86,41 +86,63 @@ class Pidors(SQLTableBase):
         ])
 
 
-class Polls(SQLTableBase):
-    async def add_poll(self, user_id, chat_id,
-                       poll_id, description):
+class Poll(Model):
+    user_id = IntegerField()
+    chat_id = IntegerField()
+    poll_id = IntegerField()
+    timestamp = IntegerField()
+    description = CharField()
+
+    class Meta:
+        db_table = "polls"
+        database = db
+        primary_key = False
+
+    async def add(user_id, chat_id,
+                  poll_id, description):
         now = datetime.datetime.now()
         period = int(now.timestamp())
 
-        return await self.insert(chat_id, user_id, poll_id,
-                                 description, period)
+        await manager.execute(
+            Poll.insert(chat_id=chat_id, user_id=user_id,
+                        poll_id=poll_id, description=description,
+                        timestamp=period)
+        )
 
-
-    async def close_old(self):
+    async def close_old():
         period = datetime.timedelta(hours=24)
         now = datetime.datetime.now()
         period_bound = int((now - period).timestamp())
 
-        where = self.timestamp <= period_bound
-        polls = await self.select(where=where)
+        polls = await manager.execute(
+            Poll.select()
+                .where(Poll.timestamp <= period_bound)
+        )
 
         for poll in polls:
             try:
-                poll_res = await bot.stop_poll(poll[0], poll[2])
+                poll_res = await bot.stop_poll(poll.chat_id,
+                                               poll.poll_id)
 
             except (exceptions.PollHasAlreadyBeenClosed,
                     exceptions.MessageWithPollNotFound):
-                await self.delete(where=[
-                    where,
-                    f"chat_id = {poll[0]}",
-                    f"poll_id = {poll[2]}"
-                ])
+                await manager.execute(
+                    Poll.delete()
+                        .where(Poll.timestamp <= period_bound,
+                               Poll.chat_id == poll.chat_id,
+                               Poll.poll_id == poll.poll_id)
+                )
+
                 continue
 
             if poll_res.is_closed:
-                await self.delete(where=where)
+                await manager.execute(
+                    Poll.delete()
+                        .where(Poll.timestamp <= period_bound)
+                )
+
             else:
-                await bot.stop_poll(poll[0], poll[2])
+                await bot.stop_poll(poll.chat_id, poll.poll_id)
 
 
 class Note(Model):
@@ -208,12 +230,11 @@ conn = asyncio.run(connect_db())
 
 videos = Videos(conn)
 pidors = Pidors(conn)
-polls = Polls(conn)
 
 pidorstats = SQLTable("pidorstats", conn)
 
 
-for model in (Note, Event, CommandStats, Warn):
+for model in (Note, Event, CommandStats, Warn, Poll):
     model.create_table(True)
 
 manager = Manager(db)
@@ -239,14 +260,6 @@ async def init_db():
         ("user_id", "INTEGER"),
         ("username", "TEXT"),
         ("count", "INTEGER")
-    ))
-
-    await polls.create(exists=True, schema=(
-        ("chat_id", "INTEGER"),
-        ("user_id", "INTEGER"),
-        ("poll_id", "INTEGER"),
-        ("description", "TEXT"),
-        ("timestamp", "INTEGER")
     ))
 
 asyncio.run(init_db())

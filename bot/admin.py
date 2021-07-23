@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 
-from .config import bot, dp, TIMEZONE, polls, conn
+from .config import bot, dp, TIMEZONE, Poll, conn
 from .lib import handlers
 from .lib.text import prettyword
 from .lib.banhammer import ban, warn, unwarn
@@ -54,10 +54,9 @@ async def kz_poll(message, params):
 
     if poll.chat.id == -1001334412934:
         await poll.pin(disable_notification=True)
-        await polls.add_poll(chat_id=message.chat.id,
-                             user_id=message.from_user.id,
-                             poll_id=poll.message_id,
-                             description=params[1])
-        await conn.commit()
+        await Poll.add(chat_id=message.chat.id,
+                       user_id=message.from_user.id,
+                       poll_id=poll.message_id,
+                       description=params[1])
 
     await message.delete()
