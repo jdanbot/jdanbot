@@ -4,7 +4,7 @@ from datetime import datetime
 
 import yaml
 
-from ..config import dp
+from ..config import dp, _
 from ..lib import handlers
 from ..lib.aioget import aioget
 from ..lib.convert_bytes import convert_bytes
@@ -17,7 +17,7 @@ from ..lib.libtree import make_tree
 @handlers.get_text
 async def download(message, query):
     response = await aioget(query)
-    text = await response.text
+    text = response.text
 
     try:
         text = yaml.dump(json.loads(text))
@@ -46,7 +46,7 @@ async def wget(message, params):
 
     for word in blacklist:
         if url.lower().find(word) != -1:
-            await message.reply(_("errors.link_in_blocklist"))
+            await message.reply(_("errors.url_in_blocklist"))
             return
 
     response = await aioget(url)
