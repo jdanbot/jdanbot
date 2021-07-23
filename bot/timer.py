@@ -1,5 +1,3 @@
-from sqlfocus import SQLTable
-
 import asyncio
 import json
 
