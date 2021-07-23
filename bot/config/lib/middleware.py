@@ -26,7 +26,7 @@ class Locale:
                 continue
 
             with open(f"{path}/{file}", encoding="UTF-8") as f:
-                self.locale[name] = yaml.safe_load(f.read())[lang]
+                self.locale[name] = yaml.safe_load(f.read().replace("%{", "{"))[lang]
 
 
 class I18nMiddleware(I18nMiddlewareBase):
@@ -61,9 +61,25 @@ class I18nMiddleware(I18nMiddlewareBase):
             translate = translate[name]
 
         if isinstance(translate, str):
-            return translate.replace("%{", "{").format(**kwargs)
+            return translate.format(**kwargs)
 
         elif isinstance(translate, dict):
+            try:
+                count = kwargs["count"]
+
+                if count == 0:
+                    value = "zero"
+                elif count == 1:
+                    value = "one"
+                elif count in (2, 3, 4, 5):
+                    value = "few"
+                else:
+                    value = "many"
+
+                return translate[value].format(**kwargs)
+            except:
+                pass
+
             for key in translate:
                 if isinstance(translate[key], list) or isinstance(translate[key], dict):
                     return translate

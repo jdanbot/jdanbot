@@ -1,4 +1,4 @@
-from .config import bot, dp, conn, Note, _, ADMIN_NOTES
+from .config import bot, dp, Note, _, ADMIN_NOTES
 from .lib import handlers
 from .lib.admin import check_admin
 from .lib.text import code, prettyword

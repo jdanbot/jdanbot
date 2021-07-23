@@ -1,6 +1,6 @@
 from peewee import fn, SQL
 
-from .config import bot, dp, conn, Event, CommandStats, _, get_count, manager
+from .config import bot, dp, Event, CommandStats, _, get_count, manager
 from .lib.text import code, bold, prettyword, fixHTML
 from .lib.libtree import make_tree
 

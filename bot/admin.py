@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 
-from .config import bot, dp, TIMEZONE, Poll, conn
+from .config import bot, dp, TIMEZONE, Poll
 from .timer import youtube_task
 from .lib import handlers
 from .lib.text import prettyword

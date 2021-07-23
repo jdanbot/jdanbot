@@ -1,7 +1,7 @@
 import datetime
 import math
 
-from ..config import bot, TIMEZONE, Warn, conn, _, Note, manager
+from ..config import bot, TIMEZONE, Warn, _, Note, manager
 from .text import prettyword
 
 

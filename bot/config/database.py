@@ -1,17 +1,11 @@
-import aiosqlite
 from aiogram.utils import exceptions
-from sqlfocus import SQLTableBase, SQLTable
 
 import asyncio
-# import json
+import json
 import datetime
 
 from .config import DB_PATH
 from .bot import bot
-
-
-import asyncio
-import json
 
 from peewee import *
 from peewee_async import Manager
@@ -20,10 +14,6 @@ from .lib.async_sqlite import SqliteDatabase, onefor, get_count
 
 
 db = SqliteDatabase(DB_PATH)
-
-
-async def connect_db():
-    return await aiosqlite.connect(DB_PATH)
 
 
 class Video(Model):
@@ -95,13 +85,36 @@ class Warn(Model):
         )
 
 
-class Pidors(SQLTableBase):
-    async def getPidorInfo(self, chat_id,
-                           period=datetime.timedelta(hours=24)):
+class Pidor(Model):
+    user_id = IntegerField()
+    chat_id = IntegerField()
+    timestamp = IntegerField()
+
+    class Meta:
+        db_table = "pidors"
+        database = db
+        primary_key = False
+
+    async def getPidorInfo(chat_id, period=datetime.timedelta(hours=24)):
         period_bound = int((datetime.datetime.now() - period).timestamp())
-        return await self.select(where=[
-            self.timestamp >= period_bound, f"{chat_id = }"
-        ])
+
+        return list(await manager.execute(
+            Pidor.select()
+                 .where(Pidor.timestamp >= period_bound,
+                        Pidor.chat_id == chat_id)
+        ))
+
+
+class PidorStats(Model):
+    user_id = IntegerField()
+    chat_id = IntegerField()
+    username = CharField()
+    count = IntegerField()
+
+    class Meta:
+        db_table = "pidorstats"
+        database = db
+        primary_key = False
 
 
 class Poll(Model):
@@ -181,13 +194,13 @@ class Note(Model):
         )
 
     async def get(chatid, name):
-        note = onefor(await manager.execute(
+        note = list(await manager.execute(
             Note.select()
                 .where(Note.chatid == chatid, Note.name == name)
         ))
 
-        if note is not None:
-            return note.content
+        if len(note) > 0:
+            return note[0].content
 
     async def show(chatid):
         notes = await manager.execute(
@@ -228,13 +241,13 @@ class Event(Model):
     async def reg_user_in_db(message):
         user = message.from_user
 
-        cur_user = onefor(await manager.execute(
+        cur_user = list(await manager.execute(
             Event.select()
                  .where(Event.id == user.id,
                         Event.chatid == message.chat.id)
         ))
 
-        if cur_user is None:
+        if len(cur_user) == 0:
             await manager.execute(
                 Event.insert(
                     chatid=message.chat.id,
@@ -244,34 +257,11 @@ class Event(Model):
             )
 
 
-# conn = asyncio.run(connect_db())
-conn = None
-
-videos = Video
-pidors = Pidors(conn)
-
-pidorstats = SQLTable("pidorstats", conn)
-
-
-for model in (Note, Event, CommandStats, Warn, Poll, Video):
+for model in (Note, Event, CommandStats, Warn, Poll, Video,
+              Pidor, PidorStats):
     model.create_table(True)
 
 manager = Manager(db)
 
 db.close()
 db.set_allow_sync(False)
-
-
-async def init_db():
-    await pidors.create(exists=True, schema=(
-        ("chat_id", "INTEGER"),
-        ("user_id", "INTEGER"),
-        ("timestamp", "INTEGER")
-    ))
-
-    await pidorstats.create(exists=True, schema=(
-        ("chat_id", "INTEGER"),
-        ("user_id", "INTEGER"),
-        ("username", "TEXT"),
-        ("count", "INTEGER")
-    ))
