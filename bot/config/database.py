@@ -1,6 +1,4 @@
-import aiosqlite
 from aiogram.utils import exceptions
-from sqlfocus import SQLTableBase, SQLTable
 
 import asyncio
 import json
@@ -9,200 +7,261 @@ import datetime
 from .config import DB_PATH
 from .bot import bot
 
+from peewee import *
+from peewee_async import Manager
 
-async def connect_db():
-    return await aiosqlite.connect(DB_PATH)
+from .lib.async_sqlite import SqliteDatabase, onefor, get_count
 
 
-class Videos(SQLTableBase):
-    async def save(self, channelid, link):
-        links = await self.select(where=f"{channelid = }")
+db = SqliteDatabase(DB_PATH)
 
-        try:
-            links = json.loads(links[0][1])[-15:]
+
+class Video(Model):
+    channelid = CharField()
+    link = CharField()
+
+    class Meta:
+        db_table = "videos"
+        database = db
+        primary_key = False
+
+    async def save(channelid, link):
+        links = list(await manager.execute(
+            Video.select()
+                 .where(Video.channelid == channelid)
+        ))
+
+        if len(links) > 0:
+            links = json.loads(links[0].link)[-15:]
             links.append(link)
-        except IndexError:
+
+            links_str = json.dumps(links)
+
+            await manager.execute(
+                Video.update(link=links_str)
+                     .where(Video.channelid == channelid)
+            )
+
+        else:
             links = [link]
+            links_str = json.dumps(links)
 
-        links_str = json.dumps(links)
-
-        await self.delete(where=f"{channelid = }")
-        await self.insert(channelid, links_str)
-
-        await self.conn.commit()
+            await manager.execute(
+                Video.insert(channelid=channelid,
+                             link=links_str)
+            )
 
 
-class Warns(SQLTableBase):
-    async def count_wtbans(self, user_id, chat_id,
+class Warn(Model):
+    admin_id = IntegerField()
+    user_id = IntegerField()
+    chat_id = IntegerField()
+    timestamp = IntegerField()
+    reason = CharField()
+
+    class Meta:
+        db_table = "warns"
+        database = db
+        primary_key = False
+
+    async def count_wtbans(user_id, chat_id,
                            period=datetime.timedelta(hours=24)):
         period_bound = int((datetime.datetime.now() - period).timestamp())
-        w = await self.select(where=[
-            self.timestamp >= period_bound,
-            f"{user_id = }", f"{chat_id = }"
-        ])
 
-        return len(w)
+        return get_count(await manager.execute(
+            Warn.select(fn.Count(SQL("*")))
+                .where(
+                    Warn.timestamp >= period_bound,
+                    Warn.user_id == user_id,
+                    Warn.chat_id == chat_id
+                )
+        ))
 
-    async def mark_chat_member(self, user_id, chat_id, admin_id, reason):
-        await self.insert(user_id, admin_id, chat_id,
-                          int(datetime.datetime.now().timestamp()), reason)
+    async def mark_chat_member(user_id, chat_id, admin_id, reason):
+        await manager.execute(
+            Warn.insert(user_id=user_id, admin_id=admin_id,
+                        chat_id=chat_id, reason=reason,
+                        timestamp=int(datetime.datetime.now().timestamp()))
+        )
 
-        await conn.commit()
 
+class Pidor(Model):
+    user_id = IntegerField()
+    chat_id = IntegerField()
+    timestamp = IntegerField()
 
-class Pidors(SQLTableBase):
-    async def getPidorInfo(self, chat_id,
-                           period=datetime.timedelta(hours=24)):
+    class Meta:
+        db_table = "pidors"
+        database = db
+        primary_key = False
+
+    async def getPidorInfo(chat_id, period=datetime.timedelta(hours=24)):
         period_bound = int((datetime.datetime.now() - period).timestamp())
-        return await self.select(where=[
-            self.timestamp >= period_bound, f"{chat_id = }"
-        ])
+
+        return list(await manager.execute(
+            Pidor.select()
+                 .where(Pidor.timestamp >= period_bound,
+                        Pidor.chat_id == chat_id)
+        ))
 
 
-class Polls(SQLTableBase):
-    async def add_poll(self, user_id, chat_id,
-                       poll_id, description):
+class PidorStats(Model):
+    user_id = IntegerField()
+    chat_id = IntegerField()
+    username = CharField()
+    count = IntegerField()
+
+    class Meta:
+        db_table = "pidorstats"
+        database = db
+        primary_key = False
+
+
+class Poll(Model):
+    user_id = IntegerField()
+    chat_id = IntegerField()
+    poll_id = IntegerField()
+    timestamp = IntegerField()
+    description = CharField()
+
+    class Meta:
+        db_table = "polls"
+        database = db
+        primary_key = False
+
+    async def add(user_id, chat_id,
+                  poll_id, description):
         now = datetime.datetime.now()
         period = int(now.timestamp())
 
-        return await self.insert(chat_id, user_id, poll_id,
-                                 description, period)
+        await manager.execute(
+            Poll.insert(chat_id=chat_id, user_id=user_id,
+                        poll_id=poll_id, description=description,
+                        timestamp=period)
+        )
 
-
-    async def close_old(self):
+    async def close_old():
         period = datetime.timedelta(hours=24)
         now = datetime.datetime.now()
         period_bound = int((now - period).timestamp())
 
-        where = self.timestamp <= period_bound
-        polls = await self.select(where=where)
+        polls = await manager.execute(
+            Poll.select()
+                .where(Poll.timestamp <= period_bound)
+        )
 
         for poll in polls:
             try:
-                poll_res = await bot.stop_poll(poll[0], poll[2])
+                poll_res = await bot.stop_poll(poll.chat_id,
+                                               poll.poll_id)
 
             except (exceptions.PollHasAlreadyBeenClosed,
                     exceptions.MessageWithPollNotFound):
-                await self.delete(where=[
-                    where,
-                    f"chat_id = {poll[0]}",
-                    f"poll_id = {poll[2]}"
-                ])
+                await manager.execute(
+                    Poll.delete()
+                        .where(Poll.timestamp <= period_bound,
+                               Poll.chat_id == poll.chat_id,
+                               Poll.poll_id == poll.poll_id)
+                )
+
                 continue
 
             if poll_res.is_closed:
-                await self.delete(where=where)
+                await manager.execute(
+                    Poll.delete()
+                        .where(Poll.timestamp <= period_bound)
+                )
+
             else:
-                await bot.stop_poll(poll[0], poll[2])
+                await bot.stop_poll(poll.chat_id, poll.poll_id)
 
 
-class Notes(SQLTableBase):
-    async def add(self, chatid, name, text):
-        try:
-            await self.remove(chatid, name)
-        except Exception:
-            pass
+class Note(Model):
+    chatid = IntegerField()
+    content = CharField()
+    name = CharField()
 
-        await self.insert(chatid, name, text)
-        await self._conn.commit()
+    class Meta:
+        db_table = "notes"
+        database = db
+        primary_key = False
+
+    async def add(chatid, name, text):
+        await Note.remove(chatid, name)
+
+        return await manager.execute(
+            Note.insert(chatid=chatid, name=name, content=text)
+        )
+
+    async def get(chatid, name):
+        note = list(await manager.execute(
+            Note.select()
+                .where(Note.chatid == chatid, Note.name == name)
+        ))
+
+        if len(note) > 0:
+            return note[0].content
+
+    async def show(chatid):
+        notes = await manager.execute(
+            Note.select()
+                .where(Note.chatid == chatid)
+        )
+
+        return [note.name for note in notes]
+
+    async def remove(chatid, name):
+        return await manager.execute(
+            Note.delete()
+                .where(Note.chatid == chatid, Note.name == name)
+        )
 
 
-    async def get(self, chatid, name):
-        e = await self.select(where=[f"{chatid = }", f"{name = }"])
+class CommandStats(Model):
+    chat_id = IntegerField()
+    user_id = IntegerField()
+    command = CharField()
 
-        if len(e) > 0:
-            return e[-1][-1]
-        else:
-            return None
-
-
-    async def show(self, chatid):
-        e = await self.select(where=f"{chatid = }")
-
-        return [item[1] for item in e]
+    class Meta:
+        db_table = "command_stats"
+        database = db
+        primary_key = False
 
 
-    async def remove(self, chatid, name):
-        await self.delete(where=[f"{chatid = }", f"{name = }"])
-        await self._conn.commit()
+class Event(Model):
+    chatid = IntegerField()
+    id = IntegerField()
+    name = CharField()
 
+    class Meta:
+        db_table = "events"
+        database = db
+        primary_key = False
 
-class Events(SQLTableBase):
-    async def reg_user_in_db(self, message):
+    async def reg_user_in_db(message):
         user = message.from_user
-        cur_user = await self.select(where=[
-            self.id == user.id,
-            self.chatid == message.chat.id
-        ])
+
+        cur_user = list(await manager.execute(
+            Event.select()
+                 .where(Event.id == user.id,
+                        Event.chatid == message.chat.id)
+        ))
 
         if len(cur_user) == 0:
-            await self.insert(message.chat.id, user.id, user.full_name)
-            await self.conn.commit()
+            await manager.execute(
+                Event.insert(
+                    chatid=message.chat.id,
+                    id=user.id,
+                    name=user.full_name
+                )
+            )
 
 
-conn = asyncio.run(connect_db())
+for model in (Note, Event, CommandStats, Warn, Poll, Video,
+              Pidor, PidorStats):
+    model.create_table(True)
 
-events = Events(conn)
-videos = Videos(conn)
-warns = Warns(conn)
-notes = Notes(conn)
-pidors = Pidors(conn)
-pidorstats = SQLTable("pidorstats", conn)
-polls = Polls(conn)
-command_stats = SQLTable("command_stats", conn)
+manager = Manager(db)
 
-
-async def init_db():
-    await events.create(exists=True, schema=(
-        ("chatid", "INTEGER"),
-        ("id", "INTEGER"),
-        ("name", "TEXT")
-    ))
-
-    await videos.create(exists=True, schema=(
-        ("channelid", "TEXT"),
-        ("links", "TEXT")
-    ))
-
-    await warns.create(exists=True, schema=(
-        ("user_id", "INTEGER"),
-        ("admin_id", "INTEGER"),
-        ("chat_id", "INTEGER"),
-        ("timestamp", "INTEGER"),
-        ("reason", "TEXT")
-    ))
-
-    await notes.create(exists=True, schema=(
-        ("chatid", "INTEGER"),
-        ("name", "TEXT"),
-        ("content", "TEXT")
-    ))
-
-    await pidors.create(exists=True, schema=(
-        ("chat_id", "INTEGER"),
-        ("user_id", "INTEGER"),
-        ("timestamp", "INTEGER")
-    ))
-
-    await pidorstats.create(exists=True, schema=(
-        ("chat_id", "INTEGER"),
-        ("user_id", "INTEGER"),
-        ("username", "TEXT"),
-        ("count", "INTEGER")
-    ))
-
-    await command_stats.create(exists=True, schema=(
-        ("chat_id", "INTEGER"),
-        ("user_id", "INTEGER"),
-        ("command", "TEXT")
-    ))
-
-    await polls.create(exists=True, schema=(
-        ("chat_id", "INTEGER"),
-        ("user_id", "INTEGER"),
-        ("poll_id", "INTEGER"),
-        ("description", "TEXT"),
-        ("timestamp", "INTEGER")
-    ))
-
-asyncio.run(init_db())
+db.close()
+db.set_allow_sync(False)

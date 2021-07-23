@@ -1,7 +1,7 @@
-from ..config import bot, IMAGE_PATH, _
+from ..config import bot, Note, IMAGE_PATH, _
+
 from .admin import check_admin
 from .photo import Photo
-from ..config import notes
 
 
 def parse_arguments(limit, without_params=False):
@@ -23,7 +23,7 @@ def parse_arguments(limit, without_params=False):
 def check(var, without_params=False):
     def argument_wrapper(func):
         async def wrapper(message):
-            res = await notes.get(message.chat.id, var)
+            res = await Note.get(message.chat.id, var)
 
             if res is None:
                 res = "True"

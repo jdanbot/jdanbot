@@ -5,7 +5,7 @@ from aiogram import executor
 
 from . import *  # noqa
 from .config import (
-    dp, polls, DELAY, RSS, VK, SCHEDULE, 
+    dp, Poll, DELAY, RSS, VK, SCHEDULE, 
     KATZ_BOTS, RSS_FEEDS, YOUTUBE, YOUTUBE_CHANNELS)
 from .timer import rss_task, youtube_task
 from .vk import vk_timer
@@ -25,19 +25,11 @@ async def scheduler():
                 feed["chatid"]
             )
 
-    if YOUTUBE:
-        for channel in YOUTUBE_CHANNELS:
-            aioschedule.every(15).minutes.do(
-                youtube_task,
-                channel["channelid"],
-                channel["chatid"]
-            )
-
     if VK:
         aioschedule.every(DELAY).seconds.do(vk_timer)
 
     if KATZ_BOTS:
-        aioschedule.every(DELAY).seconds.do(polls.close_old)
+        aioschedule.every(DELAY).seconds.do(Poll.close_old)
 
     while True:
         await aioschedule.run_pending()

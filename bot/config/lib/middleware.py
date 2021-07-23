@@ -4,7 +4,7 @@ import yaml
 from dataclasses import dataclass
 
 from .text import fixHTML
-from ..database import notes, command_stats
+from ..database import Note, CommandStats, manager
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
 from aiogram.dispatcher.middlewares import BaseMiddleware
@@ -26,7 +26,7 @@ class Locale:
                 continue
 
             with open(f"{path}/{file}", encoding="UTF-8") as f:
-                self.locale[name] = yaml.safe_load(f.read())[lang]
+                self.locale[name] = yaml.safe_load(f.read().replace("%{", "{"))[lang]
 
 
 class I18nMiddleware(I18nMiddlewareBase):
@@ -61,9 +61,25 @@ class I18nMiddleware(I18nMiddlewareBase):
             translate = translate[name]
 
         if isinstance(translate, str):
-            return translate.replace("%{", "{").format(**kwargs)
+            return translate.format(**kwargs)
 
         elif isinstance(translate, dict):
+            try:
+                count = kwargs["count"]
+
+                if count == 0:
+                    value = "zero"
+                elif count == 1:
+                    value = "one"
+                elif count in (2, 3, 4, 5):
+                    value = "few"
+                else:
+                    value = "many"
+
+                return translate[value].format(**kwargs)
+            except:
+                pass
+
             for key in translate:
                 if isinstance(translate[key], list) or isinstance(translate[key], dict):
                     return translate
@@ -88,7 +104,7 @@ class I18nMiddleware(I18nMiddlewareBase):
         chat = types.Chat.get_current()
 
         locale = user.locale if user else None
-        chat_locale = await notes.get(
+        chat_locale = await Note.get(
             chat.id,
             "__chat_lang__"
         ) if chat is not None else None
@@ -106,10 +122,10 @@ class SpyMiddleware(BaseMiddleware):
         command = message.get_full_command()
 
         if command is not None:
-            await command_stats.insert(
-                message.chat.id, message.from_user.id,
-                command[0][1:]
+            await manager.execute(
+                CommandStats.insert(
+                    chat_id=message.chat.id,
+                    user_id=message.from_user.id,
+                    command=command[0][1:]
+                )
             )
-            await command_stats._conn.commit()
-
-

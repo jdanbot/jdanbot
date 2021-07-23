@@ -14,7 +14,8 @@ psutil
 pyduckgo==0.1.4
 pymemeru
 pyyaml
-sqlfocus
+peewee==2.10.2
+peewee-async==0.5.12
 tghtml==1.0.6
 wikipya==3.0.0b5
 requests
