@@ -83,8 +83,8 @@ Config(
     logging_chat=None
 )
 
-BASE_DIR = Path(__file__).parent.parent
-LOCALES_DIR = BASE_DIR / "i18n"
+BASE_DIR = Path(__file__).parent.parent.parent
+LOCALES_DIR = BASE_DIR / "locales"
 
 
 MAX_URL = "https://img.youtube.com/vi/{id}/maxresdefault.jpg"

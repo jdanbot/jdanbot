@@ -3,7 +3,7 @@ from pytz import timezone
 import logging
 
 from .config import *
-from .database import *
+from ..database import *
 
 from datetime import datetime
 
