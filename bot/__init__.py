@@ -13,13 +13,10 @@ __all__ = []
 for folder in folders:
     if folder != "lib" and folder != "__pycache__" and folder != "cache":
         for file in listdir(f"bot/{folder}"):
-            if file != "__pycache__" and file != "ban.py" and file.endswith(".py"):
+            if file != "__pycache__" and file.endswith(".py"):
                 __import__(f"bot.{folder}.{file[:-3]}")
 
 for file in files:
     if file.endswith(".py") \
-       and not file.startswith("__") \
-       and file != "ban.py":
+       and not file.startswith("__"):
         __all__.append(file[:-3])
-
-__all__.append("ban")
