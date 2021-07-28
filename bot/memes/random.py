@@ -10,17 +10,23 @@ async def random(message):
 
 
 @dp.message_handler(commands=["random_putin"])
+@dp.message_handler(lambda msg: msg.text.lower().find("бот,") != -1 and
+                                msg.text.lower().find("когда уйдет путин") != -1)
 async def random_putin(message):
     await random_person(message, choice(["Обнуленец", "Путин", "Краб"]))
 
 
 @dp.message_handler(commands=["random_lukash", "luk", "lukash"])
+@dp.message_handler(lambda msg: msg.text.lower().find("бот,") != -1 and
+                                msg.text.lower().find("когда уйдет лукашенко") != -1)
 async def random_lukash(message):
     await random_person(message, choice(["Лукашенко", "Лукашеску", "3%",
                                          "Саша", "Саня"]))
 
 
 @dp.message_handler(commands=["random_navalny", "nav"])
+@dp.message_handler(lambda msg: msg.text.lower().find("бот,") != -1 and
+                                msg.text.lower().find("когда уйдет навальный") != -1)
 async def random_navalny(message):
     await random_person(message, "Навальный", action="освободится из-под ареста")
 

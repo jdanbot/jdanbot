@@ -21,6 +21,8 @@ async def cool_secret(message, params):
 @dp.message_handler(commands=["set"])
 @handlers.parse_arguments(3)
 async def set_(message, params):
+    #REWRITE: If note is created send edit text else created text
+
     name = params[1][1:] if params[1].startswith("#") else params[1]
 
     if name in ADMIN_NOTES and message.chat.type == "supergroup":
