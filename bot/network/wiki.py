@@ -1,15 +1,15 @@
-from .lib.text import bold, code, cuteCrop, fixWords
-from .config import (
+import yaml
+from aiogram import types
+from wikipya.aiowiki import Wikipya, NotFound
+from bs4 import BeautifulSoup
+from tghtml import TgHTML
+
+
+from ..lib.text import bold, code, cuteCrop, fixWords
+from ..config import (
     bot, dp, logging, WIKIPYA_BLOCKLIST,
     WIKICOMMANDS, _, LANGS_LIST, UNIQUE_COMMANDS
 )
-
-from aiogram import types
-from wikipya.aiowiki import Wikipya, NotFound
-
-import yaml
-from bs4 import BeautifulSoup
-from tghtml import TgHTML
 
 
 with open("bot/lib/blocklist.yml") as file:
