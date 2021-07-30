@@ -20,9 +20,7 @@ async def eban(message):
         await message.reply(_("errors.enter_value"))
         return
 
-    query = options[1]
-
-    query = query.format(
+    query = options[1].format(
         pi=3.14
     )
 
