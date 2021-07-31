@@ -10,4 +10,5 @@ async def ping(message):
     msg = await bot.send_message(message.chat.id, "Think...")
     end = perf_counter()
     ping = end - start
-    await msg.edit_text(f'<bold>Pong</bold><code> {round(ping, 3)}s</code>'.format(pings={round(ping, 3)}), parse_mode="HTML")
+    await msg.edit_text(bold("Pong ") + code(round(ping, 3)),
+                        parse_mode="HTML")
