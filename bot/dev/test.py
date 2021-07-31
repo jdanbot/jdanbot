@@ -11,3 +11,4 @@ async def ping(message):
     end = perf_counter()
     ping = end - start
     await msg.edit_text(f'<b>Pong</b><code> {round(ping, 3)}s</code>', parse_mode="HTML")
+ 
