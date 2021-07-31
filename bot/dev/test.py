@@ -5,7 +5,7 @@ from ..config import dp
 from ..lib.text import bold, code
 
 @dp.message_handler(commands=["ping", "p"])
-async def ping(message: types.Message):
+async def ping(message):
     start = perf_counter()
     msg = await message.answer("Think...")
     end = perf_counter()
