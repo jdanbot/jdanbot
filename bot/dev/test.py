@@ -5,10 +5,9 @@ from ..config import dp
 from ..lib.text import bold, code
 
 @dp.message_handler(commands=["ping", "p"])
-async def ping(message):
+async def ping(message: types.Message):
     start = perf_counter()
-    msg = await bot.send_message(message.chat.id, "Think...")
+    msg = await message.answer("Think...")
     end = perf_counter()
-    ping = end - start
-    await msg.edit_text(bold("Pong ") + code(round(ping, 3)),
+    await msg.edit_text(bold("Pong ") + code(round(end - start, 3)),
                         parse_mode="HTML")
