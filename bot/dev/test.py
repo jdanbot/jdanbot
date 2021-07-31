@@ -1,12 +1,13 @@
 import asyncio
+from time import perf_counter
 
 from ..config import dp
 
 
-@dp.message_handler(commands=["ping"])
+@dp.message_handler(commands=["ping", "p"])
 async def ping(message):
-    reply = await message.reply("Pong")
-    await asyncio.sleep(1)
-
-    await message.delete()
-    await reply.delete()
+    start = perf_counter()
+    msg = await bot.send_message(message.chat.id, "Think...")
+    end = perf_counter()
+    ping = end - start
+    await msg.edit_text(f'<b>Pong</b><code> {round(ping, 3)}s</code>', parse_mode="HTML")
