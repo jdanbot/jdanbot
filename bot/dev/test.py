@@ -12,8 +12,7 @@ async def ping(message):
 
     await msg.edit_text(bold("🏓 Pong ") + code("{time:.2f}s".format(
                             time=perf_counter() - start
-                        )),
-                        parse_mode="HTML")
+                        )), parse_mode="HTML")
 
     await asyncio.sleep(3.5)
 
