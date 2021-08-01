@@ -4,10 +4,18 @@ from time import perf_counter
 from ..config import dp
 from ..lib.text import bold, code
 
+
 @dp.message_handler(commands=["ping", "p"])
 async def ping(message):
     start = perf_counter()
     msg = await message.answer("⚾️ Think...")
-    end = perf_counter()
-    await msg.edit_text(bold("🏓 Pong ") + code(round(end - start, 3)) + code("s"),
+
+    await msg.edit_text(bold("🏓 Pong ") + code("{time:.2f}s".format(
+                            time=perf_counter() - start
+                        )),
                         parse_mode="HTML")
+
+    await asyncio.sleep(3.5)
+
+    await msg.delete()
+    await message.delete()
