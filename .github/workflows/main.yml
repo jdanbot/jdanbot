@@ -13,6 +13,7 @@ jobs:
           failIf: new
           # Additional arguments to pass to flake8, default "." (current directory)
           args: "--ignore=E121,E123 ."
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -22,3 +23,9 @@ jobs:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GitHub Action for pytest
+        uses: cclauss/GitHub-Action-for-pytest@0.5.0
