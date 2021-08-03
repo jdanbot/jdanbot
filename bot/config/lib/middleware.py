@@ -61,7 +61,10 @@ class I18nMiddleware(I18nMiddlewareBase):
             translate = translate[name]
 
         if isinstance(translate, str):
-            return translate.format(**kwargs)
+            if len(kwargs.items()) != 0:
+                return translate.format(**kwargs)
+            else:
+                return translate
 
         elif isinstance(translate, dict):
             try:
