@@ -1,3 +1,4 @@
+import sys
 import yaml
 
 from pathlib import Path
@@ -89,6 +90,9 @@ LOCALES_DIR = BASE_DIR / "locales"
 
 MAX_URL = "https://img.youtube.com/vi/{id}/maxresdefault.jpg"
 HQ_URL = "https://img.youtube.com/vi/{id}/hqdefault.jpg"
+
+TEMP_DB_PATH = "file:cachedb?mode=memory&cache=shared"
+DB_PATH = TEMP_DB_PATH if "pytest" in sys.modules else DB_PATH
 
 
 WIKICOMMANDS = []
