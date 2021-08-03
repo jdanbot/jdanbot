@@ -35,7 +35,6 @@ async def youtube_task(channelid, chatid):
     await save_post(str(channelid), channelid, chatid, first_video)
 
 
-
 async def rss_task(url, channelid, chatid):
     response = await aioget(url, timeout=5)
 
@@ -58,13 +57,13 @@ async def save_post(url, channelid, chatid, first_video):
         await Video.save(channelid, first_video)
     else:
         if first_video in json.loads(channels[0].link):
-            pass
-        else:
-            message = await bot.send_message(chatid, first_video)
-            await bot.pin_chat_message(
-                chatid,
-                message.message_id,
-                disable_notification=True
-            )
+            return False
 
-            await Video.save(channelid, first_video)
+        message = await bot.send_message(chatid, first_video)
+        await bot.pin_chat_message(
+            chatid,
+            message.message_id,
+            disable_notification=True
+        )
+
+        await Video.save(channelid, first_video)
