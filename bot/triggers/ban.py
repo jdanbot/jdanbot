@@ -1,8 +1,9 @@
 import re
+import time
 
 from random import randint, choice
 
-from ..config import dp, _
+from ..config import bot, dp, _
 from ..lib import handlers
 
 
@@ -71,12 +72,9 @@ async def get_a_ban(message):
         await message.reply(bword["text"], parse_mode="HTML")
         await message.answer_sticker(bword["sticker"])
 
-    try:
-        await bot.restrict_chat_member(message.chat.id,
-                                       message.from_user.id,
-                                       until_date=time.time()+60)
-    except Exception:
-        pass
+    await bot.restrict_chat_member(message.chat.id,
+                                   message.from_user.id,
+                                   until_date=time.time()+60)
 
 
 @dp.message_handler(lambda msg: msg.text.lower().find("бот,") != -1)
