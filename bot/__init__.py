@@ -1,25 +1,54 @@
+import logging
+import traceback
+
 from os import listdir, walk
+from pathlib import Path
 
-files = None
-folders = None
 
-for _, dirs, files in walk("bot", topdown=True):
-    files = files
-    folders = dirs
-    break
+__import__("bot.config.logger")
+root, folders, files = walk("bot", topdown=True).__next__()
 
-__all__ = []
 
-for folder in folders:
-    if folder != "lib" and folder != "__pycache__" and folder != "cache":
-        for file in listdir(f"bot/{folder}"):
-            if file != "__pycache__" and file.endswith(".py") and \
-               file != "ban.py":
-                __import__(f"bot.{folder}.{file[:-3]}")
+def force_import(*args):
+    for module in args:
+        if isinstance(module, tuple):
+            force_import(*module)
+            continue
 
-__import__("bot.triggers.ban")
+        try:
+            __import__(module)
 
-for file in files:
-    if file.endswith(".py") \
-       and not file.startswith("__"):
-        __all__.append(file[:-3])
+        except:
+            trace = traceback.format_exc()
+
+            logging.error("{module}: {error}".format(
+                module=module,
+                error=str(trace).split("\n")[-2]
+            ))
+
+            print(trace)
+
+
+def prepare_paths(modules, is_folders=False, folder_name=None, prefix=Path("bot")):
+    if is_folders:
+        allowed_folders = filter(lambda x: x not in ("__pycache__", "config"), modules)
+
+        return tuple(map(
+            lambda folder: prepare_paths(listdir(prefix/folder),
+                                         folder_name=folder),
+            folders
+        ))
+
+    else:
+        allowed_modules = filter(
+            lambda file: not file[:-3].startswith("__") and file.endswith(".py"),
+            modules
+        )
+
+        return tuple(map(lambda x: str(prefix/folder_name/x[:-3] if folder_name
+                                  else prefix/x[:-3]).replace("/", "."), allowed_modules))
+
+
+force_import(*prepare_paths(files))
+force_import(*prepare_paths(folders, is_folders=True))
+force_import("bot.triggers.ban")
