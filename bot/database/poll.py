@@ -4,6 +4,7 @@ from .connection import db, manager
 from ..config.bot import bot
 
 from peewee import *
+from aiogram.utils import exceptions
 
 
 class Poll(Model):
