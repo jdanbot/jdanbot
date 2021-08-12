@@ -57,7 +57,7 @@ async def calc_stats(message):
 
     #REWRITE: Пиздецовый стиль сообщенияCommandStats
 
-    await message.reply(_(
+    await message.reply(code(_(
         "spy.users_info",
         local_users=chat_users,
         lu_label=_user_counter(chat_users),
@@ -71,4 +71,4 @@ async def calc_stats(message):
 
         global_commands=chats_commands,
         gc_label=_command_counter(chats_commands)
-    ))
+    )), parse_mode="HTML")
