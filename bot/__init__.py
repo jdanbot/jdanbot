@@ -18,7 +18,7 @@ def force_import(*args):
         try:
             __import__(module)
 
-        except:
+        except Exception:
             trace = traceback.format_exc()
 
             logging.error("{module}: {error}".format(
@@ -36,7 +36,7 @@ def prepare_paths(modules, is_folders=False, folder_name=None, prefix=Path("bot"
         return tuple(map(
             lambda folder: prepare_paths(listdir(prefix/folder),
                                          folder_name=folder),
-            folders
+            allowed_folders
         ))
 
     else:
