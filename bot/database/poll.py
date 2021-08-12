@@ -1,6 +1,7 @@
 import datetime
 
 from .connection import db, manager
+from ..config.bot import bot
 
 from peewee import *
 
