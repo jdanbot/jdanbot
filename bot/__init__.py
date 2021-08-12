@@ -41,7 +41,8 @@ def prepare_paths(modules, is_folders=False, folder_name=None, prefix=Path("bot"
 
     else:
         allowed_modules = filter(
-            lambda file: not file[:-3].startswith("__") and file.endswith(".py"),
+            lambda file: not file.startswith("__") and file.endswith(".py") and
+                         file[:-3] not in ("ban",),
             modules
         )
 
