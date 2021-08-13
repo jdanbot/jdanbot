@@ -14,8 +14,21 @@ class FakeBot:
 
 
 @dataclass
+class FakeChat:
+    id: int = 1488
+
+
+@dataclass
+class FakeUser:
+    id: int = 1024
+    full_name: str = "Unknown"
+
+
+@dataclass
 class FakeMessage:
-    message_id: int = 0
+    message_id: int = 246
+    from_user: FakeUser = FakeUser()
+    chat: FakeChat = FakeChat()
 
 
 @dataclass

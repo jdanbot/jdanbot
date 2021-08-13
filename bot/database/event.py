@@ -29,3 +29,5 @@ class Event(Model):
                     name=user.full_name
                 )
             )
+
+            return True
