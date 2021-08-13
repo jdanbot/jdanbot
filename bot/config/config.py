@@ -81,7 +81,8 @@ Config(
 
     token=None,
     gtranslate_langs=["ru", "en", "ua", "uk", "be", "pl", "de", "fr"],
-    logging_chat=None
+    logging_chat=None,
+    memory_db_patch=False
 )
 
 BASE_DIR = Path(__file__).parent.parent.parent
@@ -91,8 +92,13 @@ LOCALES_DIR = BASE_DIR / "locales"
 MAX_URL = "https://img.youtube.com/vi/{id}/maxresdefault.jpg"
 HQ_URL = "https://img.youtube.com/vi/{id}/hqdefault.jpg"
 
-TEMP_DB_PATH = "file:cachedb?mode=memory&cache=shared"
-DB_PATH = TEMP_DB_PATH if "pytest" in sys.modules else DB_PATH
+if not MEMORY_DB_PATCH:
+    TEMP_DB_PATH = "file:cachedb?mode=memory&cache=shared"
+else:
+    TEMP_DB_PATH = "file:memory?cache=shared"
+
+if "pytest" in sys.modules:
+    DB_PATH = TEMP_DB_PATH
 
 
 WIKICOMMANDS = []
