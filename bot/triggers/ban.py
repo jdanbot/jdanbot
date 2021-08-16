@@ -45,6 +45,12 @@ async def boikot(message):
     await message.reply(_("triggers.boikot"))
 
 
+@dp.message_handler(lambda msg: msg.text.lower().find("наки") != -1)
+@handlers.check("__enable_response__")
+async def naki(message):
+    await message.reply("Майкл Наки — в жопе козинаки")
+
+
 @dp.message_handler(lambda msg: msg.text.lower().find("яблоко") != -1 or
                                 msg.text.lower().find("яблочн") != -1)
 @handlers.check("__enable_response__")
