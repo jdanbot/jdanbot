@@ -10,6 +10,11 @@ from ..lib import handlers
 #REWRITE: use regular
 
 
+space = r"[^a-zа-яё\d]"
+BAN_REGEXP = rf"(^|{space})[бb][\W]*[аaα@🅰️][\W]*[нnh🅱️]({space}|$)"
+NAKI_REGEXP = rf"(^|{space})наки({space}|$)"
+
+
 @dp.message_handler(lambda msg: msg.text.lower().find("бот, сколько") != -1 and
                                 msg.text.lower().find("?") != -1)
 @handlers.check("__enable_response__")
@@ -45,7 +50,7 @@ async def boikot(message):
     await message.reply(_("triggers.boikot"))
 
 
-@dp.message_handler(lambda msg: msg.text.lower().find("наки") != -1)
+@dp.message_handler(lambda msg: re.search(NAKI_REGEXP, msg.text.lower()) is not None)
 @handlers.check("__enable_response__")
 async def naki(message):
     await message.reply("Майкл Наки — в жопе козинаки")
@@ -58,11 +63,7 @@ async def apple(message):
     await message.reply(_("triggers.apple"))
 
 
-space = r"[^a-zа-яё\d]"
-ban_regexp = rf"(^|{space})[бb][\W]*[аaα@🅰️][\W]*[нnh🅱️]({space}|$)"
-
-
-@dp.message_handler(lambda msg: re.search(ban_regexp, msg.text.lower()) is not None)
+@dp.message_handler(lambda msg: re.search(BAN_REGEXP, msg.text.lower()) is not None)
 @handlers.check("__enable_response__")
 async def get_a_ban(message):
     ban_messages = _("triggers.ban_messages")
