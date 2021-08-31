@@ -26,7 +26,7 @@ async def railgun(message):
 @dp.message_handler(commands=["fallout"])
 async def fallout(message):
     await wiki(message, "Fallout",
-               "https://fallout.fandom.com/ru/api.php", lurk=True)
+               "https://fallout.fandom.com/ru/api.php", lurk=True, prefix="")
 
 
 @dp.message_handler(commands=["kaiser", "kaiserreich"])
@@ -45,7 +45,7 @@ async def doom(message):
 @dp.message_handler(commands=["lurk"])
 async def Lurk(message):
     await wiki(message, "Lurkmore",
-               "https://ipv6.lurkmo.re/api.php", lurk=True,
+               "http://lurkmore.to/api.php", lurk=True,
                prefix="",
                img_blocklist=blocklist["images"])
 
@@ -128,8 +128,8 @@ async def detect(message):
 
 
 async def wiki(message, fname, url="https://{lang}.wikipedia.org/w/api.php",
-               query=None, lang=None, lurk=False, **kwargs):
-    w = Wikipya(url=url, lang=lang, **kwargs)
+               query=None, lang=None, lurk=False, prefix="w", **kwargs):
+    w = Wikipya(url=url, lang=lang, lurk=lurk, **kwargs)
 
     try:
         if query is None:
@@ -137,7 +137,9 @@ async def wiki(message, fname, url="https://{lang}.wikipedia.org/w/api.php",
 
         page, image, url = await w.get_all(
             query, lurk,
-            blocklist=WIKIPYA_BLOCKLIST
+            blocklist=WIKIPYA_BLOCKLIST,
+            img_blocklist=kwargs.get("img_blocklist") or (),
+            prefix=prefix
         )
         text = fixWords(page.parsed)
 
@@ -202,7 +204,6 @@ def unbody(html):
 def Wikipedia(lang="ru"):
     return Wikipya(url="https://{lang}.wikipedia.org/w/api.php",
                    lang=lang, version="1.35")
-
 
 
 @dp.message_handler(commands="s")
