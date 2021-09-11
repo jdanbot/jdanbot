@@ -11,3 +11,4 @@ jdanbot.db
 *.txt
 *.db 
 memory
+file:memory?cache=shared
