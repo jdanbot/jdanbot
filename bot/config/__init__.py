@@ -14,7 +14,7 @@ from .i18n import _
 
 START_TIME = datetime.now()
 TIMEZONE = timezone("Europe/Moscow")
-SCHEDULE = RSS or VK or KATZ_BOTS or YOUTUBE
+SCHEDULE = any([BLOODYKNIGHT, RSS, VK, KATZ_BOTS, YOUTUBE])
 
 arch_class = "archwiki-template-meta-related-articles-start"
 

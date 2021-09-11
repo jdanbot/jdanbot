@@ -38,6 +38,7 @@ Config(
     vk=False,
     vk_channels=(),
     access_token="",
+    bloodyknight=False,
     katz_bots=False,
     youtube=False,
     youtube_channels=(),

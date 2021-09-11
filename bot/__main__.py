@@ -1,12 +1,13 @@
 import asyncio
+from bot.network.mono import monobank
 import aioschedule
 
-from aiogram import executor
+from aiogram import executor, types
 
 from . import *  # noqa
 from .config import (
     dp, Poll, DELAY, RSS, VK, SCHEDULE, 
-    KATZ_BOTS, RSS_FEEDS, YOUTUBE, YOUTUBE_CHANNELS)
+    KATZ_BOTS, RSS_FEEDS, YOUTUBE, YOUTUBE_CHANNELS, BLOODYKNIGHT)
 from .timer import rss_task, youtube_task
 from .vk import vk_timer
 
@@ -30,6 +31,10 @@ async def scheduler():
 
     if KATZ_BOTS:
         aioschedule.every(DELAY).seconds.do(Poll.close_old)
+
+    if BLOODYKNIGHT:
+        message = types.Message(chat=types.Chat(id=-1001410092459))
+        aioschedule.every().day.at("8:00").do(monobank, message)
 
     while True:
         await aioschedule.run_pending()
