@@ -1,8 +1,18 @@
-# Lib is made by @apache_lenya (telegram)
+#            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+#                    Version 2, December 2004
 
-from aiogram.utils import json
+# Copyright (C) 2021 LёNya <lenechka@national.shitposting.agency>
 
-# символы
+# Everyone is permitted to copy and distribute verbatim or modified
+# copies of this license document, and changing it is allowed as long
+# as the name is changed.
+
+#            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+#   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+#  0. You just DO WHAT THE FUCK YOU WANT TO.
+
+
 TAB = "  "
 MIDDLE_ITEM = "├"
 END_ITEM = "└"
