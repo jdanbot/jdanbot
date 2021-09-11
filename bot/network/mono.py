@@ -11,6 +11,9 @@ CURRENCIES = {
 }
 
 
+MONOBANK_LAST_REQUEST = {}
+
+
 def get_emoji(code):
     emoji = CURRENCIES.get(code)
     return emoji if emoji is not None else code
@@ -19,16 +22,13 @@ def get_emoji(code):
 @dp.message_handler(commands=["mono"])
 async def monobank(message):
     res = await aioget("https://api.monobank.ua/bank/currency")
+    msg, cur = "", res.json()
 
-    msg = ""
-    js = res.json()
+    if isinstance(cur, list):
+        global MONOBANK_LAST_REQUEST
+        MONOBANK_LAST_REQUEST = cur
 
-    if isinstance(js, dict) and js["errorDescription"]:
-        await message.reply(f"<code>{js['errorDescription']}</code>",
-                            parse_mode="HTML")
-        return
-   
-    for info in js[::2][:3]:
+    for info in MONOBANK_LAST_REQUEST[::2][:3]:
         msg += '{} ⇆ {}\n→ {} ₴\n← {} ₴\n\n'.format(
             get_emoji(info["currencyCodeA"]),
             get_emoji(info["currencyCodeB"]),
