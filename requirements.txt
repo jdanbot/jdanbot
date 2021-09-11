@@ -6,7 +6,6 @@ art
 beautifulsoup4
 coloredlogs
 feedparser
-googletrans==3.1.0a
 httpx
 lxml
 pillow
