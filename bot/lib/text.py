@@ -1,10 +1,8 @@
-from random import choice
+import textwrap
+from typing import Union
 
 
-TAG_SCHEMA = "<{tag}>{text}</{tag}>"
-
-
-def prettyword(n, forms):
+def prettyword(n: int, forms: Union[list, tuple, str]) -> str:
     if isinstance(forms, str):
         return forms
 
@@ -21,60 +19,39 @@ def prettyword(n, forms):
         return forms[2]
 
 
-def cuteCrop(lines, limit=100, text=""):
-    lines = lines.split("\n")
-
-    for i, line in enumerate(lines):
-        back_line = lines[i - 1 if i != 0 else i]
-        next_line = lines[i + 1 if i != len(lines) - 1 else i]
-
-        is_list = line.startswith("• ")
-        is_next_list = next_line.startswith("• ")
-
-        if len(text + line) <= limit and (back_line != "" or line != ""):
-            text += line + "\n"
-        else:
-            break
-
-        if len(text) + 2 <= limit and (is_list and not is_next_list and
-                                       next_line != ""):
-           text += "\n"
-    
-    return text.replace("• ", "<b>•</b> ")
+def cuteCrop(text: str, limit: int = 100) -> str:
+    return (textwrap.shorten(text.replace("\n", "<br>"), limit, placeholder="")
+                    .replace("<br>", "\n")
+                    .replace("• ", "<b>• </b>"))
 
 
-def code(text):
+def code(text: str) -> str:
     return f"<code>{fixHTML(text)}</code>"
 
 
-def bold(text):
+def bold(text: str) -> str:
     return f"<b>{fixHTML(text)}</b>"
 
 
-def italic(text):
+def italic(text: str) -> str:
     return f"<i>{fixHTML(text)}</i>"
 
 
-def fixHTML(text):
-    return str(text).replace("&", "&amp;") \
-                    .replace("<", "&lt;") \
-                    .replace(">", "&gt;")
+def fixHTML(text: str) -> str:
+    return (str(text).replace("&", "&amp;")
+                     .replace("<", "&lt;")
+                     .replace(">", "&gt;"))
 
 
-def fixWords(text):
+def fixWords(text: str) -> str:
     namelist = [
+        ["у́", "у"]
+
         ["Белоруссия", "Беларусь"],
         ["Белоруссии", "Беларуси"],
         ["Беларуссию", "Беларусь"],
         ["Белоруссией", "Беларусью"],
         ["Белоруссиею", "Беларусью"],
-
-        ["Белору́ссия", "Белару́сь"],
-        ["Белору́ссии", "Белару́си"],
-        ["Белору́ссию", "Белару́сь"],
-        ["Белору́ссией", "Белару́сью"],
-        ["Белору́ссиею", "Белару́сью"],
-
 
         ["на Украин", "в Украин"],
     ]

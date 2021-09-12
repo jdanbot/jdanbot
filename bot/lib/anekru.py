@@ -21,6 +21,5 @@ class Anekru:
 if __name__ == "__main__":
     anekru = Anekru()
 
-
     anek = asyncio.run(anekru.get_random())
     print(anek)

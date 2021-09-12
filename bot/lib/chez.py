@@ -1,15 +1,11 @@
-from requests import Request
+import urllib
 
 
-def say(text):
-    host = "https://tts.chez.work/say"
-    params = {
-        "text": f"{text}",
-      	"voice": "aleksandr",
-        "format": "opus",
-        "rate": "55",
-        "pitch": "10",
-        "volume": "70"
-    }
+def say(text: str, voice: str = "aleksandr") -> str:
+    host = "https://tts.chez.work/say?"
+    params = dict(
+        text=text, voice=voice, format="opus",
+        rate=55, pitch=10, volume=100
+    )
 
-    return Request("GET", host, params=params).prepare().url
+    return host + urllib.parse.urlencode(params)
