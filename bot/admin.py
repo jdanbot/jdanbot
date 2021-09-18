@@ -63,6 +63,14 @@ async def kz_poll(message, params):
     await message.delete()
 
 
+@dp.message_handler(commands=["open"])
+async def open_poll(message):
+    reply = message.reply_to_message.poll
+    await message.answer_poll(reply.question,
+                              [option.text for option in reply.options],
+                              is_anonymous=False)
+
+
 @dp.message_handler(commands=["reload_pin"])
 @handlers.only_admins
 async def kz_poll(message):
