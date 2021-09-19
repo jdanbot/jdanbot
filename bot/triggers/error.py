@@ -13,7 +13,8 @@ async def catch_error(callback, exception):
 
     if exc in ("MessageCantBeDeleted", "BadRequest", "MessageCantBeDeleted",
                "MessageTextIsEmpty", "BotKicked", "TimeoutError",
-               "CantRestrictChatOwner", "UserIsAnAdministratorOfTheChat"):
+               "CantRestrictChatOwner", "UserIsAnAdministratorOfTheChat",
+               "NotEnoughRightsToRestrict"):
         return
 
     if LOGGING_CHAT is not None:
