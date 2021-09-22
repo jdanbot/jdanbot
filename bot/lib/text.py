@@ -45,7 +45,7 @@ def fixHTML(text: str) -> str:
 
 def fixWords(text: str) -> str:
     namelist = [
-        ["у́", "у"]
+        ["у́", "у"],
 
         ["Белоруссия", "Беларусь"],
         ["Белоруссии", "Беларуси"],
