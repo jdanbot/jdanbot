@@ -83,7 +83,8 @@ Config(
     token=None,
     gtranslate_langs=["ru", "en", "ua", "uk", "be", "pl", "de", "fr"],
     logging_chat=None,
-    memory_db_patch=False
+    memory_db_patch=False,
+    todoist=None
 )
 
 BASE_DIR = Path(__file__).parent.parent.parent
