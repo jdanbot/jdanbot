@@ -4,7 +4,7 @@ import re
 from math import sqrt
 
 from ..lib import handlers
-from ..lib.text import bold, code
+from ..lib.text import code
 from ..config import dp, _
 
 
