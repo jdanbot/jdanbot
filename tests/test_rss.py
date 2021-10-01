@@ -1,15 +1,15 @@
-import asyncio, sys
+import sys
 
 sys.path.insert(0, ".")
 
-from bot.config.database import manager, Video
+from bot.config.database import Video
 from bot.timer import save_post
 
 import pytest
 
 
 params = ["", "test", None]
-asyncio.run(manager.execute(Video.delete()))
+Video.delete().execute()
 
 
 class TestRSS:

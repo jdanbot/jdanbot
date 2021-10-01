@@ -1,5 +1,5 @@
-from peewee import *
-from .connection import db, manager
+from peewee import CharField, IntegerField, Model
+from .connection import db
 
 
 class Note(Model):
@@ -12,32 +12,23 @@ class Note(Model):
         database = db
         primary_key = False
 
-    async def add(chatid, name, text):
-        await Note.remove(chatid, name)
+    def add(chatid, name, text):
+        Note.remove(chatid, name)
+        Note.create(chatid=chatid, name=name, content=text)
 
-        return await manager.execute(
-            Note.insert(chatid=chatid, name=name, content=text)
-        )
+    def get(chatid, name):
+        try:
+            return (Note.select()
+                        .where(Note.chatid == chatid, Note.name == name)
+                        .get()).content
+        except Exception:
+            return None
 
-    async def get(chatid, name):
-        note = list(await manager.execute(
-            Note.select()
-                .where(Note.chatid == chatid, Note.name == name)
-        ))
-
-        if len(note) > 0:
-            return note[0].content
-
-    async def show(chatid):
-        notes = await manager.execute(
-            Note.select()
-                .where(Note.chatid == chatid)
-        )
-
+    def show(chatid):
+        notes = Note.select().where(Note.chatid == chatid)
         return [note.name for note in notes]
 
-    async def remove(chatid, name):
-        return await manager.execute(
-            Note.delete()
-                .where(Note.chatid == chatid, Note.name == name)
-        )
+    def remove(chatid, name):
+        return (Note.delete()
+                    .where(Note.chatid == chatid, Note.name == name)
+                    .execute())

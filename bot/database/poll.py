@@ -1,9 +1,9 @@
 import datetime
 
-from .connection import db, manager
+from .connection import db
 from ..config.bot import bot
 
-from peewee import *
+from peewee import CharField, IntegerField, Model
 from aiogram.utils import exceptions
 
 
@@ -24,21 +24,17 @@ class Poll(Model):
         now = datetime.datetime.now()
         period = int(now.timestamp())
 
-        await manager.execute(
-            Poll.insert(chat_id=chat_id, user_id=user_id,
-                        poll_id=poll_id, description=description,
-                        timestamp=period)
-        )
+        Poll.insert(chat_id=chat_id, user_id=user_id,
+                    poll_id=poll_id, description=description,
+                    timestamp=period).execute()
 
     async def close_old():
         period = datetime.timedelta(hours=24)
         now = datetime.datetime.now()
         period_bound = int((now - period).timestamp())
 
-        polls = await manager.execute(
-            Poll.select()
-                .where(Poll.timestamp <= period_bound)
-        )
+        polls = Poll.select() \
+                    .where(Poll.timestamp <= period_bound).execute()
 
         for poll in polls:
             try:
@@ -47,20 +43,16 @@ class Poll(Model):
 
             except (exceptions.PollHasAlreadyBeenClosed,
                     exceptions.MessageWithPollNotFound):
-                await manager.execute(
-                    Poll.delete()
-                        .where(Poll.timestamp <= period_bound,
-                               Poll.chat_id == poll.chat_id,
-                               Poll.poll_id == poll.poll_id)
-                )
+                (Poll.delete()
+                     .where(Poll.timestamp <= period_bound,
+                            Poll.chat_id == poll.chat_id,
+                            Poll.poll_id == poll.poll_id))
 
                 continue
 
             if poll_res.is_closed:
-                await manager.execute(
-                    Poll.delete()
-                        .where(Poll.timestamp <= period_bound)
-                )
+                Poll.delete() \
+                    .where(Poll.timestamp <= period_bound).execute()
 
             else:
                 await bot.stop_poll(poll.chat_id, poll.poll_id)

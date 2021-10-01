@@ -1,4 +1,4 @@
-from peewee import *
+from peewee import CharField, IntegerField, Model
 from .connection import db
 
 
