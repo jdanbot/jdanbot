@@ -1,10 +1,6 @@
-import time
-from datetime import datetime
-
-from .config import bot, dp, TIMEZONE, Poll
+from .config import bot, dp, Poll
 from .timer import youtube_task
 from .lib import handlers
-from .lib.text import prettyword
 from .lib.banhammer import ban, warn, unwarn
 
 

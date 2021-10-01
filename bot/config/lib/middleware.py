@@ -3,8 +3,7 @@ import yaml
 
 from dataclasses import dataclass
 
-from .text import fixHTML
-from ..database import Note, CommandStats, manager
+from ..database import Note, CommandStats
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
 from aiogram.dispatcher.middlewares import BaseMiddleware
@@ -45,7 +44,7 @@ class I18nMiddleware(I18nMiddlewareBase):
     def t(self, singular, plural=None, n=1, locale=None, **kwargs):
         lang = self.ctx_locale.get()
         lang = "uk" if lang == "ua" else lang
-        
+
         section, name = singular.split(".", maxsplit=1)
 
         if lang is None:
@@ -107,7 +106,7 @@ class I18nMiddleware(I18nMiddlewareBase):
         chat = types.Chat.get_current()
 
         locale = user.locale if user else None
-        chat_locale = await Note.get(
+        chat_locale = Note.get(
             chat.id,
             "__chat_lang__"
         ) if chat is not None else None
@@ -125,10 +124,8 @@ class SpyMiddleware(BaseMiddleware):
         command = message.get_full_command()
 
         if command is not None:
-            await manager.execute(
-                CommandStats.insert(
-                    chat_id=message.chat.id,
-                    user_id=message.from_user.id,
-                    command=command[0][1:]
-                )
+            CommandStats.create(
+                chat_id=message.chat.id,
+                user_id=message.from_user.id,
+                command=command[0][1:]
             )

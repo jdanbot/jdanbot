@@ -2,7 +2,7 @@ import coloredlogs
 
 import logging
 
-from .lib.filters import NoRunningJobFilter, ResendLogs
+from .lib.filters import NoRunningJobFilter
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

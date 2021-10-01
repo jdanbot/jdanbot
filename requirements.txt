@@ -13,8 +13,7 @@ psutil
 pyduckgo==0.2.0
 pymemeru==0.1.0
 pyyaml
-peewee==2.10.2
-peewee-async==0.5.12
+peewee
 tghtml==1.0.6
 wikipya==3.0.1
 todoist-python

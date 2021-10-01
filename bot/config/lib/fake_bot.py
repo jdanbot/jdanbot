@@ -51,3 +51,4 @@ class FakeDispatcher:
     message_handler = fake_decor_with_params
     callback_query_handler = fake_decor_with_params
     errors_handler = fake_decor_with_params
+    inline_handler = fake_decor_with_params

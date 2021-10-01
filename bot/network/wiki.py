@@ -1,13 +1,11 @@
 import yaml
-from aiogram import types
 from wikipya.aiowiki import Wikipya, NotFound
 from bs4 import BeautifulSoup
-from tghtml import TgHTML
 
 
 from ..lib.text import bold, code, cuteCrop, fixWords
 from ..config import (
-    bot, dp, logging, WIKIPYA_BLOCKLIST,
+    bot, dp, WIKIPYA_BLOCKLIST,
     WIKICOMMANDS, _, LANGS_LIST, UNIQUE_COMMANDS
 )
 
@@ -222,7 +220,7 @@ async def wikiSearch(message, lang="ru"):
     r = await wiki.search(query, 20)
 
     if r == -1:
-        await message.reply(_("error.not_found")) 
+        await message.reply(_("error.not_found"))
         return
 
     text = ""

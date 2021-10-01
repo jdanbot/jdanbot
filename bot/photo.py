@@ -1,6 +1,6 @@
 from random import choice
 
-from .config import bot, dp, _
+from .config import bot, dp
 from .lib import handlers
 from .lib.text import bold, code
 from .lib.photo import Photo

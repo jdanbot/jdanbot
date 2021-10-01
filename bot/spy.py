@@ -1,8 +1,7 @@
 from peewee import fn, SQL
 
-from .config import bot, dp, Event, CommandStats, _, get_count, manager
-from .lib.text import code, bold, prettyword, fixHTML
-from .lib.libtree import make_tree
+from .config import bot, dp, Event, CommandStats, _
+from .lib.text import code, prettyword, fixHTML
 
 
 def _user_counter(users):
@@ -15,11 +14,11 @@ def _command_counter(users):
 
 @dp.message_handler(commands=["me"])
 async def me_info(message):
-    chats = get_count(await manager.execute(
+    chats = (
         Event.select(fn.Count(SQL("*")))
              .where(Event.id == message.from_user.id)
-    ))
-    
+    ).count()
+
     user = await bot.get_chat_member(
         message.chat.id,
         message.from_user.id
@@ -37,23 +36,23 @@ async def me_info(message):
 @dp.message_handler(lambda message: message.from_user.id == 795449748,
                     commands=["stats"])
 async def calc_stats(message):
-    chat_users = get_count(await manager.execute(
+    chat_users = (
         Event.select(fn.Count(SQL("*")))
              .where(Event.chatid == message.chat.id)
-    ))
+    ).count()
 
-    chats_users = get_count(await manager.execute(
+    chats_users = (
         Event.select(fn.Count(SQL("*")))
-    ))
+    ).count()
 
-    chat_commands = get_count(await manager.execute(
+    chat_commands = (
         CommandStats.select(fn.Count(SQL("*")))
                     .where(CommandStats.chat_id == message.chat.id)
-    ))
+    ).count()
 
-    chats_commands = get_count(await manager.execute(
+    chats_commands = (
         CommandStats.select(fn.Count(SQL("*")))
-    ))
+    ).count()
 
     #REWRITE: Пиздецовый стиль сообщенияCommandStats
 

@@ -47,14 +47,12 @@ async def rss_task(url, channelid, chatid):
 
 
 async def save_post(url, channelid, chatid, first_video):
-    channels = list(await manager.execute(
-        Video.select()
-             .where(Video.channelid == channelid)
-    ))
+    channels = list(Video.select()
+                         .where(Video.channelid == channelid))
 
     if len(channels) == 0:
         await bot.send_message(chatid, first_video)
-        await Video.save(channelid, first_video)
+        Video.save(channelid, first_video)
     else:
         if first_video in json.loads(channels[0].link):
             return False
@@ -66,4 +64,4 @@ async def save_post(url, channelid, chatid, first_video):
             disable_notification=True
         )
 
-        await Video.save(channelid, first_video)
+        Video.save(channelid, first_video)

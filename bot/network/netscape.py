@@ -1,17 +1,9 @@
-import json
-import sys
-from datetime import datetime
-
 from tghtml import TgHTML
-
-import yaml
 
 from ..config import dp, WIKIPYA_BLOCKLIST
 from ..lib import handlers
 from ..lib.aioget import aioget
-from ..lib.convert_bytes import convert_bytes
-from ..lib.text import code, cuteCrop
-from ..lib.libtree import make_tree
+from ..lib.text import cuteCrop
 
 
 @dp.message_handler(commands=["netscape"])
