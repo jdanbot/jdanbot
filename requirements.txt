@@ -10,8 +10,8 @@ httpx
 lxml
 pillow
 psutil
-pyduckgo==0.1.4
-pymemeru
+pyduckgo==0.2.0
+pymemeru==0.1.0
 pyyaml
 peewee==2.10.2
 peewee-async==0.5.12
