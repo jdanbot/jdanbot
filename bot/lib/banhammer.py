@@ -82,9 +82,9 @@ async def warn(
     except Exception:
         WARNS_TO_BAN = 3
 
-    wtbans = await Warn.count_wtbans(blockable_message.from_user.id,
-                                     blockable_message.chat.id,
-                                     period=datetime.timedelta(hours=23))
+    wtbans = await Warn.count_warns(blockable_message.from_user.id,
+                                    blockable_message.chat.id,
+                                    period=datetime.timedelta(hours=23))
     wtbans += 1
 
     warn_log = _(
