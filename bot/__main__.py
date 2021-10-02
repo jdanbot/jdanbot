@@ -6,9 +6,9 @@ from aiogram import executor, types
 
 from . import *  # noqa
 from .config import (
-    dp, Poll, DELAY, RSS, VK, SCHEDULE, 
-    KATZ_BOTS, RSS_FEEDS, YOUTUBE, YOUTUBE_CHANNELS, BLOODYKNIGHT)
-from .timer import rss_task, youtube_task
+    dp, Poll, DELAY, RSS, VK, SCHEDULE,
+    KATZ_BOTS, RSS_FEEDS, BLOODYKNIGHT)
+from .timer import rss_task
 from .vk import vk_timer
 
 

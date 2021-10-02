@@ -1,9 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 
 import io
-import random
-
-from ..config import IMAGE_PATH
 
 
 class Photo:

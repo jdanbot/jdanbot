@@ -1,9 +1,11 @@
 import asyncio
 import datetime
+
 from time import time
 from random import choice
+
 from ..lib.text import prettyword, italic
-from ..config import bot, dp, Pidor, PidorStats, _, manager
+from ..config import bot, dp, Pidor, PidorStats, _
 
 
 async def getUserName(chat_id, user_id, enable_tag=False):
@@ -16,21 +18,20 @@ async def getUserName(chat_id, user_id, enable_tag=False):
 
 
 @dp.message_handler(commands=["pidor"])
-async def find_pidor(message, locale=None):
-    user_id = message.from_user.id
+async def find_pidor(message):
     chat_id = message.chat.id
 
     curchat = await Pidor.getPidorInfo(chat_id)
-    all_pidors = list(await manager.execute(
+    all_pidors = list(
         PidorStats.select()
                   .where(PidorStats.chat_id == message.chat.id)
-    ))
+    )
 
-    user_stats = list(await manager.execute(
+    user_stats = list(
         PidorStats.select()
                   .where(PidorStats.chat_id == message.chat.id,
                          PidorStats.user_id == message.from_user.id)
-    ))
+    )
 
     if message.chat.id > 0:
         await message.reply(_("pidor.work_only_in_chats"))
@@ -51,37 +52,26 @@ async def find_pidor(message, locale=None):
             try:
                 pidorname = "@" + pidorinfo.user.username
             except Exception:
-                pidorname =  pidorinfo.user.first_name
+                pidorname = pidorinfo.user.first_name
 
             period = int(datetime.datetime.now().timestamp())
-            curchat = list(await manager.execute(
+            curchat = list(
                 Pidor.select()
                      .where(Pidor.chat_id == message.chat.id)
-            ))
+            )
 
             if len(curchat) > 1:
-                await manager.execute(
-                    Pidor.update(user_id=pidor_of_day, timestamp=period)
-                         .where(Pidor.chat_id == message.chat.id)
-                )
+                (Pidor.update(user_id=pidor_of_day, timestamp=period)
+                      .where(Pidor.chat_id == message.chat.id)
+                      .execute())
             else:
-                await manager.execute(
-                    Pidor.insert(chat_id=message.chat.id,
-                                 user_id=pidor_of_day,
-                                 timestamp=period)
-                )
+                Pidor.insert(chat_id=message.chat.id, user_id=pidor_of_day,
+                             timestamp=period).execute()
 
-            stats = list(await manager.execute(
-                PidorStats.select()
-                          .where(PidorStats.chat_id == message.chat.id,
-                                 PidorStats.user_id == pidor_of_day)
-            ))
-
-            await manager.execute(
-                PidorStats.update(count=PidorStats.count + 1)
-                          .where(PidorStats.chat_id == message.chat.id,
-                                 PidorStats.user_id == pidor_of_day)
-            )
+            PidorStats.update(count=PidorStats.count + 1) \
+                      .where(PidorStats.chat_id == message.chat.id,
+                             PidorStats.user_id == pidor_of_day) \
+                      .execute()
 
             for phrase in choice(_("pidor.pidor_finding")).split("\n")[:-1]:
                 await message.answer(italic(phrase), parse_mode="HTML")
@@ -89,7 +79,7 @@ async def find_pidor(message, locale=None):
 
             await message.answer(
                 choice(_("pidor.templates", user=pidorname)),
-                       parse_mode="HTML")
+                parse_mode="HTML")
 
             if message.chat.id == -1001176998310:
                 try:
@@ -100,20 +90,16 @@ async def find_pidor(message, locale=None):
         else:
             pidorname = await getUserName(chat_id, curchat[0].user_id)
             await message.reply(choice(_("pidor.already_finded_templates",
-                                    user=pidorname
-                                )), parse_mode="HTML")
+                                         user=pidorname
+                                         )), parse_mode="HTML")
 
 
 @dp.message_handler(commands=["pidorstats"])
-async def pidor_stats(message, locale=None):
-    chat_id = message.chat.id
-
-    pidorstat = await manager.execute(
-        PidorStats.select()
-                  .where(PidorStats.chat_id == message.chat.id)
-                  .order_by(-PidorStats.count)
-                  .limit(10)
-    )
+async def pidor_stats(message):
+    pidorstat = PidorStats.select() \
+                          .where(PidorStats.chat_id == message.chat.id) \
+                          .order_by(-PidorStats.count) \
+                          .limit(10)
 
     msg = _("pidor.top_10")
     msg += "\n\n"
@@ -130,50 +116,42 @@ async def pidor_stats(message, locale=None):
 
 
 @dp.message_handler(commands=["pidorme"])
-async def pidor_me(message, locale=None):
-    pidor = list(await manager.execute(
-        PidorStats.select()
-                  .where(PidorStats.chat_id == message.chat.id,
-                         PidorStats.user_id == message.from_user.id)
-    ))
+async def pidor_me(message):
+    pidor = (PidorStats.select()
+                       .where(PidorStats.chat_id == message.chat.id,
+                              PidorStats.user_id == message.from_user.id)
+                       .get())
 
-    count = pidor[-1].count if len(pidor) > 0 else 0
-
-    await message.reply(_("pidor.me", count=count,
-                          fcount=prettyword(count, _("cases.count"))),
+    await message.reply(_("pidor.me", count=pidor.count,
+                          fcount=prettyword(pidor.count, _("cases.count"))),
                         parse_mode="HTML")
 
 
 @dp.message_handler(commands=["pidorreg"])
-async def reg_pidor(message, locale=None):
-    pidor = list(await manager.execute(
+async def reg_pidor(message):
+    pidor = list(
         PidorStats.select()
                   .where(PidorStats.chat_id == message.chat.id,
                          PidorStats.user_id == message.from_user.id)
-    ))
+    )
 
     username = await getUserName(message.chat.id, message.from_user.id)
 
     if len(pidor) == 0:
-        await manager.execute(
-            PidorStats.insert(chat_id=message.chat.id,
-                              user_id=message.from_user.id,
-                              username=username, count=0)
-        )
+        PidorStats.insert(chat_id=message.chat.id,
+                          user_id=message.from_user.id,
+                          username=username, count=0).execute()
 
-        await message.reply(_("pidor.in_db"),
-                              parse_mode="Markdown")
+        await message.reply(_("pidor.in_db"), parse_mode="Markdown")
 
     elif pidor[-1].username != username:
         pidor = pidor[-1]
 
-        await manager.execute(
-            PidorStats.update(username=username)
-                      .where(PidorStats.user_id == message.from_user.id)
-        )
+        PidorStats.update(username=username) \
+                  .where(PidorStats.user_id == message.from_user.id) \
+                  .execute()
 
         await message.reply(_("pidor.status_fixed"))
 
     else:
-        await message.reply(_("pidor.already_in_db"),
-                              parse_mode="Markdown")
+        await message.reply(_("pidor.already_in_db"), parse_mode="Markdown")

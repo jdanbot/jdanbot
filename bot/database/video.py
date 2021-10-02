@@ -1,8 +1,8 @@
 import json
 
-from .connection import db, manager
+from .connection import db
 
-from peewee import *
+from peewee import CharField, Model
 
 
 class Video(Model):
@@ -14,11 +14,8 @@ class Video(Model):
         database = db
         primary_key = False
 
-    async def save(channelid, link):
-        links = list(await manager.execute(
-            Video.select()
-                 .where(Video.channelid == channelid)
-        ))
+    def save(channelid, link):
+        links = list(Video.select().where(Video.channelid == link))
 
         if len(links) > 0:
             links = json.loads(links[0].link)[-15:]
@@ -26,16 +23,12 @@ class Video(Model):
 
             links_str = json.dumps(links)
 
-            await manager.execute(
-                Video.update(link=links_str)
-                     .where(Video.channelid == channelid)
-            )
+            (Video.update(link=links_str)
+                  .where(Video.channelid == channelid)
+                  .execute())
 
         else:
             links = [link]
             links_str = json.dumps(links)
 
-            await manager.execute(
-                Video.insert(channelid=channelid,
-                             link=links_str)
-            )
+            Video.insert(channelid=channelid, link=links_str).execute()

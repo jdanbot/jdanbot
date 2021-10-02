@@ -1,8 +1,8 @@
 import datetime
 
-from .connection import db, manager
+from .connection import db
 
-from peewee import *
+from peewee import IntegerField, Model
 
 
 class Pidor(Model):
@@ -18,8 +18,6 @@ class Pidor(Model):
     async def getPidorInfo(chat_id, period=datetime.timedelta(hours=24)):
         period_bound = int((datetime.datetime.now() - period).timestamp())
 
-        return list(await manager.execute(
-            Pidor.select()
-                 .where(Pidor.timestamp >= period_bound,
-                        Pidor.chat_id == chat_id)
-        ))
+        return list(Pidor.select()
+                         .where(Pidor.timestamp >= period_bound,
+                                Pidor.chat_id == chat_id))

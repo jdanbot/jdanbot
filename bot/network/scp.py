@@ -25,7 +25,6 @@ async def scp(message, params):
             "url": item.find("div", class_="url").text.strip()
         })
 
-
     def get_scp_number(q):
         title = q["title"].split(" - ", maxsplit=1)
 

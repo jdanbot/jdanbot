@@ -1,12 +1,12 @@
 from aiogram.types import InputMediaPhoto
 
 import json
-from .config import bot, vk_api, manager, Video, VK_CHANNELS
+from .config import bot, vk_api, Video, VK_CHANNELS
 from .lib.text import cuteCrop
 
 
 async def vk_timer():
-    #REWRITE: Add support of music
+    # TODO: REWRITE: Add support of music
 
     for channel in VK_CHANNELS:
         channelid = channel["channelid"]
@@ -14,19 +14,15 @@ async def vk_timer():
 
         for item in posts["items"][::-1]:
             links = []
-
-            channels = list(await manager.execute(
-                Video.select()
-                     .where(Video.channelid == channelid)
-            ))
+            channels = list(Video.select().where(Video.channelid == channelid))
 
             if len(channels) == 0:
-                await videos.save(channelid, item["id"])
+                Video.save(channelid, item["id"])
             else:
                 if item["id"] in json.loads(channels[0].link):
                     continue
                 else:
-                    await Video.save(channelid, item["id"])
+                    Video.save(channelid, item["id"])
 
             try:
                 attachments = item["attachments"]

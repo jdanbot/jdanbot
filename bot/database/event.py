@@ -1,5 +1,5 @@
-from peewee import *
-from .connection import db, manager
+from peewee import CharField, IntegerField, Model
+from .connection import db
 
 
 class Event(Model):
@@ -12,22 +12,21 @@ class Event(Model):
         database = db
         primary_key = False
 
-    async def reg_user_in_db(message):
-        user = message.from_user
+    def reg_user_in_db(message):
+        # TODO: USE CREATE_OR_GET
 
-        cur_user = list(await manager.execute(
+        user = message.from_user
+        cur_user = list(
             Event.select()
-                 .where(Event.id == user.id,
-                        Event.chatid == message.chat.id)
-        ))
+            .where(Event.id == user.id,
+                   Event.chatid == message.chat.id)
+        )
 
         if len(cur_user) == 0:
-            await manager.execute(
-                Event.insert(
-                    chatid=message.chat.id,
-                    id=user.id,
-                    name=user.full_name
-                )
-            )
+            Event.insert(
+                chatid=message.chat.id,
+                id=user.id,
+                name=user.full_name
+            ).execute()
 
             return True

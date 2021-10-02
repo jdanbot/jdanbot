@@ -1,7 +1,6 @@
 from .config import bot, dp, Note, _, ADMIN_NOTES
 from .lib import handlers
 from .lib.admin import check_admin
-from .lib.text import code, prettyword
 
 
 @dp.message_handler(commands=["remove", "remove_note"])
@@ -11,28 +10,28 @@ async def cool_secret(message, params):
 
     if params[1] in ADMIN_NOTES and message.chat.type == "supergroup":
         if await check_admin(message, bot):
-            await Note.remove(message.chat.id, params[1])
+            Note.remove(message.chat.id, params[1])
         else:
             await message.reply(_("notes.no_rights_for_edit"))
     else:
-        await Note.remove(message.chat.id, params[1])
+        Note.remove(message.chat.id, params[1])
 
 
 @dp.message_handler(commands=["set"])
 @handlers.parse_arguments(3)
 async def set_(message, params):
-    #REWRITE: If note is created send edit text else created text
+    # TODO: REWRITE: If note is created send edit text else created text
 
     name = params[1][1:] if params[1].startswith("#") else params[1]
 
     if name in ADMIN_NOTES and message.chat.type == "supergroup":
         if await check_admin(message, bot):
-            await Note.add(message.chat.id, name, params[2])
+            Note.add(message.chat.id, name, params[2])
             await message.reply(_("notes.add_system_note"))
         else:
             await message.reply(_("notes.no_rights_for_edit"))
     else:
-        await Note.add(message.chat.id, name, params[2])
+        Note.add(message.chat.id, name, params[2])
         await message.reply(_("notes.add_note"))
 
 
@@ -42,10 +41,10 @@ async def get_(message, params):
     name = params[1][1:] if params[1].startswith("#") else params[1]
 
     if name == "__notes_list__":
-        await message.reply(", ".join(await Note.show(message.chat.id)))
+        await message.reply(", ".join(Note.show(message.chat.id)))
         return
 
-    note = await Note.get(message.chat.id, name)
+    note = Note.get(message.chat.id, name)
 
     if note is None:
         await message.reply(_("notes.create_var"))
@@ -64,9 +63,9 @@ async def notes_(message):
 
     if len(name) <= 50:
         if name == "__notes_list__":
-            await message.reply(", ".join(await Note.show(chatid)))
+            await message.reply(", ".join(Note.show(chatid)))
         else:
-            note = await Note.get(chatid, name)
+            note = Note.get(chatid, name)
 
             if note is None:
                 return

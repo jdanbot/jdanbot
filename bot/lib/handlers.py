@@ -23,7 +23,7 @@ def parse_arguments(limit, without_params=False):
 def check(var, without_params=False):
     def argument_wrapper(func):
         async def wrapper(message):
-            res = await Note.get(message.chat.id, var)
+            res = Note.get(message.chat.id, var)
 
             if res is None:
                 res = "True"

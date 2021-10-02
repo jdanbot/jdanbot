@@ -47,19 +47,19 @@ class GoogleTranslator:
         async with self._session.post(self.URL, params=params) as r:
             resp = await r.text()
 
-        parts = re.split("([0-9]+|\)\]\}\')\n", resp)
+        parts = re.split(r"([0-9]+|\)\]\}\')\n", resp)
         for part in parts:
             if self.GOOGLE_RPC in part:
                 _t = json.loads(part)[0][2]
                 _translation = json.loads(_t)[1]
 
-                source_lang = _translation[3]
-                target_lang = _translation[1]
-                source_text = _translation[4][0]
+                source_lang = _translation[3]      # noqa
+                target_lang = _translation[1]      # noqa
+                source_text = _translation[4][0]   # noqa
 
                 translated = _translation[0][0]
 
-                pronounce = translated[1]
+                pronounce = translated[1]          # noqa
                 _parts = translated[5]
 
                 translated_text = ""

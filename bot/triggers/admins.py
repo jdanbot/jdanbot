@@ -8,7 +8,7 @@ from ..lib.admin import get_tag
 @dp.message_handler(commands=["admins"])
 @handlers.check("__enable_admin__")
 async def call_admins(message):
-    #REWRITE: move keyboard to keyboards.py
+    # TODO: REWRITE: move keyboard to keyboards.py
 
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(
@@ -24,7 +24,7 @@ async def call_admins(message):
 
 @dp.callback_query_handler(lambda call: call.data == "call_admin")
 async def call_admin(call):
-    #REWRITE: move keyboard to keyboards.py
+    # TODO: REWRITE: move keyboard to keyboards.py
 
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(types.InlineKeyboardButton(text=_("triggers.delete"),

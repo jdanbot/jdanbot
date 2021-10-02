@@ -52,5 +52,5 @@ async def catch_error(callback, exception):
         return
 
     await message.reply(bold(_("errors.error")) + "\n"
-                             + code(inf_err),
-                             parse_mode="HTML")
+                        + code(inf_err),
+                        parse_mode="HTML")

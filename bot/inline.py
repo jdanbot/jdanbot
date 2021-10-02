@@ -3,7 +3,7 @@ from .lib.text import code, bold
 
 from aiogram.types import InputTextMessageContent, \
                           InlineQueryResultAudio, InlineQueryResultArticle
-from wikipya.aiowiki import Wikipya, NotFound
+from wikipya.aiowiki import Wikipya
 from bs4 import BeautifulSoup
 from random import randint, choice
 
@@ -126,7 +126,7 @@ async def query_say(query):
        query.query.endswith("!"):
         btns = [
             InlineQueryResultAudio(
-                id=1, 
+                id=1,
                 title=query.query[:-1],
                 audio_url=chez.say(query.query)
             )
