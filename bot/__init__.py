@@ -29,9 +29,15 @@ def force_import(*args):
             print(trace)
 
 
-def prepare_paths(modules, is_folders=False, folder_name=None, prefix=Path("bot")):
+def prepare_paths(
+    modules,
+    is_folders=False,
+    folder_name=None,
+    prefix=Path("bot")
+):
     if is_folders:
-        allowed_folders = filter(lambda x: x not in ("__pycache__", "config"), modules)
+        allowed_folders = filter(lambda x: x not in (
+            "__pycache__", "config"), modules)
 
         return tuple(map(
             lambda folder: prepare_paths(listdir(prefix/folder),
@@ -42,12 +48,13 @@ def prepare_paths(modules, is_folders=False, folder_name=None, prefix=Path("bot"
     else:
         allowed_modules = filter(
             lambda file: not file.startswith("__") and file.endswith(".py") and
-                         file[:-3] not in ("ban",),
+            file[:-3] not in ("ban",),
             modules
         )
 
         return tuple(map(lambda x: str(prefix/folder_name/x[:-3] if folder_name
-                                  else prefix/x[:-3]).replace("/", "."), allowed_modules))
+                                       else prefix/x[:-3]).replace("/", "."),
+                         allowed_modules))
 
 
 force_import(*prepare_paths(files))

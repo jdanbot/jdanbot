@@ -14,11 +14,7 @@ async def vk_timer():
 
         for item in posts["items"][::-1]:
             links = []
-
-            channels = list(
-                Video.select()
-                     .where(Video.channelid == channelid)
-            )
+            channels = list(Video.select().where(Video.channelid == channelid))
 
             if len(channels) == 0:
                 Video.save(channelid, item["id"])

@@ -9,14 +9,14 @@ async def john(message):
     chat_id = message.chat.id
 
     welcome = await Note.get(chat_id, "__enable_greatings__") == "True" or \
-              await Note.get(chat_id, "__enable_welcome__")   == "True"
+        await Note.get(chat_id, "__enable_welcome__") == "True"
 
     if welcome and message.from_user.id == 795449748:
         trigger = choice(_("triggers.jdan_welcome"))
 
     elif welcome:
         trigger = choice(_("triggers.welcome"))
-    
+
     else:
         trigger = None
 
@@ -25,7 +25,7 @@ async def john(message):
 
     rules = await Note.get(message.chat.id, "__rules__")
 
-    #REWRITE: MDv2 => HTML in notes
+    # TODO: REWRITE: MDv2 => HTML in notes
 
     if rules is not None:
         try:

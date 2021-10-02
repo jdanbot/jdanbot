@@ -7,7 +7,7 @@ from ..config import bot, dp, _
 from ..lib import handlers
 
 
-#REWRITE: use regular
+# TODO: REWRITE: use regular
 
 
 space = r"[^a-zа-яё\d]"
@@ -16,7 +16,7 @@ NAKI_REGEXP = rf"(^|{space})наки({space}|$)"
 
 
 @dp.message_handler(lambda msg: msg.text.lower().find("бот, сколько") != -1 and
-                                msg.text.lower().find("?") != -1)
+                    msg.text.lower().find("?") != -1)
 @handlers.check("__enable_response__")
 async def random_putin(message):
     number = randint(0, 1000)
@@ -26,10 +26,10 @@ async def random_putin(message):
 
 
 @dp.message_handler(lambda msg: msg.reply_to_message and
-                                msg.reply_to_message.from_user.id in (1340870009, 1121412322) and
-                                msg.text.lower().find("спасибо") != -1)
+                    msg.reply_to_message.from_user.id in (1121412322) and
+                    msg.text.lower().find("спасибо") != -1)
 async def duakyu(message):
-    await message.reply_sticker("CAACAgIAAx0CRieRpgABA7bCX1aW70b_1a0OspsDDXYk8iPACEkAArwBAAKUmWkvXbzmLd8q5dcbBA")
+    await message.reply_sticker("CAACAgIAAx0CRieRpgABA7bCX1aW70b_1a0OspsDDXYk8iPACEkAArwBAAKUmWkvXbzmLd8q5dcbBA") # noqa
 
 
 @dp.message_handler(lambda msg: msg.text.lower().find("бот, почему") != -1)

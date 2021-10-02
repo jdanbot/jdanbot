@@ -3,7 +3,7 @@ import json
 
 from logging import debug
 
-from .config import bot, RSS_FEEDS, Video, YOUTUBE_KEY, manager
+from .config import bot, Video, YOUTUBE_KEY
 from .lib.aioget import aioget
 
 import feedparser

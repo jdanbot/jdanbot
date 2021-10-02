@@ -1,7 +1,6 @@
 from .config import bot, dp, Note, _, ADMIN_NOTES
 from .lib import handlers
 from .lib.admin import check_admin
-from .lib.text import code, prettyword
 
 
 @dp.message_handler(commands=["remove", "remove_note"])
@@ -21,7 +20,7 @@ async def cool_secret(message, params):
 @dp.message_handler(commands=["set"])
 @handlers.parse_arguments(3)
 async def set_(message, params):
-    #REWRITE: If note is created send edit text else created text
+    # TODO: REWRITE: If note is created send edit text else created text
 
     name = params[1][1:] if params[1].startswith("#") else params[1]
 
