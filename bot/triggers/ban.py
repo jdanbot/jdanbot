@@ -26,7 +26,7 @@ async def random_putin(message):
 
 
 @dp.message_handler(lambda msg: msg.reply_to_message and
-                    msg.reply_to_message.from_user.id in (1121412322) and
+                    msg.reply_to_message.from_user.id in (1121412322,) and
                     msg.text.lower().find("спасибо") != -1)
 async def duakyu(message):
     await message.reply_sticker("CAACAgIAAx0CRieRpgABA7bCX1aW70b_1a0OspsDDXYk8iPACEkAArwBAAKUmWkvXbzmLd8q5dcbBA") # noqa
