@@ -76,7 +76,7 @@ async def warn(
         reason = _("ban.reason_not_found")
 
     try:
-        WARNS_TO_BAN = int(await Note.get(
+        WARNS_TO_BAN = int(Note.get(
             blocker_message.chat.id, "__warns_to_ban__"))
 
     except Exception:
