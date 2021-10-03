@@ -33,4 +33,4 @@ async def john(message):
         except Exception:
             await message.answer(rules)
 
-    await Event.reg_user_in_db(message)
+    Event.reg_user_in_db(message)
