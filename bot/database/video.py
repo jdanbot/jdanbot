@@ -15,7 +15,7 @@ class Video(Model):
         primary_key = False
 
     def save(channelid, link):
-        links = list(Video.select().where(Video.channelid == link))
+        links = list(Video.select().where(Video.channelid == channelid))
 
         if len(links) > 0:
             links = json.loads(links[0].link)[-15:]
