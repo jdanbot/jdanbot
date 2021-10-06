@@ -46,7 +46,7 @@ class Poll(Model):
                 (Poll.delete()
                      .where(Poll.timestamp <= period_bound,
                             Poll.chat_id == poll.chat_id,
-                            Poll.poll_id == poll.poll_id))
+                            Poll.poll_id == poll.poll_id).execute())
 
                 continue
 
