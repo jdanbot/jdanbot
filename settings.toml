@@ -1,0 +1,25 @@
+dynaconf_merge = true
+
+[common]
+status = "develop"
+logging_chat = -1001410092459
+
+[schedule]
+katz_bots = false
+bloodyknight = false
+rss = true
+vk = false
+youtube = true
+
+[[rss_feeds]]
+chatid = -1001410092459
+channelid = "jdan734me"
+url = "http://127.0.0.1:5050/rss"
+
+[[youtube_channels]]
+chatid = -1001410092459
+channelid = "UCUGfDbfRIx51kJGGHIFo8Rw"
+
+[[vk_channels]]
+chatid = -1001410092459
+channelid = "nii_rap"
