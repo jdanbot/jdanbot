@@ -1,12 +1,19 @@
 import sys
+from os import environ
 
 from dynaconf import Dynaconf
 from pathlib import Path
 
 
+paths = environ.get("CONFIG_PATH", "").split(";")
+settings_files = ["default_settings.toml", 'settings.toml', '.secrets.toml']
+
+if paths != [""]:
+    settings_files.extend(paths)
+
 settings = Dynaconf(
     envvar_prefix="DYNACONF",
-    settings_files=["default_settings.toml", 'settings.toml', '.secrets.toml'],
+    settings_files=settings_files,
 )
 
 for key in ("common", "schedule", "rss_feeds",
@@ -22,6 +29,9 @@ for key in ("common", "schedule", "rss_feeds",
 
     else:
         globals()[key.upper()] = value
+
+
+TOKEN = environ.get("TOKEN", None) or TOKEN  # noqa
 
 
 BASE_DIR = Path(__file__).parent.parent.parent
