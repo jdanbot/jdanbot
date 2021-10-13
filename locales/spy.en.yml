@@ -4,7 +4,7 @@ en:
     <b>ID:</b> %{id}
 
     <b>Common chats</b>: <b>%{chats}</b>
-    <b>Status</b>: %{status}=
+    <b>Status</b>: %{status}
 
   users_info: |
     This chat
