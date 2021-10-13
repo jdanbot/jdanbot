@@ -32,6 +32,7 @@ for key in ("common", "schedule", "rss_feeds",
 
 
 TOKEN = environ.get("TOKEN", None) or TOKEN  # noqa
+DB_PATH = environ.get("DB_PATH", None) or DB_PATH  # noqa
 
 
 BASE_DIR = Path(__file__).parent.parent.parent
