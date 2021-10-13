@@ -11,4 +11,18 @@ python -m bot
 ```
 
 ## ⚙️ Configuring
-Make copy of `config.example.yml` and name it to `config.yml`. After fill in. If you don't know where find token check in [BotFather](t.me/BotFather).
+Fill in .secrets.toml token for [Telegram](t.me/BotFather) and other services. For example:
+
+```toml
+[tokens]
+token = "12345678909:AVEFWGRGHTHHRGGERGEG"
+access_token = "rf8gmd46..."
+youtube_key = "AB5C..."
+todoist = "85b34485..."
+```
+
+## 🌳 Submodules
+### 📚 [wikipya](https://github.com/jdan735/wikipya)
+### 🤡 [pymemeru](https://github.com/jdan735/pymemeru)
+### 🦆 [pyduckgo](https://github.com/jdan735/pyduckgo)
+### 🌲 [tghtml](https://github.com/jdan735/tghtml)

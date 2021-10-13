@@ -2,6 +2,7 @@ __pycache__/
 
 config*.yml
 .secrets.yml
+.secrets.toml
 
 *.py[cod]
 *$py.class

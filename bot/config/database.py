@@ -1,8 +1,8 @@
-from ..database import db, Note, Event, CommandStats, \
-                       Warn, Poll, Video, Pidor, PidorStats
+from ..database import db, Note, Event, Command, \
+                       Warn, Poll, Feed, Pidor, PidorStats
 
 
 db.connect()
-db.create_tables((Note, Event, CommandStats, Warn, Poll, Video,
+db.create_tables((Note, Event, Command, Warn, Poll, Feed,
                   Pidor, PidorStats), safe=True)
 db.close()

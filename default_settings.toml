@@ -1,0 +1,72 @@
+[[eggs]]
+commands = [ "java1" ]
+audio = "java.ogg"
+
+[[eggs]]
+commands = [ "cool_music" ]
+audio = "music.ogg"
+
+[[eggs]]
+commands = [ "cum" ]
+audio = "cum.ogg"
+
+[[eggs]]
+commands = [ "longcum" ]
+audio = "longcum.ogg"
+
+[[eggs]]
+commands = [ "frog" ]
+audio = "lyagushka.ogg"
+
+
+[common]
+db_path = "jdanbot.db"
+memory_db_patch = true
+image_path = "bot/cache/{image}.jpg"
+status = "unknown"
+gtranslate_langs = ["ru", "en", "ua", "uk", "be", "pl", "de", "fr"]
+langs_list = ["ru", "en", "sv", "de", "ce",
+              "tt", "ba", "pl", "uk", "be",
+              "es", "he", "xh", "ab"]
+
+admin_notes = [
+    "__rules__",
+    "__enable_bot__",
+    "__ban__",
+    "__welcome__",
+    "__enable_response__",
+    "__enable_welcome__",
+    "__enable_greatings__",
+    "__warns_to_ban__",
+    "__chat_lang__",
+    "__enable_admin__"
+]
+
+
+[unique_commands]
+ru = [ "wikiru2", "w", "wiki" ]
+en = [ "van", "wen", "v" ]
+uk = [ "wikiua", "wua", "pawuk" ]
+be-tarask = [ "wikibe-tarask", "wikibet", "wbet", "xbet" ]
+
+
+[stickers]
+pizda = "CAACAgIAAx0CUDyGjwACAQxfCFkaHE52VvWZzaEDQwUC8FYa-wAC3wADlJlpL5sCLYkiJrDFGgQ"
+net_pizdy = "CAACAgIAAx0CUDyGjwACAQ1fCFkcDHIDN_h0qHDu7LgvS8SBIgAC4AADlJlpL8ZF00AlPORXGgQ"
+pizda_tebe = "CAACAgIAAxkBAAILHV9qcv047Lzwp_B64lDlhtOD-2RGAAIgAgAClJlpL5VCBwPTI85YGwQ"
+xui = "CAACAgIAAx0CUDyGjwACAQ5fCFkeR-pVhI_PUTcTbDGUOgzwfAAC4QADlJlpL9ZRhbtO0tQzGgQ"
+net_xua = "CAACAgIAAx0CUDyGjwACAQ9fCFkfgfI9pH9Hr96q7dH0biVjEwAC4gADlJlpL_foG56vPzRPGgQ"
+
+
+[schedule]
+delay = 20
+katz_bots = false
+bloodyknight = false
+rss = false
+vk = false
+youtube = false
+
+
+[links]
+max_url = "https://img.youtube.com/vi/{id}/maxresdefault.jpg"
+hq_url = "https://img.youtube.com/vi/{id}/hqdefault.jpg"

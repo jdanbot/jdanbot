@@ -59,13 +59,13 @@ async def get_(message, params):
 @dp.message_handler(lambda message: message.text.startswith("#"))
 async def notes_(message):
     name = message.text.replace("#", "")
-    chatid = message.chat.id
+    chat_id = message.chat.id
 
     if len(name) <= 50:
         if name == "__notes_list__":
-            await message.reply(", ".join(Note.show(chatid)))
+            await message.reply(", ".join(Note.show(chat_id)))
         else:
-            note = Note.get(chatid, name)
+            note = Note.get(chat_id, name)
 
             if note is None:
                 return
