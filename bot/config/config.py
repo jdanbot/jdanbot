@@ -17,8 +17,8 @@ settings = Dynaconf(
 )
 
 for key in ("common", "schedule", "rss_feeds",
-            "youtube_channels", "vk_channels",
-            "tokens", "unique_commands", "stickers",
+            "youtube_feeds", "vk_feeds", "tokens",
+            "unique_commands", "stickers",
             "links", "eggs"):
     value = settings.get(key, default=None)
 

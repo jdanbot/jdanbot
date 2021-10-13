@@ -69,9 +69,9 @@ async def open_poll(message):
 
 @dp.message_handler(commands=["reload_pin"])
 @handlers.only_admins
-async def kz_poll(message):
+async def repin(message):
     if message.chat.id != -1001176998310:
         return
 
     KATZ_CHANNEL = "UCUGfDbfRIx51kJGGHIFo8Rw"
-    await youtube_task(KATZ_CHANNEL, -1001176998310)
+    await youtube_task(KATZ_CHANNEL, message.chat.id)

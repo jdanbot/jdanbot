@@ -3,7 +3,7 @@ import yaml
 
 from dataclasses import dataclass
 
-from ..database import Note, CommandStats
+from ..database import Note, Command
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
 from aiogram.dispatcher.middlewares import BaseMiddleware
@@ -124,7 +124,7 @@ class SpyMiddleware(BaseMiddleware):
         command = message.get_full_command()
 
         if command is not None:
-            CommandStats.create(
+            Command.create(
                 chat_id=message.chat.id,
                 user_id=message.from_user.id,
                 command=command[0][1:]

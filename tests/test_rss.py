@@ -2,14 +2,14 @@ import sys
 
 sys.path.insert(0, ".")
 
-from bot.config.database import Video
+from bot.config.database import Feed
 from bot.timer import save_post
 
 import pytest
 
 
 params = ["", "test", None]
-Video.delete().execute()
+Feed.delete().execute()
 
 
 class TestRSS:
