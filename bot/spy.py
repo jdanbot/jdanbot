@@ -1,6 +1,6 @@
 from peewee import fn, SQL
 
-from .config import bot, dp, Event, CommandStats, _
+from .config import bot, dp, Event, Command, _
 from .lib.text import code, prettyword, fixHTML
 
 
@@ -16,7 +16,7 @@ def _command_counter(users):
 async def me_info(message):
     chats = (
         Event.select(fn.Count(SQL("*")))
-             .where(Event.id == message.from_user.id)
+             .where(Event.user_id == message.from_user.id)
     ).count()
 
     user = await bot.get_chat_member(
@@ -38,7 +38,7 @@ async def me_info(message):
 async def calc_stats(message):
     chat_users = (
         Event.select(fn.Count(SQL("*")))
-             .where(Event.chatid == message.chat.id)
+             .where(Event.chat_id == message.chat.id)
     ).count()
 
     chats_users = (
@@ -46,15 +46,15 @@ async def calc_stats(message):
     ).count()
 
     chat_commands = (
-        CommandStats.select(fn.Count(SQL("*")))
-                    .where(CommandStats.chat_id == message.chat.id)
+        Command.select(fn.Count(SQL("*")))
+               .where(Command.chat_id == message.chat.id)
     ).count()
 
     chats_commands = (
-        CommandStats.select(fn.Count(SQL("*")))
+        Command.select(fn.Count(SQL("*")))
     ).count()
 
-    #REWRITE: Пиздецовый стиль сообщенияCommandStats
+    # TODO: REWRITE: Пиздецовый стиль сообщения
 
     await message.reply(code(_(
         "spy.users_info",

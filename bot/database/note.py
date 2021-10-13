@@ -3,7 +3,7 @@ from .connection import db
 
 
 class Note(Model):
-    chatid = IntegerField()
+    chat_id = IntegerField()
     content = CharField()
     name = CharField()
 
@@ -12,23 +12,23 @@ class Note(Model):
         database = db
         primary_key = False
 
-    def add(chatid, name, text):
-        Note.remove(chatid, name)
-        Note.create(chatid=chatid, name=name, content=text)
+    def add(chat_id, name, text):
+        Note.remove(chat_id, name)
+        Note.create(chat_id=chat_id, name=name, content=text)
 
-    def get(chatid, name):
+    def get(chat_id, name):
         try:
             return (Note.select()
-                        .where(Note.chatid == chatid, Note.name == name)
+                        .where(Note.chat_id == chat_id, Note.name == name)
                         .get()).content
         except Exception:
             return None
 
-    def show(chatid):
-        notes = Note.select().where(Note.chatid == chatid)
+    def show(chat_id):
+        notes = Note.select().where(Note.chat_id == chat_id)
         return [note.name for note in notes]
 
-    def remove(chatid, name):
+    def remove(chat_id, name):
         return (Note.delete()
-                    .where(Note.chatid == chatid, Note.name == name)
+                    .where(Note.chat_id == chat_id, Note.name == name)
                     .execute())

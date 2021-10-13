@@ -22,8 +22,8 @@ async def scheduler():
             aioschedule.every(DELAY).seconds.do(
                 rss_task,
                 feed["url"],
-                feed["channelid"],
-                feed["chatid"]
+                feed["feed_id"],
+                feed["chat_id"]
             )
 
     if VK:

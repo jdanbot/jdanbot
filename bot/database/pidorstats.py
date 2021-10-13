@@ -9,6 +9,6 @@ class PidorStats(Model):
     count = IntegerField()
 
     class Meta:
-        db_table = "pidorstats"
+        db_table = "pidor_stats"
         database = db
         primary_key = False

@@ -3,17 +3,17 @@ import json
 
 from logging import debug
 
-from .config import bot, Video, YOUTUBE_KEY
+from .config import bot, Feed, YOUTUBE_KEY
 from .lib.aioget import aioget
 
 import feedparser
 
 
-async def youtube_task(channelid, chatid):
+async def youtube_task(feed_id, chat_id):
     url = "https://www.googleapis.com/youtube/v3/search"
     response = await aioget(url, timeout=5, params={
         "key": YOUTUBE_KEY,
-        "channelId": channelid,
+        "channelId": feed_id,
         "part": "id",
         "order": "date",
         "maxResults": 1
@@ -22,7 +22,7 @@ async def youtube_task(channelid, chatid):
     try:
         video = response.json()
     except asyncio.exceptions.TimeoutError:
-        debug(f"[{channelid}] TimeoutError")
+        debug(f"[{feed_id}] TimeoutError")
         return
 
     if video.get("error") is not None:
@@ -32,10 +32,10 @@ async def youtube_task(channelid, chatid):
         video_id=video["items"][0]["id"]["videoId"]
     )
 
-    await save_post(str(channelid), channelid, chatid, first_video)
+    await save_post(str(feed_id), feed_id, chat_id, first_video)
 
 
-async def rss_task(url, channelid, chatid):
+async def rss_task(url, feed_id, chat_id):
     response = await aioget(url, timeout=5)
 
     xml = feedparser.parse(response.text)
@@ -43,25 +43,25 @@ async def rss_task(url, channelid, chatid):
     page = xml["entries"][0]
     first_url = page["link"]
 
-    await save_post(url, channelid, chatid, first_url)
+    await save_post(url, feed_id, chat_id, first_url)
 
 
-async def save_post(url, channelid, chatid, first_video):
-    channels = list(Video.select()
-                         .where(Video.channelid == channelid))
+async def save_post(url, feed_id, chat_id, first_video):
+    channels = list(Feed.select()
+                        .where(Feed.id == feed_id))
 
     if len(channels) == 0:
-        await bot.send_message(chatid, first_video)
-        Video.save(channelid, first_video)
+        await bot.send_message(chat_id, first_video)
+        Feed.save(feed_id, first_video)
     else:
-        if first_video in json.loads(channels[0].link):
+        if first_video in json.loads(channels[0].links):
             return False
 
-        message = await bot.send_message(chatid, first_video)
+        message = await bot.send_message(chat_id, first_video)
         await bot.pin_chat_message(
-            chatid,
+            chat_id,
             message.message_id,
             disable_notification=True
         )
 
-        Video.save(channelid, first_video)
+        Feed.save(feed_id, first_video)
