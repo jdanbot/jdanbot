@@ -3,8 +3,8 @@ from .connection import db
 
 
 class Event(Model):
-    chatid = IntegerField()
-    id = IntegerField()
+    chat_id = IntegerField()
+    user_id = IntegerField()
     name = CharField()
 
     class Meta:
@@ -18,14 +18,14 @@ class Event(Model):
         user = message.from_user
         cur_user = list(
             Event.select()
-            .where(Event.id == user.id,
-                   Event.chatid == message.chat.id)
+            .where(Event.user_id == user.id,
+                   Event.chat_id == message.chat.id)
         )
 
         if len(cur_user) == 0:
             Event.insert(
-                chatid=message.chat.id,
-                id=user.id,
+                chat_id=message.chat.id,
+                user_id=user.id,
                 name=user.full_name
             ).execute()
 

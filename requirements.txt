@@ -5,6 +5,7 @@ aiovk
 art
 beautifulsoup4
 coloredlogs
+dynaconf
 feedparser
 httpx
 lxml

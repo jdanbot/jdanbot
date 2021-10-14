@@ -1,0 +1,25 @@
+dynaconf_merge = true
+
+[common]
+status = "develop"
+logging_chat = -1001410092459
+
+[schedule]
+katz_bots = false
+bloodyknight = false
+rss = false
+vk = true
+youtube = true
+
+[[rss_feeds]]
+chat_id = -1001410092459
+feed_id = "jdan734me"
+url = "http://127.0.0.1:5050/rss"
+
+[[youtube_feeds]]
+chat_id = -1001410092459
+feed_id = "UCUGfDbfRIx51kJGGHIFo8Rw"
+
+[[vk_feeds]]
+chat_id = -1001410092459
+feed_id = "nii_rap"
