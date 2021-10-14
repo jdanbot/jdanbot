@@ -1,4 +1,5 @@
-import datetime
+from datetime import datetime, timedelta
+
 import math
 
 from ..config import bot, TIMEZONE, Warn, _, Note
@@ -6,11 +7,11 @@ from .text import prettyword
 
 
 async def ban(
-    blocker_message,
-    blockable_message,
+    message,
+    reply,
     time=1,
     reason=None,
-    isRepostAllowed=True
+    is_repost_allowed=True
 ):
     if reason is None:
         reason = _("ban.reason_not_found")
@@ -22,25 +23,33 @@ async def ban(
         try:
             bt = datetime.time.fromisoformat(time)
         except ValueError:
-            await blocker_message.reply("Введи валидное кол-во минут")
+            await message.reply("Введи валидное кол-во минут")
             return
 
         ban_time = bt.hour * 60 + bt.minute
 
-    until_date = datetime.datetime.now(TIMEZONE) + datetime.timedelta(minutes=ban_time)
-    await bot.restrict_chat_member(blocker_message.chat.id, blockable_message.from_user.id,
+    now = datetime.now(TIMEZONE)
+
+    one_day = now + timedelta(days=1)
+    until_date = now + timedelta(minutes=ban_time)
+
+    await bot.restrict_chat_member(message.chat.id, reply.from_user.id,
                                    until_date=until_date.timestamp())
 
-    time_localed=prettyword(ban_time, _("cases.minutes"))
-    unban_time=until_date.isoformat()
-    is_selfmute = blockable_message.from_user.id == blocker_message.from_user.id
+    unban_time = until_date.isoformat(sep=" ").split(".")[0]
 
-    name = {"name": blockable_message.from_user.full_name} if not is_selfmute else {}
+    if one_day > until_date:
+        unban_time = unban_time.split(" ")[1]
+
+    is_selfmute = reply.from_user.id == message.from_user.id
+    time_localed = prettyword(ban_time, _("cases.minutes"))
+
+    name = {"name": reply.from_user.full_name} if not is_selfmute else {}
 
     ban_log = _(
         f"ban.{'mute' if not is_selfmute else 'selfmute'}",
-        banchik=blocker_message.from_user.full_name,
-        userid=blockable_message.from_user.id,
+        banchik=message.from_user.full_name,
+        userid=reply.from_user.id,
         why=reason,
         time=str(ban_time),
         time_localed=time_localed,
@@ -48,84 +57,82 @@ async def ban(
         **name
     )
 
-    if blocker_message.chat.id == -1001176998310 and isRepostAllowed:
+    if message.chat.id == -1001176998310 and is_repost_allowed:
         await bot.forward_message(-1001334412934,
                                   -1001176998310,
-                                  blockable_message.message_id)
+                                  reply.message_id)
 
         await bot.send_message(-1001334412934, ban_log,
                                parse_mode="HTML")
 
     try:
-        await bot.send_message(blockable_message.chat.id, ban_log,
-                               reply_to_message_id=blockable_message.message_id,
+        await bot.send_message(reply.chat.id, ban_log,
+                               reply_to_message_id=reply.message_id,
                                parse_mode="HTML")
 
-        if blocker_message.message_id != blockable_message.message_id:
-            await blocker_message.delete()
+        if message.message_id != reply.message_id:
+            await message.delete()
     except Exception:
-        await blocker_message.reply(ban_log, parse_mode="HTML")
+        await message.reply(ban_log, parse_mode="HTML")
 
 
 async def warn(
-    blocker_message,
-    blockable_message,
+    message,
+    reply,
     reason=None
 ):
     if reason is None:
         reason = _("ban.reason_not_found")
 
     try:
-        WARNS_TO_BAN = int(Note.get(
-            blocker_message.chat.id, "__warns_to_ban__"))
-
+        WARNS_TO_BAN = int(Note.get(message.chat.id, "__warns_to_ban__"))
     except Exception:
         WARNS_TO_BAN = 3
 
-    wtbans = await Warn.count_warns(blockable_message.from_user.id,
-                                    blockable_message.chat.id,
-                                    period=datetime.timedelta(hours=23))
+    wtbans = await Warn.count_warns(reply.from_user.id,
+                                    reply.chat.id,
+                                    period=timedelta(hours=23))
     wtbans += 1
 
     warn_log = _(
         "ban.warn",
-        name=blockable_message.from_user.full_name,
-        banchik=blocker_message.from_user.full_name,
-        userid=blockable_message.from_user.id,
+        name=reply.from_user.full_name,
+        banchik=message.from_user.full_name,
+        userid=reply.from_user.id,
         why=reason,
         i=wtbans
     )
 
-    if blockable_message.chat.id == -1001176998310:
+    if reply.chat.id == -1001176998310:
         await bot.forward_message(-1001334412934,
                                   -1001176998310,
-                                  blockable_message.message_id)
+                                  reply.message_id)
         await bot.send_message(-1001334412934, warn_log,
                                parse_mode="HTML")
 
-    await blockable_message.reply(warn_log, parse_mode="HTML")
+    await reply.reply(warn_log, parse_mode="HTML")
 
-    Warn.mark_chat_member(blockable_message.from_user.id,
-                          blockable_message.chat.id,
-                          blocker_message.from_user.id,
+    Warn.mark_chat_member(reply.from_user.id,
+                          reply.chat.id,
+                          message.from_user.id,
                           reason=reason)
 
     if wtbans >= WARNS_TO_BAN:
-        await ban(blocker_message, blockable_message, "1440",
+        await ban(message, reply, "1440",
                   _("ban.warn_limit_reached", i=wtbans))
     else:
-        await blocker_message.delete()
+        await message.delete()
 
 
-async def unwarn(blocker_message, blockable_message):
-    user_id = blockable_message.from_user.id
+async def unwarn(message, reply):
+    user_id = reply.from_user.id
 
-    if user_id == blocker_message.from_user.id:
-        await blocker_message.reply(_("ban.admin_cant_unwarn_self"))
+    if user_id == message.from_user.id:
+        await message.reply(_("ban.admin_cant_unwarn_self"))
         return
 
-    period = datetime.timedelta(hours=24)
-    period_bound = int((datetime.datetime.now() - period).timestamp())
+    period = timedelta(hours=24)
+    period_bound = int((datetime.now(TIMEZONE) - period).timestamp())
 
     user_warns = list(Warn.select()
                           .where(Warn.timestamp >= period_bound,
@@ -133,7 +140,7 @@ async def unwarn(blocker_message, blockable_message):
                           .order_by(-Warn.timestamp))
 
     if len(user_warns) == 0:
-        await blocker_message.reply(_("ban.warns_not_found"))
+        await message.reply(_("ban.warns_not_found"))
         return
 
     last_warn = user_warns[0]
@@ -145,19 +152,19 @@ async def unwarn(blocker_message, blockable_message):
 
     unwarn_log = _(
         "ban.unwarn",
-        name=blockable_message.from_user.full_name,
-        banchik=blocker_message.from_user.full_name,
-        userid=blockable_message.from_user.id,
+        name=reply.from_user.full_name,
+        banchik=message.from_user.full_name,
+        userid=reply.from_user.id,
         i=len(user_warns),
         why=last_warn.reason
     )
 
-    if blockable_message.chat.id == -1001176998310:
-        await bot.forward_message(-1001334412934,
-                                  -1001176998310,
-                                  blockable_message.message_id)
+    if reply.chat.id == -1001176998310:
+        await bot.forward_message(
+            -1001334412934, -1001176998310, reply.message_id)
+
         await bot.send_message(-1001334412934, unwarn_log,
                                parse_mode="HTML")
 
-    await blockable_message.reply(unwarn_log, parse_mode="HTML")
-    await blocker_message.delete()
+    await reply.reply(unwarn_log, parse_mode="HTML")
+    await message.delete()
