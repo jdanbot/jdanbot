@@ -76,18 +76,11 @@ def get_text(func):
     @parse_arguments(2, without_params=True)
     async def wrapper(message, params):
         reply = message.reply_to_message
-        if reply:
-            if reply.text:
-                text = reply.text
 
-            elif reply.caption:
-                text = reply.caption
-
-            elif reply.document:
-                file_id = reply.document.file_id
-
-                document = bot.get_file(file_id)
-                text = bot.download_file(document.file_path)
+        if reply and reply.text:
+            text = reply.text
+        elif reply and reply.caption:
+            text = reply.caption
         elif len(params) == 2:
             text = params[1]
         else:

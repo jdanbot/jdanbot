@@ -1,24 +1,24 @@
 from ..lib.multitran import GoogleTranslator
 from ..config import dp, GTRANSLATE_LANGS
 from ..lib import handlers
+from ..lib.text import cuteCrop
 
 from random import choice
 
 
 @dp.message_handler(commands=[f"t{lang}" for lang in GTRANSLATE_LANGS])
 @handlers.get_text
-async def translate(message, text):
+async def translate(message, query):
     t = GoogleTranslator()
 
-    try:
-        command = message.text.split(" ", maxsplit=1)[0]
-    except:
-        command = message.caption.split(" ", maxsplit=1)[0]
+    if (command := message.get_command()) != "/tua":
+        lang = command[2:]
+    else:
+        lang = "uk"
 
-    lang = command[2:] if command != "/tua" else "uk"
-    text = await t.translate(text, tgt_lang=lang)
+    text = await t.translate(query, tgt_lang=lang)
 
-    await message.reply(text[:4096],
+    await message.reply(cuteCrop(text, limit=4096),
                         disable_web_page_preview=True)
 
     await t.close()
