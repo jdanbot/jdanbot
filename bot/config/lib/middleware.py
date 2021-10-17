@@ -25,7 +25,8 @@ class Locale:
                 continue
 
             with open(f"{path}/{file}", encoding="UTF-8") as f:
-                self.locale[name] = yaml.safe_load(f.read().replace("%{", "{"))[lang]
+                self.locale[name] = yaml.safe_load(
+                    f.read().replace("%{", "{"))[lang]
 
 
 class I18nMiddleware(I18nMiddlewareBase):
@@ -47,7 +48,7 @@ class I18nMiddleware(I18nMiddlewareBase):
 
         section, name = singular.split(".", maxsplit=1)
 
-        if lang is None:
+        if lang is None or lang not in set(self.locales):
             lang = "ru"
 
         translate = self.locales[lang].locale[section]
@@ -83,7 +84,8 @@ class I18nMiddleware(I18nMiddlewareBase):
                 pass
 
             for key in translate:
-                if isinstance(translate[key], list) or isinstance(translate[key], dict):
+                if isinstance(translate[key], list) or \
+                   isinstance(translate[key], dict):
                     return translate
 
                 translate[key] = translate[key].format(**kwargs)
