@@ -84,8 +84,7 @@ class I18nMiddleware(I18nMiddlewareBase):
                 pass
 
             for key in translate:
-                if isinstance(translate[key], list) or \
-                   isinstance(translate[key], dict):
+                if isinstance(translate[key], (dict, list):
                     return translate
 
                 translate[key] = translate[key].format(**kwargs)
@@ -96,7 +95,7 @@ class I18nMiddleware(I18nMiddlewareBase):
             trans = []
 
             for item in translate:
-                if isinstance(item, list) or isinstance(item, dict):
+                if isinstance(item, (dict, list)):
                     trans.append(translate)
                 else:
                     trans.append(item.format(**kwargs))
