@@ -84,7 +84,7 @@ class I18nMiddleware(I18nMiddlewareBase):
                 pass
 
             for key in translate:
-                if isinstance(translate[key], (dict, list):
+                if isinstance(translate[key], (dict, list)):
                     return translate
 
                 translate[key] = translate[key].format(**kwargs)
