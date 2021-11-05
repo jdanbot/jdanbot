@@ -39,7 +39,8 @@ admin_notes = [
     "__enable_greatings__",
     "__warns_to_ban__",
     "__chat_lang__",
-    "__enable_admin__"
+    "__enable_admin__",
+    "__enable_selfmute__"
 ]
 
 
