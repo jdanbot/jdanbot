@@ -1,7 +1,6 @@
-from ..config import bot, Note, IMAGE_PATH, _
+from ..config import bot, Note, _
 
 from .admin import check_admin
-from .photo import Photo
 
 
 def parse_arguments(limit, without_params=False):
@@ -54,20 +53,6 @@ def get_reply_photo(func):
         file = await bot.download_file(photo.file_path)
 
         await func(message, params, [file_id, file])
-
-    return wrapper
-
-
-def init_photo_file(func):
-    @get_reply_photo
-    async def wrapper(message, params, photo):
-        path = IMAGE_PATH.format(image=photo[0])
-
-        with open(path, "wb") as new_file:
-            new_file.write(photo[1].read())
-
-        img = Photo(path)
-        await func(message, params, img)
 
     return wrapper
 
