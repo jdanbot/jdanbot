@@ -9,12 +9,12 @@ dynaconf
 feedparser
 httpx
 lxml
-pillow
 psutil
 pyduckgo==0.2.0
 pymemeru==0.1.0
 pyyaml
 peewee
 tghtml==1.0.6
-wikipya==3.0.1
+wikipya==4.0.0b3
 todoist-python
+pydantic

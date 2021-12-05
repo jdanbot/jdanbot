@@ -1,57 +1,53 @@
-import yaml
 from wikipya.aiowiki import Wikipya, NotFound
 from bs4 import BeautifulSoup
+from tghtml import TgHTML
 
 
+from ..lib import handlers
 from ..lib.text import bold, code, cuteCrop, fixWords
 from ..config import (
-    bot, dp, WIKIPYA_BLOCKLIST,
-    WIKICOMMANDS, _, LANGS_LIST, UNIQUE_COMMANDS
+    bot, dp, WIKICOMMANDS, _, LANGS_LIST, UNIQUE_COMMANDS
 )
-
-
-with open("bot/lib/blocklist.yml") as file:
-    blocklist = yaml.safe_load(file.read())
 
 
 @dp.message_handler(commands=["railgun"])
 async def railgun(message):
     await wiki(message, "Railgun",
                "https://toarumajutsunoindex.fandom.com/api.php",
-               lurk=True)
+               is_lurk=True)
 
 
 @dp.message_handler(commands=["fallout"])
 async def fallout(message):
     await wiki(message, "Fallout",
-               "https://fallout.fandom.com/ru/api.php", lurk=True, prefix="")
+               "https://fallout.fandom.com/ru/api.php", is_lurk=True, prefix="")
 
 
 @dp.message_handler(commands=["kaiser", "kaiserreich"])
 async def kaiser(message):
     await wiki(message, "Kaiserreich",
                "https://kaiserreich.fandom.com/ru/api.php",
-               lurk=True)
+               is_lurk=True)
 
 
 @dp.message_handler(commands=["doom"])
 async def doom(message):
     await wiki(message, "DooM", "https://doom.fandom.com/api.php",
-               lurk=True)
+               is_lurk=True)
 
 
 @dp.message_handler(commands=["lurk"])
 async def Lurk(message):
     await wiki(message, "Lurkmore",
-               "http://lurkmore.to/api.php", lurk=True,
+               "http://lurkmore.to/api.php",
                prefix="",
-               img_blocklist=blocklist["images"])
+               is_lurk=True)
 
 
 @dp.message_handler(commands=["absurd"])
 async def absurd(message):
     await wiki(message, "Absurdopedia",
-               "https://absurdopedia.net/w/api.php", lurk=True,
+               "https://absurdopedia.net/w/api.php", is_lurk=True,
                prefix="/wiki")
 
 
@@ -59,19 +55,19 @@ async def absurd(message):
 async def pizdec(message):
     await wiki(message, "mrakopedia",
                "https://mrakopedia.net/w/api.php",
-               host="//mrakopedia.net", prefix="/wiki")
+               host="//mrakopedia.net", is_lurk=True, prefix="/wiki")
 
 
 @dp.message_handler(commands=["archwiki"])
 async def archwiki(message):
-    await wiki(message, "archwiki",
-               "https://wiki.archlinux.org/api.php")
+    await wiki(message, "archwiki", is_lurk=True,
+               base_url="https://wiki.archlinux.org/api.php")
 
 
 @dp.message_handler(commands=["encycl"])
 async def encyclopedia(message):
     await wiki(message, "encyclopedia",
-               "https://encyclopatia.ru/w/api.php", lurk=True,
+               "https://encyclopatia.ru/w/api.php", is_lurk=True,
                host="//encyclopatia.ru", prefix="/wiki")
 
 
@@ -96,8 +92,7 @@ async def wikihandler(message):
         return
 
     await wiki(message, "Wiki",
-               "https://{lang}.wikipedia.org/w/api.php",
-               version="1.35", lang=lang)
+               "https://{lang}.wikipedia.org/w/api.php", lang=lang)
 
 
 @dp.message_handler(lambda message: message.text.startswith("/w_"))
@@ -106,7 +101,7 @@ async def detect(message):
     if text.find("@") != -1:
         text = text.split("@", maxsplit=1)[0]
 
-    w = Wikipya("ru")
+    w = Wikipya("ru").get_instance()
 
     try:
         id_ = int(text)
@@ -115,30 +110,25 @@ async def detect(message):
         message.reply(_("errors.invalid_post_id"))
         return
 
-    name = await w.getPageName(id_)
+    name = await w.get_page_name(id_)
 
     if name == -1:
         await message.reply(_("errors.not_found"))
         return
 
-    await wiki(message, "wikipedia", lang="ru", query=name,
-               version="1.35")
+    await wiki(message, "wikipedia", lang="ru", query=name)
 
 
-async def wiki(message, fname, url="https://{lang}.wikipedia.org/w/api.php",
-               query=None, lang=None, lurk=False, prefix="w", **kwargs):
-    w = Wikipya(url=url, lang=lang, lurk=lurk, **kwargs)
+async def wiki(message, fname, base_url="https://{lang}.wikipedia.org/w/api.php",
+               query=None, lang=None, is_lurk=False, prefix="w", **kwargs):
+    w = Wikipya(base_url=base_url, lang=lang, is_lurk=is_lurk,
+                prefix=prefix, **kwargs).get_instance()
 
     try:
         if query is None:
             command, query = message.text.split(maxsplit=1)
 
-        page, image, url = await w.get_all(
-            query, lurk,
-            blocklist=WIKIPYA_BLOCKLIST,
-            img_blocklist=kwargs.get("img_blocklist") or (),
-            prefix=prefix
-        )
+        page, image, url = await w.get_all(query, is_lurk)
         text = fixWords(page.parsed)
 
     except NotFound:
@@ -199,11 +189,6 @@ def unbody(html):
                     .replace("</body></html>", "")
 
 
-def Wikipedia(lang="ru"):
-    return Wikipya(url="https://{lang}.wikipedia.org/w/api.php",
-                   lang=lang, version="1.35")
-
-
 @dp.message_handler(commands="s")
 async def wikiSearch(message, lang="ru"):
     opts = message.text.split(maxsplit=1)
@@ -215,7 +200,7 @@ async def wikiSearch(message, lang="ru"):
 
     query = opts[1]
 
-    wiki = Wikipedia(lang=lang)
+    wiki = Wikipya(lang=lang).get_instance()
 
     r = await wiki.search(query, 20)
 
@@ -227,6 +212,31 @@ async def wikiSearch(message, lang="ru"):
 
     for item in r:
         text += bold(fixWords(item.title)) + "\n"
-        text += f"└─/w_{item.pageid}\n"
+        text += f"└─/w_{item.page_id}\n"
 
     await message.reply(text, parse_mode="HTML")
+
+
+@dp.message_handler(commands="wtest")
+@handlers.get_text
+async def wikiSummary(message, query):
+    wiki = Wikipya(lang="ru").get_instance()
+
+    res = await wiki.summary(query)
+
+    if res.original_image:
+        cropped = cuteCrop(str(TgHTML(res.extract_html)), limit=1024)
+
+        if cropped == "":
+            cropped = str(TgHTML(res.extract_html))[:1024]
+
+        await bot.send_chat_action(message.chat.id, "upload_photo")
+        await message.reply_photo(
+            res.original_image.source, caption=cropped,
+            parse_mode="HTML")
+    else:
+        await message.reply(
+            cuteCrop(str(TgHTML(res.extract_html)), limit=4096),
+            parse_mode="HTML",
+            disable_web_page_preview=True
+        )

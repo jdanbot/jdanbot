@@ -1,6 +1,6 @@
 from tghtml import TgHTML
 
-from ..config import dp, WIKIPYA_BLOCKLIST
+from ..config import dp
 from ..lib import handlers
 from ..lib.aioget import aioget
 from ..lib.text import cuteCrop
@@ -13,7 +13,7 @@ async def netscape(message, url):
     res = await aioget(url)
     html = res.text
 
-    parsed_html = TgHTML(html, blocklist=WIKIPYA_BLOCKLIST)
+    parsed_html = TgHTML(html)
     text = cuteCrop(str(parsed_html), limit=4096)
 
     await message.reply(text, parse_mode="HTML")
