@@ -30,13 +30,10 @@ async def vk_timer():
                 attachments = []
 
             for attachment in attachments:
-                if attachment["type"] == "photo":
-                    url = get_max_photosize(attachment["photo"])
-                    links.append(url)
+                media = attachment[attachment["type"]]
 
-                elif attachment["type"] == "video":
-                    url = get_max_photosize(attachment["video"])
-                    links.append(url)
+                if media.get("sizes", None) is not None:
+                    links.append(media["sizes"][-1]["url"])
 
             if len(links) == 1:
                 await bot.send_photo(feed["chat_id"], links[0],
@@ -57,14 +54,3 @@ async def vk_timer():
             elif item["text"] != "":
                 await bot.send_message(feed["chat_id"],
                                        cuteCrop(item["text"], 4096))
-
-
-def get_max_photosize(photo, limit=130):
-    sizes = []
-
-    for key in photo.keys():
-        if key.startswith("photo"):
-            sizes.append(int(key[6:]))
-
-    if max(sizes) >= limit:
-        return photo[f"photo_{max(sizes)}"]
