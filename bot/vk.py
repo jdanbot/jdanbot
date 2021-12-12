@@ -10,7 +10,7 @@ async def vk_timer():
 
     for feed in VK_FEEDS:
         feed_id = feed["feed_id"]
-        posts = await vk_api.wall.get(domain=feed_id, count=5)
+        posts = await vk_api.wall.get(domain=feed_id, count=5, v="5.131")
 
         for item in posts["items"][::-1]:
             links = []
