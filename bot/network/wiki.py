@@ -1,4 +1,6 @@
-from wikipya.aiowiki import Wikipya, NotFound
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton as Button
+
+from wikipya import Wikipya, NotFound
 from bs4 import BeautifulSoup
 from tghtml import TgHTML
 
@@ -8,6 +10,29 @@ from ..lib.text import bold, code, cuteCrop, fixWords
 from ..config import (
     bot, dp, WIKICOMMANDS, _, LANGS_LIST, UNIQUE_COMMANDS
 )
+
+
+def sort_kb(buttons, row_line=2):
+    keyboard = InlineKeyboardMarkup()
+
+    for ind, __ in enumerate(buttons):
+        a = buttons[ind:ind + row_line]
+
+        try:
+            for i in range(1, row_line if len(buttons) > row_line else len(buttons)):
+                buttons.remove(a[i])
+        except IndexError:
+            pass
+
+        keyboard.add(*a)
+
+    return keyboard
+
+
+@dp.message_handler(commands=["wiki2"])
+@handlers.wikipya_handler
+def wiki():
+    return Wikipya("ru")
 
 
 @dp.message_handler(commands=["railgun"])
@@ -128,8 +153,8 @@ async def wiki(message, fname, base_url="https://{lang}.wikipedia.org/w/api.php"
         if query is None:
             command, query = message.text.split(maxsplit=1)
 
-        page, image, url = await w.get_all(query, is_lurk)
-        text = fixWords(page.parsed)
+        page, image, url = await w.get_all(query, is_lurk, get_full_page=False)
+        text = fixWords(page.text)
 
     except NotFound:
         await message.reply(_("errors.not_found"))
@@ -140,6 +165,14 @@ async def wiki(message, fname, base_url="https://{lang}.wikipedia.org/w/api.php"
             _("errors.enter_wiki_query").format(message.text),
             parse_mode="Markdown")
         return
+
+    # sections = await w.sections(page.title)
+    # buttons = [Button("Главная", callback_data=f"{sections.pageid} 0")]
+
+    # for section in sections.sections:
+    #     buttons.append(Button(section.title, callback_data=f"{sections.pageid} {section.number}"))
+
+    # kb = sort_kb(buttons, row_line=3)
 
     soup = BeautifulSoup(text, "lxml")
 
@@ -173,7 +206,7 @@ async def wiki(message, fname, base_url="https://{lang}.wikipedia.org/w/api.php"
             await message.reply(
                 cuteCrop(text, limit=4096),
                 parse_mode="HTML",
-                disable_web_page_preview=True
+                disable_web_page_preview=True,
             )
 
     except Exception as e:
