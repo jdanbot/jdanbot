@@ -19,7 +19,7 @@ def prettyword(n: int, forms: Union[list, tuple, str]) -> str:
         return forms[2]
 
 
-def cuteCrop(text: str, limit: int = 100) -> str:
+def cute_crop(text: str, limit: int = 100) -> str:
     return (textwrap.shorten(text.replace("\n", "<br>"), limit, placeholder="")
                     .replace("<br>", "\n")
                     .replace("• ", "<b>• </b>"))

@@ -1,6 +1,7 @@
 from .config import bot, dp, LANGS_LIST
 from .lib.text import code, bold
 
+from aiogram import types
 from aiogram.types import InputTextMessageContent, \
                           InlineQueryResultAudio, InlineQueryResultArticle
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -11,7 +12,7 @@ from .lib import chez
 
 
 @dp.chosen_inline_handler(lambda query: query.query.startswith("wiki"))
-async def test(query):
+async def test(query: types.CallbackQuery):
     params = query.query.split(maxsplit=1)
 
     lang = params[0].split(":", maxsplit=1)
@@ -30,7 +31,7 @@ async def test(query):
 @dp.inline_handler(lambda query: True and
                    query.query.startswith("w") and
                    len(query.query.split(maxsplit=1)) == 2)
-async def query_text(query):
+async def query_text(query: types.CallbackQuery):
     if not (query.query.endswith(".") or
             query.query.endswith("?") or
             query.query.endswith("!")):

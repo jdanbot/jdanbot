@@ -4,7 +4,7 @@ from tghtml import TgHTML
 
 from ..config import dp, _
 from ..lib import handlers
-from ..lib.text import bold, cuteCrop
+from ..lib.text import bold, cute_crop
 
 
 @dp.message_handler(commands="scp")
@@ -53,9 +53,9 @@ async def scp(message, params):
     if len(images) > 0:
         await message.answer_photo(
             images[0]["src"],
-            cuteCrop(parsed_text, 1024),
+            cute_crop(parsed_text, 1024),
             parse_mode="HTML"
         )
 
     else:
-        await message.reply(cuteCrop(parsed_text, 4096), "HTML")
+        await message.reply(cute_crop(parsed_text, 4096), "HTML")

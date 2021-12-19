@@ -1,3 +1,5 @@
+from aiogram import types
+
 from peewee import CharField, IntegerField, Model
 from .connection import db
 
@@ -12,7 +14,7 @@ class Event(Model):
         database = db
         primary_key = False
 
-    def reg_user_in_db(message):
+    def reg_user_in_db(message: types.Message) -> bool:
         # TODO: USE CREATE_OR_GET
 
         user = message.from_user
@@ -30,3 +32,4 @@ class Event(Model):
             ).execute()
 
             return True
+        return False

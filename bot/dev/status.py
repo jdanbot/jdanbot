@@ -1,3 +1,5 @@
+from aiogram import types
+
 import subprocess  # noqa: S404
 from datetime import datetime
 from sys import platform
@@ -11,7 +13,7 @@ from ..lib.libtree import make_tree
 
 
 @dp.message_handler(commands=["status"])
-async def get_status(message):
+async def get_status(message: types.Message):
     mem = psutil.virtual_memory()
     cpu = psutil.cpu_percent()
     time = str(datetime.now() - START_TIME)
@@ -32,7 +34,7 @@ async def get_status(message):
                         parse_mode="Markdown")
 
 
-def getCurrentCommit():
+def getCurrentCommit() -> str:
     git_command = ["git", "rev-parse", "--short", "HEAD"]
     return subprocess.check_output(git_command) \
                      .decode("utf-8") \

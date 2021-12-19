@@ -15,7 +15,10 @@ class Pidor(Model):
         database = db
         primary_key = False
 
-    async def getPidorInfo(chat_id, period=datetime.timedelta(hours=24)):
+    async def getPidorInfo(
+        chat_id: int,
+        period: datetime.timedelta = datetime.timedelta(hours=24)
+    ) -> list["Pidor"]:
         period_bound = int((datetime.datetime.now() - period).timestamp())
 
         return list(Pidor.select()

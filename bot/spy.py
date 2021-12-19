@@ -1,19 +1,20 @@
+from aiogram import types
 from peewee import fn, SQL
 
 from .config import bot, dp, Event, Command, _
 from .lib.text import code, prettyword, fixHTML
 
 
-def _user_counter(users):
+def _user_counter(users: int) -> str:
     return prettyword(users, _("cases.users"))
 
 
-def _command_counter(users):
+def _command_counter(users: int) -> str:
     return prettyword(users, _("cases.commands"))
 
 
 @dp.message_handler(commands=["me"])
-async def me_info(message):
+async def me_info(message: types.Message):
     chats = (
         Event.select(fn.Count(SQL("*")))
              .where(Event.user_id == message.from_user.id)
@@ -35,7 +36,7 @@ async def me_info(message):
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,
                     commands=["stats"])
-async def calc_stats(message):
+async def calc_stats(message: types.Message):
     chat_users = (
         Event.select(fn.Count(SQL("*")))
              .where(Event.chat_id == message.chat.id)

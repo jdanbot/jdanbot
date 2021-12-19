@@ -10,7 +10,7 @@ buttons = [
 ]
 
 
-def generate_menu_keyboard():
+def generate_menu_keyboard() -> types.InlineKeyboardMarkup:
     keyboard = types.InlineKeyboardMarkup()
     btns = [types.InlineKeyboardButton(
                 text=_(f"menu.buttons.{button}"),
@@ -26,7 +26,7 @@ def generate_menu_keyboard():
 
 
 @dp.message_handler(commands=["new_menu", "start", "help"])
-async def menu(message):
+async def menu(message: types.Message):
     await message.reply(_("menu.main"), parse_mode="HTML",
                         reply_markup=generate_menu_keyboard(),
                         disable_web_page_preview=True)
@@ -38,7 +38,7 @@ async def callback_worker(call):
     await edit(call, _(f"menu.{call.data}"))
 
 
-async def edit(call, text):
+async def edit(call, text: str):
     try:
         await bot.edit_message_text(
             chat_id=call.message.chat.id,

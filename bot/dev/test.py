@@ -1,3 +1,5 @@
+from aiogram import types
+
 import asyncio
 from time import perf_counter
 
@@ -6,7 +8,7 @@ from ..lib.text import bold, code
 
 
 @dp.message_handler(commands=["ping", "p"])
-async def ping(message):
+async def ping(message: types.Message):
     start = perf_counter()
     msg = await message.answer("⚾️ Think...")
 

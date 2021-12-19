@@ -19,8 +19,12 @@ class Poll(Model):
         database = db
         primary_key = False
 
-    async def add(user_id, chat_id,
-                  poll_id, description):
+    async def add(
+        user_id: int,
+        chat_id: int,
+        poll_id: int,
+        description: str
+    ):
         now = datetime.datetime.now()
         period = int(now.timestamp())
 

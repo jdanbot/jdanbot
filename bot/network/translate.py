@@ -1,7 +1,7 @@
 from ..lib.multitran import GoogleTranslator
 from ..config import dp, GTRANSLATE_LANGS
 from ..lib import handlers
-from ..lib.text import cuteCrop
+from ..lib.text import cute_crop
 
 from random import choice
 
@@ -18,7 +18,7 @@ async def translate(message, query):
 
     text = await t.translate(query, tgt_lang=lang)
 
-    await message.reply(cuteCrop(text, limit=4096),
+    await message.reply(cute_crop(text, limit=4096),
                         disable_web_page_preview=True)
 
     await t.close()

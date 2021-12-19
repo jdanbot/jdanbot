@@ -1,25 +1,26 @@
-from bot.lib.bash import BashOrg
+from aiogram import types
 
 from ..config import dp, _
 from ..lib import handlers
+from ..lib.bash import BashOrg
 
 
 @dp.message_handler(commands=["bashorg", "bashim", "b"])
-@handlers.parse_arguments(2, without_params=True)
-async def bashorg(message, params):
+@handlers.parse_arguments(1, without_params=True)
+async def bashorg(message: types.Message, query: int = None):
     bash = BashOrg()
 
-    if len(params) == 1:
-        quotes = await bash.random()
-        quote = quotes[0]
-    else:
+    if query:
         try:
-            id = int(params[1])
+            id = int(query)
         except ValueError:
             message.reply(_("errors.invalid_post_id"))
             return
 
         quote = await bash.quote(id)
+    else:
+        quotes = await bash.random()
+        quote = quotes[0]
 
     await message.reply(
         "<a href='https://bash.im/quote/{}'>#{}</a>, {}\n\n{}".format(

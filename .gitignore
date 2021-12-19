@@ -15,3 +15,4 @@ memory
 file:memory?cache=shared
 
 .vscode
+*.prod.*

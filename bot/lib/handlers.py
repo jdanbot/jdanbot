@@ -1,13 +1,11 @@
-from .text import cuteCrop
 from ..config import bot, Note, _
 
 from .admin import check_admin
+from .models import Article
+
 from random import randint
 
 from aiogram import types
-
-from dataclasses import dataclass
-from typing import Optional
 
 from wikipya.clients import MediaWiki
 
@@ -23,7 +21,7 @@ def randomed_start(func):
 def parse_arguments(limit, without_params=False):
     def argument_wrapper(func):
         async def wrapper(message):
-            params = message.get_full_command()[1].split(maxsplit=limit)
+            params = message.get_full_command()[1].split(maxsplit=limit - 1)
 
             if len(params) < limit and not without_params:
                 await message.reply(
@@ -54,21 +52,21 @@ def check(var, without_params=False):
 
 
 def get_text(func):
-    @parse_arguments(2, without_params=True)
-    async def wrapper(message, params):
+    @parse_arguments(1, without_params=True)
+    async def wrapper(message, query=None):
         reply = message.reply_to_message
 
         if reply and reply.text:
             text = reply.text
         elif reply and reply.caption:
             text = reply.caption
-        elif len(params) == 2:
-            text = params[1]
+        elif query:
+            text = query
         else:
             await message.reply(_("errors.few_args", num=1), parse_mode="Markdown")
             return
 
-        await func(message, text)
+        return await func(message, text)
 
     return wrapper
 
@@ -89,26 +87,11 @@ def only_admins(func):
     return wrapper
 
 
-@dataclass
-class Article:
-    text: str
-    image: Optional[str] = None
-    keyboard: Optional[types.InlineKeyboardMarkup] = None
-
-    def __post_init__(self):
-        limit = 1024 if self.image else 4096
-
-        if (new_text := cuteCrop(self.text, limit=limit)) != "":
-            self.text = new_text
-        else:
-            self.text[:limit]
-
-
 def wikipya_handler(func):
     @send_article
     @parse_arguments(1, without_params=True)
     async def wrapper(message: types.Message, query: str) -> Article:
-        wiki: MediaWiki = func().get_instance()
+        wiki: MediaWiki = (await func(message)).get_instance()
         page, image, url = await wiki.get_all(query)
 
         return Article(page.parsed, None if image == -1 else image)
@@ -117,8 +100,8 @@ def wikipya_handler(func):
 
 
 def send_article(func):
-    async def wrapper(message: types.Message):
-        result = await func(message)
+    async def wrapper(message: types.Message, *args):
+        result = await func(message, *args)
 
         if result.image:
             await message.answer_chat_action("upload_photo")

@@ -1,3 +1,5 @@
+from aiogram import types
+
 from ..config import dp
 from ..lib.aioget import aioget
 
@@ -14,13 +16,13 @@ CURRENCIES = {
 MONOBANK_LAST_REQUEST = {}
 
 
-def get_emoji(code):
+def get_emoji(code: int) -> str:
     emoji = CURRENCIES.get(code)
     return emoji if emoji is not None else code
 
 
 @dp.message_handler(commands=["mono"])
-async def monobank(message):
+async def monobank(message: types.Message):
     res = await aioget("https://api.monobank.ua/bank/currency")
     msg, cur = "", res.json()
 

@@ -9,7 +9,7 @@ class Anekru:
     def __init__(self):
         self.url = "https://www.anekdot.ru/rss/random.html"
 
-    async def get_random(self):
+    async def get_random(self) -> str:
         anek = await aioget(self.url)
         text = anek.text[135:-523]
 

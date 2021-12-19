@@ -16,8 +16,11 @@ class Warn(Model):
         database = db
         primary_key = False
 
-    async def count_warns(user_id, chat_id,
-                          period=datetime.timedelta(hours=24)):
+    async def count_warns(
+        user_id: int,
+        chat_id: int,
+        period: datetime.timedelta = datetime.timedelta(hours=24)
+    ) -> int:
         period_bound = int((datetime.datetime.now() - period).timestamp())
 
         return (Warn.select(fn.Count(SQL("*")))
@@ -27,7 +30,7 @@ class Warn(Model):
                         Warn.chat_id == chat_id
                     ).count())
 
-    def mark_chat_member(user_id, chat_id, admin_id, reason):
+    def mark_chat_member(user_id: int, chat_id: int, admin_id: int, reason: str):
         Warn.insert(user_id=user_id, admin_id=admin_id,
                     chat_id=chat_id, reason=reason,
                     timestamp=int(datetime.datetime.now().timestamp())) \
