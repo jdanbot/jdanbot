@@ -6,6 +6,7 @@ from .models import Article
 from random import randint
 
 from aiogram import types
+from bs4 import BeautifulSoup
 
 from wikipya.clients import MediaWiki
 
@@ -94,7 +95,23 @@ def wikipya_handler(func):
         wiki: MediaWiki = (await func(message)).get_instance()
         page, image, url = await wiki.get_all(query)
 
-        return Article(page.parsed, None if image == -1 else image)
+        soup = BeautifulSoup(page.parsed, "lxml")
+
+        i = soup.find_all("i")
+        b = soup.find_all("b")
+
+        if len(i) != 0:
+            i[0].unwrap()
+
+        if len(b) != 0:
+            if url is not None:
+                b = b[0]
+                b.name = "a"
+                b["href"] = url
+                b = b.wrap(soup.new_tag("b"))
+
+        text = unbody(soup)
+        return Article(text, None if image == -1 else image)
 
     return wrapper
 
@@ -120,3 +137,9 @@ def send_article(func):
             )
 
     return wrapper
+
+
+def unbody(html):
+    return str(html).replace("<p>", "").replace("</p>", "") \
+                    .replace("<html><body>", "") \
+                    .replace("</body></html>", "")

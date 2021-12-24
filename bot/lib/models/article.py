@@ -6,7 +6,6 @@ from aiogram import types
 from ..text import cute_crop
 
 
-
 @dataclass
 class Article:
     text: str
