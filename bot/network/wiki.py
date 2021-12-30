@@ -1,5 +1,4 @@
 from aiogram import types
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton as Button
 
 from tghtml import TgHTML
 from wikipya import Wikipya
@@ -8,23 +7,6 @@ from ..lib import handlers
 from ..lib.text import bold, fixWords
 from ..lib.models import Article
 from ..config import dp, _, WIKICOMMANDS, LANGS_LIST, UNIQUE_COMMANDS
-
-
-def sort_kb(buttons, row_line=2):
-    keyboard = InlineKeyboardMarkup()
-
-    for ind, __ in enumerate(buttons):
-        a = buttons[ind:ind + row_line]
-
-        try:
-            for i in range(1, row_line if len(buttons) > row_line else len(buttons)):
-                buttons.remove(a[i])
-        except IndexError:
-            pass
-
-        keyboard.add(*a)
-
-    return keyboard
 
 
 @dp.message_handler(commands=["railgun"])

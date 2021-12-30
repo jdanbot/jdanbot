@@ -1,3 +1,6 @@
+from typing import Optional
+
+from aiogram import types
 from datetime import datetime, timedelta
 
 import math
@@ -7,11 +10,11 @@ from .text import prettyword
 
 
 async def ban(
-    message,
-    reply,
-    time=1,
-    reason=None,
-    is_repost_allowed=True
+    message: types.Message,
+    reply: types.Message,
+    time: int = 1,
+    reason: Optional[str] = None,
+    is_repost_allowed: bool = True
 ):
     if reason is None:
         reason = _("ban.reason_not_found")
@@ -23,6 +26,7 @@ async def ban(
         try:
             bt = datetime.time.fromisoformat(time)
         except ValueError:
+            # TODO: Add to localization
             await message.reply("Введи валидное кол-во минут")
             return
 
@@ -77,9 +81,9 @@ async def ban(
 
 
 async def warn(
-    message,
-    reply,
-    reason=None
+    message: types.Message,
+    reply: types.Message,
+    reason: Optional[str] = None
 ):
     if reason is None:
         reason = _("ban.reason_not_found")
@@ -124,7 +128,7 @@ async def warn(
         await message.delete()
 
 
-async def unwarn(message, reply):
+async def unwarn(message: types.Message, reply: types.Message):
     user_id = reply.from_user.id
 
     if user_id == message.from_user.id:
