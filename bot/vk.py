@@ -2,7 +2,7 @@ from aiogram.types import InputMediaPhoto
 
 import json
 from .config import bot, vk_api, Feed, VK_FEEDS
-from .lib.text import cuteCrop
+from .lib.text import cute_crop
 
 
 async def vk_timer():
@@ -37,7 +37,7 @@ async def vk_timer():
 
             if len(links) == 1:
                 await bot.send_photo(feed["chat_id"], links[0],
-                                     cuteCrop(item["text"], 1000))
+                                     cute_crop(item["text"], 1000))
 
             elif len(links) > 1:
                 photos = []
@@ -47,10 +47,10 @@ async def vk_timer():
 
                 if item["text"] != "":
                     photos[0] = InputMediaPhoto(links[0],
-                                                cuteCrop(item["text"], 1000))
+                                                cute_crop(item["text"], 1000))
 
                 await bot.send_media_group(feed["chat_id"], photos)
 
             elif item["text"] != "":
                 await bot.send_message(feed["chat_id"],
-                                       cuteCrop(item["text"], 4096))
+                                       cute_crop(item["text"], 4096))
