@@ -126,7 +126,8 @@ def sections_to_keyboard(
     ) for section in sections]
 
     buttons.insert(0, Button(
-        f"✅ {sections[0].from_title}" if active_section == 0 else sections[0].from_title,
+        f"✅ {sections[0].from_title.replace('_', ' ')}" if active_section == 0
+        else sections[0].from_title.replace("_", " "),
         callback_data=f"{prefix} {sections[0].from_title} 0")
     )
 
@@ -193,7 +194,7 @@ def send_article(func):
                 reply_markup=result.keyboard,
             )
         else:
-            if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
+            if isinstance(message, types.CallbackQuery):
                 message = message.message
                 message.reply = message.edit_text
 
