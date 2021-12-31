@@ -9,57 +9,48 @@ from ..lib.models import Article
 from ..config import dp, _, WIKICOMMANDS, LANGS_LIST, UNIQUE_COMMANDS
 
 
-@dp.message_handler(commands=["railgun"])
-@handlers.wikipya_handler
+@handlers.wikipya_handler("railgun")
 async def railgun(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://toarumajutsunoindex.fandom.com/api.php", is_lurk=True)
 
 
-@dp.message_handler(commands=["fallout"])
-@handlers.wikipya_handler
+@handlers.wikipya_handler("fallout")
 async def fallout(message: types.Message) -> Wikipya:
-    return Wikipya(base_url="https://fallout.fandom.com/ru/api.php", is_lurk=True, prefix="")
+    return Wikipya(base_url="https://fallout.fandom.com/ru/api.php")
 
 
-@dp.message_handler(commands=["kaiser", "kaiserreich"])
-@handlers.wikipya_handler
+@handlers.wikipya_handler("kaiser", "kaiserreich")
 async def kaiser(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://kaiserreich.fandom.com/ru/api.php", is_lurk=True)
 
 
-@dp.message_handler(commands=["doom"])
-@handlers.wikipya_handler
+@handlers.wikipya_handler("doom")
 async def doom(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://doom.fandom.com/api.php", is_lurk=True)
 
 
-@dp.message_handler(commands=["lurk"])
-@handlers.wikipya_handler
+@handlers.wikipya_handler("lurk")
 async def Lurk(message: types.Message) -> Wikipya:
     return Wikipya(base_url="http://lurkmore.to/api.php", is_lurk=True, prefix="")
 
 
-@dp.message_handler(commands=["absurd"])
-@handlers.wikipya_handler
+@handlers.wikipya_handler("lurk")
 async def absurd(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://absurdopedia.net/w/api.php", is_lurk=True, prefix="/wiki")
 
 
-@dp.message_handler(commands=["mrakopedia", "pizdec"])
-@handlers.wikipya_handler
+@handlers.wikipya_handler("pizdec", "mrakopedia")
 async def pizdec(message: types.Message) -> Wikipya:
     #TODO: Recheck foto getter
-    return Wikipya(base_url="https://mrakopedia.net/w/api.php", is_lurk=True, prefix="/wiki")
+    return Wikipya(base_url="https://mrakopedia.net/w/api.php", is_lurk=False, prefix="/wiki")
 
 
-@dp.message_handler(commands=["archwiki"])
-@handlers.wikipya_handler
+@handlers.wikipya_handler("archwiki")
 async def archwiki(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://wiki.archlinux.org/api.php", is_lurk=True)
 
 
-@dp.message_handler(commands=["encycl"])
-@handlers.wikipya_handler
+@handlers.wikipya_handler("encycl")
 async def encyclopedia(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://encyclopatia.ru/w/api.php", is_lurk=True, prefix="/wiki")
 
@@ -70,9 +61,13 @@ async def getLangs(message: types.Message):
                         disable_web_page_preview=True)
 
 
-@dp.message_handler(commands=WIKICOMMANDS)
-@handlers.wikipya_handler
+@handlers.wikipya_handler(*WIKICOMMANDS)
 async def wikihandler(message: types.Message) -> Wikipya:
+    try:
+        message.text = message.reply_to_message.text
+    except AttributeError:
+        pass
+
     command = message.text.split()[0]
     lang = command.replace("/wiki", "").replace("/w", "")
 

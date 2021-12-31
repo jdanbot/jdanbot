@@ -1,4 +1,4 @@
-from ..config import bot, Note, _
+from ..config import dp, bot, Note, _
 
 from .admin import check_admin
 from .models import Article
@@ -6,9 +6,28 @@ from .models import Article
 from random import randint
 
 from aiogram import types
+from aiogram.types import InlineKeyboardButton as Button
 from bs4 import BeautifulSoup
 
 from wikipya.clients import MediaWiki
+from wikipya import models
+
+
+def sort_kb(buttons: list[Button], row_line: int = 2) -> types.InlineKeyboardMarkup:
+    keyboard = types.InlineKeyboardMarkup()
+
+    for ind, __ in enumerate(buttons):
+        a = buttons[ind:ind + row_line]
+
+        try:
+            for i in range(1, row_line if len(buttons) > row_line else len(buttons)):
+                buttons.remove(a[i])
+        except IndexError:
+            pass
+
+        keyboard.add(*a)
+
+    return keyboard
 
 
 def randomed_start(func):
@@ -22,7 +41,14 @@ def randomed_start(func):
 def parse_arguments(limit, without_params=False):
     def argument_wrapper(func):
         async def wrapper(message):
-            params = message.get_full_command()[1].split(maxsplit=limit - 1)
+            try:
+                params = message.get_full_command()[1].split(maxsplit=limit - 1)
+            except AttributeError:
+                params_raw = message.data.split()
+                params = " ".join(params_raw[1:-1]).split(maxsplit=limit - 1)
+                params.append(int(params_raw[-1]))
+
+                message = message.message
 
             if len(params) < limit and not without_params:
                 await message.reply(
@@ -88,32 +114,70 @@ def only_admins(func):
     return wrapper
 
 
-def wikipya_handler(func):
-    @send_article
-    @parse_arguments(1, without_params=True)
-    async def wrapper(message: types.Message, query: str) -> Article:
-        wiki: MediaWiki = (await func(message)).get_instance()
-        page, image, url = await wiki.get_all(query)
+def sections_to_keyboard(
+    sections: list[models.Section],
+    active_section: int,
+    prefix: str
+) -> types.InlineKeyboardMarkup:
+    buttons = [Button(
+        f"✅ {section.number}. {section.title}" if active_section == section.index
+        else f"{section.number}. {section.title}",
+        callback_data=f"{prefix} {section.from_title} {section.index}"
+    ) for section in sections]
 
-        soup = BeautifulSoup(page.parsed, "lxml")
+    buttons.insert(0, Button(
+        f"✅ {sections[0].from_title}" if active_section == 0 else sections[0].from_title,
+        callback_data=f"{prefix} {sections[0].from_title} 0")
+    )
 
-        i = soup.find_all("i")
-        b = soup.find_all("b")
+    return sort_kb(buttons)
 
-        if len(i) != 0:
-            i[0].unwrap()
 
-        if len(b) != 0:
-            if url is not None:
-                b = b[0]
-                b.name = "a"
-                b["href"] = url
-                b = b.wrap(soup.new_tag("b"))
+def wikipya_handler(*prefix):
+    def argument_wrapper(func):
+        @dp.message_handler(commands=prefix)
+        @dp.callback_query_handler(lambda x: x.data.startswith(f"{prefix[0]} "))
+        @send_article
+        @parse_arguments(1, without_params=True)
+        async def wrapper(message: types.Message, query: str, section: int = 0) -> Article:
+            wiki: MediaWiki = (await func(message)).get_instance()
 
-        text = unbody(soup)
-        return Article(text, None if image == -1 else image)
+            if section == 0:
+                page, image, url = await wiki.get_all(query)
 
-    return wrapper
+                soup = BeautifulSoup(page.parsed, "lxml")
+
+                i = soup.find_all("i")
+                b = soup.find_all("b")
+
+                if len(i) != 0:
+                    i[0].unwrap()
+
+                if len(b) != 0:
+                    if url is not None:
+                        b = b[0]
+                        b.name = "a"
+                        b["href"] = image if image != -1 else url
+                        b = b.wrap(soup.new_tag("b"))
+
+                text = unbody(soup)
+            else:
+                page = await wiki.page(query, section=section)
+
+                text = page.parsed
+                image = -1
+
+            sections = (await wiki.sections(page.title)).sections
+
+            image = -1
+
+            return Article(
+                text,
+                keyboard=sections_to_keyboard(sections, section, prefix[0])
+            )
+
+        return wrapper
+    return argument_wrapper
 
 
 def send_article(func):
@@ -129,10 +193,14 @@ def send_article(func):
                 reply_markup=result.keyboard,
             )
         else:
+            if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
+                message = message.message
+                message.reply = message.edit_text
+
             await message.reply(
                 result.text,
                 parse_mode="HTML",
-                disable_web_page_preview=True,
+                disable_web_page_preview=False,
                 reply_markup=result.keyboard,
             )
 
