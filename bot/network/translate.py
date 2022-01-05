@@ -1,3 +1,5 @@
+from aiogram import types
+
 from ..lib.multitran import GoogleTranslator
 from ..config import dp, GTRANSLATE_LANGS
 from ..lib import handlers
@@ -8,10 +10,10 @@ from random import choice
 
 @dp.message_handler(commands=[f"t{lang}" for lang in GTRANSLATE_LANGS])
 @handlers.get_text
-async def translate(message, query):
+async def translate(message: types.Message, query: str):
     t = GoogleTranslator()
 
-    if (command := message.get_command()) != "/tua":
+    if (command := message.get_command().split("@")[0]) != "/tua":
         lang = command[2:]
     else:
         lang = "uk"
@@ -26,7 +28,7 @@ async def translate(message, query):
 
 @dp.message_handler(commands=["crazy"])
 @handlers.get_text
-async def crazy_translator(message, text):
+async def crazy_translator(message: types.Message, text: str):
     t = GoogleTranslator()
 
     for _ in range(0, 14):
