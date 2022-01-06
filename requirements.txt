@@ -18,3 +18,4 @@ tghtml==1.0.6
 wikipya==4.0.0b3
 todoist-python
 pydantic
+emoji
