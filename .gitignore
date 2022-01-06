@@ -4,6 +4,8 @@ config*.yml
 .secrets.yml
 .secrets.toml
 
+settings.toml
+
 *.py[cod]
 *$py.class
 
