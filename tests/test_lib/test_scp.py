@@ -12,5 +12,3 @@ async def test_search():
 async def test_page():
     scp = SCP()
     object = await scp.page("http://scp-ru.wikidot.com/scp-1488")
-
-    print(object)
