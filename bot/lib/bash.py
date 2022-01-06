@@ -24,7 +24,7 @@ class Quote:
         return Quote(
             id=int(soup.header.a.text[1:]),
             time=soup.header.div.text.strip().replace("  ", " "),
-            text=TgHTML(soup.find(class_="quote__body").text.strip()).parsed
+            text=TgHTML(soup.find(class_="quote__body").text.strip()).parsed.strip()
         )
 
 
