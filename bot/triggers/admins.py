@@ -2,7 +2,6 @@ from aiogram import types
 
 from ..config import _, bot, dp
 from ..lib import handlers
-from ..lib.admin import get_tag
 
 
 @dp.message_handler(commands=["admins"])
@@ -31,7 +30,7 @@ async def call_admin(call):
                                             callback_data="delete"))
 
     admins = await bot.get_chat_administrators(call.message.chat.id)
-    usernames = [get_tag(admin.user) for admin in admins]
+    usernames = [admin.user.get_mention(as_html=True) for admin in admins]
     admins_call = ", ".join(usernames) + "\n\n"
 
     await call.message.edit_text(
