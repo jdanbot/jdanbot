@@ -55,6 +55,19 @@ async def encyclopedia(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://encyclopatia.ru/w/api.php", is_lurk=True, prefix="/wiki")
 
 
+@handlers.wikipya_handler("mediawiki", extract_query_from_url=True)
+async def custom_mediawiki(message: types.Message) -> Wikipya:
+    try:
+        message.text = message.reply_to_message.text
+    except AttributeError:
+        pass
+
+    url = message.get_full_command()[1].split("/")
+    base_url = f"{'/'.join(url[:3])}/api.php"
+
+    return Wikipya(base_url=base_url)
+
+
 @dp.message_handler(commands=["langs", "wikilangs", "wiki_langs"])
 async def getLangs(message: types.Message):
     await message.reply(_("wiki.langs"), parse_mode="Markdown",

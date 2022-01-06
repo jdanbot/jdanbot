@@ -134,13 +134,17 @@ def sections_to_keyboard(
     return sort_kb(buttons)
 
 
-def wikipya_handler(*prefix):
+def wikipya_handler(*prefix, extract_query_from_url=False):
     def argument_wrapper(func):
         @dp.message_handler(commands=prefix)
         @dp.callback_query_handler(lambda x: x.data.startswith(f"{prefix[0]} "))
         @send_article
         @parse_arguments(1, without_params=True)
         async def wrapper(message: types.Message, query: str, section: int = 0) -> Article:
+            if extract_query_from_url:
+                url = query.split("/")
+                query = url[-1]
+
             wiki: MediaWiki = (await func(message)).get_instance()
 
             if section == 0:
