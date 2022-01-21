@@ -32,15 +32,19 @@ class Chat(Model):
     @property
     def can_run_pidor_finder(self) -> bool:
         if self.pidor is None:
-            return 
+            return True
             
         period_bound = datetime.now() - timedelta(hours=24)
         return self.pidor.when_pidor_of_day <= period_bound
 
     def get_by_message(message: types.Message) -> "Chat":
         chat = message.chat
+        defaults = dict(chat.title, username=chat.username)
 
         if chat.id > 0:
             chat.title = message.from_user.full_name
 
-        return Chat.get_or_create(id=chat.id, title=chat.title, username=chat.username)[0]
+        Chat.get_or_create(id=chat.id, defaults=defaults)
+        Chat.update(**defaults).where(Chat.id == chat.id).execute()
+
+        return Chat.get_by_id(chat.id)

@@ -22,10 +22,12 @@ class User(Model):
 
     def get_by_message(message: types.Message) -> "User":
         user = message.from_user
+        defaults = dict(username=user.username, first_name=user.first_name, last_name=user.last_name)
         
-        return User.get_or_create(
-            id=user.id,
-            username=user.username,
-            first_name=user.first_name,
-            last_name=user.last_name
+        User.get_or_create(
+            id=user.id, defaults=defaults
         )[0]
+
+        User.update(**defaults).where(User.id == user.id).execute()
+
+        return User.get_by_id(user.id)
