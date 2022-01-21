@@ -1,11 +1,13 @@
-from peewee import CharField, IntegerField, Model
+from datetime import datetime
+from peewee import CharField, DateTimeField, IntegerField, Model
 from .connection import db
 
 
 class Command(Model):
-    chat_id = IntegerField()
-    user_id = IntegerField()
+    member_id = IntegerField()
     command = CharField()
+    params = CharField()
+    when_runned = DateTimeField(default=datetime.now)
 
     class Meta:
         db_table = "commands"

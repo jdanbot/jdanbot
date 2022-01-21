@@ -3,4 +3,6 @@ en:
   no_rights_for_edit: No rights for edit this note
   add_note: Note added to DB
   add_system_note: System note added to DB
+  edit_note: Note edited in DB
+  edit_system_note: System note edited in DB
   create_var: Create variable with /set

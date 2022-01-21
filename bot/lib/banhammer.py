@@ -5,7 +5,8 @@ from datetime import datetime, timedelta
 
 import math
 
-from ..config import bot, TIMEZONE, Warn, _, Note
+from ..config import bot, TIMEZONE, _
+from ..database import Warn, ChatMember, Note
 from .text import prettyword
 
 
@@ -93,16 +94,16 @@ async def warn(
     except Exception:
         WARNS_TO_BAN = 3
 
-    wtbans = await Warn.count_warns(reply.from_user.id,
-                                    reply.chat.id,
-                                    period=timedelta(hours=23))
+    warned = ChatMember.get_by_message(reply)
+
+    wtbans = Warn.count_warns(warned.id)
     wtbans += 1
 
     warn_log = _(
         "ban.warn",
-        name=reply.from_user.full_name,
+        name=warned.user.full_name,
         banchik=message.from_user.full_name,
-        userid=reply.from_user.id,
+        userid=warned.user.id,
         why=reason,
         i=wtbans
     )
@@ -116,9 +117,8 @@ async def warn(
 
     await reply.reply(warn_log, parse_mode="HTML")
 
-    Warn.mark_chat_member(reply.from_user.id,
-                          reply.chat.id,
-                          message.from_user.id,
+    Warn.mark_chat_member(warned.id,
+                          ChatMember.get_by_message(message).id,
                           reason=reason)
 
     if wtbans >= WARNS_TO_BAN:
@@ -135,24 +135,19 @@ async def unwarn(message: types.Message, reply: types.Message):
         await message.reply(_("ban.admin_cant_unwarn_self"))
         return
 
-    period = timedelta(hours=24)
-    period_bound = int((datetime.now(TIMEZONE) - period).timestamp())
-
-    user_warns = list(Warn.select()
-                          .where(Warn.timestamp >= period_bound,
-                                 Warn.user_id == user_id)
-                          .order_by(-Warn.timestamp))
+    user = ChatMember.get_by_message(reply)
+    admin = ChatMember.get_by_message(message)
+    user_warns = Warn.get_user_warns(user.id)
 
     if len(user_warns) == 0:
         await message.reply(_("ban.warns_not_found"))
         return
 
-    last_warn = user_warns[0]
-
-    (Warn.delete()
-         .where(Warn.user_id == user_id,
-                Warn.timestamp == last_warn.timestamp)
-         .execute())
+    last_warn = user_warns[-1]
+    Warn.update(
+        who_unwarn_id=admin.id,
+        unwarned_at=datetime.now()
+    ).where(Warn.id == last_warn.id).execute()
 
     unwarn_log = _(
         "ban.unwarn",

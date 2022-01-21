@@ -5,6 +5,8 @@ from .timer import youtube_task
 from .lib import handlers
 from .lib.banhammer import ban, warn, unwarn
 
+from .database import ChatMember
+
 
 @dp.message_handler(commands=["mute"])
 @handlers.check("__enable_admin__")
@@ -54,10 +56,10 @@ async def kz_poll(message: types.Message, name: str):
 
     if is_katz_bots:
         await poll.pin(disable_notification=True)
-        await Poll.add(chat_id=message.chat.id,
-                       user_id=message.from_user.id,
-                       poll_id=poll.message_id,
-                       description=name)
+        Poll.insert(
+            id=poll.message_id,
+            author_id=ChatMember.get_by_message(message).id,
+            description=name).execute()
 
     await message.delete()
 
