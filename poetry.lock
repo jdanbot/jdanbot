@@ -36,19 +36,6 @@ yarl = ">=1.0,<2.0"
 speedups = ["aiodns", "brotli", "cchardet"]
 
 [[package]]
-name = "aiohttp-socks"
-version = "0.7.1"
-description = "Proxy connector for aiohttp"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-aiohttp = ">=2.3.2"
-attrs = ">=19.2.0"
-python-socks = {version = ">=2.0.0,<3.0.0", extras = ["asyncio"]}
-
-[[package]]
 name = "aioschedule"
 version = "0.5.2"
 description = "Job scheduling for humans."
@@ -68,16 +55,16 @@ python-versions = ">=3.6"
 frozenlist = ">=1.1.0"
 
 [[package]]
-name = "aiovk"
-version = "4.0.0"
-description = "vk.com API python wrapper for asyncio"
+name = "aiovk-new"
+version = "0.0.1"
+description = "A simple async library for vk with pydantic & httpx"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.9,<4.0"
 
 [package.dependencies]
-aiohttp = ">=3.7.3"
-aiohttp-socks = ">=0.5.5"
+httpx = ">=0.21.3,<0.22.0"
+pydantic = ">=1.9.0,<2.0.0"
 
 [[package]]
 name = "anyio"
@@ -489,23 +476,6 @@ pytest = ">=5.4.0"
 testing = ["coverage", "hypothesis (>=5.7.1)"]
 
 [[package]]
-name = "python-socks"
-version = "2.0.1"
-description = "Core proxy (SOCKS4, SOCKS5, HTTP tunneling) functionality for Python"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-async-timeout = {version = ">=3.0.1", optional = true, markers = "extra == \"asyncio\""}
-
-[package.extras]
-anyio = ["anyio (>=3.3.4)"]
-asyncio = ["async-timeout (>=3.0.1)"]
-curio = ["curio (>=1.4)"]
-trio = ["trio (>=0.16.0)"]
-
-[[package]]
 name = "pytz"
 version = "2021.3"
 description = "World timezone definitions, modern and historical"
@@ -658,7 +628,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "8b323420052e3374b06e3717e6a1d253f4a01d1e6b0fd9659d6cb65952c66968"
+content-hash = "a8932ccff1e6b2b00c206d53c32308f89bb9dc02cb05c1daf052934c5e022369"
 
 [metadata.files]
 aiogram = [
@@ -739,10 +709,6 @@ aiohttp = [
     {file = "aiohttp-3.8.1-cp39-cp39-win_amd64.whl", hash = "sha256:1c182cb873bc91b411e184dab7a2b664d4fea2743df0e4d57402f7f3fa644bac"},
     {file = "aiohttp-3.8.1.tar.gz", hash = "sha256:fc5471e1a54de15ef71c1bc6ebe80d4dc681ea600e68bfd1cbce40427f0b7578"},
 ]
-aiohttp-socks = [
-    {file = "aiohttp_socks-0.7.1-py3-none-any.whl", hash = "sha256:94bcff5ef73611c6c6231c2ffc1be4af1599abec90dbd2fdbbd63233ec2fb0ff"},
-    {file = "aiohttp_socks-0.7.1.tar.gz", hash = "sha256:2215cac4891ef3fa14b7d600ed343ed0f0a670c23b10e4142aa862b3db20341a"},
-]
 aioschedule = [
     {file = "aioschedule-0.5.2.tar.gz", hash = "sha256:1fe8621d287f58cbba3d73695fbbd890355294ac0c01981a1fd1e4f0510fc744"},
 ]
@@ -750,9 +716,9 @@ aiosignal = [
     {file = "aiosignal-1.2.0-py3-none-any.whl", hash = "sha256:26e62109036cd181df6e6ad646f91f0dcfd05fe16d0cb924138ff2ab75d64e3a"},
     {file = "aiosignal-1.2.0.tar.gz", hash = "sha256:78ed67db6c7b7ced4f98e495e572106d5c432a93e1ddd1bf475e1dc05f5b7df2"},
 ]
-aiovk = [
-    {file = "aiovk-4.0.0-py3-none-any.whl", hash = "sha256:ddfe732440ed4b1aae7f3ab9b698f85e6889037b3c89b5a15aab27afc9332733"},
-    {file = "aiovk-4.0.0.tar.gz", hash = "sha256:0403ae10b9b8b3c4f1dafa5a4b7ecc474e67a8520954891ac437c7ae75987845"},
+aiovk-new = [
+    {file = "aiovk_new-0.0.1-py3-none-any.whl", hash = "sha256:895fd3e6990cd96ce2c5d1071145b07980a0bc015dad3c69df80f45a50ecd9a3"},
+    {file = "aiovk_new-0.0.1.tar.gz", hash = "sha256:6e533033412d4190b6e06ea9187fcdb48b93a0954d3f9c910c7b6065df6f0a9f"},
 ]
 anyio = [
     {file = "anyio-3.4.0-py3-none-any.whl", hash = "sha256:2855a9423524abcdd652d942f8932fda1735210f77a6b392eafd9ff34d3fe020"},
@@ -1145,10 +1111,6 @@ pytest = [
 pytest-asyncio = [
     {file = "pytest-asyncio-0.16.0.tar.gz", hash = "sha256:7496c5977ce88c34379df64a66459fe395cd05543f0a2f837016e7144391fcfb"},
     {file = "pytest_asyncio-0.16.0-py3-none-any.whl", hash = "sha256:5f2a21273c47b331ae6aa5b36087047b4899e40f03f18397c0e65fa5cca54e9b"},
-]
-python-socks = [
-    {file = "python-socks-2.0.1.tar.gz", hash = "sha256:533939935be35e16e6df3a3e11416f151bca7ca5d7c398c05e1a199091fba72c"},
-    {file = "python_socks-2.0.1-py3-none-any.whl", hash = "sha256:6801e89cf057d57f00ab9c1f82a8c10a8e086de02faf500b6ed79aedcc1bfca0"},
 ]
 pytz = [
     {file = "pytz-2021.3-py2.py3-none-any.whl", hash = "sha256:3672058bc3453457b622aab7a1c3bfd5ab0bdae451512f6cf25f64ed37f5b87c"},
