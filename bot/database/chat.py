@@ -10,8 +10,8 @@ from peewee import CharField, ForeignKeyField, Model
 
 
 class Chat(Model):
-    username = CharField()
-    title = CharField()
+    username = CharField(null=True)
+    title = CharField(null=True)
     pidor = ForeignKeyField(Pidor, null=True, column_name="pidor_of_day_id")
 
     class Meta:
@@ -39,7 +39,7 @@ class Chat(Model):
 
     def get_by_message(message: types.Message) -> "Chat":
         chat = message.chat
-        defaults = dict(chat.title, username=chat.username)
+        defaults = dict(title=chat.title, username=chat.username)
 
         if chat.id > 0:
             chat.title = message.from_user.full_name

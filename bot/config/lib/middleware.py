@@ -127,6 +127,6 @@ class SpyMiddleware(BaseMiddleware):
         if command is not None:
             Command.create(
                 member_id=ChatMember.get_by_message(message),
-                command=command[0][1:],
+                command=command[0][1:].split("@")[0].lower(),
                 params=command[1]
             )
