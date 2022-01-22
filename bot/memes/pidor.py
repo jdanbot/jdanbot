@@ -21,7 +21,7 @@ async def find_pidor(message: types.Message):
         return
 
     if not member.chat.can_run_pidor_finder:
-        pidor_member = ChatMember.get(id=member.chat.pidor.id)
+        pidor_member = ChatMember.get(id=Pidor.get(id=member.chat.pidor.id).member_id)
 
         await message.reply(choice(_("pidor.already_finded_templates",
             user=pidor_member.user.username or pidor_member.user.first_name)), parse_mode="HTML")
