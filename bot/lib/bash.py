@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from ..config.lib.driver import HttpDriver
 from .aioget import aioget
 
 from bs4 import BeautifulSoup
@@ -30,9 +29,6 @@ class Quote:
 
 class BashOrg:
     BASE_URL = "https://bash.im"
-
-    def __init__(self):
-        self.driver = HttpDriver()
 
     async def get(self, path: str, params={}) -> str:
         return await aioget(self.BASE_URL + path)
