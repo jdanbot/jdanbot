@@ -1,8 +1,8 @@
 from aiogram import types
 
-from .config import bot, dp, Note, _, ADMIN_NOTES
+from .config import dp, _, ADMIN_NOTES
+from .database import Note, ChatMember
 from .lib import handlers
-from .lib.admin import check_admin
 
 
 @dp.message_handler(commands=["remove", "remove_note"])
@@ -10,36 +10,29 @@ from .lib.admin import check_admin
 async def cool_secret(message: types.Message, name: str):
     name = name[1:] if name.startswith("#") else name
 
-    if name in ADMIN_NOTES and message.chat.type == "supergroup":
-        if await check_admin(message, bot):
-            Note.remove(message.chat.id, name)
-        else:
-            await message.reply(_("notes.no_rights_for_edit"))
-    else:
-        Note.remove(message.chat.id, name)
+    try:
+        await Note.remove(ChatMember.get_by_message(message), name)
+    except AttributeError:
+        await message.reply(_("notes.no_rights_for_edit"))
 
 
 @dp.message_handler(commands=["set"])
 @handlers.parse_arguments(2)
 async def set_(message: types.Message, name: str, text: str):
-    # TODO: REWRITE: If note is created send edit text else created text
-
     name = name[1:] if name.startswith("#") else name
+    is_admin_note = name in ADMIN_NOTES
 
-    if name in ADMIN_NOTES and message.chat.type == "supergroup":
-        if await check_admin(message, bot):
-            Note.add(message.chat.id, name, text)
-            await message.reply(_("notes.add_system_note"))
-        else:
-            await message.reply(_("notes.no_rights_for_edit"))
-    else:
-        Note.add(message.chat.id, name, text)
-        await message.reply(_("notes.add_note"))
+    try:
+        is_edit = await Note.add(ChatMember.get_by_message(message), name, text, is_admin_note)
+        await message.reply(_(
+            f"notes.{'edit' if is_edit else 'add'}_{'system_' if is_admin_note else ''}note"))
+    except AttributeError:
+        await message.reply(_("notes.no_rights_for_edit"))
 
 
 @dp.message_handler(commands=["get"])
 @handlers.parse_arguments(1)
-async def get_(message: types.Message, name: str):
+async def get(message: types.Message, name: str):
     name = name[1:] if name.startswith("#") else name
 
     if name == "__notes_list__":
@@ -59,7 +52,7 @@ async def get_(message: types.Message, name: str):
 
 
 @dp.message_handler(lambda message: message.text.startswith("#"))
-async def notes_(message: types.Message):
+async def get_by_hashtag(message: types.Message):
     name = message.text.replace("#", "")
     chat_id = message.chat.id
 

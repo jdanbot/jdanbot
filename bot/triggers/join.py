@@ -1,7 +1,7 @@
 from random import choice
 
 from ..config import dp, _
-from ..database import Note, Event
+from ..database import Note, ChatMember
 
 
 @dp.message_handler(content_types=["new_chat_members"])
@@ -33,4 +33,4 @@ async def john(message):
         except Exception:
             await message.answer(rules)
 
-    Event.reg_user_in_db(message)
+    ChatMember.get_by_message(message)
