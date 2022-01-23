@@ -5,6 +5,8 @@ from .models import Article
 
 from random import randint
 
+import urllib
+
 from aiogram import types
 from aiogram.types import InlineKeyboardButton as Button
 from bs4 import BeautifulSoup
@@ -134,7 +136,7 @@ def sections_to_keyboard(
     return sort_kb(buttons)
 
 
-def wikipya_handler(*prefix, extract_query_from_url=False):
+def wikipya_handler(*prefix, extract_query_from_url=False, enable_experemental_navigation=False):
     def argument_wrapper(func):
         @dp.message_handler(commands=prefix)
         @dp.callback_query_handler(lambda x: x.data.startswith(f"{prefix[0]} "))
@@ -145,7 +147,18 @@ def wikipya_handler(*prefix, extract_query_from_url=False):
                 url = query.split("/")
                 query = url[-1]
 
-            wiki: MediaWiki = (await func(message)).get_instance()
+            try:
+                wiki, *__ = await func(message)
+                wiki: MediaWiki = wiki.get_instance()
+
+                section = __[0] if len(__) > 0 else section
+            except:
+                wiki: MediaWiki = (await func(message)).get_instance()
+
+            query = query.split("#")[0]
+
+            query = urllib.parse.unquote(query, encoding='utf-8', 
+                                     errors='replace').replace("_", " ")
 
             if section == 0:
                 page, image, url = await wiki.get_all(query)
@@ -167,7 +180,10 @@ def wikipya_handler(*prefix, extract_query_from_url=False):
 
                 text = unbody(soup)
             else:
-                page = await wiki.page(query, section=section)
+                search = await wiki.search(query)
+                page = await wiki.page(search[0].title, section=section)
+
+                url = "https://example.org"
 
                 text = page.parsed
                 image = -1
@@ -176,9 +192,17 @@ def wikipya_handler(*prefix, extract_query_from_url=False):
 
             image = -1
 
+            if enable_experemental_navigation:
+                kb = sections_to_keyboard(sections, section, prefix[0])
+            else:
+                kb = types.InlineKeyboardMarkup()
+
+            if url:
+                kb.inline_keyboard.insert(0, [Button(_("wiki.read_full"), url)])
+
             return Article(
                 text,
-                keyboard=sections_to_keyboard(sections, section, prefix[0])
+                keyboard=kb
             )
 
         return wrapper

@@ -3,6 +3,8 @@ from aiogram import types
 from tghtml import TgHTML
 from wikipya import Wikipya
 
+import httpx
+
 from ..lib import handlers
 from ..lib.text import bold, fixWords
 from ..lib.models import Article
@@ -55,7 +57,7 @@ async def encyclopedia(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://encyclopatia.ru/w/api.php", is_lurk=True, prefix="/wiki")
 
 
-@handlers.wikipya_handler("mediawiki", extract_query_from_url=True)
+@handlers.wikipya_handler("mediawiki", extract_query_from_url=True, enable_experemental_navigation=True)
 async def custom_mediawiki(message: types.Message) -> Wikipya:
     try:
         message.text = message.reply_to_message.text
@@ -64,6 +66,14 @@ async def custom_mediawiki(message: types.Message) -> Wikipya:
 
     url = message.get_full_command()[1].split("/")
     base_url = f"{'/'.join(url[:3])}/api.php"
+
+    try:
+        async with httpx.AsyncClient() as client:
+            r = await client.get(base_url)
+
+            assert r.status_code == 200
+    except:
+        base_url = f"{'/'.join(url[:3])}/w/api.php"
 
     return Wikipya(base_url=base_url)
 
@@ -93,6 +103,28 @@ async def wikihandler(message: types.Message) -> Wikipya:
         return
 
     return Wikipya(lang)
+
+
+@handlers.wikipya_handler("w_dev", enable_experemental_navigation=True)
+async def wikihandler(message: types.Message) -> Wikipya:
+    try:
+        message.text = message.reply_to_message.text
+    except AttributeError:
+        pass
+
+    query = message.text.split(maxsplit=1)[1].split("#")
+
+    if len(query) > 1:
+        wiki = Wikipya(lang="ru").get_instance()
+
+        search = await wiki.search(query[0])
+        sections = (await wiki.sections(search[0].title)).sections
+
+        section_id = [section for section in sections if section.title.lower() == query[1].lower()][0].index
+    else:
+        section_id = 0
+
+    return Wikipya(lang="ru"), section_id
 
 
 @dp.message_handler(lambda message: message.text.startswith("/w_"))
