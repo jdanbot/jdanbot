@@ -76,6 +76,13 @@ async def pidor_stats(message):
              .limit(10)
     )
 
+    member_count = (
+        Pidor.select()
+             .join(ChatMember, on=ChatMember.pidor_id == Pidor.id)
+             .join(Chat, on=ChatMember.chat_id == Chat.id)
+             .where(Chat.id == message.chat.id)
+    ).count()
+
     msg = _("pidor.top_10") + "\n\n"
 
     for num, pidor in enumerate(top_pidors, 1):
@@ -85,7 +92,7 @@ async def pidor_stats(message):
         msg += PIDOR_TEMPLATE.format(num, member.tag, pidor.pidor_count, count)
 
     msg += "\n"
-    msg += _("pidor.members", count=len(top_pidors))
+    msg += _("pidor.members", count=member_count)
 
     await message.reply(msg, parse_mode="HTML")
 
