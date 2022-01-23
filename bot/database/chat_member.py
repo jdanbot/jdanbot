@@ -49,7 +49,5 @@ class ChatMember(Model):
         user = await bot.get_chat_member(self.chat.id, self.user.id)
         is_admin = user.is_chat_admin()
 
-        print(is_admin)
-
         ChatMember.update(is_admin=is_admin).where(ChatMember.id == self.id).execute()
         return is_admin

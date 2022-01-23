@@ -8,7 +8,6 @@ from .chat_member import ChatMember
 from .connection import db
 
 
-
 class Note(Model):
     name = CharField()
     text = CharField()
