@@ -68,10 +68,10 @@ def migrate(migrator, database, fake=False, **kwargs):
     migrate_command()
     migrate_pidor()
     migrate_pidor_stats()
-    migrate_events()
     migrate_poll()
     migrate_note()
     migrate_warn()
+    migrate_events()
 
 
 def migrate_command():
@@ -134,9 +134,7 @@ def migrate_pidor():
                 when_pidor_of_day=datetime.fromtimestamp(pidor_old.timestamp)
             ).execute()
 
-            (ChatMember.update(pidor_id=pidor)
-                    .where(ChatMember.id == member_id)
-                    .execute())
+            (ChatMember.update(pidor_id=pidor).where(ChatMember.id == member_id).execute())
 
     db.execute_sql("DROP TABLE pidors_old;")
 
@@ -185,7 +183,17 @@ def migrate_pidor_stats():
             chat_id=stats.chat_id
         )
 
-        Pidor.update(pidor_count=stats.count).where(Pidor.member_id == member_id).execute()
+        if Pidor.select().where(Pidor.member_id == member_id).count() == 0:
+            pidor = Pidor.insert(
+                member_id=member_id,
+                is_pidor_allowed=True,
+                pidor_count=stats.count,
+                when_pidor_of_day=datetime.fromtimestamp(0)
+            ).execute()
+
+            (ChatMember.update(pidor_id=pidor).where(ChatMember.id == member_id).execute())
+        else:
+            Pidor.update(pidor_count=stats.count).where(Pidor.member_id == member_id).execute()
 
     db.execute_sql("DROP TABLE pidor_stats;")
 
