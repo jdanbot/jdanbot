@@ -16,8 +16,8 @@ class User(Model):
     @property
     def full_name(self) -> str:
         if self.last_name:
-            return self.first_name + self.last_name
-        
+            return " ".join([self.first_name, self.last_name])
+
         return self.first_name
 
     def get_by_message(message: types.Message) -> "User":

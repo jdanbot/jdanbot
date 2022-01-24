@@ -27,8 +27,11 @@ class ChatMember(Model):
         if self.user.username:
             return f"@{self.user.username}"
 
-        return self.user.first_name
+        return f"<a href='tg://user?id={self.user.id}'>{self.user.first_name}</a>"
 
+    @property
+    def mention(self) -> str:
+        return self.user.username or self.user.first_name
 
     def get_by_message(message: types.Message) -> "ChatMember":
         return ChatMember.get_or_create(
