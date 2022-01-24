@@ -18,7 +18,7 @@ from dataclasses import dataclass
 class BaseHammer(BaseClass):
     async def repost(self):
         await self.reply.forward(-1001334412934)
-        await bot.send_message(-1001334412934, self.admin_log)
+        await bot.send_message(-1001334412934, self.admin_log, parse_mode="HTML")
 
     async def log(self):
         try:
