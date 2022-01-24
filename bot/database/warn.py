@@ -32,7 +32,7 @@ class Warn(Model):
         period: timedelta = timedelta(hours=24)
     ) -> list["Warn"]:
         _timezone = timezone("Europe/Moscow")
-        period_bound = int((datetime.now(_timezone) - period).timestamp())
+        period_bound = datetime.now(_timezone) - period
 
         return (Warn.select()
                     .where(
