@@ -1,9 +1,9 @@
 from aiogram import types
 
-from .config import bot, dp, Poll
+from .config import bot, dp, Poll, _
 from .timer import youtube_task
 from .lib import handlers
-from .lib.banhammer import ban, warn, unwarn
+from .lib.banhammer import BanHammer, WarnHammer, UnwarnHammer
 
 from .database import ChatMember
 
@@ -14,7 +14,15 @@ from .database import ChatMember
 @handlers.parse_arguments(2, True)
 async def admin_mut(message: types.Message, *args):
     reply = message.reply_to_message
-    await ban(message, reply, *args)
+
+    action = BanHammer(message, reply, *args)
+
+    await action.execute()
+    await action.log()
+
+    if message.chat.id == -1001176998310:
+        await action.repost()
+
 
 
 @dp.message_handler(commands=["selfmute", "selfban"])
@@ -22,7 +30,10 @@ async def admin_mut(message: types.Message, *args):
 @handlers.check("__enable_selfmute__")
 @handlers.parse_arguments(1, True)
 async def self_mut(message: types.Message, *args):
-    await ban(message, message, *args, is_repost_allowed=False)
+    action = BanHammer(message, message, *args)
+
+    await action.execute()
+    await action.log()
 
 
 @dp.message_handler(commands=["warn"])
@@ -31,15 +42,38 @@ async def self_mut(message: types.Message, *args):
 @handlers.parse_arguments(1, True)
 async def admin_warn(message: types.Message, *args):
     reply = message.reply_to_message
-    await warn(message, reply, *args)
+
+    action = WarnHammer(message, reply, *args)
+
+    await action.log()
+    await action.execute()
+
+    if message.chat.id == -1001176998310:
+        await action.repost()
 
 
 @dp.message_handler(commands=["unwarn"])
 @handlers.check("__enable_admin__")
 @handlers.only_admins
-async def admin_unwarn(message: types.Message):
+@handlers.parse_arguments(1, True)
+async def admin_unwarn(message: types.Message, *args):
     reply = message.reply_to_message
-    await unwarn(message, reply)
+
+    if reply.from_user.id == message.from_user.id:
+        await message.reply(_("ban.admin_cant_unwarn_self"))
+        return
+
+    action = UnwarnHammer(message, reply, *args)
+
+    try:
+        await action.execute()
+        await action.log()
+    except AttributeError:
+        await message.reply(_("ban.warns_not_found"))
+        return
+
+    if message.chat.id == -1001176998310:
+        await action.repost()
 
 
 @dp.message_handler(commands=["katz_poll", "poll"])
