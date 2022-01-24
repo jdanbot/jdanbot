@@ -39,15 +39,22 @@ class BanLog(BaseClass):
         return unban_time
 
     def generate(self) -> str:
+        user, admin = self.reply.from_user, self.message.from_user
+
         return _(
             f"ban.{'mute' if not self.is_selfmute else 'selfmute'}",
-            banchik=self.message.from_user.full_name,
-            userid=self.reply.from_user.id,
+            admin=admin.full_name,
+            admin_id=admin.id,
+
+            **(dict(
+                user=user.full_name,
+                user_id=user.id
+            ) if not self.is_selfmute else {}),
+
             why=self.reason,
             time=str(self.ban_time),
             time_localed=self.time_localed,
             unban_time=self.unban_time,
-            **(dict(name=self.reply.from_user.full_name) if not self.is_selfmute else {})
         )
 
 
@@ -57,11 +64,15 @@ class WarnLog(BaseClass):
     i: int
 
     def generate(self) -> str:
-        return _(
-            "ban.warn",
-            name=self.reply.from_user.full_name,
-            banchik=self.message.from_user.full_name,
-            userid=self.message.from_user.id,
+        user, admin = self.reply.from_user, self.message.from_user
+
+        return _("ban.warn",
+            user=user.full_name,
+            user_id=user.id,
+
+            admin=admin.full_name,
+            admin_id=admin.id,
+
             why=self.reason,
             i=self.i
         )
@@ -73,11 +84,15 @@ class UnwarnLog(BaseClass):
     i: int
 
     def generate(self) -> str:
-        return _(
-            "ban.unwarn",
-            name=self.reply.from_user.full_name,
-            banchik=self.message.from_user.full_name,
-            userid=self.message.from_user.id,
-            i=self.i,
-            why=self.reason
+        user, admin = self.reply.from_user, self.message.from_user
+
+        return _("ban.unwarn",
+            user=user.full_name,
+            user_id=user.id,
+
+            admin=admin.full_name,
+            admin_id=admin.id,
+
+            why=self.reason,
+            i=self.i
         )
