@@ -124,6 +124,7 @@ class UnwarnHammer(BaseHammer):
 
     def __post_init__(self):
         self.reason = self.reason or _("ban.reason_not_found")
+        self.warn_reason = self.user_warns[-1].reason
 
     @property
     def user_warns(self) -> list[Warn]:
@@ -142,7 +143,7 @@ class UnwarnHammer(BaseHammer):
         return UnwarnLog(
             self.message,
             self.reply,
-            self.reason,
+            self.warn_reason,
             self.warn_counter + 1
         ).generate()
 
