@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
 
-from peewee import CharField, DateTimeField, IntegerField, Model, fn, SQL
+from peewee import CharField, DateTimeField, IntegerField, Model
 from .connection import db
+
+from pytz import timezone
 
 
 class Warn(Model):
@@ -29,7 +31,8 @@ class Warn(Model):
         warned_id: int,
         period: timedelta = timedelta(hours=24)
     ) -> list["Warn"]:
-        period_bound = int((datetime.now() - period).timestamp())
+        _timezone = timezone("Europe/Moscow")
+        period_bound = datetime.now(_timezone) - period
 
         return (Warn.select()
                     .where(

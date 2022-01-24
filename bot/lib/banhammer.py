@@ -1,3 +1,4 @@
+import dataclasses
 from typing import Optional
 
 from aiogram import types
@@ -7,163 +8,153 @@ import math
 
 from ..config import bot, TIMEZONE, _
 from ..database import Warn, ChatMember, Note
-from .text import prettyword
+
+from .ban_logs import BaseClass, BanLog, UnwarnLog, WarnLog
 
 
-async def ban(
-    message: types.Message,
-    reply: types.Message,
-    time: int = 1,
-    reason: Optional[str] = None,
-    is_repost_allowed: bool = True
-):
-    if reason is None:
-        reason = _("ban.reason_not_found")
+from dataclasses import dataclass
 
-    try:
-        ban_time = max(1, math.ceil(float(time)))
 
-    except ValueError:
+class BaseHammer(BaseClass):
+    async def repost(self):
+        await self.reply.forward(-1001334412934)
+        await bot.send_message(-1001334412934, self.admin_log, parse_mode="HTML")
+
+    async def log(self):
         try:
-            bt = datetime.time.fromisoformat(time)
-        except ValueError:
-            # TODO: Add to localization
-            await message.reply("Введи валидное кол-во минут")
-            return
-
-        ban_time = bt.hour * 60 + bt.minute
-
-    now = datetime.now(TIMEZONE)
-
-    one_day = now + timedelta(days=1)
-    until_date = now + timedelta(minutes=ban_time)
-
-    await bot.restrict_chat_member(message.chat.id, reply.from_user.id,
-                                   until_date=until_date.timestamp())
-
-    unban_time = until_date.isoformat(sep=" ").split(".")[0]
-
-    if one_day > until_date:
-        unban_time = unban_time.split(" ")[1]
-
-    is_selfmute = reply.from_user.id == message.from_user.id
-    time_localed = prettyword(ban_time, _("cases.minutes"))
-
-    name = {"name": reply.from_user.full_name} if not is_selfmute else {}
-
-    ban_log = _(
-        f"ban.{'mute' if not is_selfmute else 'selfmute'}",
-        banchik=message.from_user.full_name,
-        userid=reply.from_user.id,
-        why=reason,
-        time=str(ban_time),
-        time_localed=time_localed,
-        unban_time=unban_time,
-        **name
-    )
-
-    if message.chat.id == -1001176998310 and is_repost_allowed:
-        await bot.forward_message(-1001334412934,
-                                  -1001176998310,
-                                  reply.message_id)
-
-        await bot.send_message(-1001334412934, ban_log,
-                               parse_mode="HTML")
-
-    try:
-        await bot.send_message(reply.chat.id, ban_log,
-                               reply_to_message_id=reply.message_id,
-                               parse_mode="HTML")
-
-        if message.message_id != reply.message_id:
-            await message.delete()
-    except Exception:
-        await message.reply(ban_log, parse_mode="HTML")
+            await self.reply.reply(self.admin_log, parse_mode="HTML")
+            await self.message.delete()
+        except:
+            await self.message.reply(self.admin_log, parse_mode="HTML")
 
 
-async def warn(
-    message: types.Message,
-    reply: types.Message,
+@dataclass
+class BanHammer(BaseHammer):
+    time: int | str = 1
     reason: Optional[str] = None
-):
-    if reason is None:
-        reason = _("ban.reason_not_found")
 
-    try:
-        WARNS_TO_BAN = int(Note.get(message.chat.id, "__warns_to_ban__"))
-    except Exception:
-        WARNS_TO_BAN = 3
+    @property
+    def ban_time(self) -> int:
+        try:
+            return max(1, math.ceil(float(self.time)))
 
-    warned = ChatMember.get_by_message(reply)
+        except ValueError:
+            bt = datetime.time.fromisoformat(self.time)
+            return bt.hour * 60 + bt.minute
 
-    wtbans = Warn.count_warns(warned.id)
-    wtbans += 1
+    @property
+    def until_date(self) -> timedelta:
+        return datetime.now(TIMEZONE) + timedelta(minutes=self.ban_time)
 
-    warn_log = _(
-        "ban.warn",
-        name=warned.user.full_name,
-        banchik=message.from_user.full_name,
-        userid=warned.user.id,
-        why=reason,
-        i=wtbans
-    )
+    @property
+    def admin_log(self) -> str:
+        return BanLog(
+            self.message,
+            self.reply,
+            self.reason or _("ban.reason_not_found"),
+            self.ban_time,
+            self.until_date
+        ).generate()
 
-    if reply.chat.id == -1001176998310:
-        await bot.forward_message(-1001334412934,
-                                  -1001176998310,
-                                  reply.message_id)
-        await bot.send_message(-1001334412934, warn_log,
-                               parse_mode="HTML")
-
-    await reply.reply(warn_log, parse_mode="HTML")
-
-    Warn.mark_chat_member(warned.id,
-                          ChatMember.get_by_message(message).id,
-                          reason=reason)
-
-    if wtbans >= WARNS_TO_BAN:
-        await ban(message, reply, "1440",
-                  _("ban.warn_limit_reached", i=wtbans))
-    else:
-        await message.delete()
+    async def execute(self):
+        await self.message.chat.restrict(
+            self.reply.from_user.id,
+            until_date=self.until_date.timestamp()
+        )
 
 
-async def unwarn(message: types.Message, reply: types.Message):
-    user_id = reply.from_user.id
+@dataclass
+class WarnHammer(BaseHammer):
+    reason: Optional[str] = None
 
-    if user_id == message.from_user.id:
-        await message.reply(_("ban.admin_cant_unwarn_self"))
-        return
+    def __post_init__(self):
+        self.reason = self.reason or _("ban.reason_not_found")
 
-    user = ChatMember.get_by_message(reply)
-    admin = ChatMember.get_by_message(message)
-    user_warns = Warn.get_user_warns(user.id)
+    @property
+    def warns_to_ban(self) -> int:
+        try:
+            return int(Note.get(self.message.chat.id, "__warns_to_ban__"))
+        except Exception:
+            return 3
 
-    if len(user_warns) == 0:
-        await message.reply(_("ban.warns_not_found"))
-        return
+    @property
+    def warn_counter(self) -> int:
+        warned = ChatMember.get_by_message(self.reply)
 
-    last_warn = user_warns[-1]
-    Warn.update(
-        who_unwarn_id=admin.id,
-        unwarned_at=datetime.now()
-    ).where(Warn.id == last_warn.id).execute()
+        return Warn.count_warns(warned.id)
 
-    unwarn_log = _(
-        "ban.unwarn",
-        name=reply.from_user.full_name,
-        banchik=message.from_user.full_name,
-        userid=reply.from_user.id,
-        i=len(user_warns),
-        why=last_warn.reason
-    )
+    @property
+    def new_warn_counter(self) -> int:
+        return self.warn_counter + 1
 
-    if reply.chat.id == -1001176998310:
-        await bot.forward_message(
-            -1001334412934, -1001176998310, reply.message_id)
+    @property
+    def admin_log(self) -> str:
+        return WarnLog(
+            self.message,
+            self.reply,
+            self.reason,
+            self.new_warn_counter
+        ).generate()
 
-        await bot.send_message(-1001334412934, unwarn_log,
-                               parse_mode="HTML")
+    async def execute(self):
+        Warn.mark_chat_member(
+            ChatMember.get_by_message(self.reply).id,
+            ChatMember.get_by_message(self.message).id,
+            reason=self.reason
+        )
 
-    await reply.reply(unwarn_log, parse_mode="HTML")
-    await message.delete()
+        if self.warn_counter >= self.warns_to_ban:
+            action = BanHammer(
+                self.message,
+                self.reply,
+                "1440",
+                _("ban.warn_limit_reached", i=self.warn_counter)
+            )
+
+            await action.execute()
+            await action.log()
+
+            if self.message.chat.id == -1001176998310:
+                await action.repost()
+
+
+@dataclass
+class UnwarnHammer(BaseHammer):
+    reason: Optional[str] = None
+
+    def __post_init__(self):
+        self.reason = self.reason or _("ban.reason_not_found")
+        self.warn_reason = self.user_warns[-1].reason
+
+    @property
+    def user_warns(self) -> list[Warn]:
+        warned = ChatMember.get_by_message(self.reply)
+
+        return Warn.get_user_warns(warned.id)
+
+    @property
+    def warn_counter(self) -> int:
+        warned = ChatMember.get_by_message(self.reply)
+
+        return Warn.count_warns(warned.id)
+
+    @property
+    def admin_log(self) -> str:
+        return UnwarnLog(
+            self.message,
+            self.reply,
+            self.warn_reason,
+            self.warn_counter + 1
+        ).generate()
+
+    async def execute(self):
+        admin = ChatMember.get_by_message(self.message)
+
+        if len(self.user_warns) == 0:
+            raise AttributeError()
+
+        last_warn = self.user_warns[-1]
+        Warn.update(
+            who_unwarn_id=admin.id,
+            unwarned_at=datetime.now(TIMEZONE)
+        ).where(Warn.id == last_warn.id).execute()
