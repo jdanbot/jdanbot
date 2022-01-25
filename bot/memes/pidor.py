@@ -33,6 +33,13 @@ async def find_pidor(message: types.Message):
 
     new_pidor = ChatMember.get(choice(member.chat.all_pidors).member_id)
 
+    Pidor.update(
+        pidor_count=Pidor.pidor_count + 1,
+        when_pidor_of_day=datetime.now()
+    ).where(Pidor.member_id == new_pidor.id).execute()
+    
+    Chat.update(pidor=new_pidor.pidor.id).where(Chat.id == new_pidor.chat.id).execute()
+
     pidor_info = await bot.get_chat_member(new_pidor.chat.id, new_pidor.user.id)
 
     if pidor_info.status == "left":
@@ -45,13 +52,6 @@ async def find_pidor(message: types.Message):
         await asyncio.sleep(2.5)
 
     await message.answer(choice(_("pidor.templates", user=new_pidor.tag)), parse_mode="HTML")
-
-    Pidor.update(
-        pidor_count=Pidor.pidor_count + 1,
-        when_pidor_of_day=datetime.now()
-    ).where(Pidor.member_id == new_pidor.id).execute()
-    
-    Chat.update(pidor=new_pidor.pidor.id).where(Chat.id == new_pidor.chat.id).execute()
 
     if message.chat.id == -1001176998310:
         try:
