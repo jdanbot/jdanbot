@@ -1,3 +1,4 @@
+from aiogram import types
 import todoist
 
 from ..config import dp, TODOIST
@@ -7,7 +8,7 @@ from ..lib import handlers
 @dp.message_handler(commands="todoist")
 @handlers.only_jdan
 @handlers.get_text
-async def feature_request(message, request):
+async def feature_request(message: types.Message, request: str):
     api = todoist.TodoistAPI(TODOIST)
     api.sync()
 

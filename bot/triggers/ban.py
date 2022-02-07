@@ -38,7 +38,7 @@ async def why_list(message):
     await message.reply(choice(_("triggers.why_list")))
 
 
-@dp.message_handler(lambda msg: msg.text.lower().find("секс") != -1)
+@dp.message_handler(lambda msg: msg.text.lower().find("секс") != -1 or msg.text.lower().find("кфс") != -1)
 @handlers.check("__enable_response__")
 @handlers.randomed_start
 async def who(message):

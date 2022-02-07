@@ -1,3 +1,4 @@
+from aiogram import types
 from pyduckgo import Duck
 
 from ..config import dp
@@ -8,9 +9,8 @@ duck = Duck()
 
 
 @dp.message_handler(commands=["duck"])
-@handlers.parse_arguments(2)
-async def getDuck(message, params):
-    query = params[1]
+@handlers.parse_arguments(1)
+async def getDuck(message: types.Message, query: str):
     text = ""
 
     links = await duck.search(query)

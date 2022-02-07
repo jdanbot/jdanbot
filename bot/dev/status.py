@@ -1,3 +1,5 @@
+from aiogram import types
+
 import subprocess  # noqa: S404
 from datetime import datetime
 from sys import platform
@@ -11,29 +13,23 @@ from ..lib.libtree import make_tree
 
 
 @dp.message_handler(commands=["status"])
-async def get_status(message):
+async def get_status(message: types.Message):
     mem = psutil.virtual_memory()
-    cpu = psutil.cpu_percent()
     time = str(datetime.now() - START_TIME)
+
     status = make_tree({
-        "commit": getCurrentCommit(),
-        "status": STATUS,
-        "os": platform,
-        "memory": {
-            "used": convert_bytes(mem.used),
-            "total": convert_bytes(mem.total),
-            "percent": "{}%".format(mem.percent)
-        },
-        "cpu": "{}%".format(cpu),
+        "memory": "{used} of {total} ({percent})".format(
+            used=convert_bytes(mem.used),
+            total=convert_bytes(mem.total),
+            percent=f"{mem.percent}%"
+        ),
+        "cpu": f"{psutil.cpu_percent()}%",
         "uptime": time[:time.find(".")]
-    }, "status")
+    }, f"{STATUS} [{get_current_branch()}] on {platform}")
 
-    await message.reply(code(status).replace("\\", ""),
-                        parse_mode="Markdown")
+    await message.reply(code(status).replace("\\", ""), parse_mode="Markdown")
 
 
-def getCurrentCommit():
-    git_command = ["git", "rev-parse", "--short", "HEAD"]
-    return subprocess.check_output(git_command) \
-                     .decode("utf-8") \
-                     .replace("\n", "")
+def get_current_branch() -> str:
+    git_command = "git rev-parse --abbrev-ref HEAD"
+    return subprocess.check_output(git_command.split()).decode("utf-8").strip()

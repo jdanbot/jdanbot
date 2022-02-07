@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from ..config.lib.driver import HttpDriver
 from .aioget import aioget
 
 from bs4 import BeautifulSoup
@@ -24,15 +23,12 @@ class Quote:
         return Quote(
             id=int(soup.header.a.text[1:]),
             time=soup.header.div.text.strip().replace("  ", " "),
-            text=TgHTML(soup.find(class_="quote__body").text.strip()).parsed
+            text=TgHTML(soup.find(class_="quote__body").text.strip()).parsed.strip()
         )
 
 
 class BashOrg:
     BASE_URL = "https://bash.im"
-
-    def __init__(self):
-        self.driver = HttpDriver()
 
     async def get(self, path: str, params={}) -> str:
         return await aioget(self.BASE_URL + path)

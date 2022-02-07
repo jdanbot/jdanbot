@@ -1,28 +1,24 @@
+from aiogram import types
+
 import asyncio
 import re
 
 from math import sqrt
+from typing import Any
 
 from ..lib import handlers
 from ..lib.text import code
 from ..config import dp, _
 
 
-async def calc(query):
+async def calc(query: str) -> Any:
     return eval(query, {"__builtins__": {}})
 
 
 @dp.message_handler(commands=["calc"])
-async def eban(message):
-    options = message.text.split(maxsplit=1)
-
-    if len(options) == 1:
-        await message.reply(_("errors.enter_value"))
-        return
-
-    query = options[1].format(
-        pi=3.14
-    )
+@handlers.parse_arguments(1)
+async def eban(message: types.Message, query: str):
+    query = query.format(pi=3.14)
 
     match = re.search(r"[a-zA-Zа-яА-Я]", query)
     match_symbols = re.search(r"[\[\]\^\{\}]|\*\*", query)
@@ -42,9 +38,7 @@ async def eban(message):
 
 
 @dp.message_handler(commands=["sqrt"])
-@handlers.parse_arguments(2)
-async def sqrt_(message, params):
-    command, num = params
+@handlers.parse_arguments(1)
+async def sqrt_(message, num):
     res = sqrt(int(num))
-
     await message.reply(code(res), parse_mode="HTML")

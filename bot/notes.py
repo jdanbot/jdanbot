@@ -1,44 +1,39 @@
-from .config import bot, dp, Note, _, ADMIN_NOTES
+from aiogram import types
+
+from .config import dp, _, ADMIN_NOTES
+from .database import Note, ChatMember
 from .lib import handlers
-from .lib.admin import check_admin
 
 
 @dp.message_handler(commands=["remove", "remove_note"])
-@handlers.parse_arguments(2)
-async def cool_secret(message, params):
-    params[1] = params[1][1:] if params[1].startswith("#") else params[1]
+@handlers.parse_arguments(1)
+async def cool_secret(message: types.Message, name: str):
+    name = name[1:] if name.startswith("#") else name
 
-    if params[1] in ADMIN_NOTES and message.chat.type == "supergroup":
-        if await check_admin(message, bot):
-            Note.remove(message.chat.id, params[1])
-        else:
-            await message.reply(_("notes.no_rights_for_edit"))
-    else:
-        Note.remove(message.chat.id, params[1])
+    try:
+        await Note.remove(ChatMember.get_by_message(message), name)
+    except AttributeError:
+        await message.reply(_("notes.no_rights_for_edit"))
 
 
 @dp.message_handler(commands=["set"])
-@handlers.parse_arguments(3)
-async def set_(message, params):
-    # TODO: REWRITE: If note is created send edit text else created text
+@handlers.parse_arguments(2)
+async def set_(message: types.Message, name: str, text: str):
+    name = name[1:] if name.startswith("#") else name
+    is_admin_note = name in ADMIN_NOTES
 
-    name = params[1][1:] if params[1].startswith("#") else params[1]
-
-    if name in ADMIN_NOTES and message.chat.type == "supergroup":
-        if await check_admin(message, bot):
-            Note.add(message.chat.id, name, params[2])
-            await message.reply(_("notes.add_system_note"))
-        else:
-            await message.reply(_("notes.no_rights_for_edit"))
-    else:
-        Note.add(message.chat.id, name, params[2])
-        await message.reply(_("notes.add_note"))
+    try:
+        is_edit = await Note.add(ChatMember.get_by_message(message), name, text, is_admin_note)
+        await message.reply(_(
+            f"notes.{'edit' if is_edit else 'add'}_{'system_' if is_admin_note else ''}note"))
+    except AttributeError:
+        await message.reply(_("notes.no_rights_for_edit"))
 
 
 @dp.message_handler(commands=["get"])
-@handlers.parse_arguments(2)
-async def get_(message, params):
-    name = params[1][1:] if params[1].startswith("#") else params[1]
+@handlers.parse_arguments(1)
+async def get(message: types.Message, name: str):
+    name = name[1:] if name.startswith("#") else name
 
     if name == "__notes_list__":
         await message.reply(", ".join(Note.show(message.chat.id)))
@@ -57,20 +52,22 @@ async def get_(message, params):
 
 
 @dp.message_handler(lambda message: message.text.startswith("#"))
-async def notes_(message):
+async def get_by_hashtag(message: types.Message):
     name = message.text.replace("#", "")
     chat_id = message.chat.id
 
-    if len(name) <= 50:
-        if name == "__notes_list__":
-            await message.reply(", ".join(Note.show(chat_id)))
-        else:
-            note = Note.get(chat_id, name)
+    if len(name) >= 50:
+        return
 
-            if note is None:
-                return
+    if name == "__notes_list__":
+        await message.reply(", ".join(Note.show(chat_id)))
+    else:
+        note = Note.get(chat_id, name)
 
-            try:
-                await message.reply(note, parse_mode="MarkdownV2")
-            except Exception:
-                await message.reply(note)
+        if note is None:
+            return
+
+        try:
+            await message.reply(note, parse_mode="MarkdownV2")
+        except Exception:
+            await message.reply(note)

@@ -6,7 +6,7 @@ from ..bot import bot
 
 
 class ResendLogs(logging.Filter):
-    def filter(self, record):
+    def filter(self, record) -> bool:
         loop = asyncio.get_event_loop()
         loop.create_task(self.send_to_tg(record))
         return True

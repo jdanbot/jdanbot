@@ -1,3 +1,4 @@
+from aiogram import types
 from art import text2art
 
 from ..config import dp
@@ -7,7 +8,7 @@ from ..lib.text import code
 
 @dp.message_handler(commands=["art"])
 @handlers.get_text
-async def art(message, text):
+async def art(message: types.Message, text: str):
     if len(text) > 20:
         message.reply("Ты шизик.")
         return

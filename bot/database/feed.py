@@ -14,7 +14,9 @@ class Feed(Model):
         database = db
         primary_key = False
 
-    def save(feed_id, link):
+    def save(feed_id: str, link: str):
+        # TODO: went bool
+
         feeds = list(Feed.select().where(Feed.id == feed_id))
 
         if len(feeds) > 0:

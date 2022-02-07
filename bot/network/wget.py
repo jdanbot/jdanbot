@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 
 import yaml
+from aiogram import types
 
 from ..config import dp, _
 from ..lib import handlers
@@ -14,7 +15,7 @@ from ..lib.libtree import make_tree
 @dp.message_handler(commands=["d"])
 @handlers.only_jdan
 @handlers.get_text
-async def download(message, query):
+async def download(message: types.Message, query: str):
     response = await aioget(query)
     text = response.text
 
@@ -29,11 +30,9 @@ async def download(message, query):
 
 @dp.message_handler(commands=["wget", "r", "request"])
 @handlers.only_jdan
-@handlers.parse_arguments(2)
-async def wget(message, params):
+@handlers.parse_arguments(1)
+async def wget(message: types.Message, url: str):
     time = datetime.now()
-    url = params[1]
-
     blacklist = ["mb", ".zip", ".7", ".gz", "98.145.185.175", ".avi",
                  "movie", "release", ".dll", "localhost", ".bin",
                  "0.0.0.1", "repack", "download"]
@@ -52,8 +51,6 @@ async def wget(message, params):
 
     load_time = datetime.now() - time
     main = str(load_time).split(":")
-
-    page = response.text
 
     tree = make_tree(dict(
         status=response.status_code,

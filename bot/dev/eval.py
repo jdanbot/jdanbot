@@ -1,3 +1,5 @@
+from aiogram import types
+
 import traceback
 import subprocess
 
@@ -8,9 +10,8 @@ from ..lib import handlers
 
 @dp.message_handler(commands=["e"])
 @handlers.only_jdan
-async def supereval(message):
-    command, query = message.text.split(maxsplit=1)
-
+@handlers.parse_arguments(1)
+async def supereval(message: types.Message, query: str):
     q = [f"\n {line}" for line in query.split("\n")]
     q[-1] = q[-1].replace("\n ", "\n return ")
 
@@ -31,13 +32,12 @@ async def supereval(message):
                         parse_mode="HTML")
 
 
-@dp.message_handler(lambda message: message.from_user.id == 795449748,
-                    commands=["jbash"])
-async def bash(message):
-    options = message.text.split(maxsplit=1)
-
+@dp.message_handler(commands=["jbash"])
+@handlers.only_jdan
+@handlers.parse_arguments(1)
+async def bash(message: types.Message, query: str):
     try:
-        command = options[1].split()
+        command = query.split()
         output = subprocess.check_output(command).decode("utf-8")
 
     except Exception:
