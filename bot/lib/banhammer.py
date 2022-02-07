@@ -127,7 +127,7 @@ class UnwarnHammer(BaseHammer):
             self.message,
             self.reply,
             self.warn_reason,
-            self.warn_counter + 1
+            self.warn_counter
         ).generate()
 
     @property

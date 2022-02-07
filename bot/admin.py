@@ -63,14 +63,14 @@ async def admin_unwarn(message: types.Message, *args):
         await message.reply(_("ban.admin_cant_unwarn_self"))
         return
 
-    action = UnwarnHammer(message, reply, *args)
-
     try:
-        await action.execute()
-        await action.log()
-    except AttributeError:
+        action = UnwarnHammer(message, reply, *args)
+    except IndexError:
         await message.reply(_("ban.warns_not_found"))
         return
+
+    await action.execute()
+    await action.log()
 
     if message.chat.id == -1001176998310:
         await action.repost()
