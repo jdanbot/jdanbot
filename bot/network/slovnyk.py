@@ -1,16 +1,14 @@
 from aiogram import types
-from httpx import AsyncClient
 from bs4 import BeautifulSoup
+from httpx import AsyncClient
 from tghtml import TgHTML
-
 
 from ..config import dp
 
 
 @dp.message_handler(commands="slovnyk")
 async def slovnyk(message: types.Message):
-    command, text = message.get_full_command()
-    print(text)
+    _, text = message.get_full_command()
 
     async with AsyncClient() as client:
         r = await client.get("https://slovnyk.ua/index.php", params={"swrd": text})
