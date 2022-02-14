@@ -32,6 +32,12 @@ async def find_pidor(message: types.Message):
         return
 
     new_pidor = ChatMember.get(choice(member.chat.all_pidors).member_id)
+    pidor_info = await bot.get_chat_member(new_pidor.chat.id, new_pidor.user.id)
+
+    if pidor_info.status == "left":
+        await message.reply(_("pidor.pidor_left"),
+                            parse_mode="HTML")
+        return
 
     Pidor.update(
         pidor_count=Pidor.pidor_count + 1,
@@ -39,13 +45,6 @@ async def find_pidor(message: types.Message):
     ).where(Pidor.member_id == new_pidor.id).execute()
     
     Chat.update(pidor=new_pidor.pidor.id).where(Chat.id == new_pidor.chat.id).execute()
-
-    pidor_info = await bot.get_chat_member(new_pidor.chat.id, new_pidor.user.id)
-
-    if pidor_info.status == "left":
-        await message.reply(_("pidor.pidor_left"),
-                            parse_mode="HTML")
-        return
 
     for phrase in choice(_("pidor.pidor_finding")).split("\n")[:-1]:
         await message.answer(italic(phrase), parse_mode="HTML")
