@@ -30,16 +30,20 @@ async def translate(message: types.Message, query: str):
 @handlers.get_text
 async def crazy_translator(message: types.Message, text: str):
     t = GoogleTranslator()
+    msg = await message.reply("Начал шизовый перевод!")
 
-    for _ in range(0, 14):
-        lang = choice(GTRANSLATE_LANGS)
+    lang = None
+
+    for _ in range(0, 9):
+        lang = choice(list(filter(lambda x: x not in [lang], GTRANSLATE_LANGS)))
 
         if lang == "ua":
             lang = "uk"
 
         text = await t.translate(text, tgt_lang=lang)
+        msg = await msg.edit_text(f"Начал шизовый перевод!\n{_ + 1}/10 {lang}")
 
-    await message.reply(await t.translate(text, tgt_lang="ru"),
+    await msg.edit_text(await t.translate(text, tgt_lang="ru"),
                         disable_web_page_preview=True)
 
     await t.close()
