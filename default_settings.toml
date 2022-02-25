@@ -40,7 +40,8 @@ admin_notes = [
     "__warns_to_ban__",
     "__chat_lang__",
     "__enable_admin__",
-    "__enable_selfmute__"
+    "__enable_selfmute__",
+    "__polish_mode__"
 ]
 
 

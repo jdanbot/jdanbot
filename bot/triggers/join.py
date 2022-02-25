@@ -8,6 +8,11 @@ from ..database import Note, ChatMember
 async def john(message):
     chat_id = message.chat.id
 
+    if Note.get(chat_id, "__polish_mode__") == "True":
+        ChatMember.get_by_message(message)
+        await message.delete()
+        return
+
     welcome = Note.get(chat_id, "__enable_greatings__") == "True" or \
         Note.get(chat_id, "__enable_welcome__") == "True"
 
