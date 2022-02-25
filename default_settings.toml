@@ -24,7 +24,7 @@ db_path = "jdanbot.db"
 memory_db_patch = true
 image_path = "bot/cache/{image}.jpg"
 status = "unknown"
-gtranslate_langs = ["ru", "en", "ua", "uk", "be", "pl", "de", "fr", "kz", "hu"]
+gtranslate_langs = ["ru", "en", "ua", "uk", "be", "pl", "de", "fr", "kz", "hu", "hi", "he", "hr"]
 langs_list = ["ru", "en", "sv", "de", "ce",
               "tt", "ba", "pl", "uk", "be",
               "es", "he", "xh", "ab"]
