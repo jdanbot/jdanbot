@@ -2,40 +2,27 @@ from aiogram import types
 
 from ..config import dp
 from ..lib.aioget import aioget
-
-
-CURRENCIES = {
-    840: "🇺🇸",
-    980: "🇺🇦",
-    978: "🇪🇺",
-    643: "🇷🇺",
-    985: "🇵🇱"
-}
-
-
-MONOBANK_LAST_REQUEST = {}
-
-
-def get_emoji(code: int) -> str:
-    emoji = CURRENCIES.get(code)
-    return emoji if emoji is not None else code
+from ..lib.monobank import MonobankApi
 
 
 @dp.message_handler(commands=["mono"])
 async def monobank(message: types.Message):
-    res = await aioget("https://api.monobank.ua/bank/currency")
-    msg, cur = "", res.json()
+    # TODO: Rewrite with pydantic
 
-    if isinstance(cur, list):
-        global MONOBANK_LAST_REQUEST
-        MONOBANK_LAST_REQUEST = cur
+    mono = MonobankApi()
+    currencies = await mono.get_currencies()
 
-    for info in MONOBANK_LAST_REQUEST[::2][:3]:
+    msg = ""
+
+    for currency in currencies:
+        if currency.from_currency not in (840, 978, 643) or currency.to_currency != 980:
+            continue
+
         msg += '{} ⇆ {}\n→ {} ₴\n← {} ₴\n\n'.format(
-            get_emoji(info["currencyCodeA"]),
-            get_emoji(info["currencyCodeB"]),
-            info.get("rateBuy"),
-            info.get("rateSell")
+            currency.from_emoji,
+            currency.to_emoji,
+            currency.rate_buy or currency.rate_cross,
+            currency.rate_sell or currency.rate_cross
         )
 
     await message.reply(msg)
