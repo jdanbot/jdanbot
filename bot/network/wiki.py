@@ -16,8 +16,8 @@ async def railgun(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://toarumajutsunoindex.fandom.com/api.php", is_lurk=True)
 
 
-@handlers.wikipya_handler("fallout")
-async def fallout(message: types.Message) -> Wikipya:
+@handlers.wikipya_handler("fallout", enable_experemental_navigation=True)
+async def fallout(message: types.Message, test: str) -> Wikipya:
     return Wikipya(base_url="https://fallout.fandom.com/ru/api.php")
 
 
@@ -84,14 +84,16 @@ async def getLangs(message: types.Message):
                         disable_web_page_preview=True)
 
 
-@handlers.wikipya_handler(*WIKICOMMANDS)
-async def wikihandler(message: types.Message) -> Wikipya:
-    try:
-        message.text = message.reply_to_message.text
-    except AttributeError:
-        pass
+@handlers.wikipya_handler(*WIKICOMMANDS, went_trigger_command=True)
+async def wikihandler(message: types.Message, trigger: str) -> Wikipya:
+    # TODO Save query info in buttons
 
-    command = message.text.split()[0]
+    # try:
+    #     message.text = message.reply_to_message.text
+    # except AttributeError:
+    #     pass
+
+    command = trigger.split()[0]
     lang = command.replace("/wiki", "").replace("/w", "")
 
     for lang_ in UNIQUE_COMMANDS:
@@ -105,14 +107,20 @@ async def wikihandler(message: types.Message) -> Wikipya:
     return Wikipya(lang)
 
 
-@handlers.wikipya_handler("w_dev", enable_experemental_navigation=True)
-async def wikihandler(message: types.Message) -> Wikipya:
+@handlers.wikipya_handler("w_dev", enable_experemental_navigation=True, went_trigger_command=True)
+async def wikihandler(message: types.Message, trigger: str) -> Wikipya:
     try:
         message.text = message.reply_to_message.text
     except AttributeError:
         pass
 
+    # message.text = trigger
+
+    print(trigger)
+
     query = message.text.split(maxsplit=1)[1].split("#")
+
+    print(query)
 
     if len(query) > 1:
         wiki = Wikipya(lang="ru").get_instance()

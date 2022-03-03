@@ -11,6 +11,7 @@ class Article:
     text: str
     image: Optional[str] = None
     keyboard: Optional[types.InlineKeyboardMarkup] = None
+    parse_mode: str = "HTML"
 
     def __post_init__(self):
         limit = 1024 if self.image else 4096

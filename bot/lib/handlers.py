@@ -9,6 +9,7 @@ import urllib
 
 from aiogram import types
 from aiogram.types import InlineKeyboardButton as Button
+from aiogram.utils.markdown import hide_link
 from bs4 import BeautifulSoup
 
 from wikipya.clients import MediaWiki
@@ -85,13 +86,14 @@ def get_text(func):
     async def wrapper(message, query=None):
         reply = message.reply_to_message
 
-        if reply and reply.text:
+        if query:
+            text = query
+        elif reply and reply.text:
             text = reply.text
         elif reply and reply.caption:
             text = reply.caption
-        elif query:
-            text = query
         else:
+            await message.reply(_(f"docs.{func.__name__}"), parse_mode="Markdown")
             await message.reply(_("errors.few_args", num=1), parse_mode="Markdown")
             return
 
@@ -136,24 +138,35 @@ def sections_to_keyboard(
     return sort_kb(buttons)
 
 
-def wikipya_handler(*prefix, extract_query_from_url=False, enable_experemental_navigation=False):
+def wikipya_handler(
+    *prefix,
+    extract_query_from_url=False,
+    enable_experemental_navigation=False,
+    went_trigger_command=False
+):
     def argument_wrapper(func):
         @dp.message_handler(commands=prefix)
         @dp.callback_query_handler(lambda x: x.data.startswith(f"{prefix[0]} "))
         @send_article
         @parse_arguments(1, without_params=True)
         async def wrapper(message: types.Message, query: str, section: int = 0) -> Article:
+            print(message)
+
             if extract_query_from_url:
                 url = query.split("/")
                 query = url[-1]
 
+            answer = message, message.text if went_trigger_command else [message]
+
             try:
-                wiki, *__ = await func(message)
+                wiki, *__ = await func(*answer)
+
+                print(__)
                 wiki: MediaWiki = wiki.get_instance()
 
                 section = __[0] if len(__) > 0 else section
             except:
-                wiki: MediaWiki = (await func(message)).get_instance()
+                wiki: MediaWiki = (await func(*answer)).get_instance()
 
             query = query.split("#")[0]
 
@@ -175,10 +188,11 @@ def wikipya_handler(*prefix, extract_query_from_url=False, enable_experemental_n
                     if url is not None:
                         b = b[0]
                         b.name = "a"
-                        b["href"] = image if image != -1 else url
+                        b["href"] = url
                         b = b.wrap(soup.new_tag("b"))
 
-                text = unbody(soup)
+                text = hide_link(image) + unbody(soup)
+
             else:
                 search = await wiki.search(query)
                 page = await wiki.page(search[0].title, section=section)
@@ -197,8 +211,8 @@ def wikipya_handler(*prefix, extract_query_from_url=False, enable_experemental_n
             else:
                 kb = types.InlineKeyboardMarkup()
 
-            if url:
-                kb.inline_keyboard.insert(0, [Button(_("wiki.read_full"), url)])
+            # if url:
+            #     kb.inline_keyboard.insert(0, [Button(_("wiki.read_full"), url)])
 
             return Article(
                 text,
@@ -218,7 +232,7 @@ def send_article(func):
             await message.reply_photo(
                 result.image,
                 caption=result.text,
-                parse_mode="HTML",
+                parse_mode=result.parse_mode,
                 reply_markup=result.keyboard,
             )
         else:
@@ -228,7 +242,7 @@ def send_article(func):
 
             await message.reply(
                 result.text,
-                parse_mode="HTML",
+                parse_mode=result.parse_mode,
                 disable_web_page_preview=False,
                 reply_markup=result.keyboard,
             )
