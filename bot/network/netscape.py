@@ -2,7 +2,7 @@ from aiogram import types
 from tghtml import TgHTML
 
 from ..config import dp
-from ..lib import handlers
+from .. import handlers
 from ..lib.aioget import aioget
 from ..lib.text import cute_crop
 

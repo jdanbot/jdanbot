@@ -5,7 +5,7 @@ import subprocess
 
 from ..config import bot, dp
 from ..lib.text import code
-from ..lib import handlers
+from .. import handlers
 
 
 @dp.message_handler(commands=["e"])

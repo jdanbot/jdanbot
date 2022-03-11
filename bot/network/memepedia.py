@@ -3,7 +3,7 @@ from aiogram import types
 import pymemeru
 
 from ..config import dp, _
-from ..lib import handlers
+from .. import handlers
 from ..lib.models import Article
 
 

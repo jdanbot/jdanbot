@@ -2,7 +2,7 @@ from aiogram import types
 
 from .config import dp, _, ADMIN_NOTES
 from .database import Note, ChatMember
-from .lib import handlers
+from . import handlers
 
 
 @dp.message_handler(commands=["remove", "remove_note"])

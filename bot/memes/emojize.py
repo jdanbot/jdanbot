@@ -1,8 +1,7 @@
 from aiogram import types
-import emoji
 
 from ..config import dp
-from ..lib import handlers
+from .. import handlers
 
 from emoji import EMOJI_DATA
 

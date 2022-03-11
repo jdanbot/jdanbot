@@ -1,7 +1,7 @@
 from aiogram import types
 
 from ..config import _, bot, dp
-from ..lib import handlers
+from .. import handlers
 
 
 @dp.message_handler(commands=["admins"])

@@ -6,7 +6,7 @@ import re
 from math import sqrt
 from typing import Any
 
-from ..lib import handlers
+from .. import handlers
 from ..lib.text import code
 from ..config import dp, _
 
