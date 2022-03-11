@@ -2,7 +2,7 @@ from aiogram import types
 import todoist
 
 from ..config import dp, TODOIST
-from ..lib import handlers
+from .. import handlers
 
 
 @dp.message_handler(commands="todoist")

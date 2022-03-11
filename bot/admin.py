@@ -2,7 +2,7 @@ from aiogram import types
 
 from .config import bot, dp, Poll, _
 from .timer import youtube_task
-from .lib import handlers
+from . import handlers
 from .lib.banhammer import BanHammer, WarnHammer, UnwarnHammer
 
 from .database import ChatMember

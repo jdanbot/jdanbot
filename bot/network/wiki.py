@@ -5,7 +5,7 @@ from wikipya import Wikipya
 
 import httpx
 
-from ..lib import handlers
+from .. import handlers
 from ..lib.text import bold, fixWords
 from ..lib.models import Article
 from ..config import dp, _, WIKICOMMANDS, LANGS_LIST, UNIQUE_COMMANDS
@@ -17,7 +17,7 @@ async def railgun(message: types.Message) -> Wikipya:
 
 
 @handlers.wikipya_handler("fallout")
-async def fallout(message: types.Message) -> Wikipya:
+async def fallout(message: types.Message, test: str) -> Wikipya:
     return Wikipya(base_url="https://fallout.fandom.com/ru/api.php")
 
 
@@ -57,7 +57,7 @@ async def encyclopedia(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://encyclopatia.ru/w/api.php", is_lurk=True, prefix="/wiki")
 
 
-@handlers.wikipya_handler("mediawiki", extract_query_from_url=True, enable_experemental_navigation=True)
+@handlers.wikipya_handler("mediawiki", extract_query_from_url=True)
 async def custom_mediawiki(message: types.Message) -> Wikipya:
     try:
         message.text = message.reply_to_message.text
@@ -84,14 +84,16 @@ async def getLangs(message: types.Message):
                         disable_web_page_preview=True)
 
 
-@handlers.wikipya_handler(*WIKICOMMANDS)
-async def wikihandler(message: types.Message) -> Wikipya:
-    try:
-        message.text = message.reply_to_message.text
-    except AttributeError:
-        pass
+@handlers.wikipya_handler(*WIKICOMMANDS, went_trigger_command=True)
+async def wikihandler(message: types.Message, trigger: str) -> Wikipya:
+    # TODO Save query info in buttons
 
-    command = message.text.split()[0]
+    # try:
+    #     message.text = message.reply_to_message.text
+    # except AttributeError:
+    #     pass
+
+    command = trigger.split()[0]
     lang = command.replace("/wiki", "").replace("/w", "")
 
     for lang_ in UNIQUE_COMMANDS:
@@ -100,19 +102,26 @@ async def wikihandler(message: types.Message) -> Wikipya:
             break
 
     if lang not in LANGS_LIST:
-        return
+        # return
+        lang = "ru"
 
     return Wikipya(lang)
 
 
-@handlers.wikipya_handler("w_dev", enable_experemental_navigation=True)
-async def wikihandler(message: types.Message) -> Wikipya:
+@handlers.wikipya_handler("w_dev", enable_experemental_navigation=True, went_trigger_command=True)
+async def wikihandler(message: types.Message, trigger: str) -> Wikipya:
     try:
         message.text = message.reply_to_message.text
     except AttributeError:
         pass
 
+    # message.text = trigger
+
+    print(trigger)
+
     query = message.text.split(maxsplit=1)[1].split("#")
+
+    print(query)
 
     if len(query) > 1:
         wiki = Wikipya(lang="ru").get_instance()
@@ -179,6 +188,37 @@ async def wikiSearch(message: types.Message, lang: str = "ru"):
         text += f"└─/w_{item.page_id}\n"
 
     await message.reply(text, parse_mode="HTML")
+
+
+@dp.message_handler(commands="s_dev")
+async def wikiSearch(message: types.Message, lang: str = "ru"):
+    opts = message.text.split(maxsplit=1)
+
+    if len(opts) == 1:
+        await message.reply(_("errors.enter_wiki_query").format(opts[0]),
+                            parse_mode="Markdown")
+        return
+
+    query = opts[1]
+
+    wiki = Wikipya(lang=lang).get_instance()
+
+    r = await wiki.search(query, 10)
+
+    if r == -1:
+        await message.reply(_("error.not_found"))
+        return
+
+    kb = types.InlineKeyboardMarkup()
+    for item in r:
+        kb.add(
+            types.InlineKeyboardButton(
+                fixWords(item.title),
+                callback_data=f"wikiru id{item.page_id} 0"
+            )
+        )
+
+    await message.reply("t", reply_markup=kb, parse_mode="HTML")
 
 
 @dp.message_handler(commands="summary")

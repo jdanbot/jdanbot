@@ -4,7 +4,7 @@ import time
 from random import randint, choice
 
 from ..config import bot, dp, _
-from ..lib import handlers
+from .. import handlers
 
 
 # TODO: REWRITE: use regular

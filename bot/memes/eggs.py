@@ -2,7 +2,8 @@ from aiogram import types
 
 from ..lib.text import code
 from ..config import bot, dp, EGGS
-from ..lib import chez, handlers
+from ..lib import chez
+from .. import handlers
 
 
 egg_commands = []

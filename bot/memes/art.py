@@ -2,7 +2,7 @@ from aiogram import types
 from art import text2art
 
 from ..config import dp
-from ..lib import handlers
+from .. import handlers
 from ..lib.text import code
 
 

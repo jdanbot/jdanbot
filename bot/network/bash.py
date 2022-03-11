@@ -1,7 +1,7 @@
 from aiogram import types
 
 from ..config import dp, _
-from ..lib import handlers
+from .. import handlers
 from ..lib.bash import BashOrg
 
 

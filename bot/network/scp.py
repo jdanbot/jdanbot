@@ -4,7 +4,7 @@ from ..lib.models import Article
 from ..lib.scp import SCP
 
 from ..config import dp, _
-from ..lib import handlers
+from .. import handlers
 
 
 @dp.message_handler(commands="scp")
