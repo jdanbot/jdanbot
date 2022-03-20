@@ -2,7 +2,7 @@ from aiogram import types
 import urllib
 
 from ..config import dp, MAX_URL, HQ_URL
-from ..lib import handlers
+from .. import handlers
 
 
 def get_video_id(url: str) -> str:

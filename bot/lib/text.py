@@ -1,6 +1,9 @@
 import textwrap
 from typing import Union
 
+from aiogram.utils.markdown import hcode as code, hitalic as italic, hbold as bold, quote_html as fixHTML
+from aiogram.utils.parts import paginate
+
 
 def prettyword(n: int, forms: Union[list, tuple, str]) -> str:
     if isinstance(forms, str):
@@ -20,27 +23,7 @@ def prettyword(n: int, forms: Union[list, tuple, str]) -> str:
 
 
 def cute_crop(text: str, limit: int = 100) -> str:
-    return (textwrap.shorten(text.replace("\n", "<br>"), limit, placeholder="")
-                    .replace("<br>", "\n")
-                    .replace("• ", "<b>• </b>"))
-
-
-def code(text: str) -> str:
-    return f"<code>{fixHTML(text)}</code>"
-
-
-def bold(text: str) -> str:
-    return f"<b>{fixHTML(text)}</b>"
-
-
-def italic(text: str) -> str:
-    return f"<i>{fixHTML(text)}</i>"
-
-
-def fixHTML(text: str) -> str:
-    return (str(text).replace("&", "&amp;")
-                     .replace("<", "&lt;")
-                     .replace(">", "&gt;"))
+    return paginate(text, limit=limit)
 
 
 def fixWords(text: str) -> str:

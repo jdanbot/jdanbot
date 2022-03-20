@@ -4,7 +4,7 @@ from deep_translator import GoogleTranslator as DeepGoogleTranslator
 
 from ..lib.multitran import GoogleTranslator
 from ..config import dp, GTRANSLATE_LANGS
-from ..lib import handlers
+from .. import handlers
 from ..lib.text import cute_crop
 
 from random import choice

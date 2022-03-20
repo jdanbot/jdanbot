@@ -5,7 +5,7 @@ import yaml
 from aiogram import types
 
 from ..config import dp, _
-from ..lib import handlers
+from .. import handlers
 from ..lib.aioget import aioget
 from ..lib.convert_bytes import convert_bytes
 from ..lib.text import code
