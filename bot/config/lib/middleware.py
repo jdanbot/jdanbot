@@ -102,7 +102,7 @@ class I18nMiddleware(I18nMiddlewareBase):
 
             return trans
 
-    async def get_user_locale(self, action: str, args: None):
+    async def get_user_locale(self, action: str = None, args: None = None):
         user = types.User.get_current()
         chat = types.Chat.get_current()
 
@@ -113,9 +113,9 @@ class I18nMiddleware(I18nMiddlewareBase):
         ) if chat is not None else None
 
         if locale:
-            *_, data = args
-            language = data["locale"] = locale.language
-            return chat_locale or language
+            # *_, data = args
+            # language = data["locale"] = locale.language
+            return chat_locale or locale.language
 
         return None
 

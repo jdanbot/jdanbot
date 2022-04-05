@@ -25,6 +25,7 @@ memory_db_patch = true
 image_path = "bot/cache/{image}.jpg"
 status = "unknown"
 gtranslate_langs = ["ru", "en", "ua", "uk", "be", "pl", "de", "fr", "kz", "hu", "hi", "he", "hr"]
+
 langs_list = ["ru", "en", "sv", "de", "ce",
               "tt", "ba", "pl", "uk", "be",
               "es", "he", "xh", "ab"]
@@ -44,6 +45,19 @@ admin_notes = [
     "__polish_mode__"
 ]
 
+[common.flags_emoji]
+ru = '🇷🇺'
+en = '🇬🇧'
+uk = '🇺🇦'
+be = '🇧🇾'
+pl = '🇵🇱'
+de = '🇩🇪'
+fr = '🇫🇷'
+kz = '🇰🇿'
+hu = '🇭🇺'
+hi = '🇮🇳'
+he = '🇮🇱'
+hr = '🇭🇷'
 
 [unique_commands]
 ru = [ "wikiru2", "w", "wiki" ]

@@ -3,9 +3,13 @@ from aiogram import types
 from deep_translator import GoogleTranslator as DeepGoogleTranslator
 
 from ..lib.multitran import GoogleTranslator
-from ..config import dp, GTRANSLATE_LANGS
+from ..config import dp, GTRANSLATE_LANGS, FLAGS_EMOJI, _
+from ..config.i18n import i18n
 from .. import handlers
 from ..lib.text import cute_crop
+
+import re
+import textwrap
 
 from random import choice
 
@@ -29,21 +33,37 @@ async def translate(message: types.Message, query: str):
 @dp.message_handler(commands=["crazy"])
 @handlers.get_text
 async def crazy_translator(message: types.Message, text: str):
-    t = GoogleTranslator()
-    msg = await message.reply("Начал шизовый перевод!")
+    msg = await message.reply(_("triggers.crazy_translate_started"))
+
+    print(await i18n.get_user_locale())
 
     lang = None
 
-    for _ in range(0, 9):
+    for __ in range(0, 9):
         lang = choice(list(filter(lambda x: x not in [lang], GTRANSLATE_LANGS)))
+        lang = "uk" if lang == "ua" else lang
 
-        if lang == "ua":
-            lang = "uk"
+        text = await cleared_translate(text, tgt_lang=lang)
 
-        text = await t.translate(text, tgt_lang=lang)
-        msg = await msg.edit_text(f"Начал шизовый перевод!\n{_ + 1}/10 {lang}")
+        msg = await msg.edit_text(
+            _("triggers.crazy_translate_started") +
+            f"\n[{__ + 1}/10] {FLAGS_EMOJI[lang]} {lang}"
+        )
 
-    await msg.edit_text(await t.translate(text, tgt_lang="ru"),
-                        disable_web_page_preview=True)
+    await msg.edit_text(
+        await cleared_translate(
+            text,
+            tgt_lang=user_lang if (user_lang := await i18n.get_user_locale()) in ("uk", "ru", "en") else "ru"
+        ),
+        disable_web_page_preview=True
+    )
 
+
+async def cleared_translate(*args, **kwargs) -> str:
+    t = GoogleTranslator()
+
+    source_text = await t.translate(*args, **kwargs)
     await t.close()
+
+    text = re.sub(" +", " ", source_text)
+    return textwrap.dedent(text)
