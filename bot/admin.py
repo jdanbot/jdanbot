@@ -24,7 +24,6 @@ async def admin_mut(message: types.Message, *args):
         await action.repost()
 
 
-
 @dp.message_handler(commands=["selfmute", "selfban"])
 @handlers.check("__enable_admin__")
 @handlers.check("__enable_selfmute__")

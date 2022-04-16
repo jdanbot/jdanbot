@@ -13,7 +13,7 @@ buttons = [
 def generate_menu_keyboard() -> types.InlineKeyboardMarkup:
     keyboard = types.InlineKeyboardMarkup()
     btns = [types.InlineKeyboardButton(
-                text=_(f"menu.buttons.{button}"),
+                text=_(f"menu.buttons")[button],
                 callback_data=button
             ) for button in buttons]
 
@@ -32,8 +32,7 @@ async def menu(message: types.Message):
                         disable_web_page_preview=True)
 
 
-@dp.callback_query_handler(lambda call: True and
-                           call.data in buttons)
+@dp.callback_query_handler(lambda call: True and call.data in buttons)
 async def callback_worker(call):
     await edit(call, _(f"menu.{call.data}"))
 

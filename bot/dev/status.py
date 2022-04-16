@@ -5,9 +5,9 @@ from datetime import datetime
 from sys import platform
 
 import psutil
-from aiogram.utils.markdown import code
+from aiogram.utils.markdown import code, escape_md
 
-from ..config import dp, STATUS, START_TIME
+from ..config import dp, STATUS, START_TIME, _
 from ..lib.convert_bytes import convert_bytes
 from ..lib.libtree import make_tree
 
@@ -15,19 +15,21 @@ from ..lib.libtree import make_tree
 @dp.message_handler(commands=["status"])
 async def get_status(message: types.Message):
     mem = psutil.virtual_memory()
-    time = str(datetime.now() - START_TIME)
 
-    status = make_tree({
-        "memory": "{used} of {total} ({percent})".format(
-            used=convert_bytes(mem.used),
-            total=convert_bytes(mem.total),
-            percent=f"{mem.percent}%"
-        ),
-        "cpu": f"{psutil.cpu_percent()}%",
-        "uptime": time[:time.find(".")]
-    }, f"{STATUS} [{get_current_branch()}] on {platform}")
+    time = datetime.now() - START_TIME
 
-    await message.reply(code(status).replace("\\", ""), parse_mode="Markdown")
+    await message.reply(_(
+        "dev.status",
+        name=STATUS,
+        branch=get_current_branch(),
+        platform=platform,
+
+        memory=convert_bytes(mem.used),
+        total_memory=convert_bytes(mem.total),
+
+        cpu=psutil.cpu_percent(),
+        uptime=str(time).split(".")[0]
+    ), parse_mode="Markdown")
 
 
 def get_current_branch() -> str:

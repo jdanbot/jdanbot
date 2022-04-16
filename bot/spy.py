@@ -1,24 +1,14 @@
 from aiogram import types
 from peewee import fn, SQL
 
-from bot.database import chat_member
+from aiogram.utils.markdown import code, escape_md
 
 from .config import bot, dp, _
-from .database import Command, ChatMember, Chat, User
-from .lib.text import code, prettyword, fixHTML
+from .database import Command, ChatMember, Chat, User, Pidor
 
 
-def _user_counter(users: int) -> str:
-    return prettyword(users, _("cases.users"))
-
-
-def _command_counter(users: int) -> str:
-    return prettyword(users, _("cases.commands"))
-
-
-@dp.message_handler(commands=["me"])
+@dp.message_handler(commands=["me", "pidorme"])
 async def me_info(message: types.Message):
-    member = ChatMember.get_by_message(message)
     chats = (
         ChatMember.select(fn.Count(SQL("*")))
                   .join(Chat, on=ChatMember.chat_id == Chat.id)
@@ -31,13 +21,30 @@ async def me_info(message: types.Message):
         message.from_user.id
     )
 
+    pidor_all = sum([pidor.pidor_count for pidor in (
+        Pidor.select()
+             .join(ChatMember, on=Pidor.member_id == ChatMember.id)
+             .join(User, on=ChatMember.user_id == User.id)
+             .where(User.id == message.from_user.id)
+    )])
+
+    pidor = sum([pidor.pidor_count for pidor in (
+        Pidor.select()
+             .join(ChatMember, on=Pidor.member_id == ChatMember.id)
+             .join(User, on=ChatMember.user_id == User.id)
+             .join(Chat, on=ChatMember.chat_id == Chat.id)
+             .where(User.id == message.from_user.id, Chat.id == message.chat.id)
+    )])
+
     await message.reply(_(
         "spy.about_user",
-        name=fixHTML(message.from_user.full_name),
-        id=code(message.from_user.id),
+        name=escape_md(message.from_user.full_name),
+        id=message.from_user.id,
         chats=code(chats),
-        status=code(user.status)
-    ), parse_mode="HTML")
+        status=code(user.status),
+        pidor_all=pidor_all,
+        pidor_local=pidor
+    ), parse_mode="MarkdownV2")
 
 
 @dp.message_handler(lambda message: message.from_user.id == 795449748,
@@ -64,20 +71,11 @@ async def calc_stats(message: types.Message):
         Command.select(fn.Count(SQL("*")))
     ).count()
 
-    # TODO: REWRITE: Пиздецовый стиль сообщения
-
-    await message.reply(code(_(
+    await message.reply(_(
         "spy.users_info",
         local_users=chat_users,
-        lu_label=_user_counter(chat_users),
-
         local_commands=chat_commands,
-        lc_label=_command_counter(chat_commands),
-
 
         global_users=chats_users,
-        gu_label=_user_counter(chats_users),
-
         global_commands=chats_commands,
-        gc_label=_command_counter(chats_commands)
-    )), parse_mode="HTML")
+    ), parse_mode="MarkdownV2")

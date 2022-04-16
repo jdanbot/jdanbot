@@ -7,8 +7,6 @@ from ..lib.monobank import MonobankApi
 
 @dp.message_handler(commands=["mono"])
 async def monobank(message: types.Message):
-    # TODO: Rewrite with pydantic
-
     mono = MonobankApi()
     currencies = await mono.get_currencies()
 

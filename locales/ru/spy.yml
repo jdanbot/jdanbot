@@ -1,0 +1,12 @@
+about_user: |
+  🧑‍💻 *{name}* `\<{id}\>`
+  *🗺 Общие чяты*: *{chats}*
+  
+  *👮‍♂️ Должность*: {status}
+  *🏳️‍🌈 Пидор дня*: {pidor_local} из {pidor_all}
+
+users_info: |
+  📊 *Статистика*
+
+  *🧑‍💻 Юзеров*: {local_users} из {0 юзеров | $global_users юзера | $global_users юзеров | $global_users юзеров}
+  *💻 Команд*: {local_commands} из {0 команд | $global_commands команды | $global_commands команд | $global_commands команд}

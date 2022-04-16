@@ -44,11 +44,11 @@ class BanLog(BaseClass):
         return _(
             f"ban.{'mute' if not self.is_selfmute else 'selfmute'}",
             admin=admin.full_name,
-            admin_id=admin.id,
+            admin_url=admin.url,
 
             **(dict(
                 user=user.full_name,
-                user_id=user.id
+                user_url=user.url
             ) if not self.is_selfmute else {}),
 
             why=self.reason,
@@ -68,10 +68,10 @@ class WarnLog(BaseClass):
 
         return _("ban.warn",
             user=user.full_name,
-            user_id=user.id,
+            user_url=user.url,
 
             admin=admin.full_name,
-            admin_id=admin.id,
+            admin_url=admin.url,
 
             why=self.reason,
             i=self.i
@@ -88,10 +88,10 @@ class UnwarnLog(BaseClass):
 
         return _("ban.unwarn",
             user=user.full_name,
-            user_id=user.id,
+            user_url=user.url,
 
             admin=admin.full_name,
-            admin_id=admin.id,
+            admin_url=admin.url,
 
             why=self.reason,
             i=self.i
