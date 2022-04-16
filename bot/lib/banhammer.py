@@ -18,14 +18,14 @@ from dataclasses import dataclass
 class BaseHammer(BaseClass):
     async def repost(self):
         await self.reply.forward(-1001334412934)
-        await bot.send_message(-1001334412934, self.admin_log, parse_mode="HTML")
+        await bot.send_message(-1001334412934, self.admin_log, parse_mode="MarkdownV2")
 
     async def log(self):
         try:
-            await self.reply.reply(self.admin_log, parse_mode="HTML")
+            await self.reply.reply(self.admin_log, parse_mode="MarkdownV2")
             await self.message.delete()
         except:
-            await self.message.reply(self.admin_log, parse_mode="HTML")
+            await self.message.reply(self.admin_log, parse_mode="MarkdownV2")
 
 
 @dataclass
