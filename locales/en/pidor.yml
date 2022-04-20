@@ -1,0 +1,48 @@
+top_10: "Top 10 *pidors* of all time:"
+members: All members — <code>{count}</code>
+
+reg: You're not in the database. Sign up via /pidorreg
+in_db: Caught in the database, look for yourself in `jdanbot.db`
+status_fixed: Name in DB fixed
+already_in_db: Find youself in `jdanbot.db`
+work_only_in_chats: Pidor of the day only works in chats!
+pidor_left: I found the pidor of the day, but it looks like he left from this chat (wow pidor!), So try again!
+
+templates:
+  - Today *pidor of day* is *{user}*
+  - "*{user}*, you're the *pidor of day*"
+  - You *pidor of day*, *{user}*)))
+
+already_finded_templates:
+  - Today *pidor of the day* has already been discovered, it is *{user}*
+  - You really don't remember who the *pidor of the day* is? Today it is *{user}*
+  - Remind, *{user}* is *pidor of day*
+
+pidor_finding:
+  - |
+      Поиск пидора начат...
+      Тебе уже никуда не уйти)
+      Обход защиты выполнен успешно!
+      Пидор обнаружен... никуда не уходите!
+
+  - |
+      Не стоило вызывать эту команду...
+      Обратного пути нет!
+
+  - |
+      Вы точно уверены, что хотите ЭТО знать???
+      Я понимаю, как вам нетерпиться узнать...
+      Думаю, /donate решит проблему)
+      *Шучу*
+
+  - |
+      Запускаю систему обнаружения пидора
+      ZeroDivisionError: division by zero
+      Ммм, приколы от автора
+      Не важно, потому что пидор найден
+
+  - |
+      Взлом системы поиска пидора... РѕС€РёР±РєР°
+      РџРёР·РґРµС†, С‡С‚Рѕ РїСЂРѕРёР·РѕС€Р»Рѕ?
+      РџРѕРїСЂРѕР±СѓСЋ РїРёСЃР°С‚СЊ С‚СЂР°РЅСЃР»РёС‚РѕРј...
+      Pidor dnya naiden

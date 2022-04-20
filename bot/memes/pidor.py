@@ -23,8 +23,9 @@ async def find_pidor(message: types.Message):
     if not member.chat.can_run_pidor_finder:
         pidor_member = ChatMember.get(id=Pidor.get(id=member.chat.pidor.id).member_id)
 
-        await message.reply(choice(_("pidor.already_finded_templates",
-            user=pidor_member.mention)), parse_mode="HTML")
+        await message.reply(
+            _("pidor.already_finded_templates",
+              user=pidor_member.mention, went_random=True), parse_mode="MarkdownV2")
         return
 
     if not member.pidor or not member.pidor.is_pidor_allowed:
@@ -50,7 +51,7 @@ async def find_pidor(message: types.Message):
         await message.answer(italic(phrase), parse_mode="HTML")
         await asyncio.sleep(2.5)
 
-    await message.answer(choice(_("pidor.templates", user=new_pidor.tag)), parse_mode="HTML")
+    await message.answer(choice(_("pidor.templates", user=new_pidor.tag)), parse_mode="Markdown")
 
     if message.chat.id == -1001176998310:
         try:
@@ -61,7 +62,7 @@ async def find_pidor(message: types.Message):
 
 
 
-PIDOR_TEMPLATE = "<i>{}</i>. <b>{}</b> — <code>{}</code> {}\n"
+PIDOR_TEMPLATE = "_{}_. *{}* — `{}` {}\n"
 
 
 @dp.message_handler(commands=["pidorstats"])
@@ -93,16 +94,7 @@ async def pidor_stats(message):
     msg += "\n"
     msg += _("pidor.members", count=member_count)
 
-    await message.reply(msg, parse_mode="HTML")
-
-
-@dp.message_handler(commands=["pidorme"])
-async def pidor_me(message):
-    member = ChatMember.get_by_message(message)
-
-    await message.reply(_("pidor.me", count=member.pidor.pidor_count,
-                          fcount=prettyword(member.pidor.pidor_count, _("cases.count"))),
-                        parse_mode="HTML")
+    await message.reply(msg, parse_mode="Markdown")
 
 
 @dp.message_handler(commands=["pidorreg"])

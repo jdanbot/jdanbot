@@ -1,0 +1,30 @@
+mute: |
+  [*{user}*]({user_url}) muted [*{admin}*]({admin_url})
+
+  🤔 *Reason:* {why}
+  🕓 *Term:* {time} {time_localed}
+
+  ⛓ *Unmute date:* {unban_time} MSK
+
+selfmute: |
+  [*{admin}*]({admin_url}) selfmuted
+
+  🤔 *Reason:* {why}
+  🕓 *Term:* {time} {time_localed}
+
+  ⛓ *Ummute date:* {unban_time} MSK
+
+warn: |
+  [*{admin}*]({admin_url}) warned {i} time [*{user}*]({user_url})
+
+  🤔 *Reason:* {why}
+
+unwarn: |
+  [*{admin}*]({admin_url}) unwarned {i} time [*{user}*]({user_url})
+
+  🤔 *Reason:* {why}
+
+warn_limit_reached: got {i} warn
+admin_cant_unwarn_self: Admin can't unwarn self
+warns_not_found: No warns
+reason_not_found: no reason

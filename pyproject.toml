@@ -29,6 +29,7 @@ pytz = "^2021.3"
 aiovk-new = "^0.0.1"
 deep-translator = "^1.7.0"
 tghtml = "^1.0.6"
+pyi18n = {path = "../pyi18n/dist/pyi18n-1.0.12.tar.gz"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
