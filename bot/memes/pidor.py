@@ -51,7 +51,11 @@ async def find_pidor(message: types.Message):
         await message.answer(italic(phrase), parse_mode="HTML")
         await asyncio.sleep(2.5)
 
-    await message.answer(choice(_("pidor.templates", user=new_pidor.tag)), parse_mode="Markdown")
+    await message.answer(
+        _("pidor.templates", 
+          went_random=True,
+          user=new_pidor.tag
+        ), parse_mode="Markdown")
 
     if message.chat.id == -1001176998310:
         try:
