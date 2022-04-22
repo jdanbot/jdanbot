@@ -8,11 +8,15 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from wikipya.aiowiki import Wikipya
 from bs4 import BeautifulSoup
 
+from .handlers import send_article
+from .lib.models import Article
+
 from .lib import chez
 
 
 @dp.chosen_inline_handler(lambda query: query.query.startswith("wiki"))
-async def test(query: types.CallbackQuery):
+@send_article
+async def test(query: types.CallbackQuery) -> Article:
     params = query.query.split(maxsplit=1)
 
     lang = params[0].split(":", maxsplit=1)
@@ -22,10 +26,19 @@ async def test(query: types.CallbackQuery):
     page_name = await wiki.get_page_name(query.result_id)
     page = await wiki.page(page_name)
 
-    await bot.edit_message_text(
-        inline_message_id=query.inline_message_id,
+    image = await wiki.image(page_name)
+    opensearch = await wiki.opensearch(page_name)
+
+    return Article(
         text=page.parsed,
-        parse_mode="HTML")
+        image=image.source,
+
+        test=True,
+        inline=True,
+
+        href=opensearch.results[0].link,
+        params=dict(inline_message_id=query.inline_message_id)
+    )
 
 
 @dp.inline_handler(lambda query: True and
