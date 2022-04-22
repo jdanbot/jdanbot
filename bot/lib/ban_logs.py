@@ -1,4 +1,5 @@
 from aiogram import types
+from aiogram.utils.markdown import escape_md
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
@@ -54,7 +55,7 @@ class BanLog(BaseClass):
             why=self.reason,
             time=str(self.ban_time),
             time_localed=self.time_localed,
-            unban_time=self.unban_time,
+            unban_time=escape_md(self.unban_time),
         )
 
 

@@ -34,6 +34,10 @@ class BanHammer(BaseHammer):
     reason: Optional[str] = None
 
     def __post_init__(self):
+        if self.is_selfmute and int(self.time) > 10080 \
+            and self.message.chat == -1001334412934:
+            self.time = 10080
+
         self.admin_log = BanLog(
             self.message,
             self.reply,
@@ -41,6 +45,10 @@ class BanHammer(BaseHammer):
             self.ban_time,
             self.until_date
         ).generate()
+
+    @property
+    def is_selfmute(self) -> bool:
+        return self.reply.from_user.id == self.message.from_user.id
 
     @property
     def ban_time(self) -> int:
