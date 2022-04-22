@@ -1,6 +1,6 @@
 from .lib.middleware import I18nMiddleware, SpyMiddleware
 
-from pyi18n import I18N
+from pyi18n_new import I18N
 
 from .config import LOCALES_DIR
 from .bot import dp

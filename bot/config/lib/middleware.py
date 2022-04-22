@@ -14,7 +14,7 @@ class I18nMiddleware(I18nMiddlewareBase):
 
         section, name = singular.split(".", maxsplit=1)
 
-        if lang is None or lang not in set(self.locales):
+        if lang is None or lang not in ("uk", "en", "ru"):
             lang = "ru"
 
         translate = self.pyi18n[lang][section][name]
@@ -23,7 +23,7 @@ class I18nMiddleware(I18nMiddlewareBase):
         else:
             return translate(**kwargs)
 
-    async def get_user_locale(self, action: str, args: None):
+    async def get_user_locale(self, action, args):
         user = types.User.get_current()
         chat = types.Chat.get_current()
 
