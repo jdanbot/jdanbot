@@ -93,3 +93,9 @@ async def get_a_ban(message):
 @handlers.check("__enable_response__")
 async def question(message):
     await message.reply(choice(["Да", "Нет"]))
+
+
+@dp.message_handler(content_types=["sticker"], user_id=788415801)
+async def test(message):
+    if message.sticker.emoji in list("🥲😢😭😣😖😞😔😕🙁☹️😥😓😰"):
+        await message.delete()
