@@ -1,5 +1,5 @@
 about_user: |
-  🧑‍💻 *{name}* `\<{id}\>`
+  🧑‍💻 *{name}* \<`{id}`\>
   *🗺 Common chats*: *{chats}*
   
   *👮‍♂️ Status*: {status}
