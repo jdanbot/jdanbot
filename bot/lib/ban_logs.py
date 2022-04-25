@@ -30,13 +30,13 @@ class BanLog(BaseClass):
     @property
     def unban_time(self) -> str:
         unban_time = self.until_date.isoformat(sep=" ").split(".")[0]
-    
+
         now = datetime.now(TIMEZONE)
         one_day = now + timedelta(days=1)
 
         if one_day > self.until_date:
             return unban_time.split(" ")[1]
-        
+
         return unban_time
 
     def generate(self) -> str:
@@ -44,7 +44,7 @@ class BanLog(BaseClass):
 
         return _(
             f"ban.{'mute' if not self.is_selfmute else 'selfmute'}",
-            admin=admin.full_name,
+            admin=escape_md(admin.full_name),
             admin_url=admin.url,
 
             **(dict(
@@ -52,7 +52,7 @@ class BanLog(BaseClass):
                 user_url=user.url
             ) if not self.is_selfmute else {}),
 
-            why=self.reason,
+            why=escape_md(self.reason),
             time=str(self.ban_time),
             time_localed=self.time_localed,
             unban_time=escape_md(self.unban_time),
@@ -68,13 +68,13 @@ class WarnLog(BaseClass):
         user, admin = self.reply.from_user, self.message.from_user
 
         return _("ban.warn",
-            user=user.full_name,
+            user=escape_md(user.full_name),
             user_url=user.url,
 
-            admin=admin.full_name,
+            admin=escape_md(admin.full_name),
             admin_url=admin.url,
 
-            why=self.reason,
+            why=escape_md(self.reason),
             i=self.i
         )
 
@@ -88,12 +88,12 @@ class UnwarnLog(BaseClass):
         user, admin = self.reply.from_user, self.message.from_user
 
         return _("ban.unwarn",
-            user=user.full_name,
+            user=escape_md(user.full_name),
             user_url=user.url,
 
-            admin=admin.full_name,
+            admin=escape_md(admin.full_name),
             admin_url=admin.url,
 
-            why=self.reason,
+            why=escape_md(self.reason),
             i=self.i
         )
