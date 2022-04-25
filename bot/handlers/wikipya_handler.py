@@ -133,6 +133,7 @@ def wikipya_handler(
 
 @dp.callback_query_handler(lambda x: x.data.startswith("test "))
 async def test(call: types.CallbackQuery):
+    await call.answer()
     _, prefix, section, query = call.data.split(" ", maxsplit=3)
 
     from wikipya import Wikipya
