@@ -34,6 +34,7 @@ async def menu(message: types.Message):
 
 @dp.callback_query_handler(lambda call: True and call.data in buttons)
 async def callback_worker(call):
+    await call.answer()
     await edit(call, _(f"menu.{call.data}"))
 
 
