@@ -24,7 +24,7 @@ async def call_admins(message):
 @dp.callback_query_handler(lambda call: call.data == "call_admin")
 async def call_admin(call):
     # TODO: REWRITE: move keyboard to keyboards.py
-
+    await call.answer()
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(types.InlineKeyboardButton(text=_("triggers.delete"),
                                             callback_data="delete"))
@@ -40,4 +40,5 @@ async def call_admin(call):
 
 @dp.callback_query_handler(lambda call: call.data == "delete")
 async def delete_call(call):
+    await call.answer()
     await call.message.delete()
