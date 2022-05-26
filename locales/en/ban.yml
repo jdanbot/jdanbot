@@ -1,5 +1,5 @@
 mute: |
-  [*{user}*]({user_url}) muted [*{admin}*]({admin_url})
+  by [*{user}*]({user_url}) muted [*{admin}*]({admin_url})
 
   🤔 *Reason:* {why}
   🕓 *Term:* {time} {time_localed}
@@ -15,12 +15,12 @@ selfmute: |
   ⛓ *Ummute date:* {unban_time} MSK
 
 warn: |
-  [*{admin}*]({admin_url}) warned {i} time [*{user}*]({user_url})
+  by [*{admin}*]({admin_url}) warned {i} time [*{user}*]({user_url})
 
   🤔 *Reason:* {why}
 
 unwarn: |
-  [*{admin}*]({admin_url}) unwarned {i} time [*{user}*]({user_url})
+  by [*{admin}*]({admin_url}) unwarned {i} time [*{user}*]({user_url})
 
   🤔 *Reason:* {why}
 
