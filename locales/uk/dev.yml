@@ -4,3 +4,10 @@ status: |
   🧮 *RAM*: {memory} of {total_memory}
   🖥 *CPU*: {cpu}%
   🕓 *Uptime*: {uptime}
+
+wget: |
+  {code_emoji} *{url}*
+
+  🔘 *Code*: {code}
+  📦 *Size*: {size}
+  🕓 *Time*: {time}

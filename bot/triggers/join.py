@@ -1,7 +1,7 @@
 from random import choice
 
 from ..config import dp, _
-from ..database import Note, ChatMember
+from ..schemas import Note, ChatMember
 
 
 @dp.message_handler(content_types=["new_chat_members"])

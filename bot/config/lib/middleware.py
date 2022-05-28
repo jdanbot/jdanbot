@@ -1,6 +1,4 @@
-import os
-
-from ..database import Note, Command, ChatMember
+from ...schemas import Note, Command, ChatMember
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
 from aiogram.dispatcher.middlewares import BaseMiddleware
@@ -28,7 +26,7 @@ class I18nMiddleware(I18nMiddlewareBase):
         chat = types.Chat.get_current()
 
         locale = user.locale if user else None
-        chat_locale = Note.get(
+        chat_locale = "ru" or Note.get(
             chat.id,
             "__chat_lang__"
         ) if chat is not None else None

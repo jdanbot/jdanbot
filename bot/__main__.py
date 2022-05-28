@@ -1,16 +1,18 @@
 import asyncio
-from bot.network.mono import monobank
 import aioschedule
 
 from aiogram import executor, types
 
 from . import *  # noqa
 from .config import (
-    dp, Poll, DELAY, RSS, VK, SCHEDULE,
+    dp, DELAY, RSS, VK, SCHEDULE,
     KATZ_BOTS, RSS_FEEDS, BLOODYKNIGHT)
-from .timer import rss_task
-from .vk import vk_timer
 
+from .youtube.timer import rss_task
+from .youtube.vk import vk_timer
+from .monobank.mono import monobank
+
+from .schemas import Poll, db_setup
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
@@ -44,6 +46,8 @@ async def scheduler():
 async def startup(x):
     if SCHEDULE:
         asyncio.create_task(scheduler())
+
+    db_setup()
 
 
 executor.start_polling(dp, loop=loop, on_startup=startup)

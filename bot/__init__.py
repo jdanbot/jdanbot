@@ -16,7 +16,7 @@ def force_import(*args):
             continue
 
         try:
-            __import__(module)
+            __import__(module.replace("\\", "."))
 
         except Exception:
             trace = traceback.format_exc()

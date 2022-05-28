@@ -1,7 +1,7 @@
 from pytz import timezone
 
 from .config import *         # noqa
-from ..database import *      # noqa
+# from ..database import *      # noqa
 
 from datetime import datetime
 
