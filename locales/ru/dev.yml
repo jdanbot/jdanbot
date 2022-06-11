@@ -1,5 +1,5 @@
 status: |
-  🟢 *{name}* `[{branch}]` on `{platform}`
+  🟢 *{name}* `v{version} [{branch}]` on `{platform}`
 
   🧮 *RAM*: {memory} of {total_memory}
   🖥 *CPU*: {cpu}%
