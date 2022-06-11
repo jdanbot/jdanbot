@@ -8,7 +8,8 @@ import httpx
 from .. import handlers
 from ..lib.text import bold, fixWords
 from ..lib.models import Article
-from ..config import dp, _, WIKICOMMANDS, LANGS_LIST, UNIQUE_COMMANDS
+from ..config import dp, _, WIKICOMMANDS, UNIQUE_COMMANDS
+from ..config.languages import WIKIPEDIA_LANGS
 
 
 @handlers.wikipya_handler("railgun")
@@ -101,7 +102,7 @@ async def wikihandler(message: types.Message, trigger: str) -> Wikipya:
             lang = lang_
             break
 
-    if lang not in LANGS_LIST:
+    if lang not in WIKIPEDIA_LANGS:
         # return
         lang = "ru"
 

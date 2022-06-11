@@ -1,16 +1,24 @@
 from pytz import timezone
-
-from .config import *         # noqa
-# from ..database import *      # noqa
-
 from datetime import datetime
 
-from .logger import logging   # noqa
-from .vk_api import vk_api    # noqa
-from .bot import bot, dp      # noqa
-from .i18n import _           # noqa
+from .config import settings, LOCALES_DIR, WIKICOMMANDS, UNIQUE_COMMANDS
+
+from .languages import LANGS, GTRANSLATE_LANGS, WIKIPEDIA_LANGS
+
+from .logger import logger   # noqa
+from .bot import bot, dp
+from .i18n import _
 
 
 START_TIME = datetime.now()
 TIMEZONE = timezone("Europe/Moscow")
-SCHEDULE = any([BLOODYKNIGHT, RSS, VK, KATZ_BOTS, YOUTUBE])  # noqa
+
+
+__all__ = (
+    settings,
+    LANGS, GTRANSLATE_LANGS, WIKIPEDIA_LANGS,
+    LOCALES_DIR, WIKICOMMANDS,
+    logger,
+    bot, dp,
+    _
+)

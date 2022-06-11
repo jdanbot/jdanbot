@@ -1,4 +1,4 @@
 from peewee import SqliteDatabase
-from ..config import DB_PATH
+from ..config import settings
 
-db = SqliteDatabase(DB_PATH)
+db = SqliteDatabase(settings.db_path)

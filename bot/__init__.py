@@ -5,6 +5,9 @@ from os import listdir, walk
 from pathlib import Path
 
 
+__version__ = "test"
+
+
 __import__("bot.config.logger")
 root, folders, files = walk("bot", topdown=True).__next__()
 
@@ -40,8 +43,7 @@ def prepare_paths(
             "__pycache__", "config"), modules)
 
         return tuple(map(
-            lambda folder: prepare_paths(listdir(prefix/folder),
-                                         folder_name=folder),
+            lambda folder: prepare_paths(listdir(prefix/folder), folder_name=folder),
             allowed_folders
         ))
 

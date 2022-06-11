@@ -1,8 +1,12 @@
 from aiogram import types
 import urllib
 
-from ..config import dp, MAX_URL, HQ_URL
+from ..config import dp
 from .. import handlers
+
+
+max_url = "https://img.youtube.com/vi/{id}/maxresdefault.jpg"
+hq_url = "https://img.youtube.com/vi/{id}/hqdefault.jpg"
 
 
 def get_video_id(url: str) -> str:
@@ -19,6 +23,10 @@ async def preview(message: types.Message, url: str):
     await message.answer_chat_action("upload_photo")
 
     try:
-        await message.reply_photo(MAX_URL.format(id=video_id))
+        await message.reply_photo(
+            max_url.format(id=video_id)
+        )
     except Exception:
-        await message.reply_photo(HQ_URL.format(id=video_id))
+        await message.reply_photo(
+            hq_url.format(id=video_id)
+        )

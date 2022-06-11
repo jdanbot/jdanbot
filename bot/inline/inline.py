@@ -1,4 +1,4 @@
-from ..config import bot, dp, LANGS_LIST
+from ..config import bot, dp, WIKIPEDIA_LANGS
 from ..lib.text import code, bold
 
 from aiogram import types

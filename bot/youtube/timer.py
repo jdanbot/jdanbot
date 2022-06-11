@@ -3,7 +3,8 @@ import json
 
 from logging import debug
 
-from ..config import bot, YOUTUBE_KEY
+from ..config import bot
+# from ..config import bot, YOUTUBE_KEY
 from ..schemas import Feed
 from ..lib.aioget import aioget
 

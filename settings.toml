@@ -1,15 +1,28 @@
-dynaconf_merge = true
-
-[common]
 status = "develop"
 logging_chat = -1001410092459
 
-[schedule]
-katz_bots = false
-bloodyknight = false
-rss = false
-vk = true
-youtube = true
+admin_notes = [
+    "__rules__",
+    "__enable_bot__",
+    "__ban__",
+    "__welcome__",
+    "__enable_response__",
+    "__enable_welcome__",
+    "__enable_greatings__",
+    "__warns_to_ban__",
+    "__chat_lang__",
+    "__enable_admin__",
+    "__enable_selfmute__",
+    "__polish_mode__"
+]
+
+eggs = [
+    { commands = [ "java1" ], audio = "java.ogg" },
+    { commands = [ "cool_music" ], audio = "music.ogg" },
+    { commands = [ "cum" ], audio = "cum.ogg" },
+    { commands = [ "longcum" ], audio = "longcum.ogg" },
+    { commands = [ "frog" ], audio = "lyagushka.ogg" }
+]
 
 [[rss_feeds]]
 chat_id = -1001410092459
@@ -19,7 +32,3 @@ url = "http://127.0.0.1:5050/rss"
 [[youtube_feeds]]
 chat_id = -1001410092459
 feed_id = "UCUGfDbfRIx51kJGGHIFo8Rw"
-
-[[vk_feeds]]
-chat_id = -1001410092459
-feed_id = "nii_rap"

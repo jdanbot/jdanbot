@@ -1,6 +1,6 @@
 from aiogram import types
 
-from ..config import dp, _, ADMIN_NOTES
+from ..config import dp, _, settings
 from ..schemas import Note, ChatMember
 from .. import handlers
 
@@ -20,7 +20,7 @@ async def cool_secret(message: types.Message, name: str):
 @handlers.parse_arguments(2)
 async def set_(message: types.Message, name: str, text: str):
     name = name[1:] if name.startswith("#") else name
-    is_admin_note = name in ADMIN_NOTES
+    is_admin_note = name in settings.admin_notes
 
     try:
         is_edit = await Note.add(ChatMember.get_by_message(message), name, text, is_admin_note)
