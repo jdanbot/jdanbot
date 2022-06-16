@@ -56,7 +56,7 @@ def wikipya_handler(
                 url = query.split("/")
                 query = url[-1]
 
-            answer = message, message.text if went_trigger_command else [message]
+            answer = (message, message.text) if went_trigger_command else (message,)
 
             try:
                 wiki, *__ = await func(*answer)
