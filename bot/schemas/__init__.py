@@ -3,7 +3,6 @@ from .connection import db
 from .chat import Chat
 from .chat_member import ChatMember
 from .command import Command
-from .feed import Feed
 from .note import Note
 from .pidor import Pidor
 from .poll import Poll
@@ -17,7 +16,6 @@ def db_setup() -> None:
         Chat,
         ChatMember,
         Command,
-        Feed,
         Note,
         Pidor,
         Poll,

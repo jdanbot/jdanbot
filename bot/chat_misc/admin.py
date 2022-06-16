@@ -3,7 +3,6 @@ from aiogram import types
 from .lib.banhammer import BanHammer, WarnHammer, UnwarnHammer
 from ..config import bot, dp, _
 from ..schemas import Poll
-from ..youtube.timer import youtube_task
 from .. import handlers
 
 from ..schemas import ChatMember
@@ -92,8 +91,12 @@ async def kz_poll(message: types.Message, name: str):
     if is_katz_bots:
         options.append("Нет прав")
 
-    poll = await bot.send_poll(message.chat.id, name,
-                               options, is_anonymous=False)
+    poll = await bot.send_poll(
+        message.chat.id,
+        name,
+        options,
+        is_anonymous=False
+    )
 
     if is_katz_bots:
         await poll.pin(disable_notification=True)
@@ -108,16 +111,8 @@ async def kz_poll(message: types.Message, name: str):
 @dp.message_handler(commands=["open"])
 async def open_poll(message: types.Message):
     reply = message.reply_to_message.poll
-    await message.answer_poll(reply.question,
-                              [option.text for option in reply.options],
-                              is_anonymous=False)
-
-
-@dp.message_handler(commands=["reload_pin"])
-@handlers.only_admins
-async def repin(message: types.Message):
-    if message.chat.id != -1001176998310:
-        return
-
-    KATZ_CHANNEL = "UCUGfDbfRIx51kJGGHIFo8Rw"
-    await youtube_task(KATZ_CHANNEL, message.chat.id)
+    await message.answer_poll(
+        reply.question,
+        [option.text for option in reply.options],
+        is_anonymous=False
+    )
