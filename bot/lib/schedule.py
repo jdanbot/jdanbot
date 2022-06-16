@@ -3,20 +3,10 @@ import aioschedule
 
 from ..config import settings
 from ..schemas import Poll
-from ..youtube.timer import rss_task
 
 
 async def scheduler():
-    delay = settings.delay
-
-    if settings.schedule.youtube:
-        for feed in settings.rss_feeds:
-            aioschedule.every(delay).seconds.do(
-                rss_task,
-                feed["url"],
-                feed["feed_id"],
-                feed["chat_id"]
-            )
+    delay = settings.schedule.delay_seconds
 
     if settings.schedule.katz_bots:
         aioschedule.every(delay).seconds.do(Poll.close_old)
@@ -27,5 +17,5 @@ async def scheduler():
 
 
 def schedule_setup():
-    if settings.schedule.youtube or settings.schedule.katz_bots:
+    if settings.schedule.katz_bots:
         asyncio.create_task(scheduler())

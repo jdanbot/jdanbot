@@ -23,12 +23,3 @@ eggs = [
     { commands = [ "longcum" ], audio = "longcum.ogg" },
     { commands = [ "frog" ], audio = "lyagushka.ogg" }
 ]
-
-[[rss_feeds]]
-chat_id = -1001410092459
-feed_id = "jdan734me"
-url = "http://127.0.0.1:5050/rss"
-
-[[youtube_feeds]]
-chat_id = -1001410092459
-feed_id = "UCUGfDbfRIx51kJGGHIFo8Rw"

@@ -17,37 +17,21 @@ class Settings(BaseSettings):
     admin_notes: list[str]
 
     class Tokens(BaseModel):
-        bot_token: str = Field(alias="token")
-        youtube_token: str = Field(alias="youtube_key")
+        bot_token: str
 
     class Schedule(BaseModel):
         delay_seconds: int = 20
 
         katz_bots: bool = False
-        youtube: bool = False
-
-    class RSSFeed(BaseModel):
-        chat_id: int
-        feed_id: str
-        source: AnyHttpUrl = Field(alias="url")
-
-    class YoutubeFeed(BaseModel):
-        chat_id: int
-        feed_id: str
-        # channel_id: str = feed_id
 
     class Egg(BaseModel):
         commands: list[str]
         audio: Path
 
+    tokens: Tokens
+    schedule: Schedule = Schedule()
     eggs: list[Egg]
 
-    tokens: Tokens
-
-    schedule: Schedule = Schedule()
-
-    rss_feeds: list[RSSFeed] = []
-    youtube_feeds: list[YoutubeFeed] = []
 
 
 with open("settings.toml") as file:
