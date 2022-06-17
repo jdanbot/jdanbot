@@ -1,72 +1,51 @@
 from aiogram import types
 
 from ..config import bot
+from ..lib.models import Article
 
 from aiogram.utils.markdown import hide_link
 from bs4 import BeautifulSoup
 
 
+def add_link_to_first_bold(text: str, link: str) -> str:
+    if link is None:
+        return text
+
+    soup = BeautifulSoup(text, "html.parser")
+    b = soup.find_all("b")
+
+    if len(b) != 0:
+        b = b[0]
+        b.name = "a"
+        b["href"] = link
+        b = b.wrap(soup.new_tag("b"))
+
+        return str(soup)
+
+    return text
+
+
 def send_article(func):
     async def wrapper(message: types.Message, *args):
-        result = await func(message, *args)
+        result: Article = await func(message, *args)
 
-        if result.inline:
-            action = bot.edit_message_text
-            params = result.params
+        if isinstance(message, types.CallbackQuery):
+            message = message.message
+            message.reply = message.edit_text
+
+        params = result.params or {}
+
+        if result.image:
+            text = hide_link(result.image) + add_link_to_first_bold(result.text, result.href)
         else:
-            action = message.reply
-            params = {}
+            text = result.text
 
-        if result.image and not result.test:
-            await message.answer_chat_action("upload_photo")
-            await message.reply_photo(
-                result.image,
-                caption=result.text,
-                parse_mode=result.parse_mode,
-                reply_markup=result.keyboard,
-            )
-        elif result.image:
-            if isinstance(message, types.CallbackQuery):
-                message = message.message
-                message.reply = message.edit_text
-
-            soup = BeautifulSoup(result.text, "lxml")
-
-            b = soup.find_all("b")
-
-            if len(b) != 0:
-                if result.href is not None:
-                    b = b[0]
-                    b.name = "a"
-                    b["href"] = result.href
-                    b = b.wrap(soup.new_tag("b"))
-
-            text = hide_link(result.image) + unbody(soup)
-
-            await action(
-                text,
-                parse_mode=result.parse_mode,
-                disable_web_page_preview=result.disable_web_page_preview,
-                reply_markup=result.keyboard,
-                **params
-            )
-        else:
-            if isinstance(message, types.CallbackQuery):
-                message = message.message
-                message.reply = message.edit_text
-
-            await message.reply(
-                result.text,
-                parse_mode=result.parse_mode,
-                disable_web_page_preview=result.disable_web_page_preview,
-                reply_markup=result.keyboard,
-            )
+        await message.reply(
+            text,
+            parse_mode=result.parse_mode,
+            disable_web_page_preview=result.disable_web_page_preview,
+            reply_markup=result.keyboard,
+            **params
+        )
 
     return wrapper
-
-
-
-def unbody(html):
-    return str(html).replace("<p>", "").replace("</p>", "") \
-                    .replace("<html><body>", "") \
-                    .replace("</body></html>", "")

@@ -9,7 +9,7 @@ def parse_arguments(limit, without_params=False):
             except AttributeError:
                 params_raw = message.data.split()
                 params = " ".join(params_raw[1:-1]).split(maxsplit=limit - 1)
-                params.append(int(params_raw[-1]))
+                params.append(params_raw[-1])
 
                 message = message.message
 

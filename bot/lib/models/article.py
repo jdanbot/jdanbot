@@ -15,15 +15,12 @@ class Article:
     disable_web_page_preview: bool = False
 
     href: str = ""
-    test: bool = False
-    inline: bool = False
-
     params: Any = None
 
     def __post_init__(self):
-        limit = 1024 if self.image and not self.test else 4096
+        TG_MESSAGE_LIMIT = 4096
 
-        if (new_text := cute_crop(self.text, limit=limit)) != "":
+        if (new_text := cute_crop(self.text, limit=TG_MESSAGE_LIMIT)) != "":
             self.text = new_text
         else:
-            self.text[:limit]
+            self.text[:TG_MESSAGE_LIMIT]

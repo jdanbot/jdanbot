@@ -67,7 +67,7 @@ async def query_text(query: types.CallbackQuery):
     lang = params[0].split(":", maxsplit=1)
     lang = "ru" if len(lang) == 1 else lang[1]
 
-    if not (lang in LANGS_LIST):
+    if not (lang in WIKIPEDIA_LANGS):
         return
 
     wiki = Wikipya(lang).get_instance()
