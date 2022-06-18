@@ -48,7 +48,7 @@ class BanLog(BaseClass):
             admin_url=admin.url,
 
             **(dict(
-                user=user.full_name,
+                user=escape_md(user.full_name),
                 user_url=user.url
             ) if not self.is_selfmute else {}),
 
