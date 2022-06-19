@@ -1,8 +1,8 @@
 status: |
-  🟢 *{name}* `v{version} [{branch}]` on `{platform}`
+  🟢 *{name}* on `{platform}`
+  📦 *Version*: `v{version} [{branch}]`
 
   🧮 *RAM*: {memory} of {total_memory}
-  🖥 *CPU*: {cpu}%
   🕓 *Uptime*: {uptime}
 
 wget: |
