@@ -9,6 +9,22 @@ from ..config import dp, _, WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS
 from ..config.languages import WIKIPEDIA_LANGS
 
 
+@handlers.wikipya_handler("lurk", "lurkmore")
+async def lurkmore(message: types.Message) -> Wikipya:
+    return Wikipya(
+        base_url="https://lurkmore.rip/api.php",
+        params=dict(
+            tag_blocklist=[
+                ["p", {"class": "quote_sign"}],
+                ["div", {"class": "template"}],
+                ["div", {"class": "thumb"}],
+                ["img"],
+                ["br"]
+            ]
+        )
+    )
+
+
 @handlers.wikipya_handler("fallout")
 async def fallout(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://fallout.fandom.com/ru/api.php", is_lurk=True)
