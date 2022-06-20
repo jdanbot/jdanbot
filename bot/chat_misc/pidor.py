@@ -1,4 +1,5 @@
 from aiogram import types
+from aiogram.utils.markdown import escape_md, italic
 
 import asyncio
 
@@ -7,7 +8,7 @@ from datetime import datetime
 from time import time
 from random import choice
 
-from ..lib.text import prettyword, italic
+from ..lib.text import prettyword
 from ..config import bot, dp, _
 from ..schemas import ChatMember, Chat, Pidor
 
@@ -24,8 +25,13 @@ async def find_pidor(message: types.Message):
         pidor_member = ChatMember.get(id=Pidor.get(id=member.chat.pidor.id).member_id)
 
         await message.reply(
-            _("pidor.already_finded_templates",
-              user=pidor_member.mention, went_random=True), parse_mode="MarkdownV2")
+            _(
+                "pidor.already_finded_templates",
+                user=escape_md(pidor_member.mention),
+                went_random=True,
+            ),
+            parse_mode="MarkdownV2",
+        )
         return
 
     if not member.pidor or not member.pidor.is_pidor_allowed:
@@ -36,34 +42,32 @@ async def find_pidor(message: types.Message):
     pidor_info = await bot.get_chat_member(new_pidor.chat.id, new_pidor.user.id)
 
     if pidor_info.status == "left":
-        await message.reply(_("pidor.pidor_left"),
-                            parse_mode="HTML")
+        await message.reply(_("pidor.pidor_left"))
         return
 
     Pidor.update(
-        pidor_count=Pidor.pidor_count + 1,
-        when_pidor_of_day=datetime.now()
+        pidor_count=Pidor.pidor_count + 1, when_pidor_of_day=datetime.now()
     ).where(Pidor.member_id == new_pidor.id).execute()
-    
+
     Chat.update(pidor=new_pidor.pidor.id).where(Chat.id == new_pidor.chat.id).execute()
 
     for phrase in choice(_("pidor.pidor_finding")).split("\n")[:-1]:
-        await message.answer(italic(phrase), parse_mode="HTML")
+        if phrase != "":
+            await message.answer(italic(phrase), parse_mode="MarkdownV2")
         await asyncio.sleep(2.5)
 
     await message.answer(
-        _("pidor.templates", 
-          went_random=True,
-          user=new_pidor.tag
-        ), parse_mode="Markdown")
+        _("pidor.templates", went_random=True, user=new_pidor.tag),
+        parse_mode="MarkdownV2",
+    )
 
     if message.chat.id == -1001176998310:
         try:
-            await bot.restrict_chat_member(new_pidor.chat.id, new_pidor.user.id,
-                                           until_date=time()+60)
+            await bot.restrict_chat_member(
+                new_pidor.chat.id, new_pidor.user.id, until_date=time() + 60
+            )
         except Exception:
             pass
-
 
 
 PIDOR_TEMPLATE = "_{}_. *{}* — `{}` {}\n"
@@ -73,18 +77,18 @@ PIDOR_TEMPLATE = "_{}_. *{}* — `{}` {}\n"
 async def pidor_stats(message):
     top_pidors = (
         Pidor.select()
-             .join(ChatMember, on=ChatMember.pidor_id == Pidor.id)
-             .join(Chat, on=ChatMember.chat_id == Chat.id)
-             .where(Chat.id == message.chat.id)
-             .order_by(-Pidor.pidor_count)
-             .limit(10)
+        .join(ChatMember, on=ChatMember.pidor_id == Pidor.id)
+        .join(Chat, on=ChatMember.chat_id == Chat.id)
+        .where(Chat.id == message.chat.id)
+        .order_by(-Pidor.pidor_count)
+        .limit(10)
     )
 
     member_count = (
         Pidor.select()
-             .join(ChatMember, on=ChatMember.pidor_id == Pidor.id)
-             .join(Chat, on=ChatMember.chat_id == Chat.id)
-             .where(Chat.id == message.chat.id)
+        .join(ChatMember, on=ChatMember.pidor_id == Pidor.id)
+        .join(Chat, on=ChatMember.chat_id == Chat.id)
+        .where(Chat.id == message.chat.id)
     ).count()
 
     msg = _("pidor.top_10") + "\n\n"
@@ -93,7 +97,9 @@ async def pidor_stats(message):
         count = prettyword(pidor.pidor_count, _("cases.count"))
 
         member = ChatMember.get(id=pidor.member_id)
-        msg += PIDOR_TEMPLATE.format(num, member.user.full_name, pidor.pidor_count, count)
+        msg += PIDOR_TEMPLATE.format(
+            num, member.user.full_name, pidor.pidor_count, count
+        )
 
     msg += "\n"
     msg += _("pidor.members", count=member_count)

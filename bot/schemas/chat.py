@@ -24,18 +24,21 @@ class Chat(Model):
 
         return list(
             Pidor.select()
-                 .join(ChatMember, on=ChatMember.pidor_id == Pidor.id)
-                 .join(Chat, on=ChatMember.chat_id == Chat.id)
-                 .where(Chat.id == self.id, Pidor.is_pidor_allowed == True)
+            .join(ChatMember, on=ChatMember.pidor_id == Pidor.id)
+            .join(Chat, on=ChatMember.chat_id == Chat.id)
+            .where(Chat.id == self.id, Pidor.is_pidor_allowed == True)
         )
 
     @property
     def can_run_pidor_finder(self) -> bool:
         if self.pidor is None:
             return True
-            
-        period_bound = datetime.now() - timedelta(hours=24)
-        return self.pidor.when_pidor_of_day <= period_bound
+
+        next_pidor_day = self.pidor.when_pidor_of_day.replace(
+            hour=0, minute=0, second=0, microsecond=0
+        ) + timedelta(days=1)
+
+        return datetime.now() >= next_pidor_day
 
     def get_by_message(message: types.Message) -> "Chat":
         chat = message.chat

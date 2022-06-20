@@ -6,6 +6,7 @@ from .user import User
 from .pidor import Pidor
 
 from aiogram import types
+from aiogram.utils.markdown import link, hlink, escape_md
 from datetime import datetime
 from peewee import BooleanField, DateTimeField, ForeignKeyField, Model
 
@@ -23,11 +24,11 @@ class ChatMember(Model):
         database = db
 
     @property
-    def tag(self) -> str:
+    def tag(self, use_html=False) -> str:
         if self.user.username:
-            return f"@{self.user.username}"
+            return escape_md(f"@{self.user.username}")
 
-        return f"<a href='tg://user?id={self.user.id}'>{self.user.first_name}</a>"
+        return (hlink if use_html else link)(self.user.first_name, f"tg://user?id={self.user.id}")
 
     @property
     def mention(self) -> str:
