@@ -13,5 +13,4 @@ from .. import handlers
 async def get_scp(message: types.Message, query: str) -> Article:
     scp = SCP()
 
-    results = await scp.search(query)
-    return await scp.page(results[0].url)
+    return await scp.page(f"scp-{query.removeprefix('scp-')}")
