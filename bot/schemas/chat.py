@@ -1,12 +1,15 @@
-from typing import Optional
-
 from datetime import datetime, timedelta
 
 from .connection import db
 from .pidor import Pidor
 
+from pytz import timezone
+
 from aiogram import types
 from peewee import CharField, ForeignKeyField, Model
+
+
+TIMEZONE = timezone("Europe/Moscow")
 
 
 class Chat(Model):
@@ -34,11 +37,16 @@ class Chat(Model):
         if self.pidor is None:
             return True
 
-        next_pidor_day = self.pidor.when_pidor_of_day.replace(
+        if isinstance(self.pidor.when_pidor_of_day, str):
+            when_pidor_of_day = datetime.fromisoformat(self.pidor.when_pidor_of_day)
+        else:
+            when_pidor_of_day = self.pidor.when_pidor_of_day
+
+        next_pidor_day = when_pidor_of_day.replace(
             hour=0, minute=0, second=0, microsecond=0
         ) + timedelta(days=1)
 
-        return datetime.now() >= next_pidor_day
+        return datetime.now(TIMEZONE) >= next_pidor_day
 
     def get_by_message(message: types.Message) -> "Chat":
         chat = message.chat

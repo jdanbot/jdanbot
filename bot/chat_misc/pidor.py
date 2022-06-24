@@ -9,7 +9,7 @@ from time import time
 from random import choice
 
 from ..lib.text import prettyword
-from ..config import bot, dp, _
+from ..config import bot, dp, _, TIMEZONE
 from ..schemas import ChatMember, Chat, Pidor
 
 
@@ -46,7 +46,8 @@ async def find_pidor(message: types.Message):
         return
 
     Pidor.update(
-        pidor_count=Pidor.pidor_count + 1, when_pidor_of_day=datetime.now()
+        pidor_count=Pidor.pidor_count + 1,
+        when_pidor_of_day=datetime.now(TIMEZONE)
     ).where(Pidor.member_id == new_pidor.id).execute()
 
     Chat.update(pidor=new_pidor.pidor.id).where(Chat.id == new_pidor.chat.id).execute()
