@@ -19,7 +19,6 @@ class SCP:
 
     async def page(self, path: str, title: str = "") -> Article:
         url = path if path.startswith(self.BASE_URL) else f"{self.BASE_URL}/{path}"
-        print(url)
         r = await aioget(url)
 
         soup = BeautifulSoup(r.text, "lxml")
@@ -32,7 +31,7 @@ class SCP:
             title = soup.find(id="page-title").text.strip()
 
         parsed_text = f"<b>{title}</b>\n\n" + TgHTML(str(content)).parsed
-        print(parsed_text)
+        
         return Article(
             text=str(parsed_text),
             image=None if len(img := content.find_all("img")) == 0 else img[0]["src"],
