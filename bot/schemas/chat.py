@@ -3,13 +3,10 @@ from datetime import datetime, timedelta
 from .connection import db
 from .pidor import Pidor
 
-from pytz import timezone, utc
+from pytz import utc
 
 from aiogram import types
 from peewee import CharField, ForeignKeyField, Model
-
-
-TIMEZONE = timezone("Europe/Moscow")
 
 
 class Chat(Model):
@@ -36,6 +33,8 @@ class Chat(Model):
     def can_run_pidor_finder(self) -> bool:
         if self.pidor is None:
             return True
+
+        from ..config import TIMEZONE
 
         if isinstance(self.pidor.when_pidor_of_day, str):
             when_pidor_of_day = datetime.fromisoformat(self.pidor.when_pidor_of_day)
