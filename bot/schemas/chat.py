@@ -42,8 +42,8 @@ class Chat(Model):
             when_pidor_of_day = self.pidor.when_pidor_of_day
 
         next_pidor_day = when_pidor_of_day.replace(
-            hour=0, minute=0, second=0, microsecond=0, tzinfo=utc
-        ).astimezone(TIMEZONE) + timedelta(days=1)
+            hour=0, minute=0, second=0, microsecond=0
+        ) + timedelta(days=1)
 
         return datetime.now(TIMEZONE) >= next_pidor_day
 
