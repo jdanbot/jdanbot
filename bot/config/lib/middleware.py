@@ -26,7 +26,7 @@ class I18nMiddleware(I18nMiddlewareBase):
         chat = types.Chat.get_current()
 
         locale = user.locale if user else None
-        chat_locale = "ru" or Note.get(
+        chat_locale = Note.get(
             chat.id,
             "__chat_lang__"
         ) if chat is not None else None
