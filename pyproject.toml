@@ -29,6 +29,7 @@ tghtml = "^1.0.6"
 pyi18n_new  = { path = "../pyi18n" }
 distro = "^1.7.0"
 humanize = "^4.1.0"
+pendulum = "^2.1.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"

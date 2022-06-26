@@ -1,9 +1,7 @@
-from datetime import datetime, timedelta
+import pendulum as pdl
 
 from .connection import db
 from .pidor import Pidor
-
-from pytz import utc
 
 from aiogram import types
 from peewee import CharField, ForeignKeyField, Model
@@ -34,18 +32,18 @@ class Chat(Model):
         if self.pidor is None:
             return True
 
-        from ..config import TIMEZONE
-
         if isinstance(self.pidor.when_pidor_of_day, str):
-            when_pidor_of_day = datetime.fromisoformat(self.pidor.when_pidor_of_day)
+            when_pidor_of_day = pdl.parse(self.pidor.when_pidor_of_day)
         else:
             when_pidor_of_day = self.pidor.when_pidor_of_day
 
-        next_pidor_day = when_pidor_of_day.replace(
-            hour=0, minute=0, second=0, microsecond=0
-        ) + timedelta(days=1)
+        timezone = pdl.timezone("Europe/Moscow")
 
-        return datetime.now(TIMEZONE) >= next_pidor_day
+        next_pidor_day = when_pidor_of_day.replace(tzinfo=timezone).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        ) + pdl.duration(days=1)
+
+        return pdl.now(timezone) >= next_pidor_day
 
     def get_by_message(message: types.Message) -> "Chat":
         chat = message.chat
