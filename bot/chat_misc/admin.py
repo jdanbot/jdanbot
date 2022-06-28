@@ -29,17 +29,12 @@ async def admin_mut(message: types.Message, *args):
 @handlers.check("__enable_selfmute__")
 @handlers.parse_arguments(1, True)
 async def self_mut(message: types.Message, *args):
-    try:  
-        if int(args[0]) > 10080 \
-            and message.chat == -1001334412934:
-            message.text = 10080
-    except:
-        pass
-
     action = BanHammer(message, message, *args)
 
-    await action.execute()
-    await action.log()
+    if await action.execute():
+        await action.log()
+    else:
+        await message.reply(_("ban.selfmute_limit_reached"))
 
 
 @dp.message_handler(commands=["warn"])

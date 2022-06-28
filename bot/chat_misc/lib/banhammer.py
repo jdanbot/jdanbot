@@ -1,7 +1,10 @@
 from typing import Optional
-from datetime import datetime, timedelta
 
-import math
+import pendulum as pdl
+
+from datetime import datetime
+
+import pytimeparse
 
 from ...config import bot, TIMEZONE, _
 from ...schemas import Warn, ChatMember, Note
@@ -19,15 +22,15 @@ class BaseHammer(BaseClass):
 
     async def log(self):
         try:
-            await self.reply.reply(self.admin_log, parse_mode="MarkdownV2")
             await self.message.delete()
+            await self.reply.reply(self.admin_log, parse_mode="MarkdownV2")
         except:
-            await self.message.reply(self.admin_log, parse_mode="MarkdownV2")
+            await self.message.answer(self.admin_log, parse_mode="MarkdownV2")
 
 
 @dataclass
 class BanHammer(BaseHammer):
-    time: int | str = 1
+    time: str | int = "1m"
     reason: Optional[str] = None
 
     def __post_init__(self):
@@ -44,23 +47,34 @@ class BanHammer(BaseHammer):
         return self.reply.from_user.id == self.message.from_user.id
 
     @property
-    def ban_time(self) -> int:
+    def ban_time(self) -> pdl.duration:
         try:
-            return max(1, math.ceil(float(self.time)))
+            return pdl.duration(
+                minutes=max(1, int(self.time))
+            )
 
         except ValueError:
-            bt = datetime.time.fromisoformat(self.time)
-            return bt.hour * 60 + bt.minute
+            return pdl.duration(
+                seconds=max(60, pytimeparse.parse(self.time))
+            )
 
     @property
-    def until_date(self) -> timedelta:
-        return datetime.now(TIMEZONE) + timedelta(minutes=self.ban_time)
+    def until_date(self) -> pdl.datetime:
+        return pdl.now(TIMEZONE) + self.ban_time
 
     async def execute(self):
+        if (
+            self.is_selfmute and
+            self.ban_time > pdl.duration(days=7)
+        ):
+            return False
+
         await self.message.chat.restrict(
             self.reply.from_user.id,
             until_date=self.until_date.timestamp()
         )
+
+        return True
 
 
 @dataclass

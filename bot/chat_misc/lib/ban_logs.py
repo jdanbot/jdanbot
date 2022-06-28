@@ -1,10 +1,12 @@
+import humanize
+
 from aiogram import types
 from aiogram.utils.markdown import escape_md
 from dataclasses import dataclass
-from datetime import datetime, timedelta
 
-from ...lib.text import prettyword
-from ...config import TIMEZONE, _
+import pendulum as pdl
+
+from ...config import _
 
 
 @dataclass
@@ -16,8 +18,8 @@ class BaseClass:
 @dataclass
 class BanLog(BaseClass):
     reason: str
-    ban_time: int
-    until_date: timedelta
+    ban_time: pdl.duration
+    until_date: pdl.datetime
 
     @property
     def is_selfmute(self) -> bool:
@@ -25,36 +27,34 @@ class BanLog(BaseClass):
 
     @property
     def time_localed(self) -> str:
-        return prettyword(self.ban_time, _("cases.minutes"))
+        lang = _(None, return_lang=True)
+        humanize.i18n.activate(lang)
+
+        return humanize.precisedelta(self.ban_time)
 
     @property
     def unban_time(self) -> str:
-        unban_time = self.until_date.isoformat(sep=" ").split(".")[0]
-
-        now = datetime.now(TIMEZONE)
-        one_day = now + timedelta(days=1)
-
-        if one_day > self.until_date:
-            return unban_time.split(" ")[1]
-
-        return unban_time
+        if self.ban_time >= pdl.duration(days=1):
+            return "{} {}".format(
+                self.until_date.to_formatted_date_string(),
+                self.until_date.to_time_string()
+            )
+        else:
+            return self.until_date.to_time_string()
 
     def generate(self) -> str:
         user, admin = self.reply.from_user, self.message.from_user
 
         return _(
             f"ban.{'mute' if not self.is_selfmute else 'selfmute'}",
-            admin=escape_md(admin.full_name),
-            admin_url=admin.url,
+            admin=admin.get_mention(),
 
             **(dict(
-                user=escape_md(user.full_name),
-                user_url=user.url
+                user=user.get_mention()
             ) if not self.is_selfmute else {}),
 
             why=escape_md(self.reason),
-            time=str(self.ban_time),
-            time_localed=self.time_localed,
+            time=self.time_localed,
             unban_time=escape_md(self.unban_time),
         )
 
@@ -68,11 +68,8 @@ class WarnLog(BaseClass):
         user, admin = self.reply.from_user, self.message.from_user
 
         return _("ban.warn",
-            user=escape_md(user.full_name),
-            user_url=user.url,
-
-            admin=escape_md(admin.full_name),
-            admin_url=admin.url,
+            user=user.get_mention(),
+            admin=admin.get_mention(),
 
             why=escape_md(self.reason),
             i=self.i
@@ -88,11 +85,8 @@ class UnwarnLog(BaseClass):
         user, admin = self.reply.from_user, self.message.from_user
 
         return _("ban.unwarn",
-            user=escape_md(user.full_name),
-            user_url=user.url,
-
-            admin=escape_md(admin.full_name),
-            admin_url=admin.url,
+            user=user.get_mention(),
+            admin=admin.get_mention(),
 
             why=escape_md(self.reason),
             i=self.i
