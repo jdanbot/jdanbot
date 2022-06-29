@@ -56,9 +56,8 @@ class MonobankApi:
 
     async def get_currencies(self) -> list[Currency]:
         async with httpx.AsyncClient() as client:
-            res = await client.get("https://api.monobank.ua/bank/currency")
-
             try:
+                res = await client.get("https://api.monobank.ua/bank/currency")
                 self._currencies = Currencies.parse_raw(res.text).__root__
             except:
                 traceback.print_exc()
