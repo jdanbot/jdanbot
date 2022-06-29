@@ -10,7 +10,7 @@ from .. import handlers
 @dp.message_handler(commands="scp")
 @handlers.get_text
 @handlers.send_article
-async def get_scp(message: types.Message, query: str) -> Article:
+async def scp(message: types.Message, query: str) -> Article:
     scp = SCP()
 
     return await scp.page(f"scp-{query.removeprefix('scp-')}")
