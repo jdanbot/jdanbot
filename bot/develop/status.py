@@ -1,7 +1,8 @@
 from aiogram import types
 
 import subprocess  # noqa: S404
-from datetime import datetime, timedelta
+
+import pendulum as pdl
 from sys import platform
 
 import humanize
@@ -11,7 +12,6 @@ import distro
 import toml
 
 from ..config import dp, settings, START_TIME, _
-from .lib.convert_bytes import convert_bytes
 
 
 with open("pyproject.toml", "r") as f:
@@ -20,8 +20,8 @@ with open("pyproject.toml", "r") as f:
 __version__ = pyproject["tool"]["poetry"]["version"]
 
 
-def pprint_timedelta(timedelta: timedelta) -> str:
-    s = timedelta.total_seconds()
+def pprint_timedelta(duration: pdl.duration) -> str:
+    s = duration.total_seconds()
 
     days,    remainder = divmod(s,         60*60*24)
     hours,   remainder = divmod(remainder, 60*60)
@@ -38,7 +38,7 @@ def pprint_timedelta(timedelta: timedelta) -> str:
 @dp.message_handler(commands=["status"])
 async def get_status(message: types.Message):
     mem = psutil.virtual_memory()
-    time = datetime.now() - START_TIME
+    time = pdl.now() - START_TIME
 
     await message.reply(_(
         "dev.status",

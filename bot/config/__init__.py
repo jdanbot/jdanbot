@@ -1,16 +1,22 @@
-from pytz import timezone
-from datetime import datetime
+import pendulum as pdl
 
-from .config import settings, LOCALES_DIR, WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS
+from pytz import timezone
+
+from .config import (
+    settings,
+    LOCALES_DIR,
+    WIKI_COMMANDS,
+    WIKIPEDIA_SHORTCUTS
+)
 
 from .languages import LANGS, GTRANSLATE_LANGS, WIKIPEDIA_LANGS
 
-from .logger import logger   # noqa
+from .logger import logger
 from .bot import bot, dp
 from .i18n import _
 
 
-START_TIME = datetime.now()
+START_TIME = pdl.now()
 TIMEZONE = timezone("Europe/Moscow")
 
 
