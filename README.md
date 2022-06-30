@@ -7,22 +7,18 @@
 ## 🚀 Start
 To start, clone this repo and run this code:
 ```sh
-python -m bot
+pip install -r requirements.txt
+poetry install
+poetry run python -m bot
 ```
 
 ## ⚙️ Configuring
-Fill in .secrets.toml token for [Telegram](t.me/BotFather) and other services. For example:
+Fill in .secrets.toml token for [Telegram](t.me/BotFather) and other settings from [`config.py`](https://github.com/jDan735/jdan734-bot/blob/nightly/bot/config/config.py) if is need. For example:
 
 ```toml
-[tokens]
-token = "12345678909:AVEFWGRGHTHHRGGERGEG"
-access_token = "rf8gmd46..."
-youtube_key = "AB5C..."
-todoist = "85b34485..."
-```
+status = "<custom bot status>"
+logging_chat = -10012345678
 
-## 🌳 Submodules
-### 📚 [wikipya](https://github.com/jdan735/wikipya)
-### 🤡 [pymemeru](https://github.com/jdan735/pymemeru)
-### 🦆 [pyduckgo](https://github.com/jdan735/pyduckgo)
-### 🌲 [tghtml](https://github.com/jdan735/tghtml)
+[tokens]
+bot_token = "12345678909:AVEFWGRGHTHHRGGERGEG"
+```
