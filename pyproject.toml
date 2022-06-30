@@ -2,7 +2,7 @@
 name = "jdan734-bot"
 version = "3.0.0.beta1"
 description = "Multifunctional Telegram Bot for banning and stuff."
-authors = ["Daniel Zakharov <daniel734@bk.ru>"]
+authors = ["Daniel Zakharov <gzdan734@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
@@ -17,7 +17,6 @@ lxml = "^4.7.1"
 psutil = "^5.9.0"
 pyduckgo = "^0.2.0"
 pymemeru = "^0.2.0"
-PyYAML = "^6.0"
 peewee = "^3.14.8"
 wikipya = "^4.0.1"
 pydantic = "^1.9.0"
@@ -25,12 +24,11 @@ emoji = "^1.6.1"
 pytz = "^2021.3"
 deep-translator = "^1.7.0"
 tghtml = "^1.0.6"
-# pyi18n_new = "^1.0.0"
-pyi18n_new  = { path = "../pyi18n" }
 distro = "^1.7.0"
 humanize = "^4.1.0"
 pendulum = "^2.1.2"
 pytimeparse = "^1.1.8"
+pyi18n-new = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
