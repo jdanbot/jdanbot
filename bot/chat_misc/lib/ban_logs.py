@@ -28,7 +28,7 @@ class BanLog(BaseClass):
     @property
     def time_localed(self) -> str:
         lang = _(None, return_lang=True)
-        humanize.i18n.activate(lang)
+        humanize.i18n.activate(None if lang == "en" else lang)
 
         return humanize.precisedelta(self.ban_time)
 
