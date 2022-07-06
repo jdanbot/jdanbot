@@ -27,7 +27,7 @@ async def admin_mut(message: types.Message, *args):
 @dp.message_handler(commands=["selfmute", "selfban"])
 @handlers.check("__enable_admin__")
 @handlers.check("__enable_selfmute__")
-@handlers.parse_arguments(1, True)
+@handlers.parse_arguments(2, True)
 async def self_mut(message: types.Message, *args):
     action = BanHammer(message, message, *args)
 
