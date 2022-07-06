@@ -30,7 +30,7 @@ class BaseHammer(BaseClass):
 
 @dataclass
 class BanHammer(BaseHammer):
-    time: str | int = "1m"
+    time: str = "1m"
     reason: Optional[str] = None
 
     def __post_init__(self):
@@ -49,14 +49,14 @@ class BanHammer(BaseHammer):
     @property
     def ban_time(self) -> pdl.duration:
         try:
-            return pdl.duration(
-                minutes=max(1, int(self.time))
-            )
+            int(self.time)
+            self.time = f"{self.time}m"
+        except:
+            pass
 
-        except ValueError:
-            return pdl.duration(
-                seconds=max(60, pytimeparse.parse(self.time))
-            )
+        return pdl.duration(
+            seconds=max(30, min(31622400, pytimeparse.parse(self.time)))
+        )
 
     @property
     def until_date(self) -> pdl.datetime:
