@@ -1,5 +1,5 @@
 top_10: "Top 10 *pidors* of all time:"
-members: All members — <code>{count}</code>
+members: All members — `{count}`
 
 reg: You're not in the database. Sign up via /pidorreg
 in_db: Caught in the database, look for yourself in `jdanbot.db`
