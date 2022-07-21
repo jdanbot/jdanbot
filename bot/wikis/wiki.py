@@ -48,7 +48,7 @@ async def encyclopedia(message: types.Message) -> Wikipya:
 @handlers.wikipya_handler("mediawiki", extract_query_from_url=True)
 async def custom_mediawiki(message: types.Message) -> Wikipya:
     url = message.get_full_command()[1].split("/")
-    base_url = f"{'/'.join(url[:3])}/api.php"
+    base_url = f"{'/'.join(url[:-2])}/api.php"
 
     try:
         async with httpx.AsyncClient() as client:
