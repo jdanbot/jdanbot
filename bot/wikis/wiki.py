@@ -27,12 +27,12 @@ async def lurkmore(message: types.Message) -> Wikipya:
 
 @handlers.wikipya_handler("fallout")
 async def fallout(message: types.Message) -> Wikipya:
-    return Wikipya(base_url="https://fallout.fandom.com/ru/api.php", is_lurk=True)
+    return Wikipya(base_url="https://fallout.fandom.com/ru/api.php")
 
 
 @handlers.wikipya_handler("kaiser", "kaiserreich")
 async def kaiser(message: types.Message) -> Wikipya:
-    return Wikipya(base_url="https://kaiserreich.fandom.com/ru/api.php", is_lurk=True)
+    return Wikipya(base_url="https://kaiserreich.fandom.com/ru/api.php")
 
 
 @handlers.wikipya_handler("archwiki")
