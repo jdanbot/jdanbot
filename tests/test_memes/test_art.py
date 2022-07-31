@@ -5,7 +5,7 @@ from bot.memes.art import art
 
 
 @pytest.mark.asyncio
-async def test_echo_handler():
+async def test_art_handler():
     message_mock = MessageMock(text="/art test")    
 
     await art(message=message_mock)
