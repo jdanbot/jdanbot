@@ -1,5 +1,7 @@
 from aiogram import types
 
+from ..config import bot
+
 from ..lib.models import Article
 
 from functools import wraps
@@ -38,17 +40,20 @@ def send_article(func):
             message = message.message
             message.reply = message.edit_text
 
+        if isinstance(message, types.ChosenInlineResult):
+            message.reply = bot.edit_message_text
+
         params = result.params or {}
 
+        text = add_link_to_first_bold(result.text, result.href, result.title)
+
         if result.image:
-            text = hide_link(result.image) + add_link_to_first_bold(result.text, result.href, result.title)
-        else:
-            text = result.text
+            text = hide_link(result.image) + text
 
         await message.reply(
             text,
             parse_mode=result.parse_mode,
-            disable_web_page_preview=result.disable_web_page_preview,
+            disable_web_page_preview=result.image,
             reply_markup=result.keyboard,
             **params
         )
