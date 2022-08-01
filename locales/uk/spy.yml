@@ -8,5 +8,5 @@ about_user: |
 users_info: |
   📊 *Статистика*
 
-  *🧑‍💻 Юзерів*: {local_users} из {0 юзерів | $global_users юзери | $global_users юзерів | $global_users юзерів}
-  *💻 Команд*: {local_commands} из {0 команд | $global_commands команди | $global_commands команд | $global_commands команд}
+  *🧑‍💻 Юзерів*: {local_users} з {0 юзерів | $global_users юзери | $global_users юзерів | $global_users юзерів}
+  *💻 Команд*: {local_commands} з {0 команд | $global_commands команди | $global_commands команд | $global_commands команд}
