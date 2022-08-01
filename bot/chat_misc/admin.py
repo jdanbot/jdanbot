@@ -106,8 +106,10 @@ async def kz_poll(message: types.Message, name: str):
 @dp.message_handler(commands=["open"])
 async def open_poll(message: types.Message):
     reply = message.reply_to_message.poll
+
     await message.answer_poll(
         reply.question,
         [option.text for option in reply.options],
-        is_anonymous=False
+        is_anonymous=False,
+        allows_multiple_answers=reply.allows_multiple_answers
     )
