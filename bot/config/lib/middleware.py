@@ -1,6 +1,4 @@
-import os
-
-from ..database import Note, Command, ChatMember
+from ...schemas import Note, Command, ChatMember
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
 from aiogram.dispatcher.middlewares import BaseMiddleware
@@ -8,14 +6,17 @@ from aiogram import types
 
 
 class I18nMiddleware(I18nMiddlewareBase):
-    def t(self, singular, plural=None, n=1, locale=None, **kwargs):
+    def t(self, singular, plural=None, n=1, locale=None, return_lang=False, **kwargs):
         lang = self.ctx_locale.get()
         lang = "uk" if lang == "ua" else lang
 
-        section, name = singular.split(".", maxsplit=1)
-
         if lang is None or lang not in ("uk", "en", "ru"):
             lang = "ru"
+
+        if return_lang:
+            return lang
+
+        section, name = singular.split(".", maxsplit=1)
 
         translate = self.pyi18n[lang][section][name]
         if isinstance(translate, dict):

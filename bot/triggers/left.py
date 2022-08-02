@@ -1,7 +1,7 @@
 from random import choice
 
 from ..config import dp, _
-from ..database import Note
+from ..schemas import Note
 
 
 @dp.message_handler(content_types=["left_chat_member"])

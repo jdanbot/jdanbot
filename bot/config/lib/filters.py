@@ -1,7 +1,6 @@
 import asyncio
 import logging
 
-from .text import code
 from ..bot import bot
 
 
@@ -12,8 +11,7 @@ class ResendLogs(logging.Filter):
         return True
 
     async def send_to_tg(self, record):
-        await bot.send_message(-1001435542296, code(record.msg),
-                               parse_mode="HTML")
+        await bot.send_message(-1001435542296, record.msg, parse_mode="HTML")
 
 
 class NoRunningJobFilter(logging.Filter):

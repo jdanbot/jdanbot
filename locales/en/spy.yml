@@ -3,10 +3,10 @@ about_user: |
   *🗺 Common chats*: *{chats}*
   
   *👮‍♂️ Status*: {status}
-  *🏳️‍🌈 Pidor of day*: {pidor_local} из {pidor_all}
+  *🏳️‍🌈 Pidor of day*: {pidor_local} of {pidor_all}
 
 users_info: |
   📊 *Stats*
 
-  *🧑‍💻 Users*: {local_users} из {no user | $global_users users}
-  *💻 Commands*: {local_commands} из {no commands | $global_commands commands}
+  *🧑‍💻 Users*: {local_users} of {no user | $global_users users}
+  *💻 Commands*: {local_commands} of {no commands | $global_commands commands}

@@ -1,4 +1,4 @@
-from ..config import Note
+from ..schemas import Note
 
 
 def check(var, without_params=False):

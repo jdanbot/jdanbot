@@ -1,7 +1,7 @@
 import traceback
 import io
 
-from ..config import dp, bot, _, LOGGING_CHAT
+from ..config import dp, bot, _, settings
 from ..lib.text import fixHTML, bold, code
 
 
@@ -27,7 +27,7 @@ async def catch_error(callback, exception):
                "NotEnoughRightsToRestrict"):
         return
 
-    if LOGGING_CHAT is not None:
+    if settings.logging_chat is not None:
         f = io.StringIO(error)
         f.name = f"{exc}.log"
 
@@ -37,7 +37,7 @@ async def catch_error(callback, exception):
             id = f"user{message.chat.id}"
 
         await bot.send_document(
-            LOGGING_CHAT, document=f,
+            settings.logging_chat, document=f,
             caption=log_schema.format(
                 name=bold(getattr(message.chat, "first_name") or
                           message.chat.title),

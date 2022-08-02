@@ -9,21 +9,25 @@ from ..text import cute_crop
 @dataclass
 class Article:
     text: str
-    image: Optional[str] = None
-    keyboard: Optional[types.InlineKeyboardMarkup] = None
+    title: str = None
+    image: str = None
+
+    keyboard: types.InlineKeyboardMarkup = None
     parse_mode: str = "HTML"
     disable_web_page_preview: bool = False
 
-    href: str = ""
-    test: bool = False
-    inline: bool = False
+    force_format: bool = False
 
+    href: str = ""
     params: Any = None
 
     def __post_init__(self):
-        limit = 1024 if self.image and not self.test else 4096
+        if self.force_format:
+            self.text = "\n\n".join(list(filter(lambda x: x.strip() != "", self.text.splitlines())))
 
-        if (new_text := cute_crop(self.text, limit=limit)) != "":
+        TG_MESSAGE_LIMIT = 4096
+
+        if (new_text := cute_crop(self.text, limit=TG_MESSAGE_LIMIT)) != "":
             self.text = new_text
         else:
-            self.text[:limit]
+            self.text[:TG_MESSAGE_LIMIT]
