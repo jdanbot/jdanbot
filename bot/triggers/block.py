@@ -13,7 +13,7 @@ from aiogram import types
         )
         or (x.forward_from_chat.id in (-1001204336102,))
         or (
-            x.from_user.id in (920397947,)
+            x.from_user.id in (1890967276,)
             and x.forward_from_chat.id < 0
         )
     ),
