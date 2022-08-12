@@ -6,7 +6,9 @@ from bot.memes.memes import bylo
 
 @pytest.mark.asyncio
 async def test_bylo_handler():
-    message_mock = MessageMock(text="/bylo")
+    message_mock = MessageMock(
+        text="/bylo"
+    )
 
     await bylo(message=message_mock)
 
