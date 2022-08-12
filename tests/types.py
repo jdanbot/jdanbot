@@ -72,7 +72,8 @@ class MessageMock:
         self,
         text: str,
         parse_mode: str = None,
-        disable_web_page_preview: bool = False
+        disable_web_page_preview: bool = False,
+        reply_markup: str = None
     ) -> "MessageMock":
         return MessageMock(
             text=text

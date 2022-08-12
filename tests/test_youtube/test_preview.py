@@ -5,7 +5,7 @@ from bot.youtube.preview import preview
 
 
 @pytest.mark.asyncio
-async def test_art_handler():
+async def test_preview_handler():
     message_mock = MessageMock(text="/preview https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 
     await preview(message=message_mock)
