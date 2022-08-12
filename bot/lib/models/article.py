@@ -25,9 +25,9 @@ class Article:
         if self.force_format:
             self.text = "\n\n".join(list(filter(lambda x: x.strip() != "", self.text.splitlines())))
 
-        TG_MESSAGE_LIMIT = 4096
+        tg_message_limit = 4096
 
-        if (new_text := cute_crop(self.text, limit=TG_MESSAGE_LIMIT)) != "":
+        if (new_text := cute_crop(self.text, limit=tg_message_limit)) != "":
             self.text = new_text
         else:
-            self.text[:TG_MESSAGE_LIMIT]
+            self.text[:tg_message_limit]
