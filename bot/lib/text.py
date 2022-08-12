@@ -1,6 +1,8 @@
 import textwrap
 from typing import Union
 
+#TODO: Full rewrite
+
 from aiogram.utils.markdown import hcode as code, hitalic as italic, hbold as bold, quote_html as fixHTML
 from aiogram.utils.parts import paginate
 
