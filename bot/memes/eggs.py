@@ -5,8 +5,6 @@ from ..config import dp, settings
 from ..lib import chez
 from .. import handlers
 
-from pathlib import Path
-
 
 egg_commands = []
 

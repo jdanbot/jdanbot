@@ -1,7 +1,5 @@
 from aiogram import types
 
-import re
-
 import pymemeru
 
 from ..config import dp, _
@@ -23,8 +21,6 @@ async def mempep(message: types.Message, query: str) -> Article:
 
     page = await pymemeru.page(search[0].name)
     text = TgHTML(str(page.cleared_text), [["img"]]).parsed
-
-    print(page.title)
 
     return Article(
         text=text,

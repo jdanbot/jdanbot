@@ -10,7 +10,7 @@ from ..lib.text import code
 @handlers.get_text
 async def art(message: types.Message, text: str):
     if len(text) > 20:
-        message.reply("Ты шизик.")
+        await message.reply("Ты шизик.")
         return
 
     art = text2art(text, chr_ignore=True)
