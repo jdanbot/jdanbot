@@ -10,12 +10,12 @@ async def send_meme(
     reply = message.reply_to_message
 
     if is_sticker:
-        reply.reply = reply.reply_sticker
+        reply.reply = getattr(reply, "reply_sticker", None)
         message.answer = message.answer_sticker
 
     try:
         await reply.reply(text)
-    except AttributeError:
+    except AttributeError, TypeError:
         await message.answer(text)
 
     await message.delete()
