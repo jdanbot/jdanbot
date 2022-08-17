@@ -66,6 +66,7 @@ class MessageMock:
     is_command = types.Message.is_command
     get_full_command = types.Message.get_full_command
     get_command = types.Message.get_command
+    get_args = types.Message.get_args
 
     @append_to_replies
     async def reply(
