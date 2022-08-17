@@ -1,9 +1,9 @@
 import json
 
 import yaml
+import humanize
 from aiogram import types
 
-from .lib.convert_bytes import convert_bytes
 from ..config import dp, _
 from .. import handlers
 from ..lib.aioget import aioget
@@ -39,6 +39,6 @@ async def wget(message: types.Message, url: str):
         code_emoji=["🟡", "🟢", "🟡", "🔴", "🔴"][
             int(str(response.status_code)[0]) - 1
         ],
-        size=convert_bytes(len(response.content)),
+        size=humanize.naturalsize(len(response.content), binary=True),
         time=str(response.elapsed)
     ), parse_mode="Markdown")

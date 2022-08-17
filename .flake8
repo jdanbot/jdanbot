@@ -1,4 +1,5 @@
 [flake8]
-inline-quotes = "
 application-import-names = bot, dev, lib, memes, network, wiki
 import-style-order = google
+max-line-length = 100
+inline-quotes = "

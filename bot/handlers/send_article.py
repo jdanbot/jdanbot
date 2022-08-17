@@ -24,7 +24,7 @@ def add_link_to_first_bold(text: str, link: str, title: str = None) -> str:
         b = b.wrap(soup.new_tag("b"))
 
         return str(soup)
-    
+
     if title:
         return add_link_to_first_bold(f"<b>{title}</b>\n\n" + str(soup), link)
 
