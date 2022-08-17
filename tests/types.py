@@ -14,12 +14,12 @@ class ChatMock:
     id: int = -10020000000
 
     type: str = "supergroup"
-    
+
     title: str = "jdan's secret test chat"
     username: str = "savekanobu"
 
     async def restrict(self, *args, **kwargs) -> bool:
-        #TODO: Implement restrict
+        # TODO: Implement restrict
 
         return True
 
@@ -40,7 +40,7 @@ class UserMock:
     url = types.User.url
 
 
-def append_to_replies(func):    
+def append_to_replies(func):
     async def wrapper(self, *args, **kwargs):
         msg = await func(self, *args, **kwargs)
         self.replies.append(msg)
@@ -82,7 +82,6 @@ class MessageMock:
 
     answer = reply
     reply_photo = reply
-
 
     async def answer_chat_action(self, *args, **kwargs) -> None: ...
 

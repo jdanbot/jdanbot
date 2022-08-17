@@ -5,7 +5,7 @@ from bot.develop.eval import supereval
 
 
 @pytest.mark.asyncio
-async def test_art_handler():
+async def test_eval_handler():
     message_mock = MessageMock(
         text="/eval 2*2+2",
         from_user=UserMock(

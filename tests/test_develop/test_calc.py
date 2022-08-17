@@ -5,7 +5,7 @@ from bot.develop.calc import eban
 
 
 @pytest.mark.asyncio
-async def test_art_handler():
+async def test_calc_handler():
     message_mock = MessageMock(text="/calc 5+5")
 
     await eban(message=message_mock)

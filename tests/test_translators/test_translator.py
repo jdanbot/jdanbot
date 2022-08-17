@@ -6,7 +6,7 @@ from bot.translator.translator import translate
 
 @pytest.mark.asyncio
 async def test_translate_handler():
-    message_mock = MessageMock(text="/tru test")    
+    message_mock = MessageMock(text="/tru test")
 
     await translate(message=message_mock)
 

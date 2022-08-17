@@ -10,4 +10,4 @@ async def test_preview_handler():
 
     await preview(message=message_mock)
 
-    assert message_mock.replies[0].text == "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg"
+    assert message_mock.replies[0].text == "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg"  # noqa
