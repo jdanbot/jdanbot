@@ -7,15 +7,16 @@ async def send_meme(
     text: str,
     is_sticker: bool = False
 ):
-    reply = message.reply_to_message
-
-    if is_sticker:
-        reply.reply = getattr(reply, "reply_sticker", None)
-        message.answer = message.answer_sticker
-
     try:
+        if is_sticker:
+            reply = message.reply_to_message
+            reply.reply = reply.reply_sticker
+
         await reply.reply(text)
     except Exception:
+        if is_sticker:
+            message.answer = message.answer_sticker
+        
         await message.answer(text)
 
     await message.delete()
