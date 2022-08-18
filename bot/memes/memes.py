@@ -15,7 +15,7 @@ async def send_meme(
 
     try:
         await reply.reply(text)
-    except AttributeError, TypeError:
+    except (AttributeError, TypeError):
         await message.answer(text)
 
     await message.delete()
