@@ -1,0 +1,16 @@
+from .mocks import UserMock
+
+
+user_a = UserMock(
+    username="test",
+
+    first_name="user",
+    last_name="testowy",
+)
+
+user_b = UserMock(
+    id=1234,
+
+    username="niebaneny",
+    first_name="niebaneny człowiek"
+)
