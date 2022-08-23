@@ -49,13 +49,9 @@ async def menu(message: types.Message):
 @dp.callback_query_handler(lambda call: call.data in buttons)
 async def callback_worker(call: types.CallbackQuery):
     await call.answer()
-    await edit(call, call.data)
-
-
-async def edit(call: types.CallbackQuery, section: str):
     await call.message.edit_text(
-        _(f"menu.{section}"),
+        _(f"menu.{call.data}"),
         parse_mode="Markdown",
-        reply_markup=generate_keyboard_grid(buttons, section),
+        reply_markup=generate_keyboard_grid(buttons, call.data),
         disable_web_page_preview=True,
     )

@@ -24,11 +24,12 @@ class I18nMiddleware(I18nMiddlewareBase):
         else:
             return translate(**kwargs)
 
-    async def get_user_locale(self, action = None, args = None):
+    async def get_user_locale(self, action=None, args=None):
         user = types.User.get_current()
         chat = types.Chat.get_current()
 
         locale = user.locale if user else None
+
         chat_locale = Note.get(
             chat.id,
             "__chat_lang__"

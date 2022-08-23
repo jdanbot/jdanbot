@@ -19,7 +19,7 @@ class MessageMock:
 
     parse_mode: str = None
     disable_web_page_preview: bool = False
-    reply_markup: str = None
+    reply_markup: types.InlineKeyboardMarkup = None
 
     def __post_init__(self):
         self.replies: list[MessageMock] = []
@@ -35,6 +35,7 @@ class MessageMock:
 
     answer = reply
     reply_photo = reply
+    edit_text = reply
 
     async def answer_chat_action(self, *args, **kwargs) -> None:
         ...
