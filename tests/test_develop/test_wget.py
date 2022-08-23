@@ -1,46 +1,42 @@
 import pytest
 
-from ..types import MessageMock
+from ..mocks import MessageMock
+from ..lib import cut_lines
 from bot.develop.wget import wget, download
-
-
-def cut_lines(text: str, lines: int = -1) -> str:
-    return "\n".join(text.split("\n")[:lines])
 
 
 @pytest.mark.asyncio
 async def test_wget_handler():
-    message_mock = MessageMock(text="/r jdan734.me")
-
-    await wget(message=message_mock)
-
-    assert cut_lines(message_mock.replies[0].text.strip()) == """
-🟢 *jdan734.me*
-
-🔘 *Code*: 200
-📦 *Size*: 4.0 KiB""".strip()
+    await wget(message_mock := MessageMock("/r jdan734.me"))
+    assert (
+        cut_lines(message_mock.replies[0].text)
+        == (
+            "🟢 *jdan734.me*\n\n"  # noqa
+            "🔘 *Code*: 200\n"     # noqa
+            "📦 *Size*: 4.0 KiB"   # noqa
+        )
+    )
 
 
 @pytest.mark.asyncio
 async def test_download_handler():
-    message_mock = MessageMock(text="/d jdan734.me/scss/font.scss")
+    await download(message_mock := MessageMock(text="/d jdan734.me/scss/font.scss"))
 
-    await download(message=message_mock)
-
-    assert message_mock.replies[0].text.strip() == """
-<code>@font-face {
-    font-family: 'JetBrains Mono';
-    font-weight: normal;
-    font-style: normal;
-
-    src: url('jbmono/JetBrainsMono-Regular.ttf');
-}
-
-@font-face {
-    font-family: 'JetBrains Mono';
-    font-weight: bold;
-    font-style: normal;
-
-    src: url('jbmono/JetBrainsMono-Bold.ttf');
-}
-</code>""".strip()
+    assert (
+        message_mock.replies[0].text
+        == (
+            "<code>@font-face {\n"
+            "    font-family: 'JetBrains Mono';\n"
+            "    font-weight: normal;\n"
+            "    font-style: normal;\n\n"
+            "    src: url('jbmono/JetBrainsMono-Regular.ttf');\n"
+            "}\n\n"
+            "@font-face {\n"
+            "    font-family: 'JetBrains Mono';\n"
+            "    font-weight: bold;\n"
+            "    font-style: normal;\n\n"
+            "    src: url('jbmono/JetBrainsMono-Bold.ttf');\n"
+            "}\n"
+            "</code>"
+        )
+    )
