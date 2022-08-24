@@ -3,7 +3,7 @@ from peewee import fn, SQL
 
 from aiogram.utils.markdown import code, escape_md
 
-from ..config import bot, dp, _
+from ..config import bot, dp, _, settings
 from ..schemas import Command, ChatMember, Chat, User, Pidor
 
 
@@ -47,8 +47,7 @@ async def me_info(message: types.Message):
     ), parse_mode="MarkdownV2")
 
 
-@dp.message_handler(lambda message: message.from_user.id == 795449748,
-                    commands=["stats"])
+@dp.message_handler(lambda message: message.from_user.id in settings.bot_owners, commands=["stats"])
 async def calc_stats(message: types.Message):
     chat_users = (
         ChatMember.select()

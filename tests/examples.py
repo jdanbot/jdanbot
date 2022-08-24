@@ -9,7 +9,7 @@ user_a = UserMock(
 )
 
 user_b = UserMock(
-    id=1234,
+    id=1,
 
     username="niebaneny",
     first_name="niebaneny człowiek"

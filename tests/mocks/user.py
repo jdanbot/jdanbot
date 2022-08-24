@@ -7,7 +7,7 @@ from .bot import BotMock
 
 @dataclass
 class UserMock:
-    id: int = 12345678
+    id: int = 0
 
     username: str = None
 
