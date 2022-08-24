@@ -15,7 +15,7 @@ async def test_warn_handler():
         )
     )
     assert message_mock.replies[0].text == (
-        "*[user testowy](tg://user?id=12345678)* выдал 1\\-й пред *[niebaneny człowiek](tg://user?id=1234)*\n\n"  # noqa
+        "*[user testowy](tg://user?id=0)* выдал 1\\-й пред *[niebaneny człowiek](tg://user?id=1)*\n\n"
         "🤔 *Причина:* тестовый варн"
     )
 
@@ -30,6 +30,6 @@ async def test_unwarn_handler():
         )
     )
     assert message_mock.replies[0].text == (
-        "*[user testowy](tg://user?id=12345678)* отменил 1\\-й пред *[niebaneny człowiek](tg://user?id=1234)*\n\n"  # noqa
+        "*[user testowy](tg://user?id=0)* отменил 1\\-й пред *[niebaneny człowiek](tg://user?id=1)*\n\n"
         "🤔 *Причина:* тестовый варн"
     )

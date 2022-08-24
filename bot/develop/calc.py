@@ -8,7 +8,7 @@ from typing import Any
 
 from .. import handlers
 from ..lib.text import code
-from ..config import dp, _
+from ..config import dp, _, settings
 
 
 async def calc(query: str) -> Any:
@@ -27,8 +27,7 @@ async def eban(message: types.Message, query: str):
         await message.reply(_("errors.only_vars"))
         return
 
-    if type(match_symbols).__name__ == "Match" and \
-       message.from_user.id != 795449748:
+    if type(match_symbols).__name__ == "Match" and message.from_user.id not in settings.bot_owners:
         await message.reply(_("errors.only_vars"))
         return
 

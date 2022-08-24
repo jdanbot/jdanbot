@@ -16,7 +16,7 @@ async def test_mute_handler():
         )
     )
     assert cut_lines(message_mock.replies[0].text, -2) == (
-        "*[user testowy](tg://user?id=12345678)* выдал мут *[niebaneny człowiek](tg://user?id=1234)*\n\n"  # noqa
+        "*[user testowy](tg://user?id=0)* выдал мут *[niebaneny człowiek](tg://user?id=1)*\n\n"
         "🤔 *Причина:* test\\_mute\n"
         "🕓 *Срок:* 16 часов, 40 минут и 50 секунд"
     )
