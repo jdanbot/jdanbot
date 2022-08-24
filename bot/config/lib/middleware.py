@@ -5,8 +5,21 @@ from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram import types
 
 
+from pyi18n_new.models.value import TranslateStr, TranslateDict, TranslateList
+
+
 class I18nMiddleware(I18nMiddlewareBase):
-    def t(self, singular, plural=None, n=1, locale=None, return_lang=False, **kwargs):
+    def t(
+        self,
+        singular: str,
+        plural: str = None,
+        n: int = 1,
+        locale: str = None,
+        return_lang: bool = False,
+        **kwargs
+    ) -> TranslateStr | TranslateList | TranslateDict:
+        # TODO: Research locale argument
+
         lang = self.ctx_locale.get()
         lang = "uk" if lang == "ua" else lang
 
@@ -16,13 +29,7 @@ class I18nMiddleware(I18nMiddlewareBase):
         if return_lang:
             return lang
 
-        section, name = singular.split(".", maxsplit=1)
-
-        translate = self.pyi18n[lang][section][name]
-        if isinstance(translate, dict):
-            return translate
-        else:
-            return translate(**kwargs)
+        return self.pyi18n.translate(path=singular, lang=lang, **kwargs)
 
     async def get_user_locale(self, action=None, args=None):
         user = types.User.get_current()
