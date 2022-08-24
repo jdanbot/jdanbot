@@ -38,4 +38,4 @@ class MessageMock:
     edit_text = reply
 
     async def answer_chat_action(self, *args, **kwargs) -> None:
-        ...
+        pass

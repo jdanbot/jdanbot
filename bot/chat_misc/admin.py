@@ -1,7 +1,7 @@
 from aiogram import types
 
 from .lib.banhammer import BanHammer, WarnHammer, UnwarnHammer
-from ..config import bot, dp, _
+from ..config import dp, _
 from ..schemas import Poll
 from .. import handlers
 
@@ -86,8 +86,7 @@ async def kz_poll(message: types.Message, name: str):
     if is_katz_bots:
         options.append("Нет прав")
 
-    poll = await bot.send_poll(
-        message.chat.id,
+    poll = await message.answer_poll(
         name,
         options,
         is_anonymous=False

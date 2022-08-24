@@ -5,7 +5,7 @@ from .message import MessageMock
 @dataclass
 class CallbackMock:
     message: MessageMock
-    data: str
+    data: str = ""
 
     async def answer(self, *args, **kwargs) -> bool:
         return True

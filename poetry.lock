@@ -167,7 +167,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "charset-normalizer"
-version = "2.1.0"
+version = "2.1.1"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 category = "main"
 optional = false
@@ -200,15 +200,11 @@ cron = ["capturer (>=2.4)"]
 
 [[package]]
 name = "deep-translator"
-version = "1.8.3"
-description = "A flexible free and unlimited python tool to translate between different languages in a simple way using multiple translators"
+version = "1.8.5"
+description = "Deep translator app."
 category = "main"
 optional = false
-python-versions = ">=3.7,<4.0"
-
-[package.dependencies]
-beautifulsoup4 = ">=4.9.1,<5.0.0"
-requests = ">=2.23.0,<3.0.0"
+python-versions = ">=3.6"
 
 [[package]]
 name = "distro"
@@ -378,7 +374,7 @@ pyparsing = ">=2.0.2,<3.0.5 || >3.0.5"
 
 [[package]]
 name = "pbr"
-version = "5.9.0"
+version = "5.10.0"
 description = "Python Build Reasonableness"
 category = "dev"
 optional = false
@@ -476,11 +472,11 @@ httpx = "*"
 
 [[package]]
 name = "pyi18n-new"
-version = "1.0.2"
+version = "1.1.0"
 description = "Advanced i18n realization"
 category = "main"
 optional = false
-python-versions = ">=3.8,<4.0"
+python-versions = ">=3.10,<4.0"
 
 [package.dependencies]
 pydantic = ">=1.9.0,<2.0.0"
@@ -610,24 +606,6 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
-name = "requests"
-version = "2.28.1"
-description = "Python HTTP for Humans."
-category = "main"
-optional = false
-python-versions = ">=3.7, <4"
-
-[package.dependencies]
-certifi = ">=2017.4.17"
-charset-normalizer = ">=2,<3"
-idna = ">=2.5,<4"
-urllib3 = ">=1.21.1,<1.27"
-
-[package.extras]
-socks = ["PySocks (>=1.5.6,!=1.5.7)"]
-use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
-
-[[package]]
 name = "rfc3986"
 version = "1.5.0"
 description = "Validating URI References per RFC 3986"
@@ -713,19 +691,6 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
-name = "urllib3"
-version = "1.26.11"
-description = "HTTP library with thread-safe connection pooling, file post, and more."
-category = "main"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, <4"
-
-[package.extras]
-brotli = ["brotlicffi (>=0.8.0)", "brotli (>=1.0.9)", "brotlipy (>=0.6.0)"]
-secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
-socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
-
-[[package]]
 name = "wikipya"
 version = "4.0.1.post2"
 description = "A simple async python library for search pages and images in wikis"
@@ -754,7 +719,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "32b6e72c4408fac45957234802951d2f98be34303f7543532825228ed9b86be5"
+content-hash = "10b68cea66ce2ae3e9e2acd45083a90dd04e29349c0414f50967897e7f1e747f"
 
 [metadata.files]
 aiogram = [
@@ -878,8 +843,8 @@ certifi = [
     {file = "certifi-2022.6.15.tar.gz", hash = "sha256:84c85a9078b11105f04f3036a9482ae10e4621616db313fe045dd24743a0820d"},
 ]
 charset-normalizer = [
-    {file = "charset-normalizer-2.1.0.tar.gz", hash = "sha256:575e708016ff3a5e3681541cb9d79312c416835686d054a23accb873b254f413"},
-    {file = "charset_normalizer-2.1.0-py3-none-any.whl", hash = "sha256:5189b6f22b01957427f35b6a08d9a0bc45b46d3788ef5a92e978433c7a35f8a5"},
+    {file = "charset-normalizer-2.1.1.tar.gz", hash = "sha256:5a3d016c7c547f69d6f81fb0db9449ce888b418b5b9952cc5e6e66843e9dd845"},
+    {file = "charset_normalizer-2.1.1-py3-none-any.whl", hash = "sha256:83e9a75d1911279afd89352c68b45348559d1fc0506b054b346651b5e7fee29f"},
 ]
 colorama = [
     {file = "colorama-0.4.5-py2.py3-none-any.whl", hash = "sha256:854bf444933e37f5824ae7bfc1e98d5bce2ebe4160d46b5edf346a89358e99da"},
@@ -890,8 +855,7 @@ coloredlogs = [
     {file = "coloredlogs-15.0.1.tar.gz", hash = "sha256:7c991aa71a4577af2f82600d8f8f3a89f936baeaf9b50a9c197da014e5bf16b0"},
 ]
 deep-translator = [
-    {file = "deep-translator-1.8.3.tar.gz", hash = "sha256:f584c3beb9b943c9391bba83174e7ae75231315d41793720200312c54fdbc0cd"},
-    {file = "deep_translator-1.8.3-py3-none-any.whl", hash = "sha256:7ea7b30622747c82f689c836ef164dd001569217da911646a6a32db1a2524c19"},
+    {file = "deep-translator-1.8.5.tar.gz", hash = "sha256:676feb056d3415e8bcbb12c940417b223c72815f6c29a3d90bbbdae28e511c92"},
 ]
 distro = [
     {file = "distro-1.7.0-py3-none-any.whl", hash = "sha256:d596311d707e692c2160c37807f83e3820c5d539d5a83e87cfb6babd8ba3a06b"},
@@ -1135,8 +1099,8 @@ packaging = [
     {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
 ]
 pbr = [
-    {file = "pbr-5.9.0-py2.py3-none-any.whl", hash = "sha256:e547125940bcc052856ded43be8e101f63828c2d94239ffbe2b327ba3d5ccf0a"},
-    {file = "pbr-5.9.0.tar.gz", hash = "sha256:e8dca2f4b43560edef58813969f52a56cef023146cbb8931626db80e6c1c4308"},
+    {file = "pbr-5.10.0-py2.py3-none-any.whl", hash = "sha256:da3e18aac0a3c003e9eea1a81bd23e5a3a75d745670dcf736317b7d966887fdf"},
+    {file = "pbr-5.10.0.tar.gz", hash = "sha256:cfcc4ff8e698256fc17ea3ff796478b050852585aa5bae79ecd05b2ab7b39b9a"},
 ]
 peewee = [
     {file = "peewee-3.15.1.tar.gz", hash = "sha256:6d5db3babc33819ac326f1550e5a39677f4584094c567a7b88cc6bf7bcdcb687"},
@@ -1307,8 +1271,8 @@ pyduckgo = [
     {file = "pyduckgo-0.2.0.tar.gz", hash = "sha256:010a4cf2ada28a73e1ac011411388d59a0238c84600cbbcf9ee493724373a296"},
 ]
 pyi18n-new = [
-    {file = "pyi18n_new-1.0.2-py3-none-any.whl", hash = "sha256:11cdedcb9b63d3c2b3fa64844293c8cff5690102be8ae0f98eff5f383cd91675"},
-    {file = "pyi18n_new-1.0.2.tar.gz", hash = "sha256:1cce9c41c19cd157d35d4939f9302abb80c552fa7fd483edb8c7242f6b175b2a"},
+    {file = "pyi18n_new-1.1.0-py3-none-any.whl", hash = "sha256:0f07ee5fc559396d8402237424f349e5898cb0c2e9adb804eb50c2db2353fc29"},
+    {file = "pyi18n_new-1.1.0.tar.gz", hash = "sha256:19cde71012124a2f3554489c7c2b2617506b820e4391aa760807b0a7c602917e"},
 ]
 pymemeru = [
     {file = "pymemeru-0.2.0-py3-none-any.whl", hash = "sha256:87dd6e6b50cd4295a6cb60e150cf672f1152cc468bce4732527fa597d7ac9ef0"},
@@ -1385,10 +1349,6 @@ pyyaml = [
     {file = "PyYAML-6.0-cp39-cp39-win_amd64.whl", hash = "sha256:b3d267842bf12586ba6c734f89d1f5b871df0273157918b0ccefa29deb05c21c"},
     {file = "PyYAML-6.0.tar.gz", hash = "sha256:68fb519c14306fec9720a2a5b45bc9f0c8d1b9c72adf45c37baedfcd949c35a2"},
 ]
-requests = [
-    {file = "requests-2.28.1-py3-none-any.whl", hash = "sha256:8fefa2a1a1365bf5520aac41836fbee479da67864514bdb821f31ce07ce65349"},
-    {file = "requests-2.28.1.tar.gz", hash = "sha256:7c5599b102feddaa661c826c56ab4fee28bfd17f5abca1ebbe3e7f19d7c97983"},
-]
 rfc3986 = [
     {file = "rfc3986-1.5.0-py2.py3-none-any.whl", hash = "sha256:a86d6e1f5b1dc238b218b012df0aa79409667bb209e58da56d0b94704e712a97"},
     {file = "rfc3986-1.5.0.tar.gz", hash = "sha256:270aaf10d87d0d4e095063c65bf3ddbc6ee3d0b226328ce21e036f946e421835"},
@@ -1423,10 +1383,6 @@ toml = [
 typing-extensions = [
     {file = "typing_extensions-4.3.0-py3-none-any.whl", hash = "sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02"},
     {file = "typing_extensions-4.3.0.tar.gz", hash = "sha256:e6d2677a32f47fc7eb2795db1dd15c1f34eff616bcaf2cfb5e997f854fa1c4a6"},
-]
-urllib3 = [
-    {file = "urllib3-1.26.11-py2.py3-none-any.whl", hash = "sha256:c33ccba33c819596124764c23a97d25f32b28433ba0dedeb77d873a38722c9bc"},
-    {file = "urllib3-1.26.11.tar.gz", hash = "sha256:ea6e8fb210b19d950fab93b60c9009226c63a28808bc8386e05301e25883ac0a"},
 ]
 wikipya = [
     {file = "wikipya-4.0.1.post2-py3-none-any.whl", hash = "sha256:cf149a40b7892db8d8c57f2056c765e092f4dc826ee2d62067bcc487a07313b8"},

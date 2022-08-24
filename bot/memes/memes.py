@@ -18,7 +18,10 @@ async def send_meme(
     except AttributeError:
         await message.answer(text)
 
-    await message.delete()
+    try:
+        await message.delete()
+    except Exception:
+        pass
 
 
 memes = {
