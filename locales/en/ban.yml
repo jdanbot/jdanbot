@@ -27,5 +27,5 @@ unwarn: |
 warn_limit_reached: got {i} warn
 admin_cant_unwarn_self: Admin can't unwarn self
 warns_not_found: No warns
-reason_not_found: no reason
+reason_not_found: unknown
 selfmute_limit_reached: Banned selfmute for more than a week (10080 seconds)

@@ -28,4 +28,4 @@ warn_limit_reached: отримано {i}\-е попередження
 admin_cant_unwarn_self: Адмін не може скасувати попередження самому собі
 warns_not_found: Попереджень немає
 reason_not_found: не вказана
-selfmute_limit_reached: Заборонено селфмут більщ ніж на тиждень (10080 хвилин)
+selfmute_limit_reached: Заборонено селфмут більш ніж на тиждень (10080 хвилин)

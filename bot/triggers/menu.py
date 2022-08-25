@@ -1,51 +1,57 @@
-from aiogram import types, utils
+from aiogram import types
 
-from ..config import bot, dp, _
+from ..config import _, dp
 
-
-buttons = [
-    "main", "math", "network",
-    "text", "images", "commands",
-    "crypt", "memes"
-]
+buttons = ["main", "network", "wiki", "settings", "admin", "system", "notes", "pidor"]
 
 
-def generate_menu_keyboard() -> types.InlineKeyboardMarkup:
+def generate_keyboard_grid(
+    buttons: list[str], selected_button: str
+) -> types.InlineKeyboardMarkup:
+    """Makes 2x2 keyboard grid
+
+    Buttons list must be divisible by 2
+    """
+
     keyboard = types.InlineKeyboardMarkup()
-    btns = [types.InlineKeyboardButton(
-                text=_(f"menu.buttons")[button],
-                callback_data=button
-            ) for button in buttons]
+    btn_dict = _("menu.buttons")
+
+    btns = [
+        types.InlineKeyboardButton(
+            text=(
+                btn_dict[button]
+                if button != selected_button
+                else "✅ " + btn_dict[button].split(maxsplit=1)[1]
+            ),
+            callback_data=button,
+        )
+        for button in buttons
+    ]
 
     for ind, __ in enumerate(btns):
-        a = btns[ind:ind + 2]
+        a = btns[ind : ind + 2]
         btns.remove(a[1])
         keyboard.add(*a)
 
     return keyboard
 
 
-@dp.message_handler(commands=["new_menu", "start", "help"])
+@dp.message_handler(commands=["start", "help"])
 async def menu(message: types.Message):
-    await message.reply(_("menu.main"), parse_mode="HTML",
-                        reply_markup=generate_menu_keyboard(),
-                        disable_web_page_preview=True)
+    await message.reply(
+        _("menu.main"),
+        parse_mode="Markdown",
+        reply_markup=generate_keyboard_grid(buttons, "main"),
+        disable_web_page_preview=True,
+    )
 
 
-@dp.callback_query_handler(lambda call: True and call.data in buttons)
-async def callback_worker(call):
+@dp.callback_query_handler(lambda call: call.data in buttons)
+async def callback_worker(call: types.CallbackQuery):
     await call.answer()
-    await edit(call, _(f"menu.{call.data}"))
-
-
-async def edit(call, text: str):
-    try:
-        await bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text=text, parse_mode="HTML",
-            reply_markup=generate_menu_keyboard(),
-            disable_web_page_preview=True
-        )
-    except utils.exceptions.MessageNotModified:
-        pass
+    await call.message.edit_text(
+        _(f"menu.{call.data}"),
+        parse_mode="Markdown",
+        reply_markup=generate_keyboard_grid(buttons, call.data),
+        disable_web_page_preview=True,
+    )
