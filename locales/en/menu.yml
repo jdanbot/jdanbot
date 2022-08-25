@@ -1,71 +1,85 @@
 main: |
-    <b>✋ Hello!</b> I am made to receive articles from ****pedia in Telegram, smart work with other services (/duck, /b), administration of chats, and also lulz
+    *✋ Hello!* I'm a bot with blackjack and bans. I can ban, take information from services, tell who's pidor of the day, and also be a notary
 
-    💳 Donates - /donate
-    🧑‍💻 Author's page - jdan734.me
-    📰 Author's channel - @jdan734notes
-
-    ⚠️ <i>If the bot doesn't work, try the /status command, because it sometimes helps. The final decision may be to grant administrator rights (to allow the message to be read)</i>
+    💳 Thanks — /donate
+    📰 Bot updates 🇷🇺 — @jdan734notes
 
 network: |
-    <b>Internet</b>
+    *Services*
 
-    /wiki<code>[lang code (ru, uk, en, de)] [name of page]</code>
-    /wiki_langs - supported wikipedia languages
-    /wget - page's information (time for load, size)
-    /lurk - lurkmoare
-    /preview - download youtube preview
+    `/wget [link]` — Information on the speed of downloading page
+    `/preview [link on YouTube video]` — load the thumbnail from YouTube
+    `/mono` — the exchange rate from monobank 🇺🇦
+    `/t[country code (ru, uk, en, de)] [query]` — translate the text to the chosen language
+    `/duck [query]` — to look for something on DuckDuckGo
 
-math: |
-    <b>Math</b>
+wiki: |
+    *Wikipedia*
 
-    /calc - calculate
-    /sqrt - the square root of a number
+    `/wiki[country code (ru, uk, en, de)] [query]` — get an article from Wikipedia
+    `/s [query]` — search by Wiki (as an alternative - inline bot) 🇷🇺
 
-text: |
-    <b>Text formating</b>
+    `/lurk [query]` — Lurkomorye (Lurkmoar) 🇷🇺
+    `/fallout [query]` — Shelter, wiki about Fallout 🇷🇺
+    `/archwiki [query]` — Wiki with a topical Infa about Linux
+    `/encycl [query]` — wiki about illness 🇷🇺
+    `/mediawiki [article url]` — get an article by url 🇷🇺
 
-    /title - all in title case
-    /upper - all in upper case
-    /lower - all in lower case
+    `/meme [query]` — get info from Memepedia 🇷🇺
+    `/scp [scp-object]` — Get a SCP object from SCPFoundation 🇷🇺
 
-images: |
-    <b>Photo editing</b>
+    `/slovnyk [word]` — gets a word description from slovnyk.ua 🇺🇦
 
-    /resize <code>[x] [y]</code> - change photo's size
-    /text <code>[size] [color] [XxY] [text]</code> - draw text on photo
-    /rectangle - draw rectangle on photo
+system: |
+    *System commands*
 
-commands: |
-    <b>System commands</b>
+    /status — get jdanbot's status
 
-    /delete - delete replied message
-    /to_json - str(dict) => json
-    /status - bot status
+settings: |
+    None
 
-crypt: |
-    <b>Cryptography</b>
+admin: |
+    *Chat management*
 
-    /sha256 - text => sha256
-    /password <code>[password len]</code> - generate password
+    `/mute [time] [reason]` — mute a people
+    `/selfmute [time] [reason]` — mute a self
 
-memes: |
-    <b>Memes</b>
+    `/warn [reason]` — warn a people
+    `/unwarn` — delete latest warn
 
-    /rzaka - sends short version of "РЖАКА-СМЕЯКА..."
-    /rzaka_full - sends full version of "РЖАКА-СМЕЯКА..."
-    /fake - sends photo with джонами/поляками
-    /pizda - sends meme "пизда"
-    /tebe_pizda - sends meme "тебе пизда"
-    /net_pizdy - sends meme "нет пизда"
-    /xui - sends meme "хуй"
+    `/poll [питання]` — make poll 🇷🇺
+    `/open` — make non-anonymous poll
+
+
+notes: |
+    *Notes*
+
+    `/get [key]` — get a note
+    `/set [key] [value]` — create a note
+    `/remove [key]` — remove a note
+    `/show` — show all notes
+
+    Also you can use other interface:
+    `#[key]` — get a note
+    `#[key] [value]` — create a note
+
+
+pidor: |
+    *Pidor of Day*
+
+    `/pidor` — find a pidor of day, also show today results
+    `/pidorreg` — register to the game
+    `/pidorstats` — top-10 pidors in this chat
+
+    P.S. The results are updated at midnight by MSC
+
 
 buttons:
-    main: Main
-    math: Math
-    network: Internet
-    text: Text formating
-    images: Photo editing
-    commands: System commands
-    crypt: Cryptography
-    memes: Memes
+    main: 🏠 Home
+    network: 💻 Services
+    wiki: 🌐 Wikipedia
+    settings: ⚙️ Bot's settings
+    admin: 🔫 Chat management
+    system: 🛠 System commands
+    notes: 📒 Notes
+    pidor: 🏳️‍🌈 Pidor of Day
