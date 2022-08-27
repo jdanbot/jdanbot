@@ -77,7 +77,8 @@ async def admin_unwarn(message: types.Message, *args):
         await action.repost()
 
 
-@dp.message_handler(commands=["katz_poll", "poll"])
+@dp.message_handler(commands=["poll"])
+@handlers.check("enable_poll")
 @handlers.parse_arguments(1)
 async def kz_poll(message: types.Message, name: str):
     options = ["Да", "Нет", "Воздержусь"]
