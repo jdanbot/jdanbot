@@ -38,7 +38,7 @@ async def test(call: types.CallbackQuery):
 
     btns = []
 
-    for a, b in (("3", "⚠️ Отключить всё"), ("5", "⚠️ Удалять жоины")):
+    for a, b in (("3", f"⚠️ {_('settings.disable_all_reactions')}"), ("5", f"⚠️ {_('settings.disable_join_message')}")):
         btns.append(types.InlineKeyboardButton(
             b, callback_data=a
         ))
@@ -47,7 +47,7 @@ async def test(call: types.CallbackQuery):
 
     btns = []
 
-    for a, b in (("3", "⚠️ Приветствие"), ("5", "⚠️ Изменить")):
+    for a, b in (("3", f"⚠️ {_('settings.welcome')}"), ("5", f"⚠️ {_('settings.edit')}")):
         btns.append(types.InlineKeyboardButton(
             b, callback_data=a
         ))
@@ -56,7 +56,7 @@ async def test(call: types.CallbackQuery):
 
     btns = []
 
-    for a, b in (("3", "⚠️ Правила"), ("5", "⚠️ Изменить")):
+    for a, b in (("3", f"⚠️ {_('settings.rules')}"), ("5", f"⚠️ {_('settings.edit')}")):
         btns.append(types.InlineKeyboardButton(
             b, callback_data=a
         ))

@@ -1,4 +1,4 @@
-from ..config import dp
+from ..config import dp, _
 from ..schemas import Chat
 
 from aiogram import types
@@ -22,67 +22,67 @@ async def modules_(message: types.Message):
 
     kb.add(
         types.InlineKeyboardButton(
-            f"{bools[modules.is_admin_enabled]} Админка",
+            f"{bools[modules.is_admin_enabled]} {_('settings.admin')}",
             callback_data=f"set modules __enable_admin__ {not modules.is_admin_enabled}"
         )
     )
     kb.row(
         types.InlineKeyboardButton(
-            "⚠️ Муты",
+            f"⚠️ {_('settings.mute')}",
             callback_data="test"
         ),
 
         types.InlineKeyboardButton(
-            "⚠️ Преды",
+            f"⚠️ {_('settings.warn')}",
             callback_data="test"
         ),
     )
     kb.row(
         types.InlineKeyboardButton(
-            f"{bools[modules.is_selfmute_enabled]} Самомут",
+            f"{bools[modules.is_selfmute_enabled]} {_('settings.selfmute')}",
             callback_data=f"set modules __enable_selfmute__ {not modules.is_selfmute_enabled}"
         ),
 
         types.InlineKeyboardButton(
-            f"{bools[modules.is_poll_enabled]} Опросы",
+            f"{bools[modules.is_poll_enabled]} {_('settings.polls')}",
             callback_data=f"set modules enable_poll {not modules.is_poll_enabled}"
         ),
     )
     kb.add(
         types.InlineKeyboardButton(
-            f"{bools[modules.is_memes_enabled]} Мемы",
+            f"{bools[modules.is_memes_enabled]} {_('settings.memes')}",
             callback_data=f"set modules __enable_response__ {not modules.is_memes_enabled}"
         )
     )
     kb.row(
         types.InlineKeyboardButton(
-            "⚠️ Стикеры",
+            f"⚠️ {_('settings.stickers')}",
             callback_data="test"
         ),
         types.InlineKeyboardButton(
-            "⚠️ Текстовые мемы",
+            f"⚠️ {_('settings.text_memes')}",
             callback_data="test"
         ),
     )
     kb.row(
         types.InlineKeyboardButton(
-            "⚠️ Пасхалки",
+            f"⚠️ {_('settings.eggs')}",
             callback_data="test"
         ),
 
         types.InlineKeyboardButton(
-            f"{bools[modules.is_ban_enabled]} Бан",
+            f"{bools[modules.is_ban_enabled]} {_('settings.ban')}",
             callback_data=f"set modules enable_ban_trigger {not modules.is_ban_enabled}"
         ),
     )
     kb.row(
         types.InlineKeyboardButton(
-            "⚠️ Бан2",
+            f"⚠️ {_('settings.ban2')}",
             callback_data="test"
         ),
 
         types.InlineKeyboardButton(
-            "⚠️ Бойкот",
+            f"⚠️ {_('settings.boikot')}",
             callback_data="test"
         ),
     )
@@ -90,6 +90,5 @@ async def modules_(message: types.Message):
     if is_inline:
         await message.edit_reply_markup(kb)
     else:
-        await message.answer("modules", reply_markup=kb)
+        await message.answer(_("settings.modules_text"), reply_markup=kb)
         await message.delete()
-
