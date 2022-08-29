@@ -17,7 +17,7 @@ async def more_cool_wiki_search(wiki: MediaWiki, query: str | int):
         return await wiki.get_all(query)
     else:
         page_name = await wiki.get_page_name(query)
-        
+
         opensearch = await wiki.opensearch(page_name)
         result = opensearch.results[0]
 
@@ -28,7 +28,7 @@ async def more_cool_wiki_search(wiki: MediaWiki, query: str | int):
             image = WRW_FLAG if image.source == WGR_FLAG else image.source
 
         except Exception:
-            image = -1
+            image = None
 
         return page, image, result.link
 
@@ -62,7 +62,7 @@ def wikipya_handler(
                 page.parsed,
                 href=url,
                 image=image,
-                disable_web_page_preview=image == -1,
+                disable_web_page_preview=image is None,
             )
 
         return wrapper

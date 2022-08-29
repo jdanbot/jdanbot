@@ -27,15 +27,15 @@ async def test(query: types.CallbackQuery) -> Article:
     page = await wiki.page(page_name)
 
     try:
-        image = (await wiki.image(page_name)).source
+        image = await wiki.image(page_name)
     except:
-        image = -1
+        image = type("FakeImage", (), {"source": None})
 
     opensearch = await wiki.opensearch(page_name)
 
     return Article(
         text=page.parsed,
-        image=image,
+        image=image.source,
 
         href=opensearch.results[0].link,
         params=dict(inline_message_id=query.inline_message_id)
@@ -98,8 +98,6 @@ async def query_text(query: types.CallbackQuery):
     buttons = []
 
     for result in search:
-        # page = await wiki.page(item)
-
         soup = BeautifulSoup(result.snippet, "lxml")
 
         buttons.append(InlineQueryResultArticle(
