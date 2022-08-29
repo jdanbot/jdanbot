@@ -80,6 +80,7 @@ class Chat(Model):
             language=Note.get(
                 self.id,
                 "__chat_lang__",
+                default="ru",
                 type=lambda x, default: x if x in ("ru", "en", "uk") else default
             )
         )

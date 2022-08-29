@@ -87,8 +87,13 @@ async def modules_(message: types.Message):
         ),
     )
 
+    kb.add(types.InlineKeyboardButton(
+        _("settings.done"),
+        callback_data="delete_msg"
+    ))
+
     if is_inline:
-        await message.edit_reply_markup(kb)
+        await message.edit_text(_("settings.modules_text"), reply_markup=kb)
     else:
         await message.answer(_("settings.modules_text"), reply_markup=kb)
         await message.delete()
