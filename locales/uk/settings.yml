@@ -1,0 +1,11 @@
+reactions: "Реакції"
+warns_to_ban: "Варнів для бану"
+language: "Мова"
+done: "Завершити"
+
+button_back: "⬅️ Назад"
+
+settings_text: Налаштування чята
+reactions_text: Налаштування реакцій (поки не реалізовані)
+warns_to_ban_text: Кількість варнів, щоб користувач отримав бан
+language_text: Налаштування мови чяту

@@ -1,0 +1,11 @@
+reactions: "Reactions"
+warns_to_ban: "Warns to ban"
+language: "Language"
+done: "Done"
+
+button_back: "⬅️ Back"
+
+settings_text: Chat settings
+reactions_text: Configuring reactions (not yet implemented)
+warns_to_ban_text: Count of warns to get a ban
+language_text: Language settings

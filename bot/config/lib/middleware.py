@@ -1,3 +1,4 @@
+from typing import Any
 from ...schemas import Note, Command, ChatMember
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
@@ -16,9 +17,13 @@ class I18nMiddleware(I18nMiddlewareBase):
         n: int = 1,
         locale: str = None,
         return_lang: bool = False,
+        force_reload: bool = False,
         **kwargs
     ) -> TranslateStr | TranslateList | TranslateDict:
         # TODO: Research locale argument
+
+        if force_reload:
+            self.ctx_locale.set(self.get_message_locale())
 
         lang = self.ctx_locale.get()
         lang = "uk" if lang == "ua" else lang
@@ -31,7 +36,11 @@ class I18nMiddleware(I18nMiddlewareBase):
 
         return self.pyi18n.translate(path=singular, lang=lang, **kwargs)
 
-    async def get_user_locale(self, action=None, args=None):
+    def get_message_locale(
+        self,
+        action: str = None,
+        args: tuple[Any] = None
+    ) -> str | None:
         user = types.User.get_current()
         chat = types.Chat.get_current()
 
@@ -47,6 +56,13 @@ class I18nMiddleware(I18nMiddlewareBase):
             return chat_locale or language
 
         return None
+
+    async def get_user_locale(
+        self,
+        action: str,
+        args: tuple[Any]
+    ) -> str | None:
+        return self.get_message_locale()
 
 
 class SpyMiddleware(BaseMiddleware):
