@@ -1,3 +1,4 @@
+from .. import handlers
 from ..config import dp
 from aiogram import types
 
@@ -7,21 +8,19 @@ async def send_meme(
     text: str,
     is_sticker: bool = False
 ):
-    reply = message.reply_to_message
-
-    if is_sticker:
-        reply.reply = reply.reply_sticker
-        message.answer = message.answer_sticker
-
     try:
+        if is_sticker:
+            reply = message.reply_to_message
+            reply.reply = reply.reply_sticker
+
         await reply.reply(text)
-    except AttributeError:
+    except Exception:
+        if is_sticker:
+            message.answer = message.answer_sticker
+        
         await message.answer(text)
 
-    try:
-        await message.delete()
-    except Exception:
-        pass
+    await message.delete()
 
 
 memes = {
@@ -58,6 +57,7 @@ async def meme_stickers(message: types.Message):
 
 
 @dp.message_handler(commands=["ban"])
+@handlers.check("enable_ban_trigger")
 async def ban(message):
     msg = message.text.split(maxsplit=1)
     await send_meme(message, "Бан " + (msg[1] if len(msg) > 1 else ""))

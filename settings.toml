@@ -13,7 +13,9 @@ admin_notes = [
     "__chat_lang__",
     "__enable_admin__",
     "__enable_selfmute__",
-    "__polish_mode__"
+    "__polish_mode__",
+    "enable_ban_trigger",
+    "enable_poll"
 ]
 
 eggs = [
