@@ -61,11 +61,7 @@ async def use_by_hashtag(message: types.Message):
     name, *text = message.text.split(" ", maxsplit=1)
     text = text[0] if len(text) == 1 else ""
 
-    if text != "":
-        # TODO  --------------------
-        # TODO  ADD CHECK ON FORWARD
-        # TODO  --------------------
-
+    if text != "" and (len(message.text) < 100 if message.is_forward() else True):
         message.text = "/set " + message.text
         return await set_(message)
 
