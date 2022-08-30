@@ -1,15 +1,15 @@
-from ..config import dp, LANGS, _
-from ..config.i18n import i18n
-
-from ..schemas import Note, ChatMember
-
-from .settings import settings_
-from .modules import modules_
-
 from aiogram import types
+
+from .. import handlers
+from ..config import LANGS, _, dp
+from ..config.i18n import i18n
+from ..schemas import ChatMember, Note
+from .modules import modules_
+from .settings import settings_
 
 
 @dp.callback_query_handler(lambda call: call.data == "set_lang")
+@handlers.only_admins
 async def test(call: types.CallbackQuery):
     kb = types.InlineKeyboardMarkup()
     message = call.message
@@ -22,7 +22,7 @@ async def test(call: types.CallbackQuery):
 
     kb.add(types.InlineKeyboardButton(
         _("settings.button_back"),
-        callback_data="settings"
+        callback_data="settings_menu"
     ))
 
     await message.edit_text(
@@ -32,6 +32,7 @@ async def test(call: types.CallbackQuery):
 
 
 @dp.callback_query_handler(lambda call: call.data == "set_reactions")
+@handlers.only_admins
 async def test(call: types.CallbackQuery):
     kb = types.InlineKeyboardMarkup()
     message = call.message
@@ -65,7 +66,7 @@ async def test(call: types.CallbackQuery):
 
     kb.add(types.InlineKeyboardButton(
         _("settings.button_back"),
-        callback_data="settings"
+        callback_data="settings_menu"
     ))
 
     await message.edit_text(
@@ -75,6 +76,7 @@ async def test(call: types.CallbackQuery):
 
 
 @dp.callback_query_handler(lambda call: call.data == "set_warn_count")
+@handlers.only_admins
 async def test(call: types.CallbackQuery):
     kb = types.InlineKeyboardMarkup()
     message = call.message
@@ -90,7 +92,7 @@ async def test(call: types.CallbackQuery):
 
     kb.add(types.InlineKeyboardButton(
         _("settings.button_back"),
-        callback_data="settings"
+        callback_data="settings_menu"
     ))
 
     await message.edit_text(
@@ -100,6 +102,7 @@ async def test(call: types.CallbackQuery):
 
 
 @dp.callback_query_handler(lambda call: call.data.startswith("set "))
+@handlers.only_admins
 async def test(call: types.CallbackQuery):
     message = call.message
     member = ChatMember.get_by_message(message)
@@ -111,6 +114,7 @@ async def test(call: types.CallbackQuery):
     call.data = section
 
     if call.data == "settings":
+        call.data = "settings_menu"
         await settings_(call)
     elif call.data == "modules":
         await modules_(call)

@@ -1,12 +1,13 @@
-from ..config import dp, _, LANGS
-
-from ..schemas import Chat
-
 from aiogram import types
+
+from .. import handlers
+from ..config import LANGS, _, dp
+from ..schemas import Chat
 
 
 @dp.message_handler(commands="settings_beta")
-@dp.callback_query_handler(lambda call: call.data == "settings")
+@dp.callback_query_handler(lambda call: call.data == "settings_menu")
+@handlers.only_admins
 async def settings_(message: types.Message):
     try:
         message: types.Message = message.message
@@ -52,5 +53,6 @@ async def settings_(message: types.Message):
 
 
 @dp.callback_query_handler(lambda call: call.data == "delete_msg")
+@handlers.only_admins
 async def test_(call: types.CallbackQuery):
     await call.message.delete()

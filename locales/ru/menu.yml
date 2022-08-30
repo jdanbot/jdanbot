@@ -33,10 +33,13 @@ wiki: |
 system: |
     *Системные команды*
 
-    /status — Статус бота
+    `/status` — Статус бота
 
 settings: |
-    None
+    *Настройки*
+
+    `/settings_beta` — настройки
+    `/modules_beta` — управление модулями бота
 
 admin: |
     *Управление чятом*
@@ -78,7 +81,7 @@ buttons:
     main: 🏠 Главная
     network: 💻 Сервисы
     wiki: 🌐 Википедия
-    settings: ⚙️ Настройки бота
+    settings: ⚙️ Настройки
     admin: 🔫 Управление чятом
     system: 🛠 Системные команды
     notes: 📒 Заметки

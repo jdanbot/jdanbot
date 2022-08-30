@@ -33,10 +33,13 @@ wiki: |
 system: |
     *System commands*
 
-    /status — get jdanbot's status
+    `/status` — get jdanbot's status
 
 settings: |
-    None
+    *Settings*
+
+    `/settings_beta` — settings
+    `/modules_beta` — control bot's modules
 
 admin: |
     *Chat management*
