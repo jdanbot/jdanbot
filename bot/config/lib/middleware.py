@@ -51,8 +51,8 @@ class I18nMiddleware(I18nMiddlewareBase):
 
     async def get_user_locale(
         self,
-        action: str,
-        args: tuple[Any]
+        action: str | None = None,
+        args: tuple[Any] = None
     ) -> str | None:
         return self.get_member_locale()
 
