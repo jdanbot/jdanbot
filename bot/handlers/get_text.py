@@ -29,7 +29,6 @@ def get_text(func):
                 #TODO: Add custom languages
 
                 text = pytesseract.image_to_string(Image.open(file))
-                await message.reply(text)
         else:
             try:
                 await message.reply(
