@@ -1,5 +1,5 @@
 mute: |
-  *{user}* muted *{admin}*
+  *{admin}* muted *{user}*
 
   🤔 *Reason:* {why}
   🕓 *Term:* {time}
