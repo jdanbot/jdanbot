@@ -1,11 +1,20 @@
 from datetime import datetime
-from typing import Optional
+from typing import Any, Callable
 
 from peewee import BooleanField, CharField, DateTimeField, ForeignKeyField, Model
 
 from .chat import Chat
 from .chat_member import ChatMember
 from .connection import db
+
+
+def str2bool(value: str, default: None = None) -> bool | None:
+    if value.lower() in ("true", "yes", "1"):
+        return True
+    elif value.lower() in ("false", "no", "0"):
+        return False
+
+    return default
 
 
 class Note(Model):
@@ -53,16 +62,21 @@ class Note(Model):
 
         return is_edit
 
-    def get(chat_id: int, name: str) -> Optional[str]:
+    def get(
+        chat_id: int,
+        name: str,
+        default: Any = None,
+        type: Callable[[str, Any], Any] = lambda x, y: x
+    ) -> Any:
         try:
-            return list(
+            return type(list(
                 Note.select()
                     .join(ChatMember, on=Note.author_id == ChatMember.id)
                     .join(Chat, on=ChatMember.chat_id == Chat.id)
                     .where(Chat.id == chat_id, Note.name == name)
-            )[0].text
-        except Exception as e:
-            return None
+            )[0].text, default)
+        except IndexError:
+            return default
 
     def show(chat_id: int) -> list[str]:
         notes = (

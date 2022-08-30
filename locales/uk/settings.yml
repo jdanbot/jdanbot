@@ -1,0 +1,43 @@
+reactions: "Реакції"
+warns_to_ban: "Варнів для бану"
+language: "Мова"
+done: "Завершити"
+
+button_back: "⬅️ Назад"
+
+disable_all_reactions: Вимкнути усі реакції
+disable_join_message: Видаляти жоіни
+
+welcome: Привітання
+rules: Правила
+
+edit: Змінити
+
+settings_text: Налаштування чяту
+reactions_text: Налаштування реакцій (поки не реалізовані)
+warns_to_ban_text: Кількість варнів, щоб користувач отримав бан
+language_text: Налаштування мови чяту
+
+modules_text: Керування модулями боту
+
+
+# MODULES
+admin: Адмінка
+
+mute: Мути
+warn: Варни
+
+selfmute: Селфмут
+polls: Опитування
+
+# ---------
+memes: Меми
+
+stickers: Наліпки
+text_memes: Пасти
+
+eggs: Пасхалки
+ban: Бан (команда)
+
+ban2: Бан (у тексті)
+boikot: Бойкот

@@ -1,3 +1,4 @@
+from typing import Any
 from ...schemas import Note, Command, ChatMember
 
 from aiogram.contrib.middlewares.i18n import I18nMiddleware as I18nMiddlewareBase
@@ -16,9 +17,13 @@ class I18nMiddleware(I18nMiddlewareBase):
         n: int = 1,
         locale: str = None,
         return_lang: bool = False,
+        force_reload: bool = False,
         **kwargs
     ) -> TranslateStr | TranslateList | TranslateDict:
         # TODO: Research locale argument
+
+        if force_reload:
+            self.ctx_locale.set(self.get_member_locale())
 
         lang = self.ctx_locale.get()
         lang = "uk" if lang == "ua" else lang
@@ -31,22 +36,25 @@ class I18nMiddleware(I18nMiddlewareBase):
 
         return self.pyi18n.translate(path=singular, lang=lang, **kwargs)
 
-    async def get_user_locale(self, action=None, args=None):
-        user = types.User.get_current()
+    def get_member_locale(self) -> str | None:
         chat = types.Chat.get_current()
+        user = types.User.get_current()
 
-        locale = user.locale if user else None
+        if chat and (chat_lang := Note.get(chat.id, "__chat_lang__")):
+            return chat_lang
+        elif user and (user_chat_lang := Note.get(user.id, "__chat_lang__")):
+            return user_chat_lang
+        elif user:
+            return user.language_code
+        else:
+            return None
 
-        chat_locale = Note.get(
-            chat.id,
-            "__chat_lang__"
-        ) if chat is not None else None
-
-        if locale:
-            language = locale.language
-            return chat_locale or language
-
-        return None
+    async def get_user_locale(
+        self,
+        action: str,
+        args: tuple[Any]
+    ) -> str | None:
+        return self.get_member_locale()
 
 
 class SpyMiddleware(BaseMiddleware):
