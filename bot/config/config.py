@@ -16,6 +16,8 @@ class Settings(BaseSettings):
 
     admin_notes: list[str]
 
+    bot_owners: list[int] = [795449748, 0]
+
     class Tokens(BaseModel):
         bot_token: str
 

@@ -1,7 +1,7 @@
 from aiogram import types
 
 from .lib.banhammer import BanHammer, WarnHammer, UnwarnHammer
-from ..config import bot, dp, _
+from ..config import dp, _
 from ..schemas import Poll
 from .. import handlers
 
@@ -12,7 +12,7 @@ from ..schemas import ChatMember
 @handlers.check("__enable_admin__")
 @handlers.only_admins
 @handlers.parse_arguments(2, True)
-async def admin_mut(message: types.Message, *args):
+async def admin_mute(message: types.Message, *args):
     reply = message.reply_to_message
 
     action = BanHammer(message, reply, *args)
@@ -28,7 +28,7 @@ async def admin_mut(message: types.Message, *args):
 @handlers.check("__enable_admin__")
 @handlers.check("__enable_selfmute__")
 @handlers.parse_arguments(2, True)
-async def self_mut(message: types.Message, *args):
+async def selfmute(message: types.Message, *args):
     action = BanHammer(message, message, *args)
 
     if await action.execute():
@@ -87,8 +87,7 @@ async def kz_poll(message: types.Message, name: str):
     if is_katz_bots:
         options.append("Нет прав")
 
-    poll = await bot.send_poll(
-        message.chat.id,
+    poll = await message.answer_poll(
         name,
         options,
         is_anonymous=False

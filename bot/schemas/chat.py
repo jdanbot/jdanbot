@@ -6,6 +6,8 @@ from .pidor import Pidor
 from aiogram import types
 from peewee import CharField, ForeignKeyField, Model
 
+from ..chat_misc.models import ChatSettings, ChatModules
+
 
 class Chat(Model):
     username = CharField(null=True)
@@ -56,3 +58,43 @@ class Chat(Model):
         Chat.update(**defaults).where(Chat.id == chat.id).execute()
 
         return Chat.get_by_id(chat.id)
+
+    def get_settings(self) -> ChatSettings:
+        from .note import Note
+
+        return ChatSettings(
+            reactions=dict(
+                rules=dict(
+                    text=(note_text := Note.get(self.id, "__rules__")),
+                    is_enabled=note_text is not None
+                ),
+                delete_joines=True
+            ),
+
+            warns_to_ban=Note.get(
+                self.id,
+                "__warns_to_ban__",
+                default=3,
+                type=lambda x, default: x if (x := int(x)) in (3, 5, -1) else default
+            ),
+            language=Note.get(
+                self.id,
+                "__chat_lang__",
+                default="ru",
+                type=lambda x, default: x if x in ("ru", "en", "uk") else default
+            )
+        )
+
+    def get_modules(self) -> ChatModules:
+        from .note import Note, str2bool
+
+        bool_params = dict(default=True, type=str2bool)
+
+        return ChatModules(
+            is_admin_enabled=Note.get(self.id, "__enable_admin__", **bool_params),
+            is_selfmute_enabled=Note.get(self.id, "__enable_selfmute__", **bool_params),
+            is_poll_enabled=Note.get(self.id, "enable_poll", **bool_params),
+
+            is_memes_enabled=Note.get(self.id, "__enable_response__", **bool_params),
+            is_ban_enabled=Note.get(self.id, "enable_ban_trigger", **bool_params),
+        )

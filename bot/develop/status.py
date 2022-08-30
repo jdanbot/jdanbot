@@ -25,7 +25,7 @@ def pprint_timedelta(duration: pdl.duration) -> str:
 
     days,    remainder = divmod(s,         60*60*24)
     hours,   remainder = divmod(remainder, 60*60)
-    minutes, seconds   = divmod(remainder, 60)
+    minutes, seconds   = divmod(remainder, 60)         # noqa
 
     return "{:02}:{:02}:{:02}:{:02}".format(
         int(days),

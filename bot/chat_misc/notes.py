@@ -5,9 +5,9 @@ from ..schemas import Note, ChatMember
 from .. import handlers
 
 
-@dp.message_handler(commands=["remove", "remove_note"])
+@dp.message_handler(commands=["remove"])
 @handlers.parse_arguments(1)
-async def cool_secret(message: types.Message, name: str):
+async def remove(message: types.Message, name: str):
     name = name[1:] if name.startswith("#") else name
 
     try:
@@ -35,10 +35,6 @@ async def set_(message: types.Message, name: str, text: str):
 async def get(message: types.Message, name: str):
     name = name[1:] if name.startswith("#") else name
 
-    if name == "__notes_list__":
-        await message.reply(", ".join(Note.show(message.chat.id)))
-        return
-
     note = Note.get(message.chat.id, name)
 
     if note is None:
@@ -51,23 +47,30 @@ async def get(message: types.Message, name: str):
         await message.reply(note)
 
 
-@dp.message_handler(lambda message: message.text.startswith("#"))
-async def get_by_hashtag(message: types.Message):
-    name = message.text.replace("#", "")
-    chat_id = message.chat.id
+@dp.message_handler(commands="show")
+async def show(message: types.Message):
+    await message.reply(", ".join(
+        Note.show(message.chat.id)
+    ))
 
-    if len(name) >= 50:
+
+@dp.message_handler(lambda message: message.text.startswith("#"))
+async def use_by_hashtag(message: types.Message):
+    message.text = message.text.removeprefix("#")
+
+    name, *text = message.text.split(" ", maxsplit=1)
+    text = text[0] if len(text) == 1 else ""
+
+    if text != "" and (len(message.text) < 100 if message.is_forward() else True):
+        message.text = "/set " + message.text
+        return await set_(message)
+
+    note = Note.get(message.chat.id, name)
+
+    if note is None:
         return
 
-    if name == "__notes_list__":
-        await message.reply(", ".join(Note.show(chat_id)))
-    else:
-        note = Note.get(chat_id, name)
-
-        if note is None:
-            return
-
-        try:
-            await message.reply(note, parse_mode="MarkdownV2")
-        except Exception:
-            await message.reply(note)
+    try:
+        await message.reply(note, parse_mode="MarkdownV2")
+    except Exception:
+        await message.reply(note)

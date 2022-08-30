@@ -1,23 +1,27 @@
 import traceback
-import io
 
-from aiogram.utils.markdown import bold as mbold
+from aiogram import types
 
-from ..config import dp, bot, _, settings
-from ..lib.text import fixHTML, bold, code
+from aiogram.utils.markdown import bold, code
+
+from ..config import dp, bot, _, settings, LANGS
 
 
 log_schema = """
-{name} #{id}
-<b>query:</b> {query}
+{name} [{id}]
 
-#{error_small}
+*lang*: {locale}
+*reply*: {reply}
+*query*: {query}
+
+{error_small}
 """
 
 
 @dp.errors_handler()
-async def catch_error(callback, exception):
+async def catch_error(callback: types.CallbackQuery, exception: str):
     message = callback.message
+
     error = traceback.format_exc()
     inf_err = error.split("\n")[-2]
 
@@ -37,38 +41,34 @@ async def catch_error(callback, exception):
     ):
         return
 
-    if exc_full in (
-        "wikipya.exceptions.NotFound",
-    ):
-        await message.reply(mbold(_("errors.not_found")), parse_mode="Markdown")
+    if exc in ("NotFound",):
+        await message.reply(bold(_("errors.not_found")), parse_mode="MarkdownV2")
         return
 
     if settings.logging_chat is not None:
-        f = io.StringIO(error)
-        f.name = f"{exc}.log"
+        reply = message.reply_to_message
 
-        if message.chat.id < 0:
-            id = str(message.chat.id).replace("-100", "chat")
-        else:
-            id = f"user{message.chat.id}"
-
-        await bot.send_document(
+        await bot.send_message(
             settings.logging_chat,
-            document=f,
-            caption=log_schema.format(
-                name=bold(
-                    getattr(message.chat, "first_name") or message.chat.title
-                ),
-                query=fixHTML(message.text),
-                error_small=inf_err,
-                id=id,
+            log_schema.format(
+                name=bold(message.chat.full_name),
+                id=code(message.chat.id),
+
+                user=message.from_user.get_mention(),
+                user_id=code(message.from_user.id),
+
+                locale=LANGS[lang].emoji if (lang := _(None, return_lang=True)) is not None else lang,
+                query=code(message.text),
+                reply=reply.content_type if reply is not None else "❌",
+
+                error_small="   ".join(map(code, inf_err.split(": ")))
             ),
-            parse_mode="HTML",
+            parse_mode="MarkdownV2",
         )
 
     if message is None:
         return
 
     await message.reply(
-        bold(_("errors.error")) + "\n" + code(inf_err), parse_mode="HTML"
+        bold(_("errors.error")) + "\n" + code(exception), parse_mode="MarkdownV2"
     )

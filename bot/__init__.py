@@ -61,4 +61,5 @@ def prepare_paths(
 
 force_import(*prepare_paths(files))
 force_import(*prepare_paths(folders, is_folders=True))
+# from bot.chat_misc.settings import settings_
 force_import("bot.triggers.ban")

@@ -1,0 +1,43 @@
+reactions: "Реакции"
+warns_to_ban: "Варнов для бана"
+language: "Язык"
+done: "Завершить"
+
+button_back: "⬅️ Назад"
+
+disable_all_reactions: Отключить все реакции
+disable_join_message: Удалять жоины
+
+welcome: Приветствие
+rules: Правила
+
+edit: Изменить
+
+settings_text: Настройки чята
+reactions_text: Настройка реакций (пока не реализована)
+warns_to_ban_text: Количество варнов, чтобы пользователь получил бан
+language_text: Настройка языка чята
+
+modules_text: Управление модулями бота
+
+
+# MODULES
+admin: Админка
+
+mute: Муты
+warn: Варны
+
+selfmute: Селфмут
+polls: Опросы
+
+# ---------
+memes: Мемы
+
+stickers: Стикеры
+text_memes: Пасты
+
+eggs: Пасхалки
+ban: Бан (команда)
+
+ban2: Бан (в тексте)
+boikot: Бойкот
