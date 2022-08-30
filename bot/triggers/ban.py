@@ -4,7 +4,7 @@ import time
 from random import randint, choice
 
 from ..config import bot, dp, _
-from ..lib import handlers
+from .. import handlers
 
 
 # TODO: REWRITE: use regular
@@ -18,7 +18,7 @@ NAKI_REGEXP = rf"(^|{space})наки({space}|$)"
 @dp.message_handler(lambda msg: msg.text.lower().find("бот, сколько") != -1 and
                     msg.text.lower().find("?") != -1)
 @handlers.check("__enable_response__")
-async def random_putin(message):
+async def random_answer(message):
     number = randint(0, 1000)
 
     word = message.text.lower().replace("бот, сколько", "").split()[0]
@@ -38,26 +38,30 @@ async def why_list(message):
     await message.reply(choice(_("triggers.why_list")))
 
 
-@dp.message_handler(lambda msg: msg.text.lower().find("секс") != -1)
+@dp.message_handler(lambda msg: msg.text.lower().find("секс") != -1 or msg.text.lower().find("кфс") != -1)
 @handlers.check("__enable_response__")
+@handlers.randomed_start
 async def who(message):
     await message.reply("Что?")
 
 
 @dp.message_handler(lambda msg: msg.text.lower().find("бойкот") != -1)
 @handlers.check("__enable_response__")
+@handlers.randomed_start
 async def boikot(message):
     await message.reply(_("triggers.boikot"))
 
 
 @dp.message_handler(lambda msg: re.search(NAKI_REGEXP, msg.text.lower()) is not None)
 @handlers.check("__enable_response__")
+@handlers.randomed_start
 async def naki(message):
     await message.reply("Майкл Наки — в жопе козинаки")
 
 
 @dp.message_handler(lambda msg: msg.text.lower().find("яблоко") != -1 or
                                 msg.text.lower().find("яблочн") != -1)
+@handlers.randomed_start
 @handlers.check("__enable_response__")
 async def apple(message):
     await message.reply(_("triggers.apple"))
@@ -65,6 +69,7 @@ async def apple(message):
 
 @dp.message_handler(lambda msg: re.search(BAN_REGEXP, msg.text.lower()) is not None)
 @handlers.check("__enable_response__")
+@handlers.randomed_start
 async def get_a_ban(message):
     ban_messages = _("triggers.ban_messages")
     bwords = ban_messages.get(message.from_user.id) or ban_messages["all"]

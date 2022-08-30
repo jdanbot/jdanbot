@@ -1,14 +1,7 @@
-async def check_admin(message, bot):
-    chatid = message.chat.id
-    userid = message.from_user.id
-
-    user = await bot.get_chat_member(chatid, userid)
-
-    return user.status == "creator" or user.status == "administrator"
+from aiogram import Bot
+from aiogram import types
 
 
-def get_tag(admin):
-    if admin.username:
-        return f"@{admin.username}"
-    else:
-        return f"<a href='{admin.url}'>{admin.first_name}</a>"
+async def check_admin(message: types.Message, bot: Bot) -> bool:
+    user = await bot.get_chat_member(message.chat.id, message.from_user.id)
+    return user.is_chat_admin()

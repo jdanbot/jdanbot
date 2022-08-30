@@ -1,39 +1,30 @@
+import pendulum as pdl
+
 from pytz import timezone
 
-from .config import *         # noqa
-from ..database import *      # noqa
+from .config import (
+    settings,
+    LOCALES_DIR,
+    WIKI_COMMANDS,
+    WIKIPEDIA_SHORTCUTS
+)
 
-from datetime import datetime
+from .languages import LANGS, GTRANSLATE_LANGS, WIKIPEDIA_LANGS
 
-from .logger import logging   # noqa
-from .vk_api import vk_api    # noqa
-from .bot import bot, dp      # noqa
-from .i18n import _           # noqa
+from .logger import logger
+from .bot import bot, dp
+from .i18n import _
 
 
-START_TIME = datetime.now()
+START_TIME = pdl.now()
 TIMEZONE = timezone("Europe/Moscow")
-SCHEDULE = any([BLOODYKNIGHT, RSS, VK, KATZ_BOTS, YOUTUBE])  # noqa
 
-arch_class = "archwiki-template-meta-related-articles-start"
 
-WIKIPYA_BLOCKLIST = [
-    ["ol", {"class": "references"}],
-    [None, {"class": "reference"}],
-
-    ["link"], ["style"], ["img"],
-    ["aside"], ["table"], ["br"],
-    ["span", {"class": "mw-ext-cite-error"}],
-
-    ["div", {"class": "thumbinner"}],
-    ["div", {"class": "gallerytext"}],
-    ["div", {"class": arch_class}],
-    ["div", {"class": "tright"}],
-    ["div", {"class": "plainlist"}],
-    ["div", {"class": "gametabs"}],
-
-    [None, {"class": "noprint"}],
-    ["span", {"id": "w4g_rb_area-1"}],
-
-    ["p", {"class": "caption"}],
-]
+__all__ = (
+    settings,
+    LANGS, GTRANSLATE_LANGS, WIKIPEDIA_LANGS,
+    LOCALES_DIR, WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS,
+    logger,
+    bot, dp,
+    _
+)

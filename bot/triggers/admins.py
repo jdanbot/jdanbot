@@ -1,8 +1,7 @@
 from aiogram import types
 
 from ..config import _, bot, dp
-from ..lib import handlers
-from ..lib.admin import get_tag
+from .. import handlers
 
 
 @dp.message_handler(commands=["admins"])
@@ -25,13 +24,13 @@ async def call_admins(message):
 @dp.callback_query_handler(lambda call: call.data == "call_admin")
 async def call_admin(call):
     # TODO: REWRITE: move keyboard to keyboards.py
-
+    await call.answer()
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(types.InlineKeyboardButton(text=_("triggers.delete"),
                                             callback_data="delete"))
 
     admins = await bot.get_chat_administrators(call.message.chat.id)
-    usernames = [get_tag(admin.user) for admin in admins]
+    usernames = [admin.user.get_mention(as_html=True) for admin in admins]
     admins_call = ", ".join(usernames) + "\n\n"
 
     await call.message.edit_text(
@@ -41,4 +40,5 @@ async def call_admin(call):
 
 @dp.callback_query_handler(lambda call: call.data == "delete")
 async def delete_call(call):
+    await call.answer()
     await call.message.delete()

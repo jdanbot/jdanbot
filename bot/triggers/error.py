@@ -1,7 +1,9 @@
 import traceback
 import io
 
-from ..config import dp, bot, _, LOGGING_CHAT
+from aiogram.utils.markdown import bold as mbold
+
+from ..config import dp, bot, _, settings
 from ..lib.text import fixHTML, bold, code
 
 
@@ -19,15 +21,29 @@ async def catch_error(callback, exception):
     error = traceback.format_exc()
     inf_err = error.split("\n")[-2]
 
-    exc = inf_err.split(":")[0].split(".")[-1]
+    exc_full = inf_err.split(":")[0]
+    exc = exc_full.split(".")[-1]
 
-    if exc in ("MessageCantBeDeleted", "BadRequest", "MessageCantBeDeleted",
-               "MessageTextIsEmpty", "BotKicked", "TimeoutError",
-               "CantRestrictChatOwner", "UserIsAnAdministratorOfTheChat",
-               "NotEnoughRightsToRestrict"):
+    if exc in (
+        "MessageCantBeDeleted",
+        "BadRequest",
+        "MessageCantBeDeleted",
+        "MessageTextIsEmpty",
+        "BotKicked",
+        "TimeoutError",
+        "CantRestrictChatOwner",
+        "UserIsAnAdministratorOfTheChat",
+        "NotEnoughRightsToRestrict",
+    ):
         return
 
-    if LOGGING_CHAT is not None:
+    if exc_full in (
+        "wikipya.exceptions.NotFound",
+    ):
+        await message.reply(mbold(_("errors.not_found")), parse_mode="Markdown")
+        return
+
+    if settings.logging_chat is not None:
         f = io.StringIO(error)
         f.name = f"{exc}.log"
 
@@ -37,20 +53,22 @@ async def catch_error(callback, exception):
             id = f"user{message.chat.id}"
 
         await bot.send_document(
-            LOGGING_CHAT, document=f,
+            settings.logging_chat,
+            document=f,
             caption=log_schema.format(
-                name=bold(getattr(message.chat, "first_name") or
-                          message.chat.title),
+                name=bold(
+                    getattr(message.chat, "first_name") or message.chat.title
+                ),
                 query=fixHTML(message.text),
                 error_small=inf_err,
-                id=id
+                id=id,
             ),
-            parse_mode="HTML"
+            parse_mode="HTML",
         )
 
     if message is None:
         return
 
-    await message.reply(bold(_("errors.error")) + "\n"
-                        + code(inf_err),
-                        parse_mode="HTML")
+    await message.reply(
+        bold(_("errors.error")) + "\n" + code(inf_err), parse_mode="HTML"
+    )

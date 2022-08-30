@@ -1,76 +1,63 @@
-from ..config import bot, dp, _
+from .. import handlers
+from ..config import dp
+from aiogram import types
 
 
-async def send_meme(message, text):
+async def send_meme(
+    message: types.Message,
+    text: str,
+    is_sticker: bool = False
+):
     try:
-        await message.delete()
+        if is_sticker:
+            reply = message.reply_to_message
+            reply.reply = reply.reply_sticker
+
+        await reply.reply(text)
     except Exception:
-        pass
-
-    try:
-        await bot.send_message(
-            message.chat.id, text,
-            reply_to_message_id=message.reply_to_message.message_id
-        )
-    except AttributeError:
+        if is_sticker:
+            message.answer = message.answer_sticker
+        
         await message.answer(text)
+
+    await message.delete()
 
 
 memes = {
     "bylo": "Было",
     "ne_bylo": "Не было",
-    "rzaka": _("ban.rzaka"),
-    "rzaka_full": _("ban.rzaka_full"),
+    "rzaka": "РЖАКА-СМЕЯКА 🤣🤣🤣🤣😋😋😋😋😋😋СРАЗУ ВИДНО РУССКОГО ЧЕЛОВЕКА😃😃😃😃😃🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺👍👍👍👍ТУПЫЕ ПЕНДОСЫ В СВОЕЙ ОМЕРИКЕ ДО ТАКОГО БЫ НЕ ДОДУМАЛИСЬ😡😡😡😡😡😡👎👎👎👎👎🇺🇸🇺🇸🇺🇸🇺🇸🇺🇸🇺🇸",  # noqa
+    "rzaka_full": "РЖАКА-СМЕЯКА 🤣🤣🤣🤣😋😋😋😋😋😋СРАЗУ ВИДНО РУССКОГО ЧЕЛОВЕКА😃😃😃😃😃🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺👍👍👍👍ТУПЫЕ ПЕНДОСЫ В СВОЕЙ ОМЕРИКЕ ДО ТАКОГО БЫ НЕ ДОДУМАЛИСЬ😡😡😡😡😡😡👎👎👎👎👎🇺🇸🇺🇸🇺🇸🇺🇸🇺🇸🇺🇸РОССИЯ ВПЕРЕД😊😊😊😊😊😊😃😃😃😃😃😃😋😋😋😋🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺🇷🇺АХАХАХАХАХ😃😃😃😃😃СМЕШНО ПОШУТИЛ ЧУВАЧОК👉👋👍👍👍👍👍ТАКОЕ МОЖНО УВИДЕТЬ ТОЛЬКО В РОССИИ ✌️✌️😲😲😲 ХААХАХА ВОТ УМОРА🤣🤣🤣🤣АЖ АМЕРИКА ВЗОРВАЛАСЬ ОТ СМЕХА😜😜😜😜😜😜😜ВСЯ ЕВРОПА В ШОКЕ🤙🤙🤙🤙🤙🤙🤙АХХАХАХАХА БЛИН НЕ МОГУ ОСТАНОВИТЬСЯ СМЕЮСЬ КАТАЮСЬ ПО ПОЛУ😬😬😬😵😵😵😵😵ВОТ ЭТО ШУТКА РЖАКА СМЕЯЛИСЬ ВСЕЙ МАРШРУТКОЙ РЖАЛА 848393938347292929647492918363739304964682010 ЧАСОВ РЖОМБА ПРЯМА НЕРЕАЛЬНАЯ РЖАКА ШУТКА 😂😂😂😂😂😂😂😂🤔😂😂😹😹😹😹😹😹😹😹😹😂😂😂😂👍👍👍👍👍👍👍👍👍👍АХАХА , КАК СМЕШНО !!!!! Я НЕ МОГУ, ПОМОГИТЕ , ЗАДЫХАЮСЬ ОТ СМЕХА 😂🤣🤣😄🤣😂🤣🤣🤣 СПАСИБО , ВЫ СДЕЛАЛИ МОЙ ДЕНЬ !!! КАК ЖЕ ОРИГИНАЛЬНО !!! Я В ВОСТОРГЕ!!!!!!😀😃😀😃🤣😁🤣🤣🤣🤣🤣😀🤣😀😀🤣🤣😀🤣😀🤣😀🤣😀🤣😀🤣😀😀🤣😀🤣😁🤣😁🤣😁🤣😁😁🤣😁",  # noqa
     "rzaka_time": 848393938347292929647492918363739304964682010
+}
+stickers = {
+    "pizda": "CAACAgIAAx0CUDyGjwACAQxfCFkaHE52VvWZzaEDQwUC8FYa-wAC3wADlJlpL5sCLYkiJrDFGgQ",  # noqa
+    "net_pizdy": "CAACAgIAAx0CUDyGjwACAQ1fCFkcDHIDN_h0qHDu7LgvS8SBIgAC4AADlJlpL8ZF00AlPORXGgQ",  # noqa
+    "pizda_tebe": "CAACAgIAAxkBAAILHV9qcv047Lzwp_B64lDlhtOD-2RGAAIgAgAClJlpL5VCBwPTI85YGwQ",  # noqa
+    "xui": "CAACAgIAAx0CUDyGjwACAQ5fCFkeR-pVhI_PUTcTbDGUOgzwfAAC4QADlJlpL9ZRhbtO0tQzGgQ",  # noqa
+    "net_xua": "CAACAgIAAx0CUDyGjwACAQ9fCFkfgfI9pH9Hr96q7dH0biVjEwAC4gADlJlpL_foG56vPzRPGgQ"  # noqa
 }
 
 
-@dp.message_handler(commands=["bylo"])
-async def bylo(message):
-    await send_meme(message, memes["bylo"])
+@dp.message_handler(commands=memes.keys())
+async def bylo(message: types.Message):
+    await send_meme(
+        message,
+        memes[message.get_command(pure=True)]
+    )
 
 
-@dp.message_handler(commands=["ne_bylo"])
-async def ne_bylo(message):
-    await send_meme(message, memes["ne_bylo"])
-
-
-@dp.message_handler(commands=["rzaka"])
-async def rzaka(message):
-    await send_meme(message, memes["rzaka"])
-
-
-@dp.message_handler(commands=["rzaka_full"])
-async def rzaka_full(message):
-    await send_meme(message, memes["rzaka_full"])
-
-
-@dp.message_handler(commands=["rzaka_time"])
-async def rzaka_time(message):
-    await send_meme(message, memes["rzaka_time"])
+@dp.message_handler(commands=stickers.keys())
+async def meme_stickers(message: types.Message):
+    await send_meme(
+        message,
+        stickers[message.get_command(pure=True)],
+        is_sticker=True
+    )
 
 
 @dp.message_handler(commands=["ban"])
+@handlers.check("enable_ban_trigger")
 async def ban(message):
     msg = message.text.split(maxsplit=1)
-
-    if len(msg) == 1:
-        await send_meme(message, "Бан")
-    else:
-        await send_meme(message, "Бан " + msg[1])
-
-
-@dp.message_handler(commands=["fake"])
-async def polak(message):
-    try:
-        await message.delete()
-    except Exception:
-        pass
-
-    try:
-        await bot.send_photo(
-            message.chat.id, open("media/images/polak.jpg", "rb"),
-            reply_to_message_id=message.reply_to_message.message_id
-        )
-    except AttributeError:
-        await message.answer_photo(open("media/images/polak.jpg", "rb"))
+    await send_meme(message, "Бан " + (msg[1] if len(msg) > 1 else ""))

@@ -1,6 +1,0 @@
-en:
-  enter_note_name: Enter name of the note to delete
-  no_rights_for_edit: No rights for edit this note
-  add_note: Note added to DB
-  add_system_note: System note added to DB
-  create_var: Create variable with /set

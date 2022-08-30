@@ -16,5 +16,4 @@ class TestEvent:
 
     def test_check_user_in_db(self):
         message = FakeMessage()
-        print(Event.reg_user_in_db(message))
-        assert Event.reg_user_in_db(message) is None
+        assert Event.reg_user_in_db(message) is False

@@ -1,17 +1,7 @@
-import sys
-
 from aiogram import Dispatcher
-from .config import TOKEN
+from .config import settings
 
-if "pytest" in sys.modules:
-    from .lib.fake_bot import FakeBot, FakeDispatcher
+from aiogram import Bot
 
-    bot = FakeBot()
-    dp = FakeDispatcher(bot)
-
-else:
-    from aiogram import Bot
-
-    bot = Bot(token=TOKEN)
-    dp = Dispatcher(bot)
-
+bot = Bot(token=settings.tokens.bot_token)
+dp = Dispatcher(bot)

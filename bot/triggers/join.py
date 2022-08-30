@@ -1,12 +1,17 @@
 from random import choice
 
 from ..config import dp, _
-from ..database import Note, Event
+from ..schemas import Note, ChatMember
 
 
 @dp.message_handler(content_types=["new_chat_members"])
 async def john(message):
     chat_id = message.chat.id
+
+    if Note.get(chat_id, "__polish_mode__") == "True":
+        ChatMember.get_by_message(message)
+        await message.delete()
+        return
 
     welcome = Note.get(chat_id, "__enable_greatings__") == "True" or \
         Note.get(chat_id, "__enable_welcome__") == "True"
@@ -33,4 +38,4 @@ async def john(message):
         except Exception:
             await message.answer(rules)
 
-    Event.reg_user_in_db(message)
+    ChatMember.get_by_message(message)
