@@ -5,3 +5,5 @@ only_vars: Only variables and numbers!
 
 not_found: Nothing found
 error: An error occurred during execution
+
+is_too_big_gif: Is too big gif

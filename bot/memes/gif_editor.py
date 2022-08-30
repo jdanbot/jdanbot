@@ -2,7 +2,7 @@ import imageio.v3 as iio
 import os
 
 from aiogram import types
-from ..config import dp
+from ..config import dp, _
 import ffmpeg
 
 
@@ -23,7 +23,11 @@ async def speed_up_gif(message: types.Message):
     is_fast = message.get_command(pure=True) == "fast"
     fps_diff = 30 if is_fast else -30
 
-    await message.reply_to_message.animation.download(destination_file="test.mp4")
+    if (animation := message.reply_to_message.animation).file_size > 100000:
+        await message.reply(_("errors.is_too_big_gif"))
+        return
+
+    await animation.download(destination_file="test.mp4")
     gif = iio.imread("test.mp4")
 
     fps = get_video_fps("test.mp4")
