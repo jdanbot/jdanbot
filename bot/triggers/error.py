@@ -61,7 +61,7 @@ async def catch_error(callback: types.CallbackQuery, exception: str):
                 query=code(message.text),
                 reply=reply.content_type if reply is not None else "❌",
 
-                error_small="   ".join(map(code, inf_err.split(": ")))
+                error_small="\n".join([code(inf_err.split(": ")[0]), bold(inf_err.split(": ")[1])])
             ),
             parse_mode="MarkdownV2",
         )
