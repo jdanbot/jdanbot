@@ -1,44 +1,36 @@
-import imageio.v3 as iio
 import os
 
-from aiogram import types
-from ..config import dp, _
 import ffmpeg
+from aiogram import types
 
-
-def get_video_fps(path: str) -> int:
-    """Source: https://www.codegrepper.com/code-examples/python/python+ffmpeg+get+video+fps"""
-
-    probe = ffmpeg.probe(path)
-    video_info = next(s for s in probe['streams'] if s['codec_type'] == 'video')
-
-    return int(video_info['r_frame_rate'].split('/')[0])
+from ..config import _, dp
 
 
 @dp.message_handler(commands=["fast", "slow"])
-async def speed_up_gif(message: types.Message):
-    if not hasattr(message, "reply_to_message") or not hasattr(message.reply_to_message, "animation"):
+async def edit_gif(message: types.Message):
+    if not hasattr(message, "reply_to_message") or not hasattr(
+        message.reply_to_message, "animation"
+    ):
         return
 
-    is_fast = message.get_command(pure=True) == "fast"
-    fps_diff = 30 if is_fast else -30
-
-    if (animation := message.reply_to_message.animation).file_size > 100000:
+    if (animation := message.reply_to_message.animation).file_size > 5000000:
         await message.reply(_("errors.is_too_big_gif"))
         return
 
     await animation.download(destination_file="test.mp4")
-    gif = iio.imread("test.mp4")
+    is_fast = message.get_command(pure=True) == "fast"
 
-    fps = get_video_fps("test.mp4")
+    process = (
+        ffmpeg.input("test.mp4")
+        .filter("setpts", "0.25*PTS" if is_fast else "1.25*PTS")
+        .output("test2.mp4")
+        .overwrite_output()
+        .run_async()
+    )
 
-    if not is_fast and fps <= 30:
-        fps_diff = 0
+    process.communicate()
 
-    iio.imwrite("test2.mp4", gif, fps=fps + fps_diff)
-
-    with open("test2.mp4", "rb") as video:
-        await message.reply_animation(animation=video)
+    await message.reply_animation(animation=open("test2.mp4", "rb"))
 
     os.remove("test.mp4")
     os.remove("test2.mp4")

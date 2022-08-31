@@ -10,6 +10,7 @@ settings.toml
 *$py.class
 
 *.mp3
+*.mp4
 *.ogg
 
 *.db*

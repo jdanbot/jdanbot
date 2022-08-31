@@ -30,8 +30,6 @@ pendulum = "^2.1.2"
 pytimeparse = "^1.1.8"
 pytesseract = "^0.3.10"
 pyi18n-new = "^1.1.0"
-imageio-ffmpeg = "^0.4.7"
-imageio = "^2.21.1"
 ffmpeg-python = "^0.2.0"
 
 [tool.poetry.dev-dependencies]
