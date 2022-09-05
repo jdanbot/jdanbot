@@ -78,14 +78,19 @@ class Note(Model):
         except IndexError:
             return default
 
-    def show(chat_id: int) -> list[str]:
+    @staticmethod
+    def show(chat_id: int, raw: bool = False) -> list[str] | list["Note"]:
         notes = (
             Note.select()
-                .join(ChatMember, on=Note.author == ChatMember.id)
-                .join(Chat, on=ChatMember.chat_id == Chat.id)
-                .where(Chat.id == chat_id))
+                .join(ChatMember, on=Note.author == ChatMember.id)  # noqa
+                .join(Chat, on=ChatMember.chat_id == Chat.id)       # noqa
+                .where(Chat.id == chat_id)                          # noqa
+        )
 
-        return [note.name for note in notes]
+        if raw:
+            return notes
+        else:
+            return [note.name for note in notes]
 
     async def remove(member: ChatMember, name: str):
         note = (

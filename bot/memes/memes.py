@@ -1,3 +1,4 @@
+import contextlib
 from .. import handlers
 from ..config import dp
 from aiogram import types
@@ -17,10 +18,11 @@ async def send_meme(
     except Exception:
         if is_sticker:
             message.answer = message.answer_sticker
-        
+
         await message.answer(text)
 
-    await message.delete()
+    with contextlib.suppress(Exception):
+        await message.delete()
 
 
 memes = {

@@ -21,6 +21,8 @@ class MessageMock:
     disable_web_page_preview: bool = False
     reply_markup: types.InlineKeyboardMarkup = None
 
+    _is_forward: bool = False
+
     def __post_init__(self):
         self.replies: list[MessageMock] = []
 
@@ -39,3 +41,6 @@ class MessageMock:
 
     async def answer_chat_action(self, *args, **kwargs) -> None:
         pass
+
+    def is_forward(self) -> bool:
+        return self._is_forward
