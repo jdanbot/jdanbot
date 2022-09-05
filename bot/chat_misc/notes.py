@@ -1,8 +1,12 @@
+from datetime import datetime
+import io
 from aiogram import types
 
 from ..config import dp, _, settings
-from ..schemas import Note, ChatMember
+from ..schemas import Note, ChatMember, User
 from .. import handlers
+
+import humanize
 
 
 @dp.message_handler(commands=["remove"])
@@ -14,6 +18,46 @@ async def remove(message: types.Message, name: str):
         await Note.remove(ChatMember.get_by_message(message), name)
     except AttributeError:
         await message.reply(_("notes.no_rights_for_edit"))
+
+
+@dp.message_handler(commands=["remove_bulk"])
+@handlers.only_admins
+@handlers.parse_arguments(1)
+async def remove_bulk(message: types.Message, notes_raw: str):
+    notes: list[str] = notes_raw.split()
+
+    for note in notes:
+        message.text = f"/remove {note}"
+        await remove(message)
+
+
+def build_user_info(user: User) -> str:
+    return f"{user.full_name} (@{user.username}, {user.id})"
+
+
+@dp.message_handler(commands=["export_notes"])
+@handlers.only_admins
+async def export_notes(message: types.Message):
+    notes = Note.show(message.chat.id, raw=True)
+    notes_raw = ""
+
+    humanize.i18n.activate("ru_RU")
+
+    for note in notes:
+        notes_raw += f"{note.name} {'★' if note.is_admin_note else ''}\n"
+        notes_raw += f"создал {build_user_info(note.author.user)} {humanize.naturaltime(note.created_at)}\n"
+
+        if note.editor:
+            notes_raw += f"изменил {build_user_info(note.editor.user)} {humanize.naturaltime(note.edited_at)}\n"
+
+        notes_raw += f"\n{note.text}\n\n\n"
+
+    f = io.StringIO(notes_raw)
+
+    today = datetime.now().strftime("%d.%m.%Y")
+    f.name = f"{message.chat.full_name.strip()} notes backup {today}.txt"
+
+    await message.answer_document(f)
 
 
 @dp.message_handler(commands=["set"])
@@ -62,7 +106,7 @@ async def use_by_hashtag(message: types.Message):
     text = text[0] if len(text) == 1 else ""
 
     if text != "" and (len(message.text) < 100 if message.is_forward() else True):
-        message.text = "/set " + message.text
+        message.text = f"/set {message.text}"
         return await set_(message)
 
     note = Note.get(message.chat.id, name)
