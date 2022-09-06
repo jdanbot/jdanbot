@@ -45,9 +45,17 @@ async def export_notes(message: types.Message):
 
     for note in notes:
         notes_raw += f"{note.name} {'★' if note.is_admin_note else ''}\n"
-        notes_raw += f"создал {build_user_info(note.author.user)} {humanize.naturaltime(note.created_at)}\n"
 
-        if note.editor:
+        try:
+            build_user_info(note.author.user)
+            is_normal = True
+        except Exception:
+            is_normal = False
+
+        if is_normal:
+            notes_raw += f"создал {build_user_info(note.author.user)} {humanize.naturaltime(note.created_at)}\n"
+
+        if note.editor_id != 0 and note.editor:
             notes_raw += f"изменил {build_user_info(note.editor.user)} {humanize.naturaltime(note.edited_at)}\n"
 
         notes_raw += f"\n{note.text}\n\n\n"
