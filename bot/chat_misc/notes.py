@@ -1,12 +1,13 @@
-from datetime import datetime
+import contextlib
 import io
-from aiogram import types
-
-from ..config import dp, _, settings
-from ..schemas import Note, ChatMember, User
-from .. import handlers
+from datetime import datetime
 
 import humanize
+from aiogram import types
+
+from .. import handlers
+from ..config import _, dp, settings
+from ..schemas import ChatMember, Note, User
 
 
 @dp.message_handler(commands=["remove"])
@@ -28,7 +29,9 @@ async def remove_bulk(message: types.Message, notes_raw: str):
 
     for note in notes:
         message.text = f"/remove {note}"
-        await remove(message)
+
+        with contextlib.suppress(Exception):
+            await remove(message)
 
 
 def build_user_info(user: User) -> str:
