@@ -1,6 +1,7 @@
 from functools import wraps
 
 from aiogram import types
+from aiogram.utils import exceptions
 from aiogram.utils.markdown import hide_link
 from bs4 import BeautifulSoup
 
@@ -52,14 +53,28 @@ def send_article(func):
         else:
             text += result.text
 
-        await message.reply(
-            text,
-            parse_mode=result.parse_mode,
-            disable_web_page_preview=result.image is None
-            if not result.disable_web_page_preview
-            else False,
-            reply_markup=result.keyboard,
-            **params,
-        )
+        try:
+            await message.reply(
+                text,
+                parse_mode=result.parse_mode,
+                disable_web_page_preview=result.image is None
+                if not result.disable_web_page_preview
+                else False,
+                reply_markup=result.keyboard,
+                **params,
+            )
+        except exceptions.CantParseEntities as e:
+            await message.reply(
+                text,
+                parse_mode=None,
+                disable_web_page_preview=result.image is None
+                if not result.disable_web_page_preview
+                else False,
+                reply_markup=result.keyboard,
+                **params,
+            )
+
+            raise e
+
 
     return wrapper

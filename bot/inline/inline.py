@@ -68,7 +68,7 @@ async def query_text(query: types.CallbackQuery):
     lang = params[0].split(":", maxsplit=1)
     lang = "ru" if len(lang) == 1 else lang[1]
 
-    if not (lang in WIKIPEDIA_LANGS):
+    if lang not in WIKIPEDIA_LANGS:
         return
 
     wiki = Wikipya(lang).get_instance()
@@ -77,7 +77,7 @@ async def query_text(query: types.CallbackQuery):
     kb.add(InlineKeyboardButton("Загрузка...", callback_data="wait"))
 
     try:
-        search = await wiki.search(q, 10)
+        search = await wiki.search_with_description(q, limit=10)
     except Exception as e:
         print(e)
         await bot.answer_inline_query(query.id, [
@@ -98,14 +98,21 @@ async def query_text(query: types.CallbackQuery):
     buttons = []
 
     for result in search:
-        soup = BeautifulSoup(result.snippet, "lxml")
+        # soup = BeautifulSoup(result.snippet, "lxml")
+        print(result)
+
+        try:
+            image = result.thumbnail.source
+        except Exception:
+            image = None
 
         buttons.append(InlineQueryResultArticle(
             id=result.page_id,
             title=result.title,
-            description=soup.text[:100],
+            description=result.description,
+            thumb_url=image,
             input_message_content=InputTextMessageContent(
-                message_text=soup.text,
+                message_text=result.description or result.title,
                 parse_mode="html"
             ),
             reply_markup=kb
