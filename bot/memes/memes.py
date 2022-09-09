@@ -10,8 +10,9 @@ async def send_meme(
     is_sticker: bool = False
 ):
     try:
+        reply = message.reply_to_message
+
         if is_sticker:
-            reply = message.reply_to_message
             reply.reply = reply.reply_sticker
 
         await reply.reply(text)
