@@ -14,7 +14,7 @@ async def download(message: types.Message):
         format = int(format)
         query = query[0]
     except:
-        query = format
+        query = message.get_args()
         format = 3
 
     response = await aioget(f"https://wttr.in/{query}", params=dict(format=format))
