@@ -15,7 +15,8 @@ admin_notes = [
     "__enable_selfmute__",
     "__polish_mode__",
     "enable_ban_trigger",
-    "enable_poll"
+    "enable_poll",
+    "enable_twitter_redirect"
 ]
 
 eggs = [
