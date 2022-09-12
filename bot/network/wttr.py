@@ -21,7 +21,7 @@ async def download(message: types.Message):
     response_text = response.text.replace("   ", " ")
 
     if format in {3, 4}:
-        text = bold((parts := response_text.split(": "))[0].capitalize()) + ": " + code(parts[1])
+        text = bold((parts := response_text.split(": "))[0].title()) + ": " + code(parts[1])
     else:
         text = code(response_text)
 
