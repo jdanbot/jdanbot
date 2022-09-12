@@ -34,3 +34,34 @@ async def edit_gif(message: types.Message):
 
     os.remove("test.mp4")
     os.remove("test2.mp4")
+
+
+
+
+
+@dp.message_handler(commands=["reverse"])
+async def edit_gif(message: types.Message):
+    if not hasattr(message, "reply_to_message") or not hasattr(
+        message.reply_to_message, "animation"
+    ):
+        return
+
+    if (animation := message.reply_to_message.animation).file_size > 5000000:
+        await message.reply(_("errors.is_too_big_gif"))
+        return
+
+    await animation.download(destination_file="test3.mp4")
+
+    process = (
+        ffmpeg.input("test3.mp4")
+        .output("test4.mp4", vf="reverse")
+        .overwrite_output()
+        .run_async()
+    )
+
+    process.communicate()
+
+    await message.reply_animation(animation=open("test4.mp4", "rb"))
+
+    os.remove("test3.mp4")
+    os.remove("test4.mp4")
