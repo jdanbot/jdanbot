@@ -8,8 +8,8 @@ import urllib.parse
 @handlers.check("enable_twitter_redirect")
 async def replace_twitter(message: types.Message):
     for entitie in message.entities:
-        raw_url = message.text.lower()[entitie.offset:entitie.offset + entitie.length]
+        raw_url = message.text[entitie.offset:entitie.offset + entitie.length]
 
-        if entitie.type in {"url"} and "https://twitter.com/" in raw_url:
+        if entitie.type in {"url"} and "https://twitter.com/" in raw_url.lower():
             url = urllib.parse.urlparse(raw_url)
             return await message.reply(url._replace(netloc="zxtwitter.com").geturl())
