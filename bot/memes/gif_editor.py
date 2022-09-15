@@ -8,12 +8,15 @@ from ..config import _, dp
 
 @dp.message_handler(commands=["fast", "slow"])
 async def edit_gif(message: types.Message):
-    if not hasattr(message, "reply_to_message") or not hasattr(
-        message.reply_to_message, "animation"
-    ):
-        return
+    try:
+        (animation := message.reply_to_message.animation).file_size
+    except AttributeError:
+        (animation := message.reply_to_message.sticker).file_size
 
-    if (animation := message.reply_to_message.animation).file_size > 5000000:
+        if not animation.is_video:
+            raise KeyError("Reply to GIF or video sticker")
+
+    if animation.file_size > 5000000:
         await message.reply(_("errors.is_too_big_gif"))
         return
 
@@ -36,17 +39,17 @@ async def edit_gif(message: types.Message):
     os.remove("test2.mp4")
 
 
-
-
-
 @dp.message_handler(commands=["reverse"])
-async def edit_gif(message: types.Message):
-    if not hasattr(message, "reply_to_message") or not hasattr(
-        message.reply_to_message, "animation"
-    ):
-        return
+async def reverse_gif(message: types.Message):
+    try:
+        (animation := message.reply_to_message.animation).file_size
+    except AttributeError:
+        (animation := message.reply_to_message.sticker).file_size
 
-    if (animation := message.reply_to_message.animation).file_size > 5000000:
+        if not animation.is_video:
+            raise KeyError("Reply to GIF or video sticker")
+
+    if animation.file_size > 5000000:
         await message.reply(_("errors.is_too_big_gif"))
         return
 
