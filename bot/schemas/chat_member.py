@@ -4,6 +4,8 @@ from aiogram import types
 from bot.lib.admin import check_admin
 from peewee import BooleanField, DateTimeField, ForeignKeyField, Model
 
+from aiogram.utils.markdown import link, hlink, escape_md
+
 from ..config.bot import bot
 from .chat import Chat
 from .connection import db
@@ -27,12 +29,16 @@ class ChatMember(Model):
     def from_user(self) -> types.User:
         return self.user
 
-    get_mention = types.User.get_mention
-    mention = types.User.mention
+    @property
+    def tag(self, use_html=False) -> str:
+        if self.user.username:
+            return escape_md(f"@{self.user.username}")
+
+        return (hlink if use_html else link)(self.user.full_name, f"tg://user?id={self.user.id}")
 
     @property
-    def tag(self) -> None:
-        return types.User.get_mention()
+    def mention(self) -> str:
+        return self.user.username or self.user.full_name
 
     @staticmethod
     def get_by_message(message: types.Message) -> "ChatMember":
