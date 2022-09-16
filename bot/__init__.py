@@ -9,6 +9,7 @@ __version__ = "test"
 
 
 __import__("bot.config.logger")
+__import__("bot.filters")
 root, folders, files = walk("bot", topdown=True).__next__()
 
 

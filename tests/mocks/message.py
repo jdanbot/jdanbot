@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 from aiogram import types
 
@@ -32,8 +33,12 @@ class MessageMock:
     get_args = types.Message.get_args
 
     @append_to_replies
-    async def reply(self, text: str, **kwargs) -> "MessageMock":
-        return MessageMock(text.strip(), **kwargs)
+    async def reply(self, text: Any, **kwargs) -> "MessageMock":
+        return MessageMock(text.strip() if isinstance(text, str) else text, **kwargs)
+
+    @property
+    def replies_text(self) -> tuple[str]:
+        return tuple(map(lambda x: x.text, self.replies))
 
     answer = reply
     reply_photo = reply

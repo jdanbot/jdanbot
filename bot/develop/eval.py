@@ -1,21 +1,21 @@
-from pprint import pformat
-from aiogram import types
-
-import traceback
-import subprocess
-
 import json
+import subprocess
+import traceback
+from pprint import pformat
 
+from aiogram import types
 from aiogram.utils.markdown import code
 
-from ..config import bot, dp
+
+from ..lib.models import CustomField
+
 from .. import handlers
+from ..config import bot, dp
 
 
-@dp.message_handler(commands=["e", "pe"])
-@handlers.only_jdan
-@handlers.parse_arguments(1)
-async def supereval(message: types.Message, query: str):
+@dp.message_handler(commands=["e", "pe"], is_superuser=True)
+@handlers.parse_arguments_new
+async def supereval(message: types.Message, query: CustomField(str)):
     q = [f"\n {line}" for line in query.split("\n")]
     q[-1] = q[-1].replace("\n ", "\n return ")
 
@@ -39,10 +39,9 @@ async def supereval(message: types.Message, query: str):
     await message.reply(code(output), parse_mode="MarkdownV2")
 
 
-@dp.message_handler(commands=["jbash"])
-@handlers.only_jdan
-@handlers.parse_arguments(1)
-async def bash(message: types.Message, query: str):
+@dp.message_handler(commands=["jbash"], is_superuser=True)
+@handlers.parse_arguments_new
+async def bash(message: types.Message, query: CustomField(str)):
     try:
         command = query.split()
         output = subprocess.check_output(command).decode("utf-8")

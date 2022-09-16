@@ -1,0 +1,2 @@
+class JdanbotError(Exception):
+    pass

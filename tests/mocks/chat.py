@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from aiogram import types
 
 
 @dataclass
@@ -13,3 +14,5 @@ class ChatMock:
         # TODO: Implement restrict
 
         return True
+
+    full_name = types.Chat.full_name

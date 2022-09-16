@@ -5,14 +5,13 @@ from ..config import LANGS, _, dp
 from ..schemas import Chat
 
 
-@dp.message_handler(commands="settings_beta")
+@dp.message_handler(commands="settings_beta", is_admin=True)
 @dp.callback_query_handler(lambda call: call.data == "settings_menu")
-@handlers.only_admins
 async def settings_(message: types.Message):
     try:
         message: types.Message = message.message
         is_inline = True
-    except:
+    except Exception:
         is_inline = False
 
     _(None, return_lang=True, force_reload=True)
@@ -52,7 +51,6 @@ async def settings_(message: types.Message):
         await message.delete()
 
 
-@dp.callback_query_handler(lambda call: call.data == "delete_msg")
-@handlers.only_admins
+@dp.callback_query_handler(lambda call: call.data == "delete_msg", is_admin=True)
 async def test_(call: types.CallbackQuery):
     await call.message.delete()

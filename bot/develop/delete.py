@@ -1,10 +1,8 @@
 from aiogram import types
-from .. import handlers
 from ..config import dp
 
 
-@dp.message_handler(commands="rm")
-@handlers.only_jdan
+@dp.message_handler(commands="rm", is_superuser=True)
 async def rm(message: types.Message):
     await message.reply_to_message.delete()
     await message.delete()

@@ -1,36 +1,35 @@
 import urllib
 
 from aiogram import types
+from wikipya.clients import MediaWiki
+from wikipya.constants import WGR_FLAG, WRW_FLAG
+from wikipya.models import Page
 
 from ..config import dp
-from ..lib.models import Article
-
-from wikipya.constants import WRW_FLAG, WGR_FLAG
-from wikipya.clients import MediaWiki
-
+from ..lib.models import Article, CustomField
+from .parse_arguments import parse_arguments_new
 from .send_article import send_article
-from .parse_arguments import parse_arguments
 
 
-async def more_cool_wiki_search(wiki: MediaWiki, query: str | int):
+async def more_cool_wiki_search(wiki: MediaWiki, query: str | int) -> tuple[Page, str, str]:
     if isinstance(query, str):
         return await wiki.get_all(query)
-    else:
-        page_name = await wiki.get_page_name(query)
 
-        opensearch = await wiki.opensearch(page_name)
-        result = opensearch.results[0]
+    page_name = await wiki.get_page_name(query)
 
-        page = await wiki.page(page_name)
+    opensearch = await wiki.opensearch(page_name)
+    result = opensearch.results[0]
 
-        try:
-            image = await wiki.image(page.title)
-            image = WRW_FLAG if image.source == WGR_FLAG else image.source
+    page = await wiki.page(page_name)
 
-        except Exception:
-            image = None
+    try:
+        image = await wiki.image(page.title)
+        image = WRW_FLAG if image.source == WGR_FLAG else image.source
 
-        return page, image, result.link
+    except Exception:
+        image = None
+
+    return page, image, result.link
 
 
 def wikipya_handler(
@@ -42,8 +41,11 @@ def wikipya_handler(
         @dp.message_handler(commands=prefix)
         @dp.callback_query_handler(lambda x: x.data.startswith(f"{prefix[0]} "))
         @send_article
-        @parse_arguments(1, without_params=True)
-        async def wrapper(message: types.Message, query: str | int) -> Article:
+        @parse_arguments_new
+        async def wrapper(
+            message: types.Message,
+            query: CustomField(lambda x: x)
+        ) -> Article:
             if extract_query_from_url:
                 url = query.split("/")
                 query = url[-1]

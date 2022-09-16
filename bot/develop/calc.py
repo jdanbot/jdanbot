@@ -1,14 +1,14 @@
-from aiogram import types
-
 import asyncio
 import re
-
 from math import sqrt
 from typing import Any
 
+from aiogram import types
+
 from .. import handlers
+from ..config import _, dp, settings
+from ..lib.models import CustomField
 from ..lib.text import code
-from ..config import dp, _, settings
 
 
 async def calc(query: str) -> Any:
@@ -16,8 +16,8 @@ async def calc(query: str) -> Any:
 
 
 @dp.message_handler(commands=["calc"])
-@handlers.parse_arguments(1)
-async def eban(message: types.Message, query: str):
+@handlers.parse_arguments_new
+async def eban(message: types.Message, query: CustomField(str)):
     query = query.format(pi=3.14)
 
     match = re.search(r"[a-zA-Zа-яА-Я]", query)
@@ -37,7 +37,6 @@ async def eban(message: types.Message, query: str):
 
 
 @dp.message_handler(commands=["sqrt"])
-@handlers.parse_arguments(1)
-async def sqrt_(message, num):
-    res = sqrt(int(num))
-    await message.reply(code(res), parse_mode="HTML")
+@handlers.parse_arguments_new
+async def sqrt_(message, num: CustomField(int)):
+    await message.reply(code(sqrt(num)), parse_mode="HTML")

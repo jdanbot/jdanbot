@@ -24,22 +24,18 @@ class BaseHammer(BaseClass):
         try:
             await self.message.delete()
             await self.reply.reply(self.admin_log, parse_mode="MarkdownV2")
-        except:
+        except Exception:
             await self.message.answer(self.admin_log, parse_mode="MarkdownV2")
 
 
 @dataclass
 class BanHammer(BaseHammer):
-    time: str = "1m"
-    reason: Optional[str] = None
+    time: int
+    reason: str
 
     def __post_init__(self):
         self.admin_log = BanLog(
-            self.message,
-            self.reply,
-            self.reason or _("ban.reason_not_found"),
-            self.ban_time,
-            self.until_date
+            self.message, self.reply, self.reason, self.ban_time, self.until_date
         ).generate()
 
     @property
@@ -48,30 +44,18 @@ class BanHammer(BaseHammer):
 
     @property
     def ban_time(self) -> pdl.duration:
-        try:
-            int(self.time)
-            self.time = f"{self.time}m"
-        except:
-            pass
-
-        return pdl.duration(
-            seconds=max(30, min(31622400, pytimeparse.parse(self.time)))
-        )
+        return pdl.duration(seconds=max(30, min(31622400, self.time)))
 
     @property
     def until_date(self) -> pdl.datetime:
         return pdl.now(TIMEZONE) + self.ban_time
 
     async def execute(self):
-        if (
-            self.is_selfmute and
-            self.ban_time > pdl.duration(days=7)
-        ):
+        if self.is_selfmute and self.ban_time > pdl.duration(days=7):
             return False
 
         await self.message.chat.restrict(
-            self.reply.from_user.id,
-            until_date=self.until_date.timestamp()
+            self.reply.from_user.id, until_date=self.until_date.timestamp()
         )
 
         return True
@@ -79,16 +63,11 @@ class BanHammer(BaseHammer):
 
 @dataclass
 class WarnHammer(BaseHammer):
-    reason: Optional[str] = None
+    reason: str
 
     def __post_init__(self):
-        self.reason = self.reason or _("ban.reason_not_found")
-
         self.admin_log = WarnLog(
-            self.message,
-            self.reply,
-            self.reason,
-            self.new_warn_counter
+            self.message, self.reply, self.reason, self.new_warn_counter
         ).generate()
 
     @property
@@ -112,7 +91,7 @@ class WarnHammer(BaseHammer):
         Warn.mark_chat_member(
             ChatMember.get_by_message(self.reply).id,
             ChatMember.get_by_message(self.message).id,
-            reason=self.reason
+            reason=self.reason,
         )
 
         if self.warn_counter >= self.warns_to_ban:
@@ -120,7 +99,7 @@ class WarnHammer(BaseHammer):
                 self.message,
                 self.reply,
                 "1440",
-                _("ban.warn_limit_reached", i=self.warn_counter)
+                _("ban.warn_limit_reached", i=self.warn_counter),
             )
 
             await action.execute()
@@ -135,14 +114,9 @@ class UnwarnHammer(BaseHammer):
     reason: Optional[str] = None
 
     def __post_init__(self):
-        self.reason = self.reason or _("ban.reason_not_found")
         self.warn_reason = self.user_warns[-1].reason
-
         self.admin_log = UnwarnLog(
-            self.message,
-            self.reply,
-            self.warn_reason,
-            self.warn_counter
+            self.message, self.reply, self.warn_reason, self.warn_counter
         ).generate()
 
     @property
@@ -164,7 +138,6 @@ class UnwarnHammer(BaseHammer):
             raise AttributeError()
 
         last_warn = self.user_warns[-1]
-        Warn.update(
-            who_unwarn_id=admin.id,
-            unwarned_at=datetime.now(TIMEZONE)
-        ).where(Warn.id == last_warn.id).execute()
+        Warn.update(who_unwarn_id=admin.id, unwarned_at=datetime.now(TIMEZONE)).where(
+            Warn.id == last_warn.id
+        ).execute()

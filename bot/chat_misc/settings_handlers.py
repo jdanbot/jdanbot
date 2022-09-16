@@ -8,11 +8,14 @@ from .modules import modules_
 from .settings import settings_
 
 
-@dp.callback_query_handler(lambda call: call.data == "set_lang")
-@handlers.only_admins
+@dp.callback_query_handler(lambda call: call.data == "set_lang", is_admin=True)
 async def test(call: types.CallbackQuery):
     kb = types.InlineKeyboardMarkup()
-    message = call.message
+
+    try:
+        message = call.message
+    except:
+        message = call
 
     for lang in i18n.pyi18n.languages:
         kb.add(types.InlineKeyboardButton(
@@ -31,11 +34,14 @@ async def test(call: types.CallbackQuery):
     )
 
 
-@dp.callback_query_handler(lambda call: call.data == "set_reactions")
-@handlers.only_admins
+@dp.callback_query_handler(lambda call: call.data == "set_reactions", is_admin=True)
 async def test(call: types.CallbackQuery):
     kb = types.InlineKeyboardMarkup()
-    message = call.message
+
+    try:
+        message = call.message
+    except:
+        message = call
 
     btns = []
 
@@ -75,8 +81,7 @@ async def test(call: types.CallbackQuery):
     )
 
 
-@dp.callback_query_handler(lambda call: call.data == "set_warn_count")
-@handlers.only_admins
+@dp.callback_query_handler(lambda call: call.data == "set_warn_count", is_admin=True)
 async def test(call: types.CallbackQuery):
     kb = types.InlineKeyboardMarkup()
     message = call.message
@@ -101,8 +106,7 @@ async def test(call: types.CallbackQuery):
     )
 
 
-@dp.callback_query_handler(lambda call: call.data.startswith("set "))
-@handlers.only_admins
+@dp.callback_query_handler(lambda call: call.data.startswith("set "), is_admin=True)
 async def test(call: types.CallbackQuery):
     message = call.message
     member = ChatMember.get_by_message(message)

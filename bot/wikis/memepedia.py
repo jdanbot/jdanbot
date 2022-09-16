@@ -6,13 +6,14 @@ from ..config import dp, _
 from .. import handlers
 from ..lib.models import Article
 
+from ..lib.models import CustomField
 from tghtml import TgHTML
 
 
 @dp.message_handler(commands=["memepedia", "meme"])
 @handlers.send_article
-@handlers.parse_arguments(1)
-async def mempep(message: types.Message, query: str) -> Article:
+@handlers.parse_arguments_new
+async def mempep(message: types.Message, query: CustomField(str)) -> Article:
     try:
         search = await pymemeru.search(query)
     except AttributeError:

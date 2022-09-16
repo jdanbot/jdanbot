@@ -8,24 +8,24 @@ from aiogram import types
 from .. import handlers
 from ..config import _, dp, settings
 from ..schemas import ChatMember, Note, User
+from ..lib.models import CustomField
 
 
 @dp.message_handler(commands=["remove"])
-@handlers.parse_arguments(1)
-async def remove(message: types.Message, name: str):
-    name = name[1:] if name.startswith("#") else name
-
+@handlers.parse_arguments_new
+async def remove(
+    message: types.Message,
+    key: CustomField(lambda x: x.removeprefix("#")),
+):
     try:
-        await Note.remove(ChatMember.get_by_message(message), name)
+        await Note.remove(ChatMember.get_by_message(message), key)
     except AttributeError:
         await message.reply(_("notes.no_rights_for_edit"))
 
 
-@dp.message_handler(commands=["remove_bulk"])
-@handlers.only_admins
-@handlers.parse_arguments(1)
-async def remove_bulk(message: types.Message, notes_raw: str):
-    notes: list[str] = notes_raw.split()
+@dp.message_handler(commands=["remove_bulk"], is_admin=True)
+async def remove_bulk(message: types.Message):
+    notes: list[str] = message.get_args().split()
 
     for note in notes:
         message.text = f"/remove {note}"
@@ -38,8 +38,7 @@ def build_user_info(user: User) -> str:
     return f"{user.full_name} (@{user.username}, {user.id})"
 
 
-@dp.message_handler(commands=["export_notes"])
-@handlers.only_admins
+@dp.message_handler(commands=["export_notes"], is_admin=True)
 async def export_notes(message: types.Message):
     notes = Note.show(message.chat.id, raw=True)
     notes_raw = ""
@@ -72,25 +71,34 @@ async def export_notes(message: types.Message):
 
 
 @dp.message_handler(commands=["set"])
-@handlers.parse_arguments(2)
-async def set_(message: types.Message, name: str, text: str):
-    name = name[1:] if name.startswith("#") else name
-    is_admin_note = name in settings.admin_notes
+@handlers.parse_arguments_new
+async def set_(
+    message: types.Message,
+    key: CustomField(lambda x: x.removeprefix("#")),
+    value: CustomField(str, can_take_from_reply=True),
+):
+    is_admin_note = key in settings.admin_notes
 
     try:
-        is_edit = await Note.add(ChatMember.get_by_message(message), name, text, is_admin_note)
-        await message.reply(_(
-            f"notes.{'edit' if is_edit else 'add'}_{'system_' if is_admin_note else ''}note"))
+        is_edit = await Note.add(
+            ChatMember.get_by_message(message), key, value, is_admin_note
+        )
+        await message.reply(
+            _(
+                f"notes.{'edit' if is_edit else 'add'}_{'system_' if is_admin_note else ''}note"
+            )
+        )
     except AttributeError:
         await message.reply(_("notes.no_rights_for_edit"))
 
 
 @dp.message_handler(commands=["get"])
-@handlers.parse_arguments(1)
-async def get(message: types.Message, name: str):
-    name = name[1:] if name.startswith("#") else name
-
-    note = Note.get(message.chat.id, name)
+@handlers.parse_arguments_new
+async def get(
+    message: types.Message,
+    key: CustomField(lambda x: x.removeprefix("#")),
+):
+    note = Note.get(message.chat.id, key)
 
     if note is None:
         await message.reply(_("notes.create_var"))
@@ -102,11 +110,9 @@ async def get(message: types.Message, name: str):
         await message.reply(note)
 
 
-@dp.message_handler(commands="show")
+@dp.message_handler(commands=["show", "notes"])
 async def show(message: types.Message):
-    await message.reply(", ".join(
-        Note.show(message.chat.id)
-    ))
+    await message.reply(", ".join(Note.show(message.chat.id)))
 
 
 @dp.message_handler(lambda message: message.text.startswith("#"))

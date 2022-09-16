@@ -8,13 +8,14 @@ from .chat_member import ChatMember
 from .connection import db
 
 
-def str2bool(value: str, default: None = None) -> bool | None:
-    if value.lower() in ("true", "yes", "1"):
-        return True
-    elif value.lower() in ("false", "no", "0"):
-        return False
-
-    return default
+def str2bool(value: str, default: bool | None = None) -> bool | None:
+    match value.lower():
+        case "true", "yes", "1":
+            return True
+        case "false", "no", "0":
+            return False
+        case _:
+            return default
 
 
 class Note(Model):

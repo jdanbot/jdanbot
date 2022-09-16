@@ -1,14 +1,14 @@
-from ..config.bot import bot
-from .connection import db
-
-from .chat import Chat
-from .user import User
-from .pidor import Pidor
+from datetime import datetime
 
 from aiogram import types
-from aiogram.utils.markdown import link, hlink, escape_md
-from datetime import datetime
+from bot.lib.admin import check_admin
 from peewee import BooleanField, DateTimeField, ForeignKeyField, Model
+
+from ..config.bot import bot
+from .chat import Chat
+from .connection import db
+from .pidor import Pidor
+from .user import User
 
 
 class ChatMember(Model):
@@ -24,34 +24,46 @@ class ChatMember(Model):
         database = db
 
     @property
-    def tag(self, use_html=False) -> str:
-        if self.user.username:
-            return escape_md(f"@{self.user.username}")
+    def from_user(self) -> types.User:
+        return self.user
 
-        return (hlink if use_html else link)(self.user.first_name, f"tg://user?id={self.user.id}")
+    get_mention = types.User.get_mention
+    mention = types.User.mention
 
     @property
-    def mention(self) -> str:
-        return self.user.username or self.user.first_name
+    def tag(self) -> None:
+        return types.User.get_mention()
 
+    @staticmethod
     def get_by_message(message: types.Message) -> "ChatMember":
         return ChatMember.get_or_create(
             user_id=User.get_by_message(message).id,
             chat_id=Chat.get_by_message(message).id
         )[0]
 
-    def get_or_create_pidor(self) -> Pidor | bool:
+    def get_or_create_pidor(self) -> tuple["Pidor", bool]:
         if self.pidor is None:
-            self.pidor, status = Pidor.get_or_create(member_id=self.id)
-            ChatMember.update(pidor_id=self.pidor.id).where(ChatMember.id == self.id).execute()
-        else:
-            status = False
+            self.pidor, is_created = Pidor.get_or_create(member_id=self.id)
 
-        return self.pidor, status
+            (
+                ChatMember
+                .update(pidor_id=self.pidor.id)
+                .where(ChatMember.id == self.id)
+                .execute()
+            )
+        else:
+            is_created = False
+
+        return self.pidor, is_created
 
     async def check_admin(self) -> bool:
-        user = await bot.get_chat_member(self.chat.id, self.user.id)
-        is_admin = user.is_chat_admin()
+        is_admin = await check_admin(bot, self.chat.id, self.user.id)
 
-        ChatMember.update(is_admin=is_admin).where(ChatMember.id == self.id).execute()
+        (
+            ChatMember
+            .update(is_admin=is_admin)
+            .where(ChatMember.id == self.id)
+            .execute()
+        )
+
         return is_admin

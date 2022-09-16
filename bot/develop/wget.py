@@ -1,35 +1,33 @@
+import contextlib
 import json
 
-import yaml
 import humanize
+import yaml
 from aiogram import types
 
-from ..config import dp, _
 from .. import handlers
+from ..config import _, dp
 from ..lib.aioget import aioget
+from ..lib.models import CustomField
 from ..lib.text import code
 
 
-@dp.message_handler(commands=["d"])
-@handlers.only_jdan
+@dp.message_handler(commands=["d"], is_superuser=True)
 @handlers.get_text
 async def download(message: types.Message, query: str):
     response = await aioget(query)
     text = response.text
 
-    try:
+    with contextlib.suppress(json.decoder.JSONDecodeError):
         text = yaml.dump(json.loads(text))
-    except json.decoder.JSONDecodeError:
-        pass
 
     await message.reply(code(text[:4096]),
                         parse_mode="HTML")
 
 
-@dp.message_handler(commands=["wget", "r", "request"])
-@handlers.only_jdan
-@handlers.parse_arguments(1)
-async def wget(message: types.Message, url: str):
+@dp.message_handler(commands=["wget", "r", "request"], is_superuser=True)
+@handlers.parse_arguments_new
+async def wget(message: types.Message, url: CustomField(str)):
     response = await aioget(url)
 
     await message.reply(_(

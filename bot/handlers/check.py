@@ -1,16 +1,14 @@
-from ..schemas import Note
+from ..schemas.note import Note, str2bool
 
 
-def check(var, without_params=False):
+def check(*keys):
     def argument_wrapper(func):
-        async def wrapper(message):
-            res = Note.get(message.chat.id, var)
-
-            if res is None:
-                res = "True"
-
-            if str(res).title() == "True":
-                await func(message)
+        async def wrapper(message, *args, **kwargs):
+            if all(
+                Note.get(message.chat.id, key, default=True, type=str2bool)
+                for key in keys
+            ):
+                await func(message, *args, **kwargs)
 
         return wrapper
 

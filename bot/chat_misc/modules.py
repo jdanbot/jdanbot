@@ -4,7 +4,7 @@ from ..schemas import Chat
 from aiogram import types
 
 
-@dp.message_handler(commands="modules_beta")
+@dp.message_handler(commands="modules_beta", is_admin=True)
 @dp.callback_query_handler(lambda call: call.data == "modules")
 async def modules_(message: types.Message):
     try:

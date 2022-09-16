@@ -4,18 +4,24 @@ from .lib.banhammer import BanHammer, WarnHammer, UnwarnHammer
 from ..config import dp, _
 from ..schemas import Poll
 from .. import handlers
+from ..handlers.parse_arguments import parse_arguments_new
 
 from ..schemas import ChatMember
 
+import pytimeparse
+from ..lib.models import CustomField
 
-@dp.message_handler(commands=["mute"])
+
+@dp.message_handler(commands=["mute"], is_admin=True)
 @handlers.check("__enable_admin__")
-@handlers.only_admins
-@handlers.parse_arguments(2, True)
-async def admin_mute(message: types.Message, *args):
-    reply = message.reply_to_message
-
-    action = BanHammer(message, reply, *args)
+@parse_arguments_new
+async def admin_mute(
+    message: types.Message,
+    reply: types.Message,
+    time: CustomField(pytimeparse.parse, fallback=lambda x: int(x) * 60, default=60),
+    reason: CustomField(lambda x: str(x).strip(), default=lambda: _("ban.reason_not_found")),
+):
+    action = BanHammer(message, reply, time, reason)
 
     await action.execute()
     await action.log()
@@ -25,11 +31,14 @@ async def admin_mute(message: types.Message, *args):
 
 
 @dp.message_handler(commands=["selfmute", "selfban"])
-@handlers.check("__enable_admin__")
-@handlers.check("__enable_selfmute__")
-@handlers.parse_arguments(2, True)
-async def selfmute(message: types.Message, *args):
-    action = BanHammer(message, message, *args)
+@handlers.check("__enable_admin__", "__enable_selfmute__")
+@handlers.parse_arguments_new
+async def selfmute(
+    message: types.Message,
+    time: CustomField(pytimeparse.parse, fallback=lambda x: int(x) * 60, default=60),
+    reason: CustomField(lambda x: str(x).strip(), default=lambda: _("ban.reason_not_found")),
+):
+    action = BanHammer(message, message, time, reason)
 
     if await action.execute():
         await action.log()
@@ -37,14 +46,15 @@ async def selfmute(message: types.Message, *args):
         await message.reply(_("ban.selfmute_limit_reached"))
 
 
-@dp.message_handler(commands=["warn"])
+@dp.message_handler(commands=["warn"], is_admin=True)
 @handlers.check("__enable_admin__")
-@handlers.only_admins
-@handlers.parse_arguments(1, True)
-async def admin_warn(message: types.Message, *args):
-    reply = message.reply_to_message
-
-    action = WarnHammer(message, reply, *args)
+@parse_arguments_new
+async def admin_warn(
+    message: types.Message,
+    reply: types.Message,
+    reason: CustomField(str, default=lambda: _("ban.reason_not_found")),
+):
+    action = WarnHammer(message, reply, reason)
 
     await action.log()
     await action.execute()
@@ -53,19 +63,20 @@ async def admin_warn(message: types.Message, *args):
         await action.repost()
 
 
-@dp.message_handler(commands=["unwarn"])
+@dp.message_handler(commands=["unwarn"], is_admin=True)
 @handlers.check("__enable_admin__")
-@handlers.only_admins
-@handlers.parse_arguments(1, True)
-async def admin_unwarn(message: types.Message, *args):
-    reply = message.reply_to_message
-
+@parse_arguments_new
+async def admin_unwarn(
+    message: types.Message,
+    reply: types.Message,
+    reason: CustomField(str, default=lambda: _("ban.reason_not_found")),
+):
     if reply.from_user.id == message.from_user.id:
         await message.reply(_("ban.admin_cant_unwarn_self"))
         return
 
     try:
-        action = UnwarnHammer(message, reply, *args)
+        action = UnwarnHammer(message, reply, reason)
     except IndexError:
         await message.reply(_("ban.warns_not_found"))
         return
@@ -79,8 +90,8 @@ async def admin_unwarn(message: types.Message, *args):
 
 @dp.message_handler(commands=["poll"])
 @handlers.check("enable_poll")
-@handlers.parse_arguments(1)
-async def kz_poll(message: types.Message, name: str):
+@parse_arguments_new
+async def kz_poll(message: types.Message, name: CustomField(str)):
     options = ["Да", "Нет", "Воздержусь"]
     is_katz_bots = message.chat.id == -1001334412934
 

@@ -45,6 +45,11 @@ async def catch_error(callback: types.CallbackQuery, exception: str):
         await message.reply(bold(_("errors.not_found")), parse_mode="MarkdownV2")
         return
 
+    if exc in ("JdanbotError",):
+        return await message.reply(
+            bold(_(inf_err.split(": ")[1])), parse_mode="MarkdownV2"
+        )
+
     if settings.logging_chat is not None:
         reply = message.reply_to_message
 
@@ -53,15 +58,16 @@ async def catch_error(callback: types.CallbackQuery, exception: str):
             log_schema.format(
                 name=bold(message.chat.full_name),
                 id=code(message.chat.id),
-
                 user=message.from_user.get_mention(),
                 user_id=code(message.from_user.id),
-
-                locale=LANGS[lang].emoji if (lang := _(None, return_lang=True)) is not None else lang,
+                locale=LANGS[lang].emoji
+                if (lang := _(None, return_lang=True)) is not None
+                else lang,
                 query=code(message.text),
                 reply=reply.content_type if reply is not None else "❌",
-
-                error_small="\n".join([code(inf_err.split(": ")[0]), bold(inf_err.split(": ")[1])])
+                error_small="\n".join(
+                    [code(inf_err.split(": ")[0]), bold(inf_err.split(": ")[1])]
+                ),
             ),
             parse_mode="MarkdownV2",
         )

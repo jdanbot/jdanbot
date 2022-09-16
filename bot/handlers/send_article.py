@@ -25,7 +25,7 @@ def make_first_bold_a_link(text: str, link: str, title: str | None = None) -> st
         return str(soup)
 
     if title:
-        return make_first_bold_a_link(f"<b>{title}</b>\n\n" + str(soup), link)
+        return make_first_bold_a_link(f"<b>{title}</b>\n\n{str(soup)}", link)
 
     return text
 
@@ -34,6 +34,10 @@ def send_article(func):
     @wraps(func)
     async def wrapper(message: types.Message, *args):
         result: Article = await func(message, *args)
+
+        if result is None:
+            return
+
         params = result.params or {}
 
         if isinstance(message, types.CallbackQuery):
@@ -75,6 +79,5 @@ def send_article(func):
             )
 
             raise e
-
 
     return wrapper

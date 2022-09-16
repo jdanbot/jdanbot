@@ -1,16 +1,17 @@
 from aiogram import types
 from pyduckgo import Duck
 
-from ..config import dp
 from .. import handlers
+from ..config import dp
+from ..lib.models import CustomField
 from ..lib.text import bold, fixWords
 
 duck = Duck()
 
 
 @dp.message_handler(commands=["duck"])
-@handlers.parse_arguments(1)
-async def get_duck(message: types.Message, query: str):
+@handlers.parse_arguments_new
+async def get_duck(message: types.Message, query: CustomField(str)):
     text = ""
 
     links = await duck.search(query)
