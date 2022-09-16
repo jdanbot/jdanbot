@@ -14,7 +14,7 @@ def run_if_func(value: Any) -> Any:
 
 
 def parse_arguments_new(func: Callable):  # sourcery skip: bin-op-identity
-    async def wrapper(message: types.message):
+    async def wrapper(message: types.message, **kwargs):
         text = message.get_args()
         params = {}
 
