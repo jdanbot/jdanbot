@@ -21,14 +21,6 @@ def get_text(func):
             text = reply.text
         elif reply and reply.caption:
             text = reply.caption
-        elif reply and reply.photo:
-            with io.BytesIO() as file:
-                await reply.photo[-1].download(destination_file=file)
-                file.seek(0)
-
-                #TODO: Add custom languages
-
-                text = pytesseract.image_to_string(Image.open(file))
         else:
             try:
                 await message.reply(
