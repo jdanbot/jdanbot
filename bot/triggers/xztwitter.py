@@ -6,7 +6,7 @@ import urllib.parse
 
 @dp.message_handler(lambda x: "https://twitter.com/" in x.text.lower())
 @handlers.check("enable_twitter_redirect")
-async def replace_twitter(message: types.Message):
+async def replace_twitter(message: types.Message, **kwargs):
     for entitie in message.entities:
         raw_url = message.text[entitie.offset:entitie.offset + entitie.length]
 
