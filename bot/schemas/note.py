@@ -9,10 +9,10 @@ from .connection import db
 
 
 def str2bool(value: str, default: bool | None = None) -> bool | None:
-    match value.lower():
-        case "true", "yes", "1":
+    match value.strip().lower():
+        case "true" | "yes" | "1":
             return True
-        case "false", "no", "0":
+        case "false" | "no" | "0":
             return False
         case _:
             return default
@@ -76,7 +76,8 @@ class Note(Model):
                     .join(Chat, on=ChatMember.chat_id == Chat.id)
                     .where(Chat.id == chat_id, Note.name == name)
             )[0].text, default)
-        except IndexError:
+        except IndexError as e:
+            print(e)
             return default
 
     @staticmethod
