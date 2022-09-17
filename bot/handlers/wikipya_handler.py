@@ -63,7 +63,8 @@ def wikipya_handler(
                 ["div", {"class": "navigation-not-searchable"}],
                 ["table"],
                 [None, {"class": "error"}],
-                [None, {"class": "noprint"}]
+                [None, {"class": "noprint"}],
+                [None, {"class": "thumb"}]
             ]
 
             return Article(
