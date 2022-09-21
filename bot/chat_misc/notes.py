@@ -7,7 +7,7 @@ from aiogram import types
 
 from .. import handlers
 from ..config import _, dp, settings
-from ..schemas import ChatMember, Note, User
+from ..schemas import ChatMember, Note, User, str2bool
 from ..lib.models import CustomField
 
 
@@ -122,7 +122,7 @@ async def use_by_hashtag(message: types.Message):
     name, *text = message.text.split(" ", maxsplit=1)
     text = text[0] if len(text) == 1 else ""
 
-    if text != "" and not message.is_forward():
+    if Note.get(message.chat.id, "enable_inline_set_note", True, str2bool) and (text != "" and not message.is_forward()):
         message.text = f"/set {message.text}"
         return await set_(message)
 
