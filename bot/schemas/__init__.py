@@ -3,7 +3,7 @@ from .connection import db
 from .chat import Chat
 from .chat_member import ChatMember
 from .command import Command
-from .note import Note
+from .note import Note, str2bool
 from .pidor import Pidor
 from .poll import Poll
 from .user import User
