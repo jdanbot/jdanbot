@@ -19,8 +19,12 @@ LANGS = {
     "hu": Language("🇭🇺", "Magyar"),
     "hi": Language("🇮🇳", "हिन्दी"),
     "he": Language("🇮🇱", "עִבְרִית"),
-    "hr": Language("🇭🇷", "Hrvatski")
+    "hr": Language("🇭🇷", "Hrvatski"),
+    "ja": Language("🇯🇵", "日本語"),
+    "cs": Language("🇨🇿", "Czech čeština"),
+    "no": Language("🇳🇴", "Norsk"),
+    "pt": Language("🇵🇹", "Português")
 }
 
-GTRANSLATE_LANGS = ["ru", "en", "ua", "uk", "be", "pl", "de", "fr", "kz", "hu", "hi", "he", "hr"]
+GTRANSLATE_LANGS = {"ru", "en", "ua", "uk", "be", "pl", "de", "fr", "kz", "hu", "hi", "he", "hr", "ja", "cs", "no", "pt", "tt"}
 WIKIPEDIA_LANGS = ["ru", "en", "sv", "de", "ce", "tt", "ba", "pl", "uk", "be", "es", "he", "xh", "ab"]
