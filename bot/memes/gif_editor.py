@@ -8,19 +8,22 @@ from ..config import _, dp
 
 @dp.message_handler(commands=["fast", "slow"])
 async def edit_gif(message: types.Message):
-    try:
-        (animation := message.reply_to_message.animation).file_size
-    except AttributeError:
-        (animation := message.reply_to_message.sticker).file_size
+    reply = message.reply_to_message
 
-        if not animation.is_video:
-            raise KeyError("Reply to GIF or video sticker")
+    if reply.animation:
+        (video := reply.animation).file_size
+    elif reply.sticker and reply.sticker.is_video:
+        (video := reply.sticker).file_size
+    elif reply.video:
+        (video := reply.video).file_size
+    else:
+        raise KeyError("Reply to GIF | video | video sticker")
 
-    if animation.file_size > 5000000:
+    if video.file_size > 5000000:
         await message.reply(_("errors.is_too_big_gif"))
         return
 
-    await animation.download(destination_file="test.mp4")
+    await video.download(destination_file="test.mp4")
     is_fast = message.get_command(pure=True) == "fast"
 
     process = (
@@ -41,19 +44,22 @@ async def edit_gif(message: types.Message):
 
 @dp.message_handler(commands=["reverse"])
 async def reverse_gif(message: types.Message):
-    try:
-        (animation := message.reply_to_message.animation).file_size
-    except AttributeError:
-        (animation := message.reply_to_message.sticker).file_size
+    reply = message.reply_to_message
 
-        if not animation.is_video:
-            raise KeyError("Reply to GIF or video sticker")
+    if reply.animation:
+        (video := reply.animation).file_size
+    elif reply.sticker and reply.sticker.is_video:
+        (video := reply.sticker).file_size
+    elif reply.video:
+        (video := reply.video).file_size
+    else:
+        raise KeyError("Reply to GIF | video | video sticker")
 
-    if animation.file_size > 5000000:
+    if video.file_size > 5000000:
         await message.reply(_("errors.is_too_big_gif"))
         return
 
-    await animation.download(destination_file="test3.mp4")
+    await video.download(destination_file="test3.mp4")
 
     process = (
         ffmpeg.input("test3.mp4")
