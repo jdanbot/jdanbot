@@ -19,7 +19,7 @@ async def photo_to_string(photo: types.PhotoSize, lang: str) -> str | None:
 
 
 @dp.message_handler(
-    filters.RegexpCommandsFilter(regexp_commands=[r"$(ocr_|o)([a-z]{2,3})(2|to)([a-z]{2})"])
+    filters.RegexpCommandsFilter(regexp_commands=[r"(ocr_|o)([a-z]{2,3})(2|to)([a-z]{2})"])
 )
 async def from_ocr(message: types.Message, regexp_command):
     ocr_lang, translate_to_lang = regexp_command.group(2), regexp_command.group(4)
@@ -44,7 +44,7 @@ async def from_ocr(message: types.Message, regexp_command):
     await message.reply(cute_crop(text, limit=4096), disable_web_page_preview=True)
 
 
-@dp.message_handler(filters.RegexpCommandsFilter(regexp_commands=[r"$(ocr_|o)([a-z]{2,3})"]))
+@dp.message_handler(filters.RegexpCommandsFilter(regexp_commands=[r"(ocr_|o)([a-z]{2,3})"]))
 async def from_ocr_to_translated(message: types.Message, regexp_command):
     ocr_lang = regexp_command.group(2)
 
