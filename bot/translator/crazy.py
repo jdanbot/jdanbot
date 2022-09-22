@@ -10,7 +10,8 @@ from ..config import dp
 from ..config.i18n import i18n
 from .lib.multitran import GoogleTranslator
 
-GTRANSLATE_LANGS = DeepGoogleTranslator().get_supported_languages()
+
+GTRANSLATE_LANGS = DeepGoogleTranslator().get_supported_languages(as_dict=True).values()
 
 
 async def cleared_translate(*args, **kwargs) -> str:
