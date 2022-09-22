@@ -58,7 +58,7 @@ async def crazy_translator(message: types.Message, text: str):
     await msg.edit_text(
         DeepGoogleTranslator(
             target=user_lang,
-        ).translate(text),
+        ).translate(text) or "None",
         disable_web_page_preview=True,
     )
 

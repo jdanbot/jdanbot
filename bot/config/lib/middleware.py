@@ -41,9 +41,9 @@ class I18nMiddleware(I18nMiddlewareBase):
         user = types.User.get_current()
 
         if chat and (chat_lang := Note.get(chat.id, "__chat_lang__")):
-            return chat_lang
+            return chat_lang.strip()
         elif user and (user_chat_lang := Note.get(user.id, "__chat_lang__")):
-            return user_chat_lang
+            return user_chat_lang.strip()
         elif user:
             return user.language_code
         else:

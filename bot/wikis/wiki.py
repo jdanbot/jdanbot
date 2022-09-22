@@ -8,6 +8,8 @@ from ..lib.text import fixWords
 from ..config import dp, _, WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS
 from ..config.languages import WIKIPEDIA_LANGS
 
+from aiogram.utils.markdown import escape_md
+
 
 @handlers.wikipya_handler("lurk", "lurkmore")
 async def lurkmore(message: types.Message) -> Wikipya:
@@ -85,6 +87,11 @@ async def wikiSearch(message: types.Message, lang: str = "ru"):
         await message.reply(_("errors.enter_wiki_query").format(opts[0]),
                             parse_mode="Markdown")
         return
+
+    return await message.reply(
+        f"*Use bot's inline instead of this command!*\nexample: `@jdan734_bot wiki {escape_md(opts[1])}.`",
+        parse_mode="markdown"
+    )
 
     query = opts[1]
 

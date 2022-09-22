@@ -1,3 +1,4 @@
+import contextlib
 from dataclasses import dataclass
 
 from aiogram import types
@@ -13,6 +14,9 @@ class IsAdminFilter(BoundFilter):
     is_admin: bool
 
     async def check(self, message: types.Message) -> bool:
+        with contextlib.suppress(Exception):
+            message = message.message
+
         return message.chat.type == "supergroup" and await check_admin(
             bot, message.chat.id, message.from_user.id
         )
