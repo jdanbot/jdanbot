@@ -1,14 +1,16 @@
 import re
 import textwrap
-
 from random import choice
 
-from .lib.multitran import GoogleTranslator
-from .. import handlers
-from ..config import dp, GTRANSLATE_LANGS, LANGS, _
-from ..config.i18n import i18n
-
 from aiogram import types
+from deep_translator import GoogleTranslator as DeepGoogleTranslator
+
+from .. import handlers
+from ..config import dp
+from ..config.i18n import i18n
+from .lib.multitran import GoogleTranslator
+
+GTRANSLATE_LANGS = DeepGoogleTranslator().get_supported_languages()
 
 
 async def cleared_translate(*args, **kwargs) -> str:
@@ -24,25 +26,33 @@ async def cleared_translate(*args, **kwargs) -> str:
 @dp.message_handler(commands=["crazy"])
 @handlers.get_text
 async def crazy_translator(message: types.Message, text: str):
-    msg = await message.reply(_("triggers.crazy_translate_started"))
-    lang = None
+    msg = await message.reply("⏳")
 
-    for __ in range(0, 9):
-        lang = choice(list(filter(lambda x: x not in [lang], GTRANSLATE_LANGS)))
-        lang = "uk" if lang == "ua" else lang
-        text = await cleared_translate(text, tgt_lang=lang)
+    user_lang = (
+        user_lang
+        if (user_lang := await i18n.get_user_locale()) in ("uk", "ru", "en") or "ru"
+        else "ru"
+    )
 
-        lang_info = LANGS[lang.lower()]
+    lang = user_lang
 
-        msg = await msg.edit_text(
-            _("triggers.crazy_translate_started") +
-            f"\n[{__ + 1}/10] {lang_info.emoji} {lang_info.name}"
+    for __ in range(9):
+        lang = choice(
+            tuple(
+                filter(
+                    lambda x: x != lang,
+                    GTRANSLATE_LANGS,
+                )
+            )
         )
+        lang = "uk" if lang == "ua" else lang
+
+        text = await cleared_translate(text, tgt_lang=lang)
 
     await msg.edit_text(
         await cleared_translate(
             text,
-            tgt_lang=user_lang if (user_lang := await i18n.get_user_locale()) in ("uk", "ru", "en") else "ru"
+            tgt_lang=user_lang,
         ),
-        disable_web_page_preview=True
+        disable_web_page_preview=True,
     )
