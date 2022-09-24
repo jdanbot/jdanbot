@@ -13,6 +13,13 @@ def run_if_func(value: Any) -> Any:
     return value() if isinstance(value, Callable) else value
 
 
+def check_is_last_parameter(name: str, params: list) -> bool:
+    if params[-1] == "return":
+        del params[-1]
+
+    return name == params[-1]
+
+
 def parse_arguments_new(func: Callable):  # sourcery skip: bin-op-identity
     async def wrapper(message: types.message):
         text = message.get_args()
@@ -33,7 +40,7 @@ def parse_arguments_new(func: Callable):  # sourcery skip: bin-op-identity
             if getattr(annotation, "__name__", None) == "Article":
                 continue
 
-            is_latest_arg = name == list(func.__annotations__.keys())[-1]
+            is_latest_arg = check_is_last_parameter(name, list(func.__annotations__.keys()))
 
             if is_latest_arg:
                 param = text

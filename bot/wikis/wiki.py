@@ -1,19 +1,14 @@
+import httpx
 from aiogram import types
+from aiogram.utils.markdown import escape_md
+from tghtml import TgHTML
 from wikipya import Wikipya
 
-import httpx
-
 from .. import handlers
-from ..lib.text import fixWords
-from ..config import dp, _, WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS
+from ..config import WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS, _, dp
 from ..config.languages import WIKIPEDIA_LANGS
-
-from ..lib.models import CustomField
-from ..lib.models import Article
-
-from tghtml import TgHTML
-
-from aiogram.utils.markdown import escape_md
+from ..lib.models import Article, CustomField
+from ..lib.text import fixWords
 
 
 @handlers.wikipya_handler("lurk", "lurkmore")
@@ -101,7 +96,7 @@ async def get_summary(
         image = None
 
     return Article(
-        text=TgHTML(summary.extract_html, enable_preprocess=False).parsed,
+        text=fixWords(TgHTML(summary.extract_html, enable_preprocess=False).parsed),
         title=summary.title,
         href=summary.content_urls.desktop.page,
         image=image,
