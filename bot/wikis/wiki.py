@@ -8,6 +8,11 @@ from ..lib.text import fixWords
 from ..config import dp, _, WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS
 from ..config.languages import WIKIPEDIA_LANGS
 
+from ..lib.models import CustomField
+from ..lib.models import Article
+
+from tghtml import TgHTML
+
 from aiogram.utils.markdown import escape_md
 
 
@@ -77,6 +82,31 @@ async def wikihandler(message: types.Message, trigger: str) -> Wikipya:
         lang = "ru"
 
     return Wikipya(lang)
+
+
+@dp.message_handler(commands=["summary", "wiki"])
+@handlers.send_article
+@handlers.parse_arguments_new
+async def get_summary(
+    message: types.message,
+    query: CustomField(str)
+) -> Article:
+    wiki = Wikipya("ru").get_instance()
+
+    summary = await wiki.summary(query)
+
+    try:
+        image = summary.original_image.source
+    except Exception:
+        image = None
+
+    return Article(
+        text=TgHTML(summary.extract_html, enable_preprocess=False).parsed,
+        title=summary.title,
+        href=summary.content_urls.desktop.page,
+        image=image,
+        parse_mode="html"
+    )
 
 
 @dp.message_handler(commands="s")
