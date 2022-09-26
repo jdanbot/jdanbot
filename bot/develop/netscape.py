@@ -4,16 +4,25 @@ from tghtml import TgHTML
 from ..config import dp
 from .. import handlers
 from ..lib.aioget import aioget
-from ..lib.text import cute_crop
+
+from ..lib.models import Article, CustomField
+
+from readability import Document
 
 
 @dp.message_handler(commands=["netscape"], is_superuser=True)
-@handlers.get_text
-async def netscape(message: types.Message, url: str):
+@handlers.send_article
+@handlers.parse_arguments_new
+async def netscape(message: types.Message, url: CustomField(str)) -> Article:
     res = await aioget(url)
     html = res.text
 
     parsed_html = TgHTML(html)
-    text = cute_crop(str(parsed_html), limit=4096)
+    title = Document(html).title()
 
-    await message.reply(text, parse_mode="HTML")
+    return Article(
+        str(parsed_html),
+        title=title,
+        href=url,
+        parse_mode="HTML"
+    )

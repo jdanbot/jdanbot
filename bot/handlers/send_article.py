@@ -16,6 +16,9 @@ def make_first_bold_a_link(text: str, link: str, title: str | None = None) -> st
     soup = BeautifulSoup(text, "html.parser")
     b = soup.find_all(["b", "strong"])
 
+    if title:
+        return make_first_bold_a_link(f"<b>{title}</b>\n\n{str(soup)}", link)
+
     if len(b) != 0:
         b = b[0]
         b.name = "a"
@@ -23,9 +26,6 @@ def make_first_bold_a_link(text: str, link: str, title: str | None = None) -> st
         b = b.wrap(soup.new_tag("b"))
 
         return str(soup)
-
-    if title:
-        return make_first_bold_a_link(f"<b>{title}</b>\n\n{str(soup)}", link)
 
     return text
 
