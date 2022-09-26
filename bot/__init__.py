@@ -51,7 +51,7 @@ def prepare_paths(
     else:
         allowed_modules = filter(
             lambda file: not file.startswith("__") and file.endswith(".py") and
-            file[:-3] not in ("ban",),
+            file[:-3] not in ("ban", "ocr"),
             modules
         )
 
@@ -64,3 +64,4 @@ force_import(*prepare_paths(files))
 force_import(*prepare_paths(folders, is_folders=True))
 # from bot.chat_misc.settings import settings_
 force_import("bot.triggers.ban")
+force_import("bot.chat_misc.ocr")
