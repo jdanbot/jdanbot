@@ -31,6 +31,7 @@ pyi18n-new = "^1.1.0"
 ffmpeg-python = "^0.2.0"
 wikipya = "^4.0.2"
 tghtml = "^1.1.0"
+fake-useragent = "^0.1.11"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
