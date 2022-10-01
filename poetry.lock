@@ -785,18 +785,13 @@ version = "4.0.3"
 description = "A simple async python library for search pages and images in wikis"
 category = "main"
 optional = false
-python-versions = "^3.10"
-develop = false
+python-versions = ">=3.10,<4.0"
 
 [package.dependencies]
-beautifulsoup4 = "^4.10.0"
-httpx = "^0.21.2"
-pydantic = "^1.9.0"
+beautifulsoup4 = ">=4.10.0,<5.0.0"
+httpx = ">=0.21.2,<0.22.0"
+pydantic = ">=1.9.0,<2.0.0"
 tghtml = ">1.1"
-
-[package.source]
-type = "directory"
-url = "../wikipya"
 
 [[package]]
 name = "yarl"
@@ -813,7 +808,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "18d122a0e132bc8567c50272937c695abfd7ab5e68b7968af2129e770546f240"
+content-hash = "92afdc3e6be38145f0bfde7a0320677fcd10173dd02741e411eef671e2dfaddd"
 
 [metadata.files]
 aiogram = [
@@ -1523,7 +1518,10 @@ urllib3 = [
     {file = "urllib3-1.26.12-py2.py3-none-any.whl", hash = "sha256:b930dd878d5a8afb066a637fbb35144fe7901e3b209d1cd4f524bd0e9deee997"},
     {file = "urllib3-1.26.12.tar.gz", hash = "sha256:3fa96cf423e6987997fc326ae8df396db2a8b7c667747d47ddd8ecba91f4a74e"},
 ]
-wikipya = []
+wikipya = [
+    {file = "wikipya-4.0.3-py3-none-any.whl", hash = "sha256:6f3184823bb095d290662a350a22993a57a55c7b7f30d012e08bb26d19e15f2f"},
+    {file = "wikipya-4.0.3.tar.gz", hash = "sha256:30e2cf415475a55f12013b8aae829539193cb8ec3f9a8dc69ab7110382c60c04"},
+]
 yarl = [
     {file = "yarl-1.8.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:abc06b97407868ef38f3d172762f4069323de52f2b70d133d096a48d72215d28"},
     {file = "yarl-1.8.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:07b21e274de4c637f3e3b7104694e53260b5fc10d51fb3ec5fed1da8e0f754e3"},
