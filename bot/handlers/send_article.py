@@ -2,32 +2,9 @@ from functools import wraps
 
 from aiogram import types
 from aiogram.utils import exceptions
-from aiogram.utils.markdown import hide_link
-from bs4 import BeautifulSoup
 
 from ..config import bot
 from ..lib.models import Article
-
-
-def make_first_bold_a_link(text: str, link: str, title: str | None = None) -> str:
-    if link is None:
-        return text
-
-    soup = BeautifulSoup(text, "html.parser")
-    b = soup.find_all(["b", "strong"])
-
-    if title:
-        return make_first_bold_a_link(f"<b>{title}</b>\n\n{str(soup)}", link)
-
-    if len(b) != 0:
-        b = b[0]
-        b.name = "a"
-        b["href"] = link
-        b = b.wrap(soup.new_tag("b"))
-
-        return str(soup)
-
-    return text
 
 
 def send_article(func):
@@ -47,36 +24,20 @@ def send_article(func):
             message.reply = bot.edit_message_text
             params |= {"inline_message_id": message.inline_message_id}
 
-        text = ""
+        text = result.get_text()
 
-        if result.image:
-            text += hide_link(result.image)
-
-        if result.href:
-            text += make_first_bold_a_link(result.text, result.href, result.title)
-        else:
-            text += result.text
+        params = dict(
+            disable_web_page_preview=False
+            if result.disable_web_page_preview
+            else result.image is None,
+            reply_markup=result.keyboard,
+            **params
+        )
 
         try:
-            await message.reply(
-                text,
-                parse_mode=result.parse_mode,
-                disable_web_page_preview=result.image is None
-                if not result.disable_web_page_preview
-                else False,
-                reply_markup=result.keyboard,
-                **params,
-            )
+            await message.reply(text, parse_mode=result.parse_mode, **params)
         except exceptions.CantParseEntities as e:
-            await message.reply(
-                text,
-                parse_mode=None,
-                disable_web_page_preview=result.image is None
-                if not result.disable_web_page_preview
-                else False,
-                reply_markup=result.keyboard,
-                **params,
-            )
+            await message.reply(text, parse_mode=None, **params)
 
             raise e
 

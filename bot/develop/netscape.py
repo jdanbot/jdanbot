@@ -24,5 +24,7 @@ async def netscape(message: types.Message, url: CustomField(str)) -> Article:
         str(parsed_html),
         title=title,
         href=url,
-        parse_mode="HTML"
+        parse_mode="HTML",
+
+        force_add_title=True
     )

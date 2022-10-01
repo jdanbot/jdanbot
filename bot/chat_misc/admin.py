@@ -35,7 +35,7 @@ async def admin_mute(
 @handlers.parse_arguments_new
 async def selfmute(
     message: types.Message,
-    time: CustomField(pytimeparse.parse, fallback=lambda x: int(x) * 60, default=60),
+    time: CustomField(pytimeparse.parse, fallback=lambda x: int(x) / 60, default=1),
     reason: CustomField(lambda x: str(x).strip(), default=lambda: _("ban.reason_not_found")),
 ):
     action = BanHammer(message, message, time, reason)

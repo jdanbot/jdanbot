@@ -29,7 +29,7 @@ pytimeparse = "^1.1.8"
 pytesseract = "^0.3.10"
 pyi18n-new = "^1.1.0"
 ffmpeg-python = "^0.2.0"
-wikipya = "^4.0.2"
+wikipya = {path = "../wikipya"}
 tghtml = "^1.1.0"
 
 [tool.poetry.dev-dependencies]

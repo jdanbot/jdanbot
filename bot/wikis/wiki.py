@@ -4,6 +4,8 @@ from aiogram.utils.markdown import escape_md
 from tghtml import TgHTML
 from wikipya import Wikipya
 
+from wikipya.constants import TAG_BLOCKLIST
+
 from .. import handlers
 from ..config import WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS, _, dp
 from ..config.languages import WIKIPEDIA_LANGS
@@ -14,14 +16,15 @@ from ..lib.text import fixWords
 @handlers.wikipya_handler("lurk", "lurkmore")
 async def lurkmore(message: types.Message) -> Wikipya:
     return Wikipya(
-        base_url="https://lurkmore.rip/api.php",
+        base_url="https://lurkmore.lol/api.php",
         params=dict(
             tag_blocklist=[
                 ["p", {"class": "quote_sign"}],
                 ["div", {"class": "template"}],
                 ["div", {"class": "thumb"}],
                 ["img"],
-                ["br"]
+                ["br"],
+                *TAG_BLOCKLIST
             ]
         )
     )
