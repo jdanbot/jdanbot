@@ -26,7 +26,7 @@ def get_lang_emoji_by_name(lang_name: str) -> str:
     return LANGS.get(lang_name, Language(lang_name, lang_name)).emoji
 
 
-@dp.message_handler(commands=["crazy", "crazy2"])
+@dp.message_handler(commands=["crazy", "crazy2", "c"])
 @handlers.get_text
 async def crazy_translator(message: types.Message, text: str):
     msg = await message.reply("⏳")
