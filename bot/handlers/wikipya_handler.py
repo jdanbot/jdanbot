@@ -59,12 +59,12 @@ def wikipya_handler(
                 query = int(query.removeprefix("id"))
 
             page, image, url = await more_cool_wiki_search(wiki, query)
-            page.tag_blocklist = [
-                ["div", {"class": "navigation-not-searchable"}],
-                ["table"],
-                [None, {"class": "error"}],
-                [None, {"class": "noprint"}],
-                [None, {"class": "thumb"}]
+            page.tag_blocklist += [
+                "div.navigation-not-searchable",
+                "table",
+                ".error",
+                ".noprint",
+                ".thumb"
             ]
 
             return Article(

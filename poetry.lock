@@ -1,6 +1,6 @@
 [[package]]
 name = "aiogram"
-version = "2.22.1"
+version = "2.22.2"
 description = "Is a pretty simple and fully asynchronous framework for Telegram Bot API"
 category = "main"
 optional = false
@@ -246,6 +246,14 @@ python-versions = "*"
 dev = ["pytest", "coverage", "coveralls"]
 
 [[package]]
+name = "fake-useragent"
+version = "0.1.11"
+description = "Up to date simple useragent faker with real world database"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "ffmpeg-python"
 version = "0.2.0"
 description = "Python bindings for FFmpeg - with complex filtering support"
@@ -288,7 +296,7 @@ smmap = ">=3.0.1,<6"
 
 [[package]]
 name = "gitpython"
-version = "3.1.27"
+version = "3.1.28"
 description = "GitPython is a python library used to interact with Git repositories"
 category = "dev"
 optional = false
@@ -740,7 +748,7 @@ pbr = ">=2.0.0,<2.1.0 || >2.1.0"
 
 [[package]]
 name = "tghtml"
-version = "1.1.1"
+version = "1.1.2"
 description = "Simple tool for parse common HTML to Telegram HTML"
 category = "main"
 optional = false
@@ -760,7 +768,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "typing-extensions"
-version = "4.3.0"
+version = "4.4.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
 category = "main"
 optional = false
@@ -781,7 +789,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "wikipya"
-version = "4.0.3"
+version = "4.0.4"
 description = "A simple async python library for search pages and images in wikis"
 category = "main"
 optional = false
@@ -791,7 +799,7 @@ python-versions = ">=3.10,<4.0"
 beautifulsoup4 = ">=4.10.0,<5.0.0"
 httpx = ">=0.21.2,<0.22.0"
 pydantic = ">=1.9.0,<2.0.0"
-tghtml = ">1.1"
+tghtml = "1.1.2"
 
 [[package]]
 name = "yarl"
@@ -808,12 +816,12 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "92afdc3e6be38145f0bfde7a0320677fcd10173dd02741e411eef671e2dfaddd"
+content-hash = "0004266de7505c30ee2b129e130418f13f7fa4e3d7ce8151bf5d69f1296c9e07"
 
 [metadata.files]
 aiogram = [
-    {file = "aiogram-2.22.1-py3-none-any.whl", hash = "sha256:46b38f7e3c3057ed1eb6c46225f50f0a74e3285937a61cb02d708ec200672f34"},
-    {file = "aiogram-2.22.1.tar.gz", hash = "sha256:38bc3fa59b797e444c576d927650abff845620a579b9579ec85cd0a4e19b90a8"},
+    {file = "aiogram-2.22.2-py3-none-any.whl", hash = "sha256:d2c5068cc89fc4012038268e111ca9249f66decce817522ec4d215dd829bc507"},
+    {file = "aiogram-2.22.2.tar.gz", hash = "sha256:02e4120122af423575d48519cb469d15189f5da00a3237e715d492fe6d798bfd"},
 ]
 aiohttp = [
     {file = "aiohttp-3.8.3-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:ba71c9b4dcbb16212f334126cc3d8beb6af377f6703d9dc2d9fb3874fd667ee9"},
@@ -977,6 +985,9 @@ distro = [
 emoji = [
     {file = "emoji-1.7.0.tar.gz", hash = "sha256:65c54533ea3c78f30d0729288998715f418d7467de89ec258a31c0ce8660a1d1"},
 ]
+fake-useragent = [
+    {file = "fake-useragent-0.1.11.tar.gz", hash = "sha256:c104998b750eb097eefc28ae28e92d66397598d2cf41a31aa45d5559ef1adf35"},
+]
 ffmpeg-python = [
     {file = "ffmpeg-python-0.2.0.tar.gz", hash = "sha256:65225db34627c578ef0e11c8b1eb528bb35e024752f6f10b78c011f6f64c4127"},
     {file = "ffmpeg_python-0.2.0-py3-none-any.whl", hash = "sha256:ac441a0404e053f8b6a1113a77c0f452f1cfc62f6344a769475ffdc0f56c23c5"},
@@ -1050,8 +1061,8 @@ gitdb = [
     {file = "gitdb-4.0.9.tar.gz", hash = "sha256:bac2fd45c0a1c9cf619e63a90d62bdc63892ef92387424b855792a6cabe789aa"},
 ]
 gitpython = [
-    {file = "GitPython-3.1.27-py3-none-any.whl", hash = "sha256:5b68b000463593e05ff2b261acff0ff0972df8ab1b70d3cdbd41b546c8b8fc3d"},
-    {file = "GitPython-3.1.27.tar.gz", hash = "sha256:1c885ce809e8ba2d88a29befeb385fcea06338d3640712b59ca623c220bb5704"},
+    {file = "GitPython-3.1.28-py3-none-any.whl", hash = "sha256:77bfbd299d8709f6af7e0c70840ef26e7aff7cf0c1ed53b42dd7fc3a310fcb02"},
+    {file = "GitPython-3.1.28.tar.gz", hash = "sha256:6bd3451b8271132f099ceeaf581392eaf6c274af74bb06144307870479d0697c"},
 ]
 h11 = [
     {file = "h11-0.12.0-py3-none-any.whl", hash = "sha256:36a3cb8c0a032f56e2da7084577878a035d3b61d104230d4bd49c0c6b555a9c6"},
@@ -1503,24 +1514,24 @@ stevedore = [
     {file = "stevedore-4.0.0.tar.gz", hash = "sha256:f82cc99a1ff552310d19c379827c2c64dd9f85a38bcd5559db2470161867b786"},
 ]
 tghtml = [
-    {file = "tghtml-1.1.1-py3-none-any.whl", hash = "sha256:8167da13e38ae6bfbe00665f6ff61904ab431a7fa36afe93a825f366900023a3"},
-    {file = "tghtml-1.1.1.tar.gz", hash = "sha256:8aacd5f19472367cd9c2719b39b2bdd98a1629c51da2e4f6d30ea9f368822aa4"},
+    {file = "tghtml-1.1.2-py3-none-any.whl", hash = "sha256:5f738136308c5a5e992334409be4b75910080df2056e39c7d76e3e8d43184d56"},
+    {file = "tghtml-1.1.2.tar.gz", hash = "sha256:1898bc0e0b9595e6cb863131e74d4284b1154d8e31c188c9f90de1a720da8eee"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
 ]
 typing-extensions = [
-    {file = "typing_extensions-4.3.0-py3-none-any.whl", hash = "sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02"},
-    {file = "typing_extensions-4.3.0.tar.gz", hash = "sha256:e6d2677a32f47fc7eb2795db1dd15c1f34eff616bcaf2cfb5e997f854fa1c4a6"},
+    {file = "typing_extensions-4.4.0-py3-none-any.whl", hash = "sha256:16fa4864408f655d35ec496218b85f79b3437c829e93320c7c9215ccfd92489e"},
+    {file = "typing_extensions-4.4.0.tar.gz", hash = "sha256:1511434bb92bf8dd198c12b1cc812e800d4181cfcb867674e0f8279cc93087aa"},
 ]
 urllib3 = [
     {file = "urllib3-1.26.12-py2.py3-none-any.whl", hash = "sha256:b930dd878d5a8afb066a637fbb35144fe7901e3b209d1cd4f524bd0e9deee997"},
     {file = "urllib3-1.26.12.tar.gz", hash = "sha256:3fa96cf423e6987997fc326ae8df396db2a8b7c667747d47ddd8ecba91f4a74e"},
 ]
 wikipya = [
-    {file = "wikipya-4.0.3-py3-none-any.whl", hash = "sha256:6f3184823bb095d290662a350a22993a57a55c7b7f30d012e08bb26d19e15f2f"},
-    {file = "wikipya-4.0.3.tar.gz", hash = "sha256:30e2cf415475a55f12013b8aae829539193cb8ec3f9a8dc69ab7110382c60c04"},
+    {file = "wikipya-4.0.4-py3-none-any.whl", hash = "sha256:bf4eccebf69e1a8558915784b1ba544dabd470c95d69e1a88bb146fb8346bdfc"},
+    {file = "wikipya-4.0.4.tar.gz", hash = "sha256:4ab095295fd8450b9a8e41fafd57aa5c1fdad88ed96c127e52f3b1b8e84c3f92"},
 ]
 yarl = [
     {file = "yarl-1.8.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:abc06b97407868ef38f3d172762f4069323de52f2b70d133d096a48d72215d28"},

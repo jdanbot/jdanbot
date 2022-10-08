@@ -19,11 +19,12 @@ async def lurkmore(message: types.Message) -> Wikipya:
         base_url="https://lurkmore.lol/api.php",
         params=dict(
             tag_blocklist=[
-                ["p", {"class": "quote_sign"}],
-                ["div", {"class": "template"}],
-                ["div", {"class": "thumb"}],
-                ["img"],
-                ["br"],
+                "p.quote_sign",
+                "div.template",
+                "div.thumb",
+                "img",
+                "br",
+                "q"
                 *TAG_BLOCKLIST
             ]
         )
