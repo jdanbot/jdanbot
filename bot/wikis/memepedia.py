@@ -21,7 +21,7 @@ async def mempep(message: types.Message, query: CustomField(str)) -> Article:
         return
 
     page = await pymemeru.page(search[0].name)
-    text = TgHTML(str(page.cleared_text), [["img"]]).parsed
+    text = TgHTML(str(page.cleared_text), ["img"]).parsed
 
     return Article(
         text=text,
