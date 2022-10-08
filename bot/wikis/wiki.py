@@ -24,7 +24,7 @@ async def lurkmore(message: types.Message) -> Wikipya:
                 "div.thumb",
                 "img",
                 "br",
-                "q"
+                "q",
                 *TAG_BLOCKLIST
             ]
         )
