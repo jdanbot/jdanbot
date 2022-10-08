@@ -10,6 +10,8 @@ async def replace_twitter(message: types.Message, **kwargs):
     for entitie in message.entities:
         raw_url = message.text[entitie.offset:entitie.offset + entitie.length]
 
-        if entitie.type in {"url"} and "https://twitter.com/" in raw_url.lower():
+        if entitie.type == "url" and raw_url.lower().startswith("https://twitter.com/"):
             url = urllib.parse.urlparse(raw_url)
-            return await message.reply(url._replace(netloc="nitter.net").geturl())
+
+            return await message.reply(
+                url._replace(netloc="zxtwitter.com").geturl())
