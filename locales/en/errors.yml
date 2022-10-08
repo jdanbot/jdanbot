@@ -11,3 +11,5 @@ is_too_big_gif: Is too big gif
 command_requires_reply: Command requires a replant
 command_requires_text: Command wants the text parameter
 command_requires_reply_or_text: Command wants a text parameter or reply
+
+failed_to_recognize: Failed to recognize anything

@@ -11,3 +11,5 @@ is_too_big_gif: Занадто велика гіфка
 command_requires_reply: Для виконання команди потрібен реплай
 command_requires_text: Для виконання команди бракує текстового параметра
 command_requires_reply_or_text: Для виконання команди бракує текстового параметра або реплаю
+
+failed_to_recognize: Не вдалося нічого розпізнати

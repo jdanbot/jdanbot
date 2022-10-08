@@ -9,6 +9,8 @@ from PIL import Image
 from ..config import dp
 from ..lib.text import cute_crop
 
+from ..lib.errors import JdanbotError
+
 
 async def photo_to_string(photo: types.PhotoSize, lang: str) -> str | None:
     with io.BytesIO() as file:
@@ -33,6 +35,9 @@ async def from_ocr(message: types.Message, regexp_command):
 
     text = await photo_to_string(reply.photo[-1], ocr_lang)
 
+    if text == "":
+        raise JdanbotError("errors.failed_to_recognize")
+
     translate_to_lang = translate_to_lang if translate_to_lang != "ua" else "uk"
 
     t = DeepGoogleTranslator(
@@ -55,4 +60,9 @@ async def from_ocr_to_translated(message: types.Message, regexp_command):
             lang for lang in pytesseract.get_languages() if lang.startswith(ocr_lang)
         ][0]
 
-    await message.reply(await photo_to_string(reply.photo[-1], ocr_lang))
+    text = await photo_to_string(reply.photo[-1], ocr_lang)
+
+    if text == "":
+        raise JdanbotError("errors.failed_to_recognize")
+
+    await message.reply(text)
