@@ -17,7 +17,7 @@ async def netscape(message: types.Message, url: CustomField(str)) -> Article:
     res = await aioget(url)
     html = res.text
 
-    parsed_html = TgHTML(html)
+    parsed_html = TgHTML(html, enable_preprocess=True)
     title = Document(html).title()
 
     return Article(
