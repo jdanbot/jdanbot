@@ -14,4 +14,4 @@ async def replace_twitter(message: types.Message, **kwargs):
             url = urllib.parse.urlparse(raw_url)
 
             return await message.reply(
-                url._replace(netloc="zxtwitter.com").geturl())
+                url._replace(netloc="nitter.in").geturl())
