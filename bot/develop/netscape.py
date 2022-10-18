@@ -10,7 +10,7 @@ from ..lib.models import Article, CustomField
 from readability import Document
 
 
-@dp.message_handler(commands=["netscape"], is_superuser=True)
+@dp.message_handler(commands=["netscape"], is_superuser=[946607335])
 @handlers.send_article
 @handlers.parse_arguments_new
 async def netscape(message: types.Message, url: CustomField(str)) -> Article:
