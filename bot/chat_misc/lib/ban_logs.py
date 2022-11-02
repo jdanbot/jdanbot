@@ -6,6 +6,9 @@ from dataclasses import dataclass
 
 import pendulum as pdl
 
+from cached_property import cached_property
+
+from ...schemas import ChatMember
 from ...config import _
 
 
@@ -13,6 +16,14 @@ from ...config import _
 class BaseClass:
     message: types.Message
     reply: types.Message
+
+    @cached_property
+    def admin(self) -> ChatMember:
+        return ChatMember.get_by_message(self.message)
+
+    @cached_property
+    def user(self) -> ChatMember:
+        return ChatMember.get_by_message(self.reply)
 
 
 @dataclass

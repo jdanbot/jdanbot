@@ -76,17 +76,19 @@ class Note(Model):
                     .join(Chat, on=ChatMember.chat_id == Chat.id)
                     .where(Chat.id == chat_id, Note.name == name)
             )[0].text, default)
-        except IndexError as e:
-            print(e)
+        except IndexError:
             return default
 
     @staticmethod
-    def show(chat_id: int, raw: bool = False) -> list[str] | list["Note"]:
+    def show(
+        chat_id: int,
+        raw: bool = False
+    ) -> list[str] | list["Note"]:
         notes = (
             Note.select()
-                .join(ChatMember, on=Note.author == ChatMember.id)  # noqa
-                .join(Chat, on=ChatMember.chat_id == Chat.id)       # noqa
-                .where(Chat.id == chat_id)                          # noqa
+                .join(ChatMember, on=Note.author == ChatMember.id)
+                .join(Chat, on=ChatMember.chat_id == Chat.id)
+                .where(Chat.id == chat_id)
         )
 
         if raw:
@@ -94,7 +96,8 @@ class Note(Model):
         else:
             return [note.name for note in notes]
 
-    async def remove(member: ChatMember, name: str):
+    @staticmethod
+    async def remove(member: ChatMember, name: str) -> bool:
         note = (
             Note.select()
                 .join(ChatMember, on=Note.author_id == ChatMember.id)

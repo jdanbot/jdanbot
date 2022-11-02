@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from aiogram import types
 from bot.lib.admin import check_admin
@@ -11,6 +11,10 @@ from .chat import Chat
 from .connection import db
 from .pidor import Pidor
 from .user import User
+from .warn import Warn
+
+
+# TODO USE PENDULUM
 
 
 class ChatMember(Model):
@@ -73,3 +77,45 @@ class ChatMember(Model):
         )
 
         return is_admin
+
+    @property
+    def __day_warns(self): return Warn.get_warns(self.id)
+    @property
+    def __all_warns(self): return Warn.get_warns(self.id, period=None)
+    @property
+    def __admin_warns(self): return Warn.get_warns(
+        admin_id=self.id,
+        period=None,
+        ignore_unwarned=False
+    )
+
+    @property
+    def warns(self) -> list[Warn]:
+        return list(self.__day_warns)
+
+    @property
+    def warn_counter(self) -> int:
+        return self.__day_warns.count()
+
+    @property
+    def all_warns(self) -> list[Warn]:
+        return list(self.__all_warns)
+
+    @property
+    def all_warn_counter(self) -> int:
+        return self.__all_warns.count()
+
+    @property
+    def admin_warn_counter(self) -> list[Warn]:
+        return self.__admin_warns.count()
+
+    def warn_by(
+        self,
+        admin: "ChatMember",
+        reason: str
+    ) -> Warn:
+        return Warn.create(
+            who_warned_id=self.id,
+            who_warn_id=admin.id,
+            reason=reason
+        )

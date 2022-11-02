@@ -1,13 +1,10 @@
+from cached_property import cached_property
 from typing import Optional
 
 import pendulum as pdl
 
-from datetime import datetime
-
-import pytimeparse
-
 from ...config import bot, TIMEZONE, _
-from ...schemas import Warn, ChatMember, Note
+from ...schemas import Warn, Note
 
 from .ban_logs import BaseClass, BanLog, UnwarnLog, WarnLog
 
@@ -72,34 +69,21 @@ class WarnHammer(BaseHammer):
 
     @property
     def warns_to_ban(self) -> int:
-        try:
-            return int(Note.get(self.message.chat.id, "__warns_to_ban__"))
-        except Exception:
-            return 3
-
-    @property
-    def warn_counter(self) -> int:
-        warned = ChatMember.get_by_message(self.reply)
-
-        return Warn.count_warns(warned.id)
+        return Note.get(self.message.chat.id, "__warns_to_ban__", 3, int)
 
     @property
     def new_warn_counter(self) -> int:
-        return self.warn_counter + 1
+        return self.user.warn_counter + 1
 
     async def execute(self):
-        Warn.mark_chat_member(
-            ChatMember.get_by_message(self.reply).id,
-            ChatMember.get_by_message(self.message).id,
-            reason=self.reason,
-        )
+        self.user.warn_by(self.admin, reason=self.reason)
 
-        if self.warn_counter >= self.warns_to_ban:
+        if self.user.warn_counter >= self.warns_to_ban:
             action = BanHammer(
                 self.message,
                 self.reply,
                 "1440",
-                _("ban.warn_limit_reached", i=self.warn_counter),
+                _("ban.warn_limit_reached", i=self.user.warn_counter),
             )
 
             await action.execute()
@@ -113,31 +97,25 @@ class WarnHammer(BaseHammer):
 class UnwarnHammer(BaseHammer):
     reason: Optional[str] = None
 
-    def __post_init__(self):
-        self.warn_reason = self.user_warns[-1].reason
-        self.admin_log = UnwarnLog(
-            self.message, self.reply, self.warn_reason, self.warn_counter
+    @cached_property
+    def old_warn(self) -> Warn:
+        return self.user.warns[-1]
+
+    @cached_property
+    def warn_counter(self) -> int:
+        return self.user.warn_counter
+
+    @cached_property
+    def admin_log(self) -> str:
+        return UnwarnLog(
+            self.message,
+            self.reply,
+            self.old_warn.reason,
+            self.warn_counter
         ).generate()
 
-    @property
-    def user_warns(self) -> list[Warn]:
-        warned = ChatMember.get_by_message(self.reply)
-
-        return Warn.get_user_warns(warned.id)
-
-    @property
-    def warn_counter(self) -> int:
-        warned = ChatMember.get_by_message(self.reply)
-
-        return Warn.count_warns(warned.id)
-
     async def execute(self):
-        admin = ChatMember.get_by_message(self.message)
+        if self.warn_counter == 0:
+            raise IndexError()
 
-        if len(self.user_warns) == 0:
-            raise AttributeError()
-
-        last_warn = self.user_warns[-1]
-        Warn.update(who_unwarn_id=admin.id, unwarned_at=datetime.now(TIMEZONE)).where(
-            Warn.id == last_warn.id
-        ).execute()
+        self.old_warn.unwarn_by(self.admin)

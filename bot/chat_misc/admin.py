@@ -77,11 +77,10 @@ async def admin_unwarn(
 
     try:
         action = UnwarnHammer(message, reply, reason)
+        await action.execute()
     except IndexError:
         await message.reply(_("ban.warns_not_found"))
         return
-
-    await action.execute()
     await action.log()
 
     if message.chat.id == -1001176998310:
