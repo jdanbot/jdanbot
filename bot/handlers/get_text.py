@@ -23,10 +23,12 @@ def get_text(func):
             text = reply.caption
         else:
             try:
-                await message.reply(
-                    _(f"docs.{func.__name__}"),
-                    parse_mode="Markdown"
-                )
+                text = _(f"docs.{func.__name__}")
+
+                if text.startswith("docs."):
+                    raise AttributeError()
+
+                await message.reply(text, parse_mode="markdown")
             except AttributeError:
                 await message.reply(
                     _("errors.few_args", num=1),

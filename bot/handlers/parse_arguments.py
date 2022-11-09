@@ -50,7 +50,7 @@ def parse_arguments_new(func: Callable):  # sourcery skip: bin-op-identity
             if param.strip() == "":
                 if annotation.can_take_from_reply and message.reply_to_message:
                     param = message.reply_to_message.text
-                elif bool(annotation.default) and annotation.default != "ReallyNone":
+                elif hasattr(annotation, "default") and annotation.default != "ReallyNone":
                     param = run_if_func(annotation.default)
                 elif annotation.can_take_from_reply and not message.reply_to_message:
                     raise JdanbotError("errors.command_requires_reply_or_text")

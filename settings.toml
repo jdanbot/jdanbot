@@ -17,7 +17,8 @@ admin_notes = [
     "enable_ban_trigger",
     "enable_poll",
     "enable_twitter_redirect",
-    "enable_inline_set_note"
+    "enable_inline_set_note",
+    "locked_commands"
 ]
 
 eggs = [
