@@ -15,7 +15,7 @@ class Result:
 
 
 class SCP:
-    BASE_URL = "http://scp-ru.wikidot.com"
+    BASE_URL = "https://scpfoundation.net"
 
     async def page(self, path: str, title: str = "") -> Article:
         url = path if path.startswith(self.BASE_URL) else f"{self.BASE_URL}/{path}"
@@ -31,9 +31,12 @@ class SCP:
             title = soup.find(id="page-title").text.strip()
 
         parsed_text = f"<b>{title}</b>\n\n" + TgHTML(str(content)).parsed
-        
+
         return Article(
             text=str(parsed_text),
-            image=None if len(img := content.find_all("img")) == 0 else img[0]["src"],
+            image=(
+                None
+                if len(img := content.find_all("img")) == 0 else
+                f"https:{url}" if (url := img[0]["src"]).startswith("//") else url),
             href=url
         )
