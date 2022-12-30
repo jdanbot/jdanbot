@@ -82,9 +82,14 @@ PIDOR_TEMPLATE = "_{}_. *{}* — `{}` {}\n"
 async def pidor_stats(message):
     top_pidors = (
         Pidor
-        .select(Pidor, fn.Count(PidorEvent.id).alias("pidor_count"))
-        .join(PidorEvent, JOIN.LEFT_OUTER)
-        .group_by(Pidor.id)
+        .select(
+            Pidor, fn.Count(PidorEvent.id).alias("pidor_count")
+        )
+        .join(PidorEvent, on=PidorEvent.pidor_id == Pidor.id)
+        .join(ChatMember, on=ChatMember.id == Pidor.member_id)
+        .join(Chat, on=Chat.id == ChatMember.chat_id)
+        .where(Chat.id == message.chat.id)
+        .group_by(PidorEvent.pidor_id)
         .order_by(-SQL("pidor_count"))
         .limit(10)
     )

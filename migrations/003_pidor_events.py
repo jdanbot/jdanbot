@@ -60,27 +60,30 @@ def migrate_pidor():
 
     with db.atomic():
         for pidor_old in PidorOld:
-            match pidor_old.pidor_count:
-                case 0:
-                    pidor_event = None
-                case 1:
-                    pidor_event = PidorEvent.insert(
+            if pidor_old.pidor_count == 0:
+                pidor_event = None
+            elif pidor_old.pidor_count == 1:
+                pidor_event = PidorEvent.insert(
+                    pidor_id=pidor_old.id,
+                    caused_at=pidor_old.when_pidor_of_day
+                ).execute()
+            elif pidor_old.pidor_count > 1:
+                for __ in range(0, pidor_old.pidor_count - 1):
+                    PidorEvent.insert(
                         pidor_id=pidor_old.id,
-                        caused_at=pidor_old.when_pidor_of_day
-                    ).execute()
-                case _:
-                    for __ in range(0, pidor_old.pidor_count - 1):
-                        PidorEvent.insert(
-                            pidor_id=pidor_old.id,
-                            caused_at=None
-                        ).execute()
-
-                    pidor_event = PidorEvent.insert(
-                        pidor_id=pidor_old.id,
-                        caused_at=pidor_old.when_pidor_of_day
+                        caused_at=None
                     ).execute()
 
-            Pidor.insert(
+                pidor_event = PidorEvent.insert(
+                    pidor_id=pidor_old.id,
+                    caused_at=pidor_old.when_pidor_of_day
+                ).execute()
+            else:
+                print("WTF?")
+                raise AttributeError
+
+            a = Pidor.insert(
+                id=pidor_old.id,
                 member_id=pidor_old.member_id,
                 is_pidor_allowed=pidor_old.member_id,
                 latest_pidor_event=pidor_event

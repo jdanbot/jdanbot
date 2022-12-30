@@ -29,3 +29,8 @@ class Pidor(Model):
     @property
     def when_pidor_of_day(self) -> datetime.datetime:
         return self.latest_pidor_event.caused_at
+
+    @property
+    def member(self):
+        from .chat_member import ChatMember
+        return ChatMember.get_by_id(self.member_id)
