@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from aiogram import types
@@ -14,9 +14,9 @@ class MessageMock:
 
     message_id: int = 0
     reply_to_message: "MessageMock" = None
-    chat: ChatMock = ChatMock()
+    chat: ChatMock = field(default_factory=ChatMock)
 
-    from_user: UserMock = UserMock()
+    from_user: UserMock = field(default_factory=UserMock)
 
     parse_mode: str = None
     disable_web_page_preview: bool = False

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from aiogram import types
 
@@ -14,7 +14,7 @@ class UserMock:
     first_name: str = None
     last_name: str = None
 
-    bot: BotMock = BotMock()
+    bot: BotMock = field(default_factory=BotMock)
 
     full_name = types.User.full_name
     get_mention = types.User.get_mention

@@ -21,14 +21,14 @@ async def me_info(message: types.Message):
         message.from_user.id
     )
 
-    pidor_all = sum([pidor.pidor_count for pidor in (
+    pidor_all = sum([pidor.count for pidor in (
         Pidor.select()
              .join(ChatMember, on=Pidor.member_id == ChatMember.id)
              .join(User, on=ChatMember.user_id == User.id)
              .where(User.id == message.from_user.id)
     )])
 
-    pidor = sum([pidor.pidor_count for pidor in (
+    pidor = sum([pidor.count for pidor in (
         Pidor.select()
              .join(ChatMember, on=Pidor.member_id == ChatMember.id)
              .join(User, on=ChatMember.user_id == User.id)

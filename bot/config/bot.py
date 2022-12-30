@@ -8,6 +8,8 @@ from aiogram import Bot, Dispatcher
 
 if is_pytest_session:
     class FakeUser:
+        status: str = "fake"
+
         def is_chat_admin(self) -> bool:
             return True
 

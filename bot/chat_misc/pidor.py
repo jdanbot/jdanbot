@@ -5,16 +5,18 @@ import asyncio
 
 from datetime import datetime
 
+from peewee import fn, JOIN, SQL
+
 from time import time
 from random import choice
 
 from ..lib.text import prettyword
 from ..config import bot, dp, _, TIMEZONE
-from ..schemas import ChatMember, Chat, Pidor
+from ..schemas import ChatMember, Chat, Pidor, PidorEvent
 
 
 @dp.message_handler(commands=["pidor"])
-async def find_pidor(message: types.Message):
+async def find_pidor(message: types.Message, ignore_pidor_wait: bool = False):
     member = ChatMember.get_by_message(message)
 
     if message.chat.id > 0:
@@ -45,9 +47,10 @@ async def find_pidor(message: types.Message):
         await message.reply(_("pidor.pidor_left"))
         return
 
+    event = PidorEvent.create(pidor_id=new_pidor.pidor.id)
+
     Pidor.update(
-        pidor_count=Pidor.pidor_count + 1,
-        when_pidor_of_day=datetime.now(TIMEZONE)
+        latest_pidor_event=event.id
     ).where(Pidor.member_id == new_pidor.id).execute()
 
     Chat.update(pidor=new_pidor.pidor.id).where(Chat.id == new_pidor.chat.id).execute()
@@ -55,7 +58,8 @@ async def find_pidor(message: types.Message):
     for phrase in choice(_("pidor.pidor_finding")).split("\n")[:-1]:
         if phrase != "":
             await message.answer(italic(phrase), parse_mode="MarkdownV2")
-        await asyncio.sleep(2.5)
+        if not ignore_pidor_wait:
+            await asyncio.sleep(2.5)
 
     await message.answer(
         _("pidor.templates", went_random=True, user=new_pidor.tag),
@@ -77,12 +81,11 @@ PIDOR_TEMPLATE = "_{}_. *{}* — `{}` {}\n"
 @dp.message_handler(commands=["pidorstats"])
 async def pidor_stats(message):
     top_pidors = (
-        Pidor.select()
-        .join(ChatMember, on=ChatMember.pidor_id == Pidor.id)
-        .join(Chat, on=ChatMember.chat_id == Chat.id)
-        .where(Chat.id == message.chat.id)
-        .order_by(-Pidor.pidor_count)
-        .limit(10)
+        Pidor
+        .select(Pidor, fn.Count(PidorEvent.id).alias("pidor_count"))
+        .join(PidorEvent, JOIN.LEFT_OUTER)
+        .group_by(Pidor.id)
+        .order_by(SQL("pidor_count"))
     )
 
     member_count = (
@@ -95,11 +98,11 @@ async def pidor_stats(message):
     msg = _("pidor.top_10") + "\n\n"
 
     for num, pidor in enumerate(top_pidors, 1):
-        count = prettyword(pidor.pidor_count, _("cases.count"))
+        count = prettyword(pidor.count, _("cases.count"))
 
         member = ChatMember.get(id=pidor.member_id)
         msg += PIDOR_TEMPLATE.format(
-            num, member.user.full_name, pidor.pidor_count, count
+            num, member.user.full_name, pidor.count, count
         )
 
     msg += "\n"

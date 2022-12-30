@@ -29,8 +29,8 @@ from datetime import datetime
 
 sys.path.insert(0, ".")
 
-from bot.config.database import ChatMember, db, Command, Pidor, Poll, Note, Warn
-from bot.config import ADMIN_NOTES
+from bot.schemas import ChatMember, db, Command, Pidor, Poll, Note, Warn
+# from bot.config import ADMIN_NOTES
 from peewee import CharField, IntegerField, Model, DateTimeField
 
 import datetime as dt
@@ -65,13 +65,13 @@ def chat_member_by_ids(user_id, chat_id) -> ChatMember:
 def migrate(migrator, database, fake=False, **kwargs):
     """Write your migrations here."""
 
-    migrate_command()
-    migrate_pidor()
-    migrate_pidor_stats()
-    migrate_poll()
-    migrate_note()
-    migrate_warn()
-    migrate_events()
+    # migrate_command()
+    # migrate_pidor()
+    # migrate_pidor_stats()
+    # migrate_poll()
+    # migrate_note()
+    # migrate_warn()
+    # migrate_events()
 
 
 def migrate_command():

@@ -5,6 +5,7 @@ from .chat_member import ChatMember
 from .command import Command
 from .note import Note, str2bool
 from .pidor import Pidor
+from .pidor_event import PidorEvent
 from .poll import Poll
 from .user import User
 from .warn import Warn
@@ -18,6 +19,7 @@ def db_setup() -> None:
         Command,
         Note,
         Pidor,
+        PidorEvent,
         Poll,
         User,
         Warn
