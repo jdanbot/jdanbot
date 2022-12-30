@@ -19,10 +19,10 @@ async def supereval(message: types.Message, query: CustomField(str)):
     q = [f"\n {line}" for line in query.split("\n")]
     q[-1] = q[-1].replace("\n ", "\n return ")
 
-    exec("async def __ex(message, bot): " + "".join(q))
+    exec("async def __ex(message, reply, bot): " + "".join(q))
 
     try:
-        output = await locals()["__ex"](message, bot)
+        output = await locals()["__ex"](message, message.reply_to_message, bot)
     except Exception:
         output = traceback.format_exc()
 
