@@ -85,7 +85,8 @@ async def pidor_stats(message):
         .select(Pidor, fn.Count(PidorEvent.id).alias("pidor_count"))
         .join(PidorEvent, JOIN.LEFT_OUTER)
         .group_by(Pidor.id)
-        .order_by(SQL("pidor_count"))
+        .order_by(-SQL("pidor_count"))
+        .limit(10)
     )
 
     member_count = (
@@ -101,8 +102,14 @@ async def pidor_stats(message):
         count = prettyword(pidor.count, _("cases.count"))
 
         member = ChatMember.get(id=pidor.member_id)
+
+        try:
+            name = member.user.full_name
+        except Exception:
+            name = "UNKNOWN"
+
         msg += PIDOR_TEMPLATE.format(
-            num, member.user.full_name, pidor.count, count
+            num, name, pidor.count, count
         )
 
     msg += "\n"
