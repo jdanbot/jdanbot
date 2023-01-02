@@ -101,7 +101,19 @@ async def get_a_ban(message):
     )
 
 
-@dp.message_handler(lambda msg: msg.text.lower().find("бот,") != -1)
+@dp.message_handler(lambda msg: (
+    (text := msg.text.lower()).startswith("бот,") and
+    any((x in text for x in ("или", "чи")))
+))
+@handlers.check("__enable_response__")
+async def question(message):
+    text = message.text.removeprefix("бот,").removesuffix("?")
+    cuts = cuts if len((cuts := text.split(" или "))) > 1 else text.split(" чи ")
+
+    await message.reply(choice(cuts).strip().capitalize())
+
+
+@dp.message_handler(lambda msg: msg.text.lower().startswith("бот,"))
 @handlers.check("__enable_response__")
 async def question(message):
     await message.reply(choice(["Да", "Нет"]))
