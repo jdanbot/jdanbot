@@ -107,7 +107,7 @@ async def get_a_ban(message):
 ))
 @handlers.check("__enable_response__")
 async def question(message):
-    text = message.text.removeprefix("бот,").removesuffix("?")
+    text = message.text.lower().removeprefix("бот,").removesuffix("?")
     cuts = cuts if len((cuts := text.split(" или "))) > 1 else text.split(" чи ")
 
     await message.reply(choice(cuts).strip().capitalize())
