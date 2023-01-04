@@ -103,7 +103,7 @@ async def get_a_ban(message):
 
 @dp.message_handler(lambda msg: (
     (text := msg.text.lower()).startswith("бот,") and
-    any((x in text for x in ("или", "чи")))
+    any((x in text for x in (" или ", " чи ")))
 ))
 @handlers.check("__enable_response__")
 async def question(message):
