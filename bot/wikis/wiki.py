@@ -51,6 +51,11 @@ async def encyclopedia(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://encyclopatia.ru/w/api.php", is_lurk=True, prefix="/wiki")
 
 
+@handlers.wikipya_handler("neolurk")
+async def fallout(message: types.Message) -> Wikipya:
+    return Wikipya(base_url="https://neolurk.org/w/api.php")
+
+
 @handlers.wikipya_handler("mediawiki", extract_query_from_url=True)
 async def custom_mediawiki(message: types.Message) -> Wikipya:
     url = message.get_full_command()[1].split("/")
