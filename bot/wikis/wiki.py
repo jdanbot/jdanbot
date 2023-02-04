@@ -16,7 +16,7 @@ from ..lib.text import fixWords
 @handlers.wikipya_handler("lurk", "lurkmore")
 async def lurkmore(message: types.Message) -> Wikipya:
     return Wikipya(
-        base_url="https://lurkmore.lol/api.php",
+        base_url="https://lurkmore.wtf/api.php",
         params=dict(
             tag_blocklist=[
                 "p.quote_sign",
