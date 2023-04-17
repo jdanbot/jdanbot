@@ -5,12 +5,29 @@ from ..config import dp, settings
 from ..lib import chez
 from .. import handlers
 
+from pathlib import Path
+
+import contextlib
+
 
 egg_commands = []
 
 
 for egg in settings.eggs:
     egg_commands.extend(egg.commands)
+
+
+@dp.message_handler(commands=["admin_pidor"])
+async def adminEgg(message: types.Message):
+    try:
+        reply = message.reply_to_message
+
+        await reply.reply_video(open("./media/admin_pidor.mp4", "rb"))
+    except Exception:
+        await message.answer_video(open("./media/admin_pidor.mp4", "rb"))
+
+    with contextlib.suppress(Exception):
+        await message.delete()
 
 
 @dp.message_handler(commands=egg_commands)
