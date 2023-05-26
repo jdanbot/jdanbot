@@ -11,7 +11,7 @@ loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 
 
-async def startup(x):
+async def startup():
     db_setup()
     schedule_setup()
 
