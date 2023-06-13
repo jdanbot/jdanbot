@@ -36,9 +36,14 @@ async def fallout(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://fallout.fandom.com/ru/api.php")
 
 
-@handlers.wikipya_handler("kaiser", "kaiserreich")
+@handlers.wikipya_handler("kaiser", "kaiserreich", "kr")
 async def kaiser(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://kaiserreich.fandom.com/ru/api.php")
+
+
+@handlers.wikipya_handler("kaiseren", "kaiserreichen", "kre")
+async def kaiser(message: types.Message) -> Wikipya:
+    return Wikipya(base_url="https://kaiserreich.fandom.com/api.php")
 
 
 @handlers.wikipya_handler("archwiki")
