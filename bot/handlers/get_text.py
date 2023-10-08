@@ -12,7 +12,7 @@ from functools import wraps
 def get_text(func):
     @wraps(func)
     @parse_arguments(1, without_params=True)
-    async def wrapper(message: types.Message, query=None):
+    async def wrapper(message: types.Message, query=None, *args, **kwargs):
         reply = message.reply_to_message
 
         if query:
@@ -37,6 +37,6 @@ def get_text(func):
 
             return
 
-        return await func(message, text)
+        return await func(message, text, *args, **kwargs)
 
     return wrapper

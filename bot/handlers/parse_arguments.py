@@ -74,7 +74,7 @@ def parse_arguments_new(func: Callable):  # sourcery skip: bin-op-identity
 def parse_arguments(limit: int, without_params: bool = False):
     def argument_wrapper(func: Callable):
         @wraps(func)
-        async def wrapper(message: types.Message):
+        async def wrapper(message: types.Message, **kwargs):
             try:
                 params = message.get_full_command()[1].split(maxsplit=limit - 1)
             except AttributeError:
@@ -94,7 +94,7 @@ def parse_arguments(limit: int, without_params: bool = False):
                         _("errors.few_args", num=limit), parse_mode="Markdown"
                     )
             else:
-                return await func(message, *params)
+                return await func(message, *params, **kwargs)
 
         return wrapper
 
