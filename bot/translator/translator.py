@@ -1,7 +1,8 @@
 from aiogram import types
-from aiogram.dispatcher import filters
 
 from deep_translator import GoogleTranslator as DeepGoogleTranslator
+
+import re
 
 from .. import handlers
 from ..config import dp
@@ -19,18 +20,28 @@ def unfix_lang(lang: str) -> str:
     return l[0] if len(l) == 1 else "-".join([l[0], l[1].upper()])
 
 
-@dp.message_handler(
-    filters.RegexpCommandsFilter(regexp_commands=[r"\/t([a-z_]{2,10})(2([a-z_]{2,10}))?"])
-)
+LANGS = DeepGoogleTranslator().get_supported_languages(as_dict=True)
+LANG_COMMANDS_TR = [
+    *[f"t{LANGS[lang]}" for lang in LANGS],
+    *[f"t{LANGS[l1]}2{LANGS[l2]}"  for l2 in LANGS for l1 in LANGS],
+    *[f"t{LANGS[l1]}to{LANGS[l2]}" for l2 in LANGS for l1 in LANGS]
+]
+
+
+@dp.message_handler(commands=LANG_COMMANDS_TR)
 @handlers.get_text
-async def translate(message: types.Message, query: str, regexp_command):
-    print(regexp_command)
-    flang, slang = fix_lang(regexp_command.group(1)), regexp_command.group(2)
-    
+async def translate(message: types.Message, query: str):
+    command = message.get_command().removeprefix("/t").split("2")
+
+    if len(command) == 1:
+        command = command[0].split("to")
+
+    flang, slang = fix_lang(command[0]), command[1:2] or None
+
     if slang is None:
         to_lang, from_lang = flang, "auto"
     else:
-        to_lang, from_lang = fix_lang(slang.removeprefix("2")), flang
+        to_lang, from_lang = fix_lang(slang), flang
 
     t = DeepGoogleTranslator(source=unfix_lang(from_lang), target=unfix_lang(to_lang))
 
