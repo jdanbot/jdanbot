@@ -27,4 +27,4 @@ LANGS = {
 }
 
 GTRANSLATE_LANGS = {"ru", "en", "ua", "uk", "be", "pl", "de", "fr", "kz", "hu", "hi", "he", "hr", "ja", "cs", "no", "pt", "tt"}
-WIKIPEDIA_LANGS = ["ru", "en", "sv", "de", "ce", "tt", "ba", "pl", "uk", "be", "es", "he", "xh", "ab"]
+WIKIPEDIA_LANGS = ["ru", "en", "sv", "de", "ce", "tt", "ba", "pl", "uk", "be", "es", "he", "xh", "ab", "la"]

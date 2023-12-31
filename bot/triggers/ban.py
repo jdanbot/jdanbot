@@ -97,7 +97,7 @@ async def get_a_ban(message):
         await message.answer_sticker(bword["sticker"])
 
     await bot.restrict_chat_member(
-        message.chat.id, message.from_user.id, until_date=time.time() + 60
+        message.chat.id, message.from_user.id, until_date=time.time() + 60, permissions=False
     )
 
 

@@ -29,10 +29,14 @@ pytimeparse = "^1.1.8"
 pytesseract = "^0.3.10"
 pyi18n-new = "^1.1.0"
 ffmpeg-python = "^0.2.0"
-tghtml = "^1.1.0"
-wikipya = "^4.0.3"
+tghtml = "1.1.4"
+wikipya = "4.0.5"
 cached-property = "^1.5.2"
 toml = "^0.10.2"
+
+[[tool.poetry.source]]
+name = 'pypi-public'
+url = "https://pypi.org/simple/"
 
 [tool.poetry.dev-dependencies]
 pytest-asyncio = "^0.16.0"

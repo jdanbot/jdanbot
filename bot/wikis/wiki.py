@@ -90,7 +90,9 @@ async def wikihandler(message: types.Message, trigger: str) -> Wikipya:
     if lang not in WIKIPEDIA_LANGS:
         lang = "ru"
 
-    return Wikipya(lang)
+    return Wikipya(lang, params=dict(
+        tag_blocklist=["div.capsa-vicidata"]
+    ))
 
 
 @dp.message_handler(commands=["summary", "wiki"])

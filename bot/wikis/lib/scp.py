@@ -27,6 +27,9 @@ class SCP:
         for tag in content.find_all("div", class_="scp-image-caption"):
             tag.p.replace_with("")
 
+        for tag in content.find_all("div", class_="collapsible-block"):
+            tag.replace_with("")
+
         if title == "":
             title = soup.find(id="page-title").text.strip()
 
