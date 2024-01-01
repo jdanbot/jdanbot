@@ -41,7 +41,7 @@ async def translate(message: types.Message, query: str):
     if slang is None:
         to_lang, from_lang = flang, "auto"
     else:
-        to_lang, from_lang = fix_lang(slang), flang
+        to_lang, from_lang = fix_lang(slang[0]), flang
 
     t = DeepGoogleTranslator(source=unfix_lang(from_lang), target=unfix_lang(to_lang))
 
