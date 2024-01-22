@@ -16,7 +16,7 @@ def check_word_article(article: str, word: str):
 def get_word_article(word: str):
     for article in ARTICLES:
         if check_word_article(article, word):
-            return f"{article} **{word}**"
+            return f"{article} *{word}*"
 
 
 @dp.message_handler(commands=["den"])
