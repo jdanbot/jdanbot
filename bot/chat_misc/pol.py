@@ -1,8 +1,11 @@
 import itertools
+import re
 
 from aiogram import types
 from ..config import dp
 from .. import handlers
+
+import yaml
 
 
 def generate_word_variants_with_uppercase(word: str, combinations: list = None):
@@ -39,42 +42,48 @@ def get_word_variants_based_on_word_len(word: str):
     return map(lambda x: list(str(x)), variants[len(word) - 1])
 
 
-### http://steen.free.fr/cyrpol/index.html
-POLISH_TRANSLITERATION_SCHEMAS = ",".join("""
-ia: я, ja: я, ie: э, je: э, i:и, io: ё, jo: ё
-ió: ю, jó: ю, iu: ю, ju: ю, ą: а, ę: е, y: ы, e: э
-ó: у, u: у, a: а, о: о
-szcz:щ, cz: ч, sz: ш, ż: ж, rz: ж, r: р
-m: м, l: ль, ł: л, j: й, n: н, f: ф, w: в
-g: г, ch: х, h: х, k: к, t: т, ć: чь, b: б
-dź: д, d: д, s: с, ś: сь, z: з, ź: зь, ń: нь, p: п, v: в, c: ц
-ьо: ё, ьа: я
-""".replace(" ", "").split()).split(",")
+def load_polish_cyrillic_variant(path: str):
+    with open(path) as file:
+        schemas = yaml.safe_load(file.read()).items()
 
-a = generate_word_variants_with_uppercase(
-    "szcz"
-)
+    uppercase_schemas = []
 
-BIG_POLIST_SCHEMAS = []
+    for schema in schemas:
+        pol, rus = schema
 
-for schema in POLISH_TRANSLITERATION_SCHEMAS:
-    pol, rus = schema.split(":")
+        prefix = "^" if pol.startswith("^") else ""
+        pol = pol.removeprefix("^")
+        end = re.match("\w*", pol).end()
+        pol, suffix = pol[:end], pol[end:]
 
-    variants = generate_word_variants_with_uppercase(pol)
+        variants = generate_word_variants_with_uppercase(pol)
 
-    BIG_POLIST_SCHEMAS \
-        .extend(list(map(lambda x: f"{x}:{rus.upper()}", variants)))
+        uppercase_schemas \
+            .extend(list(map(
+                lambda x: (prefix + x, rus.capitalize() + suffix),
+                variants
+            )))
 
-# POLISH_TRANSLITERATION_SCHEMAS.extend(BIG_POLIST_SCHEMAS)
-BIG_POLIST_SCHEMAS.extend(POLISH_TRANSLITERATION_SCHEMAS)
-POLISH_TRANSLITERATION_SCHEMAS = BIG_POLIST_SCHEMAS
+    uppercase_schemas.extend(schemas)
+    return uppercase_schemas
 
-@dp.message_handler(commands=["cyr"])
+
+POLISH_EXP_TRANSLITERATION_SCHEMAS = \
+    load_polish_cyrillic_variant("bot/chat_misc/lib/polish_cyr_exp.yml")
+POLISH_TRAD_TRANSLITERATION_SCHEMAS = \
+    load_polish_cyrillic_variant("bot/chat_misc/lib/polish_cyr_trad.yml")
+
+
+@dp.message_handler(commands=["cyr", "cyr2"])
 @handlers.get_text
 async def cyr(message: types.Message, text: str):
     result = text
+    schemas = POLISH_EXP_TRANSLITERATION_SCHEMAS \
+        if message.get_command()[1:] == "cyr" else \
+        POLISH_TRAD_TRANSLITERATION_SCHEMAS
 
-    for schema in POLISH_TRANSLITERATION_SCHEMAS:
-        result = result.replace(*schema.split(":"))
+    for schema in schemas:
+        result = re.sub(*schema, result)
+        # result = result.replace(*schema)
 
     await message.reply(result)
