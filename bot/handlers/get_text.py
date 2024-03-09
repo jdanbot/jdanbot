@@ -14,9 +14,12 @@ def get_text(func):
     @parse_arguments(1, without_params=True)
     async def wrapper(message: types.Message, query=None, *args, **kwargs):
         reply = message.reply_to_message
+        quote = message.to_python().get("quote")
 
         if query:
             text = query
+        elif quote and quote["is_manual"]:
+            text = quote["text"]
         elif reply and reply.text:
             text = reply.text
         elif reply and reply.caption:
