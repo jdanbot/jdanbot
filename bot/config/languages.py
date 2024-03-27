@@ -13,6 +13,8 @@ LANGS = {
     "uk": Language("🇺🇦", "Українська"),
     "be": Language("🇧🇾", "Беларуская"),
     "pl": Language("🇵🇱", "Polski"),
+    "it": Language("🇮🇹", "Italiano"),
+    "la": Language("🇻🇦", "Lingua Latina"),
     "de": Language("🇩🇪", "Deutsch"),
     "fr": Language("🇫🇷", "Français"),
     "kz": Language("🇰🇿", "Қазақша"),

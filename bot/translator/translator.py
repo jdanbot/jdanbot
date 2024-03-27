@@ -31,7 +31,7 @@ LANG_COMMANDS_TR = [
 @dp.message_handler(commands=LANG_COMMANDS_TR)
 @handlers.get_text
 async def translate(message: types.Message, query: str):
-    command = message.get_command().removeprefix("/t").split("2")
+    command = message.get_command().split("@")[0].removeprefix("/t").split("2")
 
     if len(command) == 1:
         command = command[0].split("to")
