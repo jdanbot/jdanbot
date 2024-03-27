@@ -2,7 +2,7 @@ import traceback
 
 import httpx
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, RootModel, Field
 
 from typing import Optional
 from dataclasses import dataclass, field
@@ -42,8 +42,7 @@ class Currency(BaseModel):
         return get_emoji(self.to_currency)
 
 
-class Currencies(BaseModel):
-    __root__: list[Currency]
+Currencies = RootModel[list[Currency]]
 
 
 @dataclass
@@ -58,7 +57,7 @@ class MonobankApi:
         async with httpx.AsyncClient() as client:
             try:
                 res = await client.get("https://api.monobank.ua/bank/currency")
-                self._currencies = Currencies.parse_raw(res.text).__root__
+                self._currencies = Currencies.model_validate_json(res.text).root
             except:
                 traceback.print_exc()
 
