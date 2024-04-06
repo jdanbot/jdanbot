@@ -35,6 +35,7 @@ async-property = "^0.2.2"
 pydantic-extra-types = "^2.6.0"
 pydantic-settings = "^2.2.1"
 pymemeru = "^0.2.0.post1"
+beanie = "^1.25.0"
 
 [tool.poetry.dev-dependencies]
 pytest-asyncio = "^0.16.0"
