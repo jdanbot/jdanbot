@@ -7,7 +7,8 @@ from aiogram.dispatcher.handler import CancelHandler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from pyi18n_new.models.value import TranslateDict, TranslateList, TranslateStr
 
-from ...schemas import ChatMember, Command, Note
+from ...schemas import Note
+from ...database import Member, Command
 
 
 class I18nMiddleware(I18nMiddlewareBase):
@@ -68,14 +69,14 @@ class SpyMiddleware(BaseMiddleware):
 
         locked_commands = Note.get(message.chat.id, "locked_commands", [], lambda x, default: x.split(" "))
 
-        member = ChatMember.get_by_message(message)
+        member = await Member.get_by(message)
 
         if command is not None:
-            Command.create(
-                member_id=member,
+            await Command(
+                member=member,
                 command=command.lower(),
                 params=args
-            )
+            ).create()
 
         for lcommand_raw in locked_commands:
             lcommand = lcommand_raw.removeprefix("-")

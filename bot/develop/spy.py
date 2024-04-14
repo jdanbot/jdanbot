@@ -4,7 +4,8 @@ from peewee import fn, SQL
 from aiogram.utils.markdown import code, escape_md
 
 from ..config import bot, dp, _, settings
-from ..schemas import Command, ChatMember, Chat, User, Pidor
+from ..schemas import Command as CommandOld, ChatMember, Chat, User, Pidor
+from ..database import Command, Member, User as NUser
 
 
 @dp.message_handler(commands=["me", "pidorme"])
@@ -49,26 +50,77 @@ async def me_info(message: types.Message):
 
 @dp.message_handler(lambda message: message.from_user.id in settings.bot_owners, commands=["stats"])
 async def calc_stats(message: types.Message):
-    chat_users = (
-        ChatMember.select()
-                  .join(Chat, on=ChatMember.chat_id == Chat.id)
-                  .where(Chat.id == message.chat.id)
+    # chat_users = (
+    #     ChatMember.select()
+    #               .join(Chat, on=ChatMember.chat_id == Chat.id)
+    #               .where(Chat.id == message.chat.id)
+    # ).count()
+
+    chat_users = await Member.find(
+        Member.chat.id == message.from_user.id
     ).count()
 
-    chats_users = (
-        ChatMember.select(fn.Count(SQL("*")))
+    # chat_users = len(await Member.aggregate([
+    #     {
+    #         "input": "$Member",
+    #         "as": "member",
+    #         "cond": { 
+    #             "$eq": [ "$member.chat.id", message.from_user.id ]
+    #         }
+    #     }
+    # ]).to_list())
+
+    chat_users = len(await Member.aggregate([
+        {"$lookup": {
+            "from": "User",
+            "let": {"user": "$User"},
+            "as": "user",
+            "pipeline": [{
+                "$match": {
+                    "$expr": {
+                        "$eq": [ "$user.id", "@jDan734" ]
+                    }
+                }
+            }]
+        }}
+    ]).to_list())
+
+    # chats_users = (
+    #     ChatMember.select(fn.Count(SQL("*")))
+    # ).count()
+
+    chats_users = await NUser.count()
+
+    # chat_commands = (
+    #     CommandOld.select(fn.Count(SQL("*")))
+    #            .join(ChatMember, on=ChatMember.id == Command.member_id)
+    #            .join(Chat, on=Chat.id == ChatMember.chat_id)
+    #            .where(Chat.id == message.chat.id)
+    # ).count()
+
+    chat_commands = await Command.find(
+        Command.member.chat.tgid == message.chat.id
     ).count()
 
-    chat_commands = (
-        Command.select(fn.Count(SQL("*")))
-               .join(ChatMember, on=ChatMember.id == Command.member_id)
-               .join(Chat, on=Chat.id == ChatMember.chat_id)
-               .where(Chat.id == message.chat.id)
+    chat_commands = await Command.find(
+        {"member": {"user": {"username": "@jDan734"}}},
+        # {"member.user.username": "@jDan734"}
+        # Command.member.user.username == "@jDan734",
+        fetch_links=True
     ).count()
 
-    chats_commands = (
-        Command.select(fn.Count(SQL("*")))
-    ).count()
+    print(Command.find(
+        {"member": {"user": {"username": "@jDan734"}}}
+        # {"member.user.username": "@jDan734"}
+        # Command.member.user.username == "@jDan734",
+        # fetch_links=True
+    ).get_filter_query())
+
+    # chats_commands = (
+    #     Command.select(fn.Count(SQL("*")))
+    # ).count()
+
+    chats_commands = await Command.count()
 
     await message.reply(_(
         "spy.users_info",
