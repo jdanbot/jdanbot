@@ -50,9 +50,9 @@ try:
     with open(".secrets.toml") as file:
         secrets_file = toml.loads(file.read())
 
-    settings = Settings.parse_obj(settings_file | secrets_file)
+    settings = Settings.model_validate(settings_file | secrets_file)
 except:
-    settings = Settings.parse_obj(settings_file)
+    settings = Settings.model_validate(settings_file)
 
 
 BASE_DIR = Path(__file__).parent.parent.parent
