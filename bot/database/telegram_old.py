@@ -6,10 +6,7 @@ from pydantic_extra_types.pendulum_dt import DateTime
 
 from aiogram import types
 
-from pydantic import BaseModel
-
 from beanie import Document, Indexed, Link
-from beanie.operators import Push
 from .patches import BetterDocument
 
 
@@ -37,11 +34,9 @@ class Pidor(Document):
 
 
 class Chat(BetterDocument, Document):
-    tg_id: Indexed(int, unique=True)
+    tgid: Indexed(int, unique=True)
     username: Optional[str] = None
-    title: Optional[str] = None
-
-    members: list["Member"] = []
+    title: str
 
     @classmethod
     async def get_by(cls, message: types.Message) -> "Chat":
@@ -51,12 +46,12 @@ class Chat(BetterDocument, Document):
             chat.title = message.from_user.full_name
 
         return await cls.get_or_update(
-            dict(tg_id=chat.id), dict(username=chat.username, title=chat.title)
+            dict(tgid=chat.id), dict(username=chat.username, title=chat.title)
         )
 
 
 class User(BetterDocument, Document):
-    tg_id: Indexed(int, unique=True)
+    tgid: Indexed(int, unique=True)
     username: Optional[str] = None
     first_name: str
     last_name: Optional[str] = None
@@ -73,7 +68,7 @@ class User(BetterDocument, Document):
         user = message.from_user
 
         return await cls.get_or_update(
-            dict(tg_id=user.id),
+            dict(tgid=user.id),
             dict(
                 username=user.username,
                 first_name=user.first_name,
@@ -82,15 +77,10 @@ class User(BetterDocument, Document):
         )
 
 
-class Member(BaseModel):
-    id: Indexed(str, unique=True)
-    chat: Link[Chat] = None
-    user: Link[User] = None
-
-    name: str
-
-    pidor: Optional[Pidor] = None
-    warns: Optional[bool] = None
+class Member(BetterDocument, Document):
+    chat: Chat
+    user: User
+    pidor: Pidor = None
 
     is_admin: Optional[bool] = None
 
@@ -100,16 +90,9 @@ class Member(BaseModel):
 
     @classmethod
     async def get_by(cls, message: types.Message) -> "Member":
-        chat = await Chat.get_by(message)
-
-        print(await chat.find({"Chat.members.$.name": "ancopf"}))
-
-        member = await Member(
-            id=f"{message.from_id}_{message.chat.id}",
-            user=await User.get_by(message),
-            chat=await Chat.get_by(message)
-        ).create()
-
+        return await cls.get_or_create(
+            dict(user=await User.get_by(message), chat=await Chat.get_by(message))
+        )
 
     async def get_pidor(self) -> tuple["Pidor", bool]:
         if self.pidor:
@@ -117,6 +100,8 @@ class Member(BaseModel):
 
         print(self)
 
-        self.pidor = {"_count": 200}
+        self.pidor = {
+            "_count": 200
+        }
 
         return (await self.save()).pidor, True

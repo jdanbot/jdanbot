@@ -1,0 +1,25 @@
+chats:
+  - id: -100500
+    username: ancaptein
+    title: ancapistan
+
+    members:
+      - # user part
+        id: 607998773
+        uni_id: "607998773-100500"
+
+        is_admin: false
+
+        # member part
+        pidor:
+          is_allowed: true
+          count: 100
+          latest_time: "pidevent_1000"
+        warns:
+          - ...
+
+users:
+  - id: 607998773
+    username: leno
+    first_name: le
+    last_name: "no"

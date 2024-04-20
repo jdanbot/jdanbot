@@ -2,7 +2,7 @@ from beanie.operators import Set
 from pymongo import ASCENDING, DESCENDING
 
 
-class BetterDocument():
+class BetterDocument:
     @classmethod
     async def get_or_create(cls, data):
         record = await cls.find_one(data)
@@ -24,8 +24,12 @@ class BetterDocument():
         return record
 
     @classmethod
-    async def get_edged(cls, lookup=None, default=None, direction=DESCENDING, sort_by="created"):
-        umongo_cursor = cls.find(lookup if lookup else {}).sort([(sort_by, direction)]).limit(1)
+    async def get_edged(
+        cls, lookup=None, default=None, direction=DESCENDING, sort_by="created"
+    ):
+        umongo_cursor = (
+            cls.find(lookup if lookup else {}).sort([(sort_by, direction)]).limit(1)
+        )
         async for record in umongo_cursor:
             return record
         return default

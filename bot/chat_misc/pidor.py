@@ -12,19 +12,21 @@ from random import choice
 
 from ..lib.text import prettyword
 from ..config import bot, dp, _, TIMEZONE
-from ..schemas import ChatMember, Chat, Pidor, PidorEvent
+from ..database import Member, Chat, Pidor, PidorEvent
+
+# from ..schemas import ChatMember, Chat, Pidor, PidorEvent
 
 
 @dp.message_handler(commands=["pidor"])
 async def find_pidor(message: types.Message, ignore_pidor_wait: bool = False):
-    member = ChatMember.get_by_message(message)
+    member = await Member.get_by(message)
 
     if message.chat.id > 0:
         await message.reply(_("pidor.work_only_in_chats"))
         return
 
-    if not member.chat.can_run_pidor_finder:
-        pidor_member = ChatMember.get(id=Pidor.get(id=member.chat.pidor.id).member_id)
+    if False and not member.chat.can_run_pidor_finder:
+        pidor_member = await Member.get(id=Pidor.get(id=member.chat.pidor.id).member_id)
 
         await message.reply(
             _(
@@ -36,11 +38,11 @@ async def find_pidor(message: types.Message, ignore_pidor_wait: bool = False):
         )
         return
 
-    if not member.pidor or not member.pidor.is_pidor_allowed:
+    if not member.pidor or not member.pidor.is_allowed:
         await message.reply(_("pidor.reg"))
         return
 
-    new_pidor = ChatMember.get(choice(member.chat.all_pidors).member_id)
+    new_pidor = await Member.get(choice(await member.chat.all_pidors).member_id)
     pidor_info = await bot.get_chat_member(new_pidor.chat.id, new_pidor.user.id)
 
     if pidor_info.status == "left":
@@ -49,9 +51,9 @@ async def find_pidor(message: types.Message, ignore_pidor_wait: bool = False):
 
     event = PidorEvent.create(pidor_id=new_pidor.pidor.id)
 
-    Pidor.update(
-        latest_pidor_event=event.id
-    ).where(Pidor.member_id == new_pidor.id).execute()
+    Pidor.update(latest_pidor_event=event.id).where(
+        Pidor.member_id == new_pidor.id
+    ).execute()
 
     Chat.update(pidor=new_pidor.pidor.id).where(Chat.id == new_pidor.chat.id).execute()
 
@@ -81,10 +83,7 @@ PIDOR_TEMPLATE = "_{}_. *{}* — `{}` {}\n"
 @dp.message_handler(commands=["pidorstats"])
 async def pidor_stats(message):
     top_pidors = (
-        Pidor
-        .select(
-            Pidor, fn.Count(PidorEvent.id).alias("pidor_count")
-        )
+        Pidor.select(Pidor, fn.Count(PidorEvent.id).alias("pidor_count"))
         .join(PidorEvent, on=PidorEvent.pidor_id == Pidor.id)
         .join(ChatMember, on=ChatMember.id == Pidor.member_id)
         .join(Chat, on=Chat.id == ChatMember.chat_id)
@@ -113,9 +112,7 @@ async def pidor_stats(message):
         except Exception:
             name = "UNKNOWN"
 
-        msg += PIDOR_TEMPLATE.format(
-            num, name, pidor.count, count
-        )
+        msg += PIDOR_TEMPLATE.format(num, name, pidor.count, count)
 
     msg += "\n"
     msg += _("pidor.members", count=member_count)
@@ -125,8 +122,10 @@ async def pidor_stats(message):
 
 @dp.message_handler(commands=["pidorreg"])
 async def reg_pidor(message: types.Message):
-    member = ChatMember.get_by_message(message)
-    pidor, status = member.get_or_create_pidor()
+    member = await Member.get_by(message)
+    pidor, status = await member.get_pidor()
+
+    print(pidor)
 
     if status:
         await message.reply(_("pidor.in_db"), parse_mode="Markdown")

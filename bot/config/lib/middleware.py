@@ -73,8 +73,9 @@ class SpyMiddleware(BaseMiddleware):
 
         if command is not None:
             await Command(
-                member=member,
-                command=command.lower(),
+                chat_id=message.chat.id,
+                user_id=message.from_id,
+                name=command.lower(),
                 params=args
             ).create()
 
