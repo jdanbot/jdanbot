@@ -1,17 +1,15 @@
 from typing import Optional
-from beanie import Document
+from odmantic import Model, Field
 
 from pydantic_extra_types.pendulum_dt import DateTime
 import pendulum as pdl
 
-from pydantic import Field
 
-
-class Command(Document):
+class Command(Model):
     user_id: int
     chat_id: int
 
     name: str
-    params: Optional[str] = str
+    args: Optional[str] = None
 
     runned_at: DateTime = Field(default_factory=pdl.now)

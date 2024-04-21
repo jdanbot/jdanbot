@@ -8,7 +8,7 @@ from aiogram.dispatcher.middlewares import BaseMiddleware
 from pyi18n_new.models.value import TranslateDict, TranslateList, TranslateStr
 
 from ...schemas import Note
-from ...database import Member, Command
+from ...database import engine, Member, Command
 
 
 class I18nMiddleware(I18nMiddlewareBase):
@@ -72,12 +72,12 @@ class SpyMiddleware(BaseMiddleware):
         member = await Member.get_by(message)
 
         if command is not None:
-            await Command(
+            await engine.save(Command(
                 chat_id=message.chat.id,
                 user_id=message.from_id,
                 name=command.lower(),
-                params=args
-            ).create()
+                args=args
+            ))
 
         for lcommand_raw in locked_commands:
             lcommand = lcommand_raw.removeprefix("-")

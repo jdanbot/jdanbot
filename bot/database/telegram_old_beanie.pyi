@@ -1,37 +1,47 @@
-from typing import Optional
+from typing import Annotated, Optional
+
+from async_property import async_property
+
 from pydantic_extra_types.pendulum_dt import DateTime
 
 from aiogram import types
 from aiogram.utils.markdown import link, hlink, escape_md
 
-from odmantic import Model, Reference, Field
+from pydantic import BaseModel
+from typing import ClassVar
+from beanie import Document, Indexed, Link
+from beanie.operators import Push
+from .patches import BetterDocument
 
-from .engine import engine
 
 import pendulum as pdl
 
+from pydantic import Field
 
-class Pidor(Model):
+
+class PidorEvent(BaseModel):
+    pidor: Link["Member"]
+    # caused_at: DateTime = Field(default_factory=pdl.now)
+
+
+class Pidor(BaseModel):
+    # member: Link["Member"]
     is_allowed: bool = True
-    count: int = Field(index=True)
-    latest_time: None = None
+    count: Annotated[int, Indexed(int)]
+    # pidor_events: PidorEvents
+    latest_time: Optional[PidorEvent] = None
 
     # async def latest_time(self) -> DateTime:
     #     return False or (False).caused_at
 
 
-class PidorEvent(Model):
-    pidor: Pidor = Reference()
-    caused_at: DateTime = Field(default_factory=pdl.now)
-
-
-class Chat(Model):
-    tg_id: int = Field(unique=True)
+class Chat(BetterDocument, Document):
+    tg_id: Indexed(int, unique=True)
     username: Optional[str] = None
-    title: str
+    title: Optional[str] = None
 
     pidor_events: list[PidorEvent]
-    # pidor: Pidor = Reference()
+    pidor: Optional[Link["Member"]] = None
 
     @classmethod
     async def get_by(cls, message: types.Message) -> "Chat":
@@ -40,28 +50,21 @@ class Chat(Model):
         if chat.id > 0:
             chat.title = message.from_user.full_name
 
-        return await engine.get_or_update(
-            Chat,
-            [Chat.tg_id == chat.id],
-            dict(
-                tg_id=chat.id,
-                username=chat.username,
-                title=chat.title,
-                pidor_events=[],
-            ),
+        return await cls.get_or_update(
+            dict(tg_id=chat.id),
+            dict(username=chat.username, title=chat.title, pidor_events=[]),
         )
 
     async def pidors(self) -> list["Member"]:
-        return await engine.find(
-            Member,
-            {"tg_id": {"$regex": f"@{self.tg_id}$"}},
+        return await Member.find(
+            {"_id": {"$regex": f"@{self.tg_id}$"}},
             {"pidor": {"$exists": True}},
             {"pidor.is_allowed": {"$not": {"$eq": False}}},
-        )
+        ).to_list()
 
 
-class User(Model):
-    tg_id: int = Field(unique=True)
+class User(BetterDocument, Document):
+    tg_id: Indexed(int, unique=True)
     username: Optional[str] = None
     first_name: str
     last_name: Optional[str] = None
@@ -77,11 +80,9 @@ class User(Model):
     async def get_by(cls, message: types.Message) -> "User":
         user = message.from_user
 
-        return await engine.get_or_create(
-            User,
-            find_queries=[User.tg_id == user.id],
-            data=dict(
-                tg_id=user.id,
+        return await cls.get_or_update(
+            dict(tg_id=user.id),
+            dict(
                 username=user.username,
                 first_name=user.first_name,
                 last_name=user.last_name,
@@ -89,10 +90,10 @@ class User(Model):
         )
 
 
-class Member(Model):
-    tg_id: str
-    chat: Chat = Reference()
-    user: User = Reference()
+class Member(BetterDocument, Document):
+    id: str
+    chat: Link[Chat]
+    user: Link[User]
 
     pidor: Optional[Pidor] = None
     warns: Optional[bool] = None
@@ -112,17 +113,14 @@ class Member(Model):
         if self.user.username:
             return escape_md(f"@{self.user.username}")
 
-        return (hlink if use_html else link)(
-            self.user.full_name, f"tg://user?id={self.user.id}"
-        )
+        return (hlink if use_html else link)(self.user.full_name, f"tg://user?id={self.user.id}")
+
 
     @classmethod
     async def get_by(cls, message: types.Message) -> "Member":
-        return await engine.get_or_update(
-            Member,
-            [Member.tg_id == f"{message.from_id}@{message.chat.id}"],
+        return await cls.get_or_update(
+            dict(_id=f"{message.from_id}@{message.chat.id}"),
             dict(
-                tg_id=f"{message.from_id}@{message.chat.id}",
                 user=await User.get_by(message),
                 chat=await Chat.get_by(message),
             ),
@@ -136,6 +134,6 @@ class Member(Model):
 
         self.pidor = Pidor(count=0)
         print(self)
-        await engine.save(self)
+        await self.save()
 
         return self.pidor, True
