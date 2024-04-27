@@ -1,6 +1,6 @@
 status: |
-  🟢 *{name}* on `{platform}`
-  📦 *Version*: `v{version} [{branch}]`
+  🤖 *{name}* v{version} on `{platform}`
+  🕸️ *{api_name}* v{api_version}
 
   🧮 *RAM*: {memory} of {total_memory}
   🕓 *Uptime*: {uptime}

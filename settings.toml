@@ -1,4 +1,4 @@
-status = "develop"
+status = "jdanbot-nightly"
 logging_chat = -1001410092459
 
 admin_notes = [

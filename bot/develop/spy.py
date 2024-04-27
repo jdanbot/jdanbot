@@ -6,6 +6,8 @@ from aiogram.utils.markdown import code, escape_md
 from ..config import bot, dp, _, settings
 from ..schemas import Command, ChatMember, Chat, User, Pidor
 
+from ..database import Statistics
+
 
 @dp.message_handler(commands=["me", "pidorme"])
 async def me_info(message: types.Message):
@@ -49,32 +51,42 @@ async def me_info(message: types.Message):
 
 @dp.message_handler(lambda message: message.from_user.id in settings.bot_owners, commands=["stats"])
 async def calc_stats(message: types.Message):
-    chat_users = (
-        ChatMember.select()
-                  .join(Chat, on=ChatMember.chat_id == Chat.id)
-                  .where(Chat.id == message.chat.id)
-    ).count()
-
-    chats_users = (
-        ChatMember.select(fn.Count(SQL("*")))
-    ).count()
-
-    chat_commands = (
-        Command.select(fn.Count(SQL("*")))
-               .join(ChatMember, on=ChatMember.id == Command.member_id)
-               .join(Chat, on=Chat.id == ChatMember.chat_id)
-               .where(Chat.id == message.chat.id)
-    ).count()
-
-    chats_commands = (
-        Command.select(fn.Count(SQL("*")))
-    ).count()
+    stat = await Statistics.get()
 
     await message.reply(_(
         "spy.users_info",
-        local_users=chat_users,
-        local_commands=chat_commands,
+        local_users=0,
+        local_commands=0,
 
-        global_users=chats_users,
-        global_commands=chats_commands,
+        global_users=stat.users,
+        global_commands=stat.commands,
     ), parse_mode="MarkdownV2")
+    # chat_users = (
+    #     ChatMember.select()
+    #               .join(Chat, on=ChatMember.chat_id == Chat.id)
+    #               .where(Chat.id == message.chat.id)
+    # ).count()
+
+    # chats_users = (
+    #     ChatMember.select(fn.Count(SQL("*")))
+    # ).count()
+
+    # chat_commands = (
+    #     Command.select(fn.Count(SQL("*")))
+    #            .join(ChatMember, on=ChatMember.id == Command.member_id)
+    #            .join(Chat, on=Chat.id == ChatMember.chat_id)
+    #            .where(Chat.id == message.chat.id)
+    # ).count()
+
+    # chats_commands = (
+    #     Command.select(fn.Count(SQL("*")))
+    # ).count()
+
+    # await message.reply(_(
+    #     "spy.users_info",
+    #     local_users=chat_users,
+    #     local_commands=chat_commands,
+
+    #     global_users=chats_users,
+    #     global_commands=chats_commands,
+    # ), parse_mode="MarkdownV2")

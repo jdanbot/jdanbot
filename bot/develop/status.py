@@ -12,7 +12,9 @@ import distro
 import toml
 
 from ..config import dp, settings, START_TIME, _
+from ..database.stats import ApiInfo
 
+API_INFO = ApiInfo.get_sync()
 
 with open("pyproject.toml", "r") as f:
     pyproject = toml.loads(f.read())
@@ -43,12 +45,11 @@ async def get_status(message: types.Message):
     await message.reply(_(
         "dev.status",
         name=settings.status,
-        branch=get_current_branch(),
         platform=distro.id() if platform == "linux" else platform,
         version=__version__,
-
-        memory=humanize.naturalsize(mem.used, binary=True),
-        total_memory=humanize.naturalsize(mem.total, binary=True),
+        api_name=API_INFO.name,
+        api_version=API_INFO.version,
+        api_platform=API_INFO.system,
         uptime=pprint_timedelta(time)
     ), parse_mode="Markdown")
 

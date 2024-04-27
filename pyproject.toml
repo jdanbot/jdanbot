@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jdanbot"
-version = "3.1.5"
+version = "4.0.0"
 description = "Multifunctional Telegram Bot for banning and stuff."
 authors = ["Daniel Zakharov <gzdan734@gmail.com>"]
 license = "MIT"
@@ -35,6 +35,7 @@ async-property = "^0.2.2"
 pydantic-extra-types = "^2.6.0"
 pydantic-settings = "^2.2.1"
 pymemeru = "^0.2.0.post1"
+orjson = "^3.10.1"
 
 [tool.poetry.dev-dependencies]
 pytest-asyncio = "^0.16.0"
