@@ -1,4 +1,15 @@
-from .connection import run_db
-from .telegram import User, Chat, Member, Pidor, PidorEvent, PidorEvents
 from .command import Command
-from .stats import Statistics
+from .note import Note, str2bool
+from .telegram import Chat, Member, Pidor, PidorEvent, PidorTop, User
+
+__all__ = (
+    User,
+    Chat,
+    Member,
+    Pidor,
+    PidorEvent,
+    PidorTop,
+    Command,
+    Note,
+    str2bool,
+)

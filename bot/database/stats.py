@@ -3,7 +3,6 @@ from ..config import settings
 import httpx
 
 
-
 class Statistics(BaseModel):
     users: int
     commands: int
@@ -11,9 +10,7 @@ class Statistics(BaseModel):
     @classmethod
     async def get(cls) -> "Statistics":
         async with httpx.AsyncClient(base_url=settings.api_url) as client:
-            return Statistics.parse_raw(
-                (await client.get("/stats")).text
-            )
+            return Statistics.parse_raw((await client.get("/stats")).text)
 
 
 class ApiInfo(BaseModel):

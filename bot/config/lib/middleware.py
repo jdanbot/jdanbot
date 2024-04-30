@@ -1,13 +1,19 @@
 from typing import Any
 
 from aiogram import types
-from aiogram.contrib.middlewares.i18n import \
-    I18nMiddleware as I18nMiddlewareBase
+from aiogram.contrib.middlewares.i18n import (
+    I18nMiddleware as I18nMiddlewareBase,
+)
 from aiogram.dispatcher.handler import CancelHandler
 from aiogram.dispatcher.middlewares import BaseMiddleware
-from pyi18n_new.models.value import TranslateDict, TranslateList, TranslateStr
+from pyi18n_new.models.value import (
+    TranslateDict,
+    TranslateList,
+    TranslateStr,
+)
 
-from ...schemas import ChatMember, Command, Note
+from ...schemas import ChatMember, Note
+from ...database import Command, User, Member
 
 
 class I18nMiddleware(I18nMiddlewareBase):
@@ -19,7 +25,7 @@ class I18nMiddleware(I18nMiddlewareBase):
         locale: str = None,
         return_lang: bool = False,
         force_reload: bool = False,
-        **kwargs
+        **kwargs,
     ) -> TranslateStr | TranslateList | TranslateDict:
         # TODO: Research locale argument
 
@@ -36,7 +42,9 @@ class I18nMiddleware(I18nMiddlewareBase):
             return lang
 
         try:
-            return self.pyi18n.translate(path=singular, lang=lang, **kwargs)
+            return self.pyi18n.translate(
+                path=singular, lang=lang, **kwargs
+            )
         except TypeError:
             return singular
 
@@ -46,7 +54,9 @@ class I18nMiddleware(I18nMiddlewareBase):
 
         if chat and (chat_lang := Note.get(chat.id, "__chat_lang__")):
             return chat_lang.strip()
-        elif user and (user_chat_lang := Note.get(user.id, "__chat_lang__")):
+        elif user and (
+            user_chat_lang := Note.get(user.id, "__chat_lang__")
+        ):
             return user_chat_lang.strip()
         elif user:
             return user.language_code
@@ -54,9 +64,7 @@ class I18nMiddleware(I18nMiddlewareBase):
             return None
 
     async def get_user_locale(
-        self,
-        action: str | None = None,
-        args: tuple[Any] = None
+        self, action: str | None = None, args: tuple[Any] = None
     ) -> str | None:
         return self.get_member_locale()
 
@@ -66,16 +74,22 @@ class SpyMiddleware(BaseMiddleware):
         command = message.get_command(pure=True)
         args = message.get_args()
 
-        locked_commands = Note.get(message.chat.id, "locked_commands", [], lambda x, default: x.split(" "))
-
-        member = ChatMember.get_by_message(message)
+        locked_commands = Note.get(
+            message.chat.id,
+            "locked_commands",
+            [],
+            lambda x, default: x.split(" "),
+        )
 
         if command is not None:
-            Command.create(
-                member_id=member,
-                command=command.lower(),
-                params=args
-            )
+            member = await Member.get_by(message)
+
+            await Command(
+                user_id=member.user.id,
+                chat_id=member.chat.id,
+                name=command.lower(),
+                args=args,
+            ).insert()
 
         for lcommand_raw in locked_commands:
             lcommand = lcommand_raw.removeprefix("-")
@@ -84,5 +98,7 @@ class SpyMiddleware(BaseMiddleware):
             if command != lcommand:
                 continue
 
-            if (not is_force_admin) or (is_force_admin and not await member.check_admin()):
+            if (not is_force_admin) or (
+                is_force_admin and not await member.check_admin()
+            ):
                 raise CancelHandler()

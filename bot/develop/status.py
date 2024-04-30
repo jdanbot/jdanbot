@@ -14,8 +14,6 @@ import toml
 from ..config import dp, settings, START_TIME, _
 from ..database.stats import ApiInfo
 
-API_INFO = ApiInfo.get_sync()
-
 with open("pyproject.toml", "r") as f:
     pyproject = toml.loads(f.read())
 
@@ -39,6 +37,8 @@ def pprint_timedelta(duration: pdl.duration) -> str:
 
 @dp.message_handler(commands=["status"])
 async def get_status(message: types.Message):
+    API_INFO = ApiInfo.get_sync()
+
     mem = psutil.virtual_memory()
     time = pdl.now() - START_TIME
 

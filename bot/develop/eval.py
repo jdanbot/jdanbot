@@ -6,11 +6,10 @@ from pprint import pformat
 from aiogram import types
 from aiogram.utils.markdown import code
 
-
-from ..lib.models import CustomField
-
 from .. import handlers
 from ..config import bot, dp
+from ..database import Member
+from ..lib.models import CustomField
 
 
 @dp.message_handler(commands=["e", "pe"], is_superuser=True)
@@ -19,10 +18,17 @@ async def supereval(message: types.Message, query: CustomField(str)):
     q = [f"\n {line}" for line in query.split("\n")]
     q[-1] = q[-1].replace("\n ", "\n return ")
 
-    exec("async def __ex(message, reply, bot): " + "".join(q))
+    exec("async def __ex(message, reply, bot, member): " + "".join(q))
 
     try:
-        output = await locals()["__ex"](message, message.reply_to_message, bot)
+        member = await Member.get_by(message)
+    except Exception:
+        member = None
+
+    try:
+        output = await locals()["__ex"](
+            message, message.reply_to_message, bot, member
+        )
     except Exception:
         output = traceback.format_exc()
 
@@ -33,7 +39,8 @@ async def supereval(message: types.Message, query: CustomField(str)):
         output: types.Message
 
         return await message.reply(
-            code(pformat(json.loads(output.as_json()))), parse_mode="MarkdownV2"
+            code(pformat(json.loads(output.as_json()))),
+            parse_mode="MarkdownV2",
         )
 
     await message.reply(code(output), parse_mode="MarkdownV2")

@@ -7,8 +7,11 @@ from aiogram import types
 
 from .. import handlers
 from ..config import _, dp, settings
-from ..schemas import ChatMember, Note, User, str2bool
+from ..database import Member
+from ..database import Note as nNote
+from ..database import str2bool
 from ..lib.models import CustomField
+from ..schemas import ChatMember, Note, User
 
 
 @dp.message_handler(commands=["remove"])
@@ -46,7 +49,9 @@ async def export_notes(message: types.Message):
     humanize.i18n.activate("ru_RU")
 
     for note in notes:
-        notes_raw += f"{note.name} {'★' if note.is_admin_note else ''}\n"
+        notes_raw += (
+            f"{note.name} {'★' if note.is_admin_note else ''}\n"
+        )
 
         try:
             build_user_info(note.author.user)
@@ -65,7 +70,9 @@ async def export_notes(message: types.Message):
     f = io.StringIO(notes_raw)
 
     today = datetime.now().strftime("%d.%m.%Y")
-    f.name = f"{message.chat.full_name.strip()} notes backup {today}.txt"
+    f.name = (
+        f"{message.chat.full_name.strip()} notes backup {today}.txt"
+    )
 
     await message.answer_document(f)
 
@@ -80,8 +87,11 @@ async def set_(
     is_admin_note = key in settings.admin_notes
 
     try:
-        is_edit = await Note.add(
-            ChatMember.get_by_message(message), key, value, is_admin_note
+        is_edit = await nNote.add(
+            await Member.get_by(message),
+            key,
+            value.strip(),
+            is_admin_note,
         )
         await message.reply(
             _(
@@ -122,7 +132,9 @@ async def use_by_hashtag(message: types.Message):
     name, *text = message.text.split(" ", maxsplit=1)
     text = text[0] if len(text) == 1 else ""
 
-    if Note.get(message.chat.id, "enable_inline_set_note", True, str2bool) and (text != "" and not message.is_forward()):
+    if Note.get(
+        message.chat.id, "enable_inline_set_note", True, str2bool
+    ) and (text != "" and not message.is_forward()):
         message.text = f"/set {message.text}"
         return await set_(message)
 
