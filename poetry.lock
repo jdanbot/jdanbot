@@ -1324,16 +1324,6 @@ files = [
 ]
 
 [[package]]
-name = "peewee"
-version = "3.17.1"
-description = "a little orm"
-optional = false
-python-versions = "*"
-files = [
-    {file = "peewee-3.17.1.tar.gz", hash = "sha256:e009ac4227c4fdc0058a56e822ad5987684f0a1fbb20fed577200785102581c3"},
-]
-
-[[package]]
 name = "pendulum"
 version = "2.1.2"
 description = "Python datetimes made easy"
@@ -2259,4 +2249,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "a00136671f93fd183aee0eca5ee820b5a3928aa7747fb8d2d6965cb8c4c0f51a"
+content-hash = "b67abed6dead278e1427b84834c96904842bff5c33c6de7f5015ecca526e36ac"

@@ -12,8 +12,7 @@ from pyi18n_new.models.value import (
     TranslateStr,
 )
 
-from ...schemas import ChatMember, Note
-from ...database import Command, User, Member
+from ...database import Command, Member, Note
 
 
 class I18nMiddleware(I18nMiddlewareBase):

@@ -10,7 +10,6 @@ from piccolo.columns.m2m import M2M
 from piccolo.table import Table
 
 from .connection import DB
-
 from .patches import BetterTable
 
 
@@ -53,6 +52,8 @@ class User(BetterTable, Table, db=DB):
 class Member(BetterTable, Table, db=DB):
     user = ForeignKey(User)
     chat = ForeignKey(Chat)
+
+    is_admin = Boolean()
 
     pidor = ForeignKey(Pidor, null=True)
     pidor_events: list["PidorEvent"] = M2M(

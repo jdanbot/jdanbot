@@ -1,12 +1,13 @@
 from .config import settings
 
+from aiogram import Bot, Dispatcher
 import sys
 
 is_pytest_session = "pytest" in sys.modules
 
-from aiogram import Bot, Dispatcher
 
 if is_pytest_session:
+
     class FakeUser:
         status: str = "fake"
 

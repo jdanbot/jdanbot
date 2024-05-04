@@ -68,7 +68,7 @@ class Note(BaseModel):
 
         return is_edit
 
-    def get(
+    async def get(
         chat_id: int,
         name: str,
         default: Any = None,
@@ -76,39 +76,54 @@ class Note(BaseModel):
     ) -> Any:
         res = await (
             t.Note.select()
-            .where(t.Note.member.chat.id == chat_id)
+            .where(t.Note.author.chat == chat_id)
             .where(t.Note.name == name)
             .first()
         )
 
         if res is not None:
-            return type(res)
+            return type(res["text"], default)
 
     @staticmethod
-    def show(
+    async def show(
         chat_id: int, raw: bool = False
     ) -> list[str] | list["Note"]:
-        notes = (
-            Note.select()
-            .join(ChatMember, on=Note.author == ChatMember.id)  # noqa
-            .join(Chat, on=ChatMember.chat_id == Chat.id)  # noqa
-            .where(Chat.id == chat_id)  # noqa
+        if raw:
+            return await Note.get_notes(chat_id)
+
+        return await Note.get_notes_list(chat_id)
+
+    @staticmethod
+    async def get_notes(chat_id: int) -> list["Note"]:
+        notes = await (
+            t.Note.select(
+                t.Note.all_columns(exclude=[t.Note.author]),
+                t.Note.author.all_columns(),
+                t.Note.author.user.all_columns(),
+            )
+            .where(t.Note.author.chat == chat_id)
+            .output(nested=True)
         )
 
-        if raw:
-            return notes
-        else:
-            return [note.name for note in notes]
+        return [Note.parse_obj(note) for note in notes]
+
+    @staticmethod
+    async def get_notes_list(chat_id: int) -> list[str]:
+        return await (
+            t.Note.select(t.Note.name)
+            .where(t.Note.author.chat == chat_id)
+            .output(as_list=True)
+        )
 
     async def remove(member: Member, name: str):
-        note = (
-            Note.select()
-            .join(ChatMember, on=Note.author_id == ChatMember.id)
-            .join(Chat, on=ChatMember.chat_id == Chat.id)
-            .where(Chat.id == member.chat.id, Note.name == name)
-        )[0]
+        note = await (
+            t.Note.select()
+            .where(t.Note.author.chat == member.chat.id)
+            .where(t.Note.name == name)
+            .first()
+        )
 
         if note.is_admin_note and not await member.check_admin():
             raise AttributeError
 
-        return Note.delete().where(Note.id == note.id).execute()
+        return await Note.delete().where(Note.id == note.id)

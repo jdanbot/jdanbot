@@ -1,23 +1,18 @@
-from typing import Optional
+import datetime
+from typing import Annotated, Optional
 
-from pydantic_extra_types.pendulum_dt import DateTime
-
+import pendulum as pdl
 from aiogram import types
+from aiogram.utils.markdown import escape_md, hlink, link
 from piccolo.query import OrderByRaw
-
+from piccolo.query.methods.select import Count
 from pydantic import BaseModel
-from . import tables as t
-from aiogram.utils.markdown import link, hlink, escape_md
+from pydantic_extra_types.pendulum_dt import DateTime
 
 from bot.lib.admin import check_admin
 
 from ..config.bot import bot
-from typing import Annotated
-
-import datetime
-import pendulum as pdl
-from piccolo.query import OrderByRaw
-from piccolo.query.methods.select import Count
+from . import tables as t
 
 
 class PidorEvent(BaseModel):
@@ -75,7 +70,6 @@ class Chat(BaseModel):
     username: Optional[str] = None
     title: Optional[str] = None
 
-    members: list["Member"] = []
     pidor: Optional["Member"] | int = None
 
     @classmethod
@@ -207,8 +201,8 @@ class User(BaseModel):
 
 class Member(BaseModel):
     id: int
-    chat: Chat
-    user: User
+    chat: Chat | int
+    user: User | int
 
     pidor: Optional[Pidor | int] = None
     warns: Optional[bool] = None
@@ -255,6 +249,10 @@ class Member(BaseModel):
         )
 
         return await cls.get_by_id(member.id, pidor)
+
+    @classmethod
+    async def get_id_by(cls, message: types.Message) -> int:
+        return (await cls.get_by(message)).id
 
     @classmethod
     async def get_by_id(

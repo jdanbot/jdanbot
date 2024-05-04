@@ -8,6 +8,7 @@ from .telegram import (
     PidorEvent,
     User,
 )
+from .warn import Warn
 
 __all__ = (
     Note,
@@ -18,4 +19,5 @@ __all__ = (
     Pidor,
     PidorEvent,
     User,
+    Warn,
 )

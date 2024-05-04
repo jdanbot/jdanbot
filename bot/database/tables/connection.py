@@ -14,6 +14,7 @@ async def init_db():
         Pidor,
         PidorEvent,
         User,
+        Warn,
     )
 
     await create_db_tables(
@@ -25,5 +26,6 @@ async def init_db():
         PidorEvent,
         User,
         Note,
+        Warn,
         if_not_exists=True,
     )
