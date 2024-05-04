@@ -1,4 +1,5 @@
-from pydantic import BaseSettings, BaseModel
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings
 
 from pathlib import Path
 
@@ -18,9 +19,6 @@ class Settings(BaseSettings):
 
     bot_owners: list[int] = [795449748, 0]
 
-    class Tokens(BaseModel):
-        bot_token: str
-
     class Schedule(BaseModel):
         delay_seconds: int = 20
 
@@ -30,18 +28,32 @@ class Settings(BaseSettings):
         commands: list[str]
         audio: Path
 
-    tokens: Tokens
+    class Tokens(BaseModel):
+        bot_token: str = ""
+    bot_token: str = ""
+
+    tokens: Tokens = Tokens()
     schedule: Schedule = Schedule()
     eggs: list[Egg]
 
+    @property
+    def token(self) -> str:
+        if (_ := self.bot_token or self.tokens.bot_token) == "":
+            raise AttributeError("SET BOT_TOKEN IN ENV OR CONFIG FILE")
+        
+        return _ 
 
-with open("settings.toml") as file:
-    settings_file = toml.loads(file.read())
+try:
+    with open("settings.toml") as file:
+        settings_file = toml.loads(file.read())
 
-with open(".secrets.toml") as file:
-    secrets_file = toml.loads(file.read())
+    with open(".secrets.toml") as file:
+        secrets_file = toml.loads(file.read())
 
-settings = Settings.parse_obj(settings_file | secrets_file)
+    settings = Settings.model_validate(settings_file | secrets_file)
+except:
+    settings = Settings.model_validate(settings_file)
+
 
 BASE_DIR = Path(__file__).parent.parent.parent
 LOCALES_DIR = BASE_DIR / "locales"
@@ -49,7 +61,9 @@ LOCALES_DIR = BASE_DIR / "locales"
 WIKIPEDIA_SHORTCUTS = {
     "ru": ["w"],
     "en": ["v"],
-    "uk": ["wua", "wikiua"]
+    "uk": ["wua", "wikiua"],
+    "uk": ["wikiua", "wua", "pawuk"],
+    "be-tarask": ["wikibe-tarask", "wikibet", "wbet", "xbet"]
 }
 
 WIKI_COMMANDS = []

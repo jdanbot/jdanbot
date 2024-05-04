@@ -13,6 +13,8 @@ LANGS = {
     "uk": Language("🇺🇦", "Українська"),
     "be": Language("🇧🇾", "Беларуская"),
     "pl": Language("🇵🇱", "Polski"),
+    "it": Language("🇮🇹", "Italiano"),
+    "la": Language("🇻🇦", "Lingua Latina"),
     "de": Language("🇩🇪", "Deutsch"),
     "fr": Language("🇫🇷", "Français"),
     "kz": Language("🇰🇿", "Қазақша"),
@@ -27,4 +29,4 @@ LANGS = {
 }
 
 GTRANSLATE_LANGS = {"ru", "en", "ua", "uk", "be", "pl", "de", "fr", "kz", "hu", "hi", "he", "hr", "ja", "cs", "no", "pt", "tt"}
-WIKIPEDIA_LANGS = ["ru", "en", "sv", "de", "ce", "tt", "ba", "pl", "uk", "be", "es", "he", "xh", "ab"]
+WIKIPEDIA_LANGS = ["ru", "en", "sv", "de", "ce", "tt", "ba", "pl", "uk", "be", "es", "he", "xh", "ab", "it", "fr", "la", "be-tarask"]

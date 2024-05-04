@@ -11,9 +11,13 @@ loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 
 
-async def startup(x):
+async def startup():
     db_setup()
     schedule_setup()
 
 
-executor.start_polling(dp, loop=loop, on_startup=startup)
+async def main():
+    await startup()
+    await dp.start_polling(reset_webhook=True)
+
+asyncio.get_event_loop().run_until_complete(main())

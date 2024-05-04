@@ -9,11 +9,8 @@ class TextInput(BaseModel):
 
 class ChatSettings(BaseModel):
     class Reactions(BaseModel):
-        class Welcome(TextInput): ...  # noqa
-        class Rules(TextInput): ...    # noqa
-
-        welcome: Welcome = Welcome()
-        rules: Rules = Rules()
+        welcome: str = ""
+        rules: str = ""
 
         delete_joines: bool = False
 

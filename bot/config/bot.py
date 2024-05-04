@@ -17,8 +17,8 @@ if is_pytest_session:
         async def get_chat_member(self, *args, **kwargs) -> FakeUser:
             return FakeUser()
 
-    bot = FakeBot(token=settings.tokens.bot_token)
+    bot = FakeBot(token=settings.token)
 else:
-    bot = Bot(token=settings.tokens.bot_token)
+    bot = Bot(token=settings.token)
 
 dp = Dispatcher(bot)

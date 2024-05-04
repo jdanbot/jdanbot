@@ -77,7 +77,6 @@ class Note(Model):
                     .where(Chat.id == chat_id, Note.name == name)
             )[0].text, default)
         except IndexError as e:
-            print(e)
             return default
 
     @staticmethod
