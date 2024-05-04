@@ -7,7 +7,7 @@ from aiogram import types
 
 from .. import handlers
 from ..config import _, dp, settings
-from ..schemas import ChatMember, Note, User, str2bool
+from ..database import Member, Note, User, str2bool
 from ..lib.models import CustomField
 
 
@@ -18,7 +18,7 @@ async def remove(
     key: CustomField(lambda x: x.removeprefix("#")),
 ):
     try:
-        await Note.remove(ChatMember.get_by_message(message), key)
+        await Note.remove(await Member.get_by(message), key)
     except AttributeError:
         await message.reply(_("notes.no_rights_for_edit"))
 
@@ -40,13 +40,15 @@ def build_user_info(user: User) -> str:
 
 @dp.message_handler(commands=["export_notes"], is_admin=True)
 async def export_notes(message: types.Message):
-    notes = Note.show(message.chat.id, raw=True)
+    notes = await Note.get_notes(message.chat.id)
     notes_raw = ""
 
     humanize.i18n.activate("ru_RU")
 
     for note in notes:
-        notes_raw += f"{note.name} {'★' if note.is_admin_note else ''}\n"
+        notes_raw += (
+            f"{note.name} {'★' if note.is_admin_note else ''}\n"
+        )
 
         try:
             build_user_info(note.author.user)
@@ -55,17 +57,39 @@ async def export_notes(message: types.Message):
             is_normal = False
 
         if is_normal:
-            notes_raw += f"создал {build_user_info(note.author.user)} {humanize.naturaltime(note.created_at)}\n"
+            notes_raw += (
+                " ".join(
+                    [
+                        "создал",
+                        build_user_info(note.author.user),
+                        humanize.naturaltime(note.created_at),
+                    ]
+                )
+                + "\n"
+            )
 
-        if note.editor_id != 0 and note.editor:
-            notes_raw += f"изменил {build_user_info(note.editor.user)} {humanize.naturaltime(note.edited_at)}\n"
+        if note.editor is not None:
+            note.editor = await Member.get_by_id(note.editor)
+
+            notes_raw += (
+                " ".join(
+                    [
+                        "изменил",
+                        build_user_info(note.editor.user),
+                        humanize.naturaltime(note.edited_at),
+                    ]
+                )
+                + "\n"
+            )
 
         notes_raw += f"\n{note.text}\n\n\n"
 
     f = io.StringIO(notes_raw)
 
     today = datetime.now().strftime("%d.%m.%Y")
-    f.name = f"{message.chat.full_name.strip()} notes backup {today}.txt"
+    f.name = (
+        f"{message.chat.full_name.strip()} notes backup {today}.txt"
+    )
 
     await message.answer_document(f)
 
@@ -81,7 +105,10 @@ async def set_(
 
     try:
         is_edit = await Note.add(
-            ChatMember.get_by_message(message), key, value, is_admin_note
+            await Member.get_by(message),
+            key,
+            value.strip(),
+            is_admin_note,
         )
         await message.reply(
             _(
@@ -98,10 +125,12 @@ async def get(
     message: types.Message,
     key: CustomField(lambda x: x.removeprefix("#")),
 ):
-    note = Note.get(message.chat.id, key)
+    note = await Note.get(message.chat.id, key)
 
     if note is None:
-        await message.reply(_("notes.create_var"))
+        if message.from_id != -1:
+            await message.reply(_("notes.create_var"))
+
         return
 
     try:
@@ -112,7 +141,7 @@ async def get(
 
 @dp.message_handler(commands=["show", "notes"])
 async def show(message: types.Message):
-    await message.reply(", ".join(Note.show(message.chat.id)))
+    await message.reply(", ".join(await Note.show(message.chat.id)))
 
 
 @dp.message_handler(lambda message: message.text.startswith("#"))
@@ -122,16 +151,14 @@ async def use_by_hashtag(message: types.Message):
     name, *text = message.text.split(" ", maxsplit=1)
     text = text[0] if len(text) == 1 else ""
 
-    if Note.get(message.chat.id, "enable_inline_set_note", True, str2bool) and (text != "" and not message.is_forward()):
+    if text == "":
+        message.text = f"/get {name}"
+        message.from_user.id = -1
+
+        return await get(message)
+
+    if await Note.get(
+        message.chat.id, "enable_inline_set_note", False, str2bool
+    ) and (text != "" and not message.is_forward()):
         message.text = f"/set {message.text}"
         return await set_(message)
-
-    note = Note.get(message.chat.id, name)
-
-    if note is None:
-        return
-
-    try:
-        await message.reply(note, parse_mode="MarkdownV2")
-    except Exception:
-        await message.reply(note)

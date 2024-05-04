@@ -19,6 +19,8 @@ class Settings(BaseSettings):
 
     bot_owners: list[int] = [795449748, 0]
 
+    api_url: str = "http://127.0.0.1:8000"
+
     class Schedule(BaseModel):
         delay_seconds: int = 20
 

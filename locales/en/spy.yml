@@ -8,5 +8,5 @@ about_user: |
 users_info: |
   📊 *Stats*
 
-  *🧑‍💻 Users*: {local_users} of {no user | $global_users users}
-  *💻 Commands*: {local_commands} of {no commands | $global_commands commands}
+  *🧑‍💻 Users*: {chat_users} of {users} users
+  *💻 Commands*: {chat_commands} of {commands} commands
