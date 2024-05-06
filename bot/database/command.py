@@ -1,11 +1,9 @@
 from typing import Optional
 
-from pydantic import BaseModel
-from pydantic_extra_types.pendulum_dt import DateTime
-import pendulum as pdl
+from pydantic import BaseModel, Field
+from datetime import datetime
 
 from . import tables as t
-from pydantic import Field
 
 
 class Command(BaseModel):
@@ -13,9 +11,9 @@ class Command(BaseModel):
     user_id: int
 
     name: str
-    args: Optional[str] = str
+    args: Optional[str] = None
 
-    runned_at: DateTime = Field(default_factory=pdl.now)
+    runned_at: datetime = Field(default_factory=datetime.now)
 
     async def insert(self) -> "Command":
         return await t.Command.insert(

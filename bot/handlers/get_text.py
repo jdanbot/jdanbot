@@ -1,45 +1,53 @@
-import io
 from aiogram import types
-from PIL import Image
-import pytesseract
 
 from .parse_arguments import parse_arguments
-from ..config import _
 
 from functools import wraps
+from fluentogram import FluentTranslator
+from aiogram.filters import CommandObject
 
 
 def get_text(func):
     @wraps(func)
     @parse_arguments(1, without_params=True)
-    async def wrapper(message: types.Message, query=None, *args, **kwargs):
+    async def wrapper(
+        message: types.Message,
+        _: FluentTranslator,
+        command: CommandObject,
+        query=None,
+        *args,
+        **kwargs,
+    ):
         reply = message.reply_to_message
-        quote = message.to_python().get("quote")
 
         if query:
             text = query
-        elif quote and quote["is_manual"]:
-            text = quote["text"]
+        elif message.quote and message.quote.is_manual:
+            text = message.quote.text
         elif reply and reply.text:
             text = reply.text
         elif reply and reply.caption:
             text = reply.caption
         else:
+            await message.reply(
+                _.few_args(num=1), parse_mode="Markdown"
+            )
             try:
-                text = _(f"docs.{func.__name__}")
+                text = _.docs.__get__(func.__name__)()
 
                 if text.startswith("docs."):
                     raise AttributeError()
 
                 await message.reply(text, parse_mode="markdown")
-            except AttributeError:
+            except (TypeError, AttributeError):
                 await message.reply(
-                    _("errors.few_args", num=1),
-                    parse_mode="Markdown"
+                    _.few_args(num=1), parse_mode="Markdown"
                 )
 
             return
 
-        return await func(message, text, *args, **kwargs)
+        return await func(
+            message, text, _=_, command=command, *args, **kwargs
+        )
 
     return wrapper

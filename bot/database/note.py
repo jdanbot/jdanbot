@@ -81,8 +81,10 @@ class Note(BaseModel):
             .first()
         )
 
-        if res is not None:
-            return type(res["text"], default)
+        if res is None:
+            return default
+
+        return type(res["text"], default)
 
     @staticmethod
     async def show(

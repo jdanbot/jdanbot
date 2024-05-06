@@ -2,13 +2,20 @@ from aiogram import types
 
 import subprocess  # noqa: S404
 
-import pendulum as pdl
+import arrow
+from datetime import timedelta
 from sys import platform
+
+from aiogram.filters import Command
 
 import distro
 import toml
+import humanize
+import psutil
 
-from ..config import dp, settings, START_TIME, _
+from ..config import settings, START_TIME, router
+
+from fluentogram import TranslatorRunner
 
 with open("pyproject.toml", "r") as f:
     pyproject = toml.loads(f.read())
@@ -16,7 +23,7 @@ with open("pyproject.toml", "r") as f:
 __version__ = pyproject["tool"]["poetry"]["version"]
 
 
-def pprint_timedelta(duration: pdl.duration) -> str:
+def pprint_timedelta(duration: timedelta) -> str:
     s = duration.total_seconds()
 
     days, remainder = divmod(s, 60 * 60 * 24)
@@ -28,16 +35,19 @@ def pprint_timedelta(duration: pdl.duration) -> str:
     )
 
 
-@dp.message_handler(commands=["status"])
-async def get_status(message: types.Message):
-    time = pdl.now() - START_TIME
+@router.message(Command("status"))
+async def get_status(message: types.Message, _: TranslatorRunner):
+    time = arrow.now() - START_TIME
+    mem = psutil.virtual_memory()
 
+    await message.reply(_.hello(username=message.from_user.username))
     await message.reply(
-        _(
-            "dev.status",
+        _.dev.status(
             name=settings.status,
             platform=distro.id() if platform == "linux" else platform,
             version=__version__,
+            memory=humanize.naturalsize(mem.used, binary=True),
+            total_memory=humanize.naturalsize(mem.total, binary=True),
             uptime=pprint_timedelta(time),
         ),
         parse_mode="Markdown",

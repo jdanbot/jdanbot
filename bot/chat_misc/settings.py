@@ -1,56 +1,66 @@
-from aiogram import types
+from aiogram import types, F
 
-from .. import handlers
-from ..config import LANGS, _, dp
-from ..schemas import Chat
+from ..config import LANGS, router
+from ..database import Chat
+from ..filters import IsAdminFilter
+from aiogram.filters import Command
+
+from fluentogram import FluentTranslator
 
 
-@dp.message_handler(commands="settings_beta", is_admin=True)
-@dp.callback_query_handler(lambda call: call.data == "settings_menu")
-async def settings_(message: types.Message):
+@router.message(Command("settings"), IsAdminFilter())
+@router.callback_query(F.data == "settings_menu", IsAdminFilter())
+async def settings_(message: types.Message, _: FluentTranslator):
     try:
         message: types.Message = message.message
         is_inline = True
     except Exception:
         is_inline = False
 
-    _(None, return_lang=True, force_reload=True)
+    # _(None, return_lang=True, force_reload=True)
 
-    kb = types.InlineKeyboardMarkup()
+    chat = await Chat.get_by(message)
+    settings = await chat.get_settings()
 
-    chat = Chat.get_by_message(message)
-    settings = chat.get_settings()
+    buttons = [
+        [
+            types.InlineKeyboardButton(
+                text=_.reactions(react=settings.reactions),
+                callback_data="set_reactions",
+            ),
+        ],
+        [
+            types.InlineKeyboardButton(
+                text=_.warns_to_ban(warns=settings.warns_to_ban),
+                callback_data="set_warn_count",
+            ),
+        ],
+        [
+            types.InlineKeyboardButton(
+                text=_.language(
+                    lang=LANGS[settings.language or -1].emoji
+                ),
+                callback_data="set_lang",
+            ),
+        ],
+        [
+            types.InlineKeyboardButton(
+                text=_.done(), callback_data="delete_msg"
+            ),
+        ],
+    ]
 
-    warns = {3: "3️⃣", 5: "5️⃣", -1: "⛔️"}
-    reactions = {None: "☑️", False: "❌", True: "✅"}
-
-    kb.add(types.InlineKeyboardButton(
-        f"⚠️ {_('settings.reactions')}",
-        callback_data="set_reactions"
-    ))
-
-    kb.add(types.InlineKeyboardButton(
-        f"{warns[settings.warns_to_ban]} {_('settings.warns_to_ban')}",
-        callback_data="set_warn_count"
-    ))
-
-    kb.add(types.InlineKeyboardButton(
-        f"{LANGS[settings.language].emoji} {_('settings.language')}",
-        callback_data="set_lang"
-    ))
-
-    kb.add(types.InlineKeyboardButton(
-        _("settings.done"),
-        callback_data="delete_msg"
-    ))
+    kb = types.InlineKeyboardMarkup(inline_keyboard=buttons)
 
     if is_inline:
-        await message.edit_text(_("settings.settings_text"), reply_markup=kb)
+        await message.edit_text(
+            text=_.settings_text(), reply_markup=kb
+        )
     else:
-        await message.answer(_("settings.settings_text"), reply_markup=kb)
+        await message.answer(text=_.settings_text(), reply_markup=kb)
         await message.delete()
 
 
-@dp.callback_query_handler(lambda call: call.data == "delete_msg", is_admin=True)
+@router.callback_query(F.data == "delete_msg", IsAdminFilter())
 async def test_(call: types.CallbackQuery):
     await call.message.delete()

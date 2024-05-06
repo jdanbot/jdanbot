@@ -1,20 +1,12 @@
 from dataclasses import dataclass
 
 from aiogram import types
-from aiogram.dispatcher.filters import BoundFilter
+from aiogram.filters import BaseFilter
 
 from ..config import settings
 
 
 @dataclass
-class IsSuperuserFilter(BoundFilter):
-    key = "is_superuser"
-    is_superuser: bool | list[int]
-
-    async def check(self, message: types.Message) -> bool:
-        if isinstance(self.is_superuser, list):
-            owners = settings.bot_owners + self.is_superuser
-        else:
-            owners = settings.bot_owners
-
-        return message.from_user.id in owners
+class IsSuperuserFilter(BaseFilter):
+    async def __call__(self, message: types.Message) -> bool:
+        return message.from_user.id in settings.bot_owners

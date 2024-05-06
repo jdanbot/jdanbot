@@ -1,10 +1,6 @@
-import textwrap
-from typing import Union
+from typing import Union, Iterable
 
-#TODO: Full rewrite
-
-from aiogram.utils.markdown import hcode as code, hitalic as italic, hbold as bold, quote_html as fixHTML
-from aiogram.utils.parts import paginate
+# TODO: Full rewrite
 
 
 def prettyword(n: int, forms: Union[list, tuple, str]) -> str:
@@ -24,6 +20,26 @@ def prettyword(n: int, forms: Union[list, tuple, str]) -> str:
         return forms[2]
 
 
+def paginate(
+    data: Iterable, page: int = 0, limit: int = 10
+) -> Iterable:
+    """
+    FROM AIOGRAM2
+
+    Slice data over pages
+
+    :param data: any iterable object
+    :type data: :obj:`typing.Iterable`
+    :param page: number of page
+    :type page: :obj:`int`
+    :param limit: items per page
+    :type limit: :obj:`int`
+    :return: sliced object
+    :rtype: :obj:`typing.Iterable`
+    """
+    return data[page * limit : page * limit + limit]
+
+
 def cute_crop(text: str, limit: int = 100) -> str:
     return paginate(text, limit=limit)
 
@@ -31,13 +47,11 @@ def cute_crop(text: str, limit: int = 100) -> str:
 def fixWords(text: str) -> str:
     namelist = [
         ["у́", "у"],
-
         ["Белоруссия", "Беларусь"],
         ["Белоруссии", "Беларуси"],
         ["Беларуссию", "Беларусь"],
         ["Белоруссией", "Беларусью"],
         ["Белоруссиею", "Беларусью"],
-
         ["на Украин", "в Украин"],
     ]
 

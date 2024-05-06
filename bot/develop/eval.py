@@ -7,12 +7,14 @@ from aiogram import types
 from aiogram.utils.markdown import code
 
 from .. import handlers
-from ..config import bot, dp
+from ..config import bot, router
+from aiogram.filters import Command
+from ..filters import IsSuperuserFilter
 from ..database import Member
 from ..lib.models import CustomField
 
 
-@dp.message_handler(commands=["e", "pe"], is_superuser=True)
+@router.message(Command("e", "pe"), IsSuperuserFilter())
 @handlers.parse_arguments_new
 async def supereval(message: types.Message, query: CustomField(str)):
     q = [f"\n {line}" for line in query.split("\n")]
@@ -46,7 +48,7 @@ async def supereval(message: types.Message, query: CustomField(str)):
     await message.reply(code(output), parse_mode="MarkdownV2")
 
 
-@dp.message_handler(commands=["jbash"], is_superuser=True)
+@router.message(Command("jbash"), IsSuperuserFilter())
 @handlers.parse_arguments_new
 async def bash(message: types.Message, query: CustomField(str)):
     try:

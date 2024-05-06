@@ -10,7 +10,7 @@ class TextInput(BaseModel):
 class ChatSettings(BaseModel):
     class Reactions(BaseModel):
         welcome: str = ""
-        rules: str = ""
+        rules: TextInput = ""
 
         delete_joines: bool = False
 
@@ -24,4 +24,4 @@ class ChatSettings(BaseModel):
     reactions: Reactions = Reactions()
 
     warns_to_ban: Literal[3, 5, -1] = 3
-    language: Literal["ru", "en", "uk"] | None
+    language: Literal["ru", "en", "uk"] | None = None

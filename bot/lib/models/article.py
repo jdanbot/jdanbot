@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 from aiogram import types
 
@@ -32,7 +32,12 @@ class Article:
 
         if self.force_format:
             self.text = "\n\n".join(
-                list(filter(lambda x: x.strip() != "", self.text.splitlines()))
+                list(
+                    filter(
+                        lambda x: x.strip() != "",
+                        self.text.splitlines(),
+                    )
+                )
             )
 
         if (new_text := cute_crop(self.text, limit=4096)) != "":
@@ -44,14 +49,16 @@ class Article:
         text = hide_link(self.image) if self.image else ""
         return text + self.bold2link(self.text, self.title)
 
-    def bold2link(self, text: str | None, title: str | None = None) -> str:
+    def bold2link(
+        self, text: str | None, title: str | None = None
+    ) -> str:
         if self.href is None:
             return text
 
         soup = BeautifulSoup(text, "html.parser")
         b = soup.find_all(["b", "strong"])
 
-        if ((len(b) == 0 or self.force_add_title)) and title:
+        if (len(b) == 0 or self.force_add_title) and title:
             print(self.title)
             return self.bold2link(f"<b>{title}</b>\n\n{str(soup)}")
 

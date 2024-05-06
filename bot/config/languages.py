@@ -25,8 +25,47 @@ LANGS = {
     "ja": Language("🇯🇵", "日本語"),
     "cs": Language("🇨🇿", "Czech čeština"),
     "no": Language("🇳🇴", "Norsk"),
-    "pt": Language("🇵🇹", "Português")
+    "pt": Language("🇵🇹", "Português"),
+    -1: Language("🏳️", "NoneLanguage"),
 }
 
-GTRANSLATE_LANGS = {"ru", "en", "ua", "uk", "be", "pl", "de", "fr", "kz", "hu", "hi", "he", "hr", "ja", "cs", "no", "pt", "tt"}
-WIKIPEDIA_LANGS = ["ru", "en", "sv", "de", "ce", "tt", "ba", "pl", "uk", "be", "es", "he", "xh", "ab", "it", "fr", "la", "be-tarask"]
+GTRANSLATE_LANGS = {
+    "ru",
+    "en",
+    "ua",
+    "uk",
+    "be",
+    "pl",
+    "de",
+    "fr",
+    "kz",
+    "hu",
+    "hi",
+    "he",
+    "hr",
+    "ja",
+    "cs",
+    "no",
+    "pt",
+    "tt",
+}
+WIKIPEDIA_LANGS = [
+    "ru",
+    "en",
+    "sv",
+    "de",
+    "ce",
+    "tt",
+    "ba",
+    "pl",
+    "uk",
+    "be",
+    "es",
+    "he",
+    "xh",
+    "ab",
+    "it",
+    "fr",
+    "la",
+    "be-tarask",
+]

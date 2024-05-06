@@ -1,7 +1,6 @@
 from functools import wraps
 
-from aiogram import types
-from aiogram.utils import exceptions
+from aiogram import types, exceptions
 
 from ..config import bot
 from ..lib.models import Article
@@ -31,11 +30,13 @@ def send_article(func):
             if result.disable_web_page_preview
             else result.image is None,
             reply_markup=result.keyboard,
-            **params
+            **params,
         )
 
         try:
-            await message.reply(text, parse_mode=result.parse_mode, **params)
+            await message.reply(
+                text, parse_mode=result.parse_mode, **params
+            )
         except exceptions.CantParseEntities as e:
             await message.reply(text, parse_mode=None, **params)
 

@@ -1,18 +1,19 @@
 import datetime
 from typing import Annotated, Optional
 
-import pendulum as pdl
 from aiogram import types
-from aiogram.utils.markdown import escape_md, hlink, link
+from aiogram.utils.markdown import hlink, link
 from piccolo.query import OrderByRaw
 from piccolo.query.methods.select import Count
 from pydantic import BaseModel
-from pydantic_extra_types.pendulum_dt import DateTime
+from datetime import datetime as DateTime
 
 from bot.lib.admin import check_admin
 
 from ..config.bot import bot
 from . import tables as t
+
+from ..chat_misc.models import ChatModules, ChatSettings
 
 
 class PidorEvent(BaseModel):
@@ -21,7 +22,7 @@ class PidorEvent(BaseModel):
     caused_at: datetime.datetime
 
     @property
-    def pdl_caused_at(self) -> pdl.datetime:
+    def pdl_caused_at(self) -> DateTime:
         return pdl.instance(self.caused_at)
 
     @classmethod
@@ -156,6 +157,62 @@ class Chat(BaseModel):
             t.Command.chat_id == self.id
         )
 
+    async def get_settings(self) -> ChatSettings:
+        from .note import Note
+
+        return ChatSettings(
+            reactions=dict(
+                rules=dict(
+                    text=(
+                        note_text := await Note.get(
+                            self.id, "__rules__"
+                        )
+                    ),
+                    is_enabled=note_text is not None,
+                ),
+                delete_joines=True,
+            ),
+            warns_to_ban=await Note.get(
+                self.id,
+                "__warns_to_ban__",
+                default=3,
+                type=lambda x, default: x
+                if (x := int(x)) in (3, 5, -1)
+                else default,
+            ),
+            language=await Note.get(
+                self.id,
+                "__chat_lang__",
+                default="ru",
+                type=lambda x, default: x
+                if x in ("ru", "en", "uk")
+                else default,
+            ),
+        )
+
+    async def get_modules(self) -> ChatModules:
+        from .note import Note, str2bool
+
+        bool_params = dict(default=True, type=str2bool)
+
+        return ChatModules(
+            is_admin_enabled=await Note.get(
+                self.id, "__enable_admin__", **bool_params
+            ),
+            is_selfmute_enabled=await Note.get(
+                self.id, "__enable_selfmute__", **bool_params
+            ),
+            is_poll_enabled=await Note.get(
+                self.id, "enable_poll", **bool_params
+            ),
+            is_memes_enabled=await Note.get(
+                self.id, "__enable_response__", **bool_params
+            ),
+            is_ban_enabled=await Note.get(
+                self.id, "enable_ban_trigger", **bool_params
+            ),
+        )
+
 
 class User(BaseModel):
     id: int
@@ -220,7 +277,7 @@ class Member(BaseModel):
     @property
     def tag(self, use_html=False) -> str:
         if self.user.username:
-            return escape_md(f"@{self.user.username}")
+            return f"@{self.user.username}"
 
         return (hlink if use_html else link)(
             self.user.full_name, f"tg://user?id={self.user.id}"

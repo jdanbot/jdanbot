@@ -1,6 +1,6 @@
 from .config import settings
 
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, Router
 import sys
 
 is_pytest_session = "pytest" in sys.modules
@@ -22,4 +22,5 @@ if is_pytest_session:
 else:
     bot = Bot(token=settings.token)
 
-dp = Dispatcher(bot)
+dp = Dispatcher()
+router = Router()
