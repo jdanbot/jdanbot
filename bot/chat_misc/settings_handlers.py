@@ -1,15 +1,16 @@
 from aiogram import types, F
 
+from aiogram.filters import Command
 from ..config import LANGS, _, router
 from ..database import Member, Note
 from .modules import modules_
 from .settings import settings_
-from fluentogram import FluentTranslator
-from ..filters import IsAdminFilter
+from fluentogram import TranslatorRunner
+from ..filters import IsAdmin
 
 
-@router.callback_query(F.data == "set_lang", IsAdminFilter())
-async def test(call: types.CallbackQuery, _: FluentTranslator):
+@router.callback_query(F.data == "set_lang", IsAdmin())
+async def test(call: types.CallbackQuery, _: TranslatorRunner):
     try:
         message = call.message
     except AttributeError:
@@ -41,7 +42,7 @@ async def test(call: types.CallbackQuery, _: FluentTranslator):
     )
 
 
-@router.callback_query(F.data == "set_reactions", IsAdminFilter())
+@router.callback_query(F.data == "set_reactions", IsAdmin())
 async def test(call: types.CallbackQuery):
     kb = types.InlineKeyboardMarkup()
 
@@ -91,7 +92,7 @@ async def test(call: types.CallbackQuery):
     )
 
 
-@router.callback_query(F.data == "set_warn_count", IsAdminFilter())
+@router.callback_query(F.data == "set_warn_count", IsAdmin())
 async def test(call: types.CallbackQuery):
     kb = types.InlineKeyboardMarkup()
     message = call.message
@@ -118,8 +119,8 @@ async def test(call: types.CallbackQuery):
     )
 
 
-@router.callback_query(F.data.startswith("set "), IsAdminFilter())
-async def test(call: types.CallbackQuery, _: FluentTranslator):
+@router.callback_query(F.data.startswith("set "), IsAdmin())
+async def test(call: types.CallbackQuery, _: TranslatorRunner):
     message = call.message
     member = await Member.get_by(message)
 

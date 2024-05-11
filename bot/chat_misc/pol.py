@@ -2,8 +2,9 @@ import itertools
 import re
 
 from aiogram import types
-from ..config import dp
-from .. import handlers
+from aiogram.filters import Command, CommandObject
+from ..filters import GetText
+from ..config import router
 
 import yaml
 
@@ -18,12 +19,14 @@ def generate_word_variants_with_uppercase(word: str, combinations: list = None):
     variants = []
 
     for m in uppercase_map:
-        variants.append("".join([
-            letter.upper()
-            if int(m[i]) == 1 
-            else letter
-            for i, letter in enumerate(word)
-        ]))
+        variants.append(
+            "".join(
+                [
+                    letter.upper() if int(m[i]) == 1 else letter
+                    for i, letter in enumerate(word)
+                ]
+            )
+        )
 
     return variants
 
@@ -58,32 +61,33 @@ def load_polish_cyrillic_variant(path: str):
 
         variants = generate_word_variants_with_uppercase(pol)
 
-        uppercase_schemas \
-            .extend(list(map(
-                lambda x: (prefix + x, rus.capitalize() + suffix),
-                variants
-            )))
+        uppercase_schemas.extend(
+            list(
+                map(lambda x: (prefix + x, rus.capitalize() + suffix), variants)
+            )
+        )
 
     uppercase_schemas.extend(schemas)
     return uppercase_schemas
 
 
-POLISH_EXP_TRANSLITERATION_SCHEMAS = \
-    load_polish_cyrillic_variant("bot/chat_misc/lib/polish_cyr_exp.yml")
-POLISH_TRAD_TRANSLITERATION_SCHEMAS = \
-    load_polish_cyrillic_variant("bot/chat_misc/lib/polish_cyr_trad.yml")
+POLISH_EXP_TRANSLITERATION_SCHEMAS = load_polish_cyrillic_variant(
+    "bot/chat_misc/lib/polish_cyr_exp.yml"
+)
+POLISH_TRAD_TRANSLITERATION_SCHEMAS = load_polish_cyrillic_variant(
+    "bot/chat_misc/lib/polish_cyr_trad.yml"
+)
 
 
-@dp.message_handler(commands=["cyr", "cyr2"])
-@handlers.get_text
-async def cyr(message: types.Message, text: str):
-    result = text
-    schemas = POLISH_EXP_TRANSLITERATION_SCHEMAS \
-        if message.get_command()[1:] == "cyr" else \
-        POLISH_TRAD_TRANSLITERATION_SCHEMAS
+@router.message(Command("cyr", "cyr2"), GetText())
+async def cyr(message: types.Message, query: str, command: CommandObject):
+    schemas = (
+        POLISH_EXP_TRANSLITERATION_SCHEMAS
+        if command.command == "cyr"
+        else POLISH_TRAD_TRANSLITERATION_SCHEMAS
+    )
 
     for schema in schemas:
-        result = re.sub(*schema, result)
-        # result = result.replace(*schema)
+        query = re.sub(*schema, query)
 
-    await message.reply(result)
+    await message.reply(query, parse_mode=None)

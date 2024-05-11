@@ -1,14 +1,10 @@
 from typing import Callable, Any
 
 
-from functools import wraps
 from aiogram import types
 
 from ..lib.errors import JdanbotError
 from ..lib.models import CustomField
-
-from aiogram.filters import CommandObject
-from fluentogram import FluentTranslator
 
 
 def run_if_func(value: Any) -> Any:
@@ -92,46 +88,3 @@ def parse_arguments_new(
         return await func(message, **params)
 
     return wrapper
-
-
-def parse_arguments(limit: int, without_params: bool = False):
-    def argument_wrapper(func: Callable):
-        @wraps(func)
-        async def wrapper(
-            message: types.Message,
-            _: FluentTranslator,
-            command: CommandObject,
-            **kwargs,
-        ):
-            try:
-                params = (command.args or "").split(
-                    maxsplit=limit - 1
-                )
-            except AttributeError:
-                params_raw = message.data.split()
-                params = " ".join(params_raw[1:-1]).split(
-                    maxsplit=limit - 1
-                )
-                params.append(params_raw[-1])
-
-                message = message.message
-
-            if len(params) < limit and not without_params:
-                try:
-                    await message.reply(
-                        _.docs.__get__(func.__name__)(),
-                        parse_mode="Markdown",
-                    )
-                except (AttributeError, TypeError):
-                    await message.reply(
-                        _.few_args(num=limit),
-                        parse_mode="Markdown",
-                    )
-            else:
-                return await func(
-                    message, command=command, _=_, *params, **kwargs
-                )
-
-        return wrapper
-
-    return argument_wrapper

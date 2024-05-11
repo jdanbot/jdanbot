@@ -1,76 +1,81 @@
-import os
-
 import ffmpeg
-from aiogram import types
+from aiogram import types, F
+from aiogram.filters import Command, CommandObject
 
-from ..config import _, dp
+from aiogram.filters import Command
+from ..config import _, router, bot
+from shellous import sh
+from pathlib import Path
+
+from fluentogram import TranslatorRunner
 
 
-@dp.message_handler(commands=["fast", "slow"])
-async def edit_gif(message: types.Message):
-    reply = message.reply_to_message
+@router.message(
+    F.reply_to_message,
+    F.reply_to_message.animation
+    | F.reply_to_message.sticker.is_video
+    | F.reply_to_message.video,
+    Command("fast", "slow", "reversed", "to_gif"),
+)
+async def edit_gif(
+    message: types.Message,
+    command: CommandObject,
+    _: TranslatorRunner,
+):
+    reply: types.Message = message.reply_to_message
 
-    if reply.animation:
-        (video := reply.animation).file_size
-    elif reply.sticker and reply.sticker.is_video:
-        (video := reply.sticker).file_size
-    elif reply.video:
-        (video := reply.video).file_size
-    else:
-        raise KeyError("Reply to GIF | video | video sticker")
+    await message.reply("Alles Gute")
 
-    if video.file_size > 5000000:
-        await message.reply(_("errors.is_too_big_gif"))
-        return
-
-    await video.download(destination_file="test.mp4")
-    is_fast = message.get_command(pure=True) == "fast"
-
-    process = (
-        ffmpeg.input("test.mp4")
-        .filter("setpts", "0.25*PTS" if is_fast else "1.25*PTS")
-        .output("test2.mp4")
-        .overwrite_output()
-        .run_async()
+    video: types.Animation | types.Sticker | types.Video | None = (
+        reply.animation or reply.sticker or reply.video
     )
 
-    process.communicate()
-
-    await message.reply_animation(animation=open("test2.mp4", "rb"))
-
-    os.remove("test.mp4")
-    os.remove("test2.mp4")
-
-
-@dp.message_handler(commands=["reverse"])
-async def reverse_gif(message: types.Message):
-    reply = message.reply_to_message
-
-    if reply.animation:
-        (video := reply.animation).file_size
-    elif reply.sticker and reply.sticker.is_video:
-        (video := reply.sticker).file_size
-    elif reply.video:
-        (video := reply.video).file_size
-    else:
-        raise KeyError("Reply to GIF | video | video sticker")
-
-    if video.file_size > 5000000:
-        await message.reply(_("errors.is_too_big_gif"))
+    if video.file_size > 500_000_00:
+        await message.reply(_.is_too_big_gif())
         return
 
-    await video.download(destination_file="test3.mp4")
+    _in = Path("/tmp/TEST.mp4")
+    out = Path("/tmp/TEST2.mp4")
 
-    process = (
-        ffmpeg.input("test3.mp4")
-        .output("test4.mp4", vf="reverse")
-        .overwrite_output()
-        .run_async()
+    await bot.download(video, _in.absolute())
+    is_fast = command.command == "fast"
+
+    process = ffmpeg.input(str(_in))
+
+    if command.command in ("fast", "slow"):
+        process = process.filter(
+            "setpts", "0.25*PTS" if is_fast else "1.25*PTS"
+        )
+
+    if command.command == "reversed":
+        process = process.output(str(out), vf="reverse")
+    else:
+        process = process.output(str(out))
+
+    await sh(process.compile())
+    await message.reply_animation(
+        animation=types.FSInputFile(path=out)
     )
 
-    process.communicate()
+    _in.unlink()
+    out.unlink()
 
-    await message.reply_animation(animation=open("test4.mp4", "rb"))
 
-    os.remove("test3.mp4")
-    os.remove("test4.mp4")
+@router.message(
+    F.reply_to_message,
+    Command("fast", "slow", "reversed", "to_gif"),
+)
+async def edit_gif_without_source(
+    message: types.Message, command: CommandObject
+):
+    print(message.reply_to_message)
+    await message.reply("you only replied")
+
+
+@router.message(
+    Command("fast", "slow", "reversed", "to_gif"),
+)
+async def edit_gif_without_source_and_reply(
+    message: types.Message, command: CommandObject
+):
+    await message.reply("you only send command")

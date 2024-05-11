@@ -44,7 +44,7 @@ def cute_crop(text: str, limit: int = 100) -> str:
     return paginate(text, limit=limit)
 
 
-def fixWords(text: str) -> str:
+def fix_words(text: str) -> str:
     namelist = [
         ["у́", "у"],
         ["Белоруссия", "Беларусь"],

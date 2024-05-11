@@ -1,9 +1,10 @@
 from aiogram import types
-from ..config import dp
+from aiogram.filters import Command
+from ..config import dp, router
 
 
-@dp.message_handler(commands=["donate"])
+@router.message(Command("donate"))
 async def donate(message: types.Message):
-    await message.reply("<b>🇷🇺 UMoney:</b> 5599 0050 8875 2808",
+    await message.reply("Where is donations, Karl?",
                         parse_mode="HTML",
                         disable_web_page_preview=True)

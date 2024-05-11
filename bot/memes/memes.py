@@ -1,6 +1,7 @@
 import contextlib
 from .. import handlers
-from ..config import dp
+from aiogram.filters import Command, CommandObject
+from ..config import router
 from aiogram import types
 
 
@@ -42,24 +43,24 @@ stickers = {
 }
 
 
-@dp.message_handler(commands=memes.keys())
-async def bylo(message: types.Message):
+@router.message(Command(*memes.keys()))
+async def bylo(message: types.Message, command: CommandObject):
     await send_meme(
         message,
-        memes[message.get_command(pure=True)]
+        memes[command.command]
     )
 
 
-@dp.message_handler(commands=stickers.keys())
-async def meme_stickers(message: types.Message):
+@router.message(Command(*stickers.keys()))
+async def meme_stickers(message: types.Message, command: CommandObject):
     await send_meme(
         message,
-        stickers[message.get_command(pure=True)],
+        stickers[command.command],
         is_sticker=True
     )
 
 
-@dp.message_handler(commands=["ban"])
+@router.message(Command("ban"))
 @handlers.check("enable_ban_trigger")
 async def ban(message):
     msg = message.text.split(maxsplit=1)

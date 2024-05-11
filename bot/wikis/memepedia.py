@@ -2,18 +2,19 @@ from aiogram import types
 
 import pymemeru
 
-from ..config import dp, _
+from aiogram.filters import Command
+from ..config import router, _
 from .. import handlers
 from ..lib.models import Article
+from ..filters import GetText
 
 from ..lib.models import CustomField
 from tghtml import TgHTML
 
 
-@dp.message_handler(commands=["memepedia", "meme"])
+@router.message(Command("memepedia", "meme"), GetText(disable_reply=True))
 @handlers.send_article
-@handlers.parse_arguments_new
-async def mempep(message: types.Message, query: CustomField(str)) -> Article:
+async def mempep(message: types.Message, query: str) -> Article:
     try:
         search = await pymemeru.search(query)
     except AttributeError:

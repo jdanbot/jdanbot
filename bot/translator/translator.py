@@ -4,8 +4,10 @@ from deep_translator import GoogleTranslator as DeepGoogleTranslator
 
 import re
 
-from .. import handlers
-from ..config import dp
+from fluentogram import TranslatorRunner
+from ..filters import GetText
+from aiogram.filters import Command, CommandObject
+from ..config import dp, router
 from ..lib.text import cute_crop
 
 
@@ -28,15 +30,16 @@ LANG_COMMANDS_TR = [
 ]
 
 
-@dp.message_handler(commands=LANG_COMMANDS_TR)
-@handlers.get_text
-async def translate(message: types.Message, query: str):
-    command = message.get_command().split("@")[0].removeprefix("/t").split("2")
+@router.message(Command(*LANG_COMMANDS_TR), GetText())
+async def translate(message: types.Message, query: str, command: CommandObject, _: TranslatorRunner):
+    print(query)
+    
+    command_parts = command.command.removeprefix("t").split("2")
 
-    if len(command) == 1:
-        command = command[0].split("to")
+    if len(command_parts) == 1:
+        command_parts = command_parts[0].split("to")
 
-    flang, slang = fix_lang(command[0]), command[1:2] or None
+    flang, slang = fix_lang(command_parts[0]), command_parts[1:2] or None
 
     if slang is None:
         to_lang, from_lang = flang, "auto"
@@ -50,7 +53,7 @@ async def translate(message: types.Message, query: str):
     await message.reply(cute_crop(text, limit=4096), disable_web_page_preview=True)
 
 
-@dp.message_handler(commands=["getlangs", "lang_list"])
+@router.message(Command("getlangs", "lang_list"))
 async def get_langs(message: types.Message):
     await message.answer(
         "<code>/t[lang_code]\n/t[lang_code]2[lang_code]</code>\n<b>lang_codes:</b>\n\n" +

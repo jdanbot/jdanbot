@@ -1,7 +1,8 @@
 from aiogram import types
 
 from .lib.banhammer import BanHammer, WarnHammer, UnwarnHammer
-from ..config import dp, _
+from aiogram.filters import Command
+from ..config import dp, router, _
 from ..schemas import Poll
 from .. import handlers
 from ..handlers.parse_arguments import parse_arguments_new
@@ -30,7 +31,7 @@ async def admin_mute(
         await action.repost()
 
 
-@dp.message_handler(commands=["selfmute", "selfban"])
+@router.message(Command("selfmute", "selfban"))
 @handlers.check("__enable_admin__", "__enable_selfmute__")
 @handlers.parse_arguments_new
 async def selfmute(
@@ -88,7 +89,7 @@ async def admin_unwarn(
         await action.repost()
 
 
-@dp.message_handler(commands=["poll"])
+@router.message(Command("poll"))
 @handlers.check("enable_poll")
 @parse_arguments_new
 async def kz_poll(message: types.Message, name: CustomField(str)):
@@ -114,7 +115,7 @@ async def kz_poll(message: types.Message, name: CustomField(str)):
     await message.delete()
 
 
-@dp.message_handler(commands=["open"])
+@router.message(Command("open"))
 async def open_poll(message: types.Message):
     reply = message.reply_to_message.poll
 

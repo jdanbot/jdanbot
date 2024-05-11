@@ -2,7 +2,9 @@ enter_wiki_query =
     \*Please, enter name of article\*
 
     For example = `{ $wiki } Name of article`
-few_args = *Insufficient number of parameters:*\nRequired `{ $num }`
+few_args = Reply, quote or text please
+
+please-enter-text = Please enter command value or quote wanted
 
 only_vars = Only variables and numbers!
 

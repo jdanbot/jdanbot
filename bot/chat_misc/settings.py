@@ -1,16 +1,17 @@
 from aiogram import types, F
 
+from aiogram.filters import Command
 from ..config import LANGS, router
 from ..database import Chat
-from ..filters import IsAdminFilter
+from ..filters import IsAdmin
 from aiogram.filters import Command
 
-from fluentogram import FluentTranslator
+from fluentogram import TranslatorRunner
 
 
-@router.message(Command("settings"), IsAdminFilter())
-@router.callback_query(F.data == "settings_menu", IsAdminFilter())
-async def settings_(message: types.Message, _: FluentTranslator):
+@router.message(Command("settings"), IsAdmin())
+@router.callback_query(F.data == "settings_menu", IsAdmin())
+async def settings_(message: types.Message, _: TranslatorRunner):
     try:
         message: types.Message = message.message
         is_inline = True
@@ -61,6 +62,6 @@ async def settings_(message: types.Message, _: FluentTranslator):
         await message.delete()
 
 
-@router.callback_query(F.data == "delete_msg", IsAdminFilter())
+@router.callback_query(F.data == "delete_msg", IsAdmin())
 async def test_(call: types.CallbackQuery):
     await call.message.delete()

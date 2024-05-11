@@ -9,9 +9,9 @@ work_only_in_chats: Pidor of the day only works in chats!
 pidor_left: I found the pidor of the day, but it looks like he left from this chat (wow pidor!), So try again!
 
 templates:
-  - Today *pidor of day* is *{user}*
-  - "*{user}*, you're the *pidor of day*"
-  - You *pidor of day*, *{user}* 🌚
+  - Today *pidor of day* is {user}
+  - "{user}, you're the *pidor of day*"
+  - You *pidor of day*, {user} 🌚
 
 already_finded_templates:
   - Today *pidor of the day* has already been discovered, it is *{user}*

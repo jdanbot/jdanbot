@@ -1,9 +1,17 @@
-from .config import settings
-
-from aiogram import Bot, Dispatcher, Router
 import sys
 
+from aiogram import Bot, Dispatcher, Router
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+
+from .config import settings
+
 is_pytest_session = "pytest" in sys.modules
+
+bot_params = dict(
+    token=settings.token,
+    default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN_V2),
+)
 
 
 if is_pytest_session:
@@ -18,9 +26,9 @@ if is_pytest_session:
         async def get_chat_member(self, *args, **kwargs) -> FakeUser:
             return FakeUser()
 
-    bot = FakeBot(token=settings.token)
+    bot = FakeBot(**bot_params)
 else:
-    bot = Bot(token=settings.token)
+    bot = Bot(**bot_params)
 
 dp = Dispatcher()
 router = Router()

@@ -1,30 +1,30 @@
 from aiogram import types
-from ..config import dp
-from .. import handlers
-import httpx
+from aiogram.filters import Command
+from aiogram.utils.markdown import bold
 
+from ..config import router
+from ..filters import GetText
+from ..lib.aioget import aioget
 
 ARTICLES = ("der", "die", "das")
 
 
-def check_word_article(article: str, word: str): 
-    r = httpx.get(f"https://der-artikel.de/{article}/{word}.html")
+async def check_word_article(article: str, word: str) -> bool:
+    r = await aioget(f"https://der-artikel.de/{article}/{word}.html")
 
     return r.status_code == 200
 
 
-def get_word_article(word: str):
+async def get_word_article(word: str) -> str:
     for article in ARTICLES:
-        if check_word_article(article, word):
-            return f"{article} *{word}*"
+        if await check_word_article(article, word):
+            return f"{article} {bold(word)}"
+
+    return f"Substantiv »{bold(word)}« wurde nicht gefunden"
 
 
-@dp.message_handler(commands=["den"])
-@handlers.get_text
-async def deutsch(message: types.Message, word: str):
-    result = get_word_article(word.title())
+@router.message(Command("den"), GetText(disable_reply=True))
+async def deutsch(message: types.Message, query: str):
+    result = await get_word_article(query.title())
 
-    if result is not None:
-        await message.reply(result, parse_mode="Markdown")
-    else:
-        await message.reply(f"Substantiv »{word}« wurde nicht gefunden.")
+    await message.reply(result)

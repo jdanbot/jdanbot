@@ -1,10 +1,11 @@
 from aiogram import types
 
 from .lib.monobank import MonobankApi
-from ..config import dp
+from aiogram.filters import Command
+from ..config import router
 
 
-@dp.message_handler(commands=["mono"])
+@router.message(Command("mono"))
 async def monobank(message: types.Message):
     mono = MonobankApi()
     currencies = await mono.get_currencies()

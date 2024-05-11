@@ -1,11 +1,11 @@
 from aiogram import types
 import urllib
 
+from aiogram.filters import Command
 from ..config import router, bot
-from .. import handlers
+from ..filters import GetText
 
-from aiogram.filters import Command, CommandObject
-from fluentogram import FluentTranslator
+from aiogram.filters import Command
 
 
 max_url = "https://img.youtube.com/vi/{id}/maxresdefault.jpg"
@@ -21,15 +21,9 @@ def get_video_id(url: str) -> str:
         return url.replace("&feature=share", "").split("/")[-1]
 
 
-@router.message(Command("preview"))
-@handlers.get_text
-async def preview(
-    message: types.Message,
-    url: str,
-    _: FluentTranslator,
-    command: CommandObject,
-):
-    video_id = get_video_id(url)
+@router.message(Command("preview"), GetText())
+async def preview(message: types.Message, query: str):
+    video_id = get_video_id(query)
     await bot.send_chat_action(message.chat.id, "upload_photo")
 
     try:

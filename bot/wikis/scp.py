@@ -1,14 +1,14 @@
 from aiogram import types
+from aiogram.filters import Command
 
-from .lib.scp import SCP
-from ..lib.models import Article
-
-from ..config import dp, _
 from .. import handlers
+from ..config import _, router
+from ..filters import GetText
+from ..lib.models import Article
+from .lib.scp import SCP
 
 
-@dp.message_handler(commands="scp")
-@handlers.get_text
+@router.message(Command("scp"), GetText())
 @handlers.send_article
 async def scp(message: types.Message, query: str) -> Article:
     scp = SCP()

@@ -1,29 +1,22 @@
+import re
+
 from aiogram import types
+from aiogram.filters import Command
 from aiogram.utils.markdown import bold, code
 
-from ..config import dp
-from ..handlers.parse_arguments import parse_arguments_new
+from ..config import router
+from ..filters import GetText
 from ..lib.aioget import aioget
-from ..lib.models import CustomField
 
 
-@dp.message_handler(commands=["wttr", "weather"])
-@parse_arguments_new
-async def simple_test_func(
-    message: types.Message,
-    format: CustomField(int, default=3),
-    query: CustomField(str)
-):
-    response = await aioget(f"https://wttr.in/{query}", params=dict(format=format))
-    response_text = response.text.replace("   ", " ")
+@router.message(Command("wttr", "weather"), GetText())
+async def get_weather_func(message: types.Message, query: str):
+    response = await aioget(
+        f"https://wttr.in/{query}", params=dict(format=3)
+    )
+    city, weather = map(
+        lambda x: x.strip(),
+        re.sub(" +", " ", response.text).split(": "),
+    )
 
-    if format in {3, 4}:
-        text = (
-            bold((parts := response_text.split(": "))[0].title())
-            + ": "
-            + code(parts[1])
-        )
-    else:
-        text = code(response_text)
-
-    await message.reply(text, parse_mode="markdownv2")
+    await message.reply(f"{bold(city.title())}: {code(weather)}")

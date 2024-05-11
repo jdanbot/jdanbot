@@ -6,12 +6,13 @@ import humanize
 from aiogram import types
 
 from .. import handlers
-from ..config import _, dp, settings
+from aiogram.filters import Command
+from ..config import _, dp, settings, router
 from ..database import Member, Note, User, str2bool
 from ..lib.models import CustomField
 
 
-@dp.message_handler(commands=["remove"])
+@router.message(Command("remove"))
 @handlers.parse_arguments_new
 async def remove(
     message: types.Message,
@@ -94,7 +95,7 @@ async def export_notes(message: types.Message):
     await message.answer_document(f)
 
 
-@dp.message_handler(commands=["set"])
+@router.message(Command("set"))
 @handlers.parse_arguments_new
 async def set_(
     message: types.Message,
@@ -119,7 +120,7 @@ async def set_(
         await message.reply(_("notes.no_rights_for_edit"))
 
 
-@dp.message_handler(commands=["get"])
+@router.message(Command("get"))
 @handlers.parse_arguments_new
 async def get(
     message: types.Message,
@@ -139,7 +140,7 @@ async def get(
         await message.reply(note)
 
 
-@dp.message_handler(commands=["show", "notes"])
+@router.message(Command("show", "notes"))
 async def show(message: types.Message):
     await message.reply(", ".join(await Note.show(message.chat.id)))
 

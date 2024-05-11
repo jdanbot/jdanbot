@@ -18,7 +18,7 @@ class Article:
     href: str | None = None
 
     keyboard: types.InlineKeyboardMarkup | None = None
-    parse_mode: str | None = "HTML"
+    parse_mode: str = "HTML"
     disable_web_page_preview: bool = False
 
     force_format: bool = False
@@ -59,7 +59,6 @@ class Article:
         b = soup.find_all(["b", "strong"])
 
         if (len(b) == 0 or self.force_add_title) and title:
-            print(self.title)
             return self.bold2link(f"<b>{title}</b>\n\n{str(soup)}")
 
         if len(b) > 0:

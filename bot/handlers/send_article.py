@@ -1,6 +1,6 @@
 from functools import wraps
 
-from aiogram import types, exceptions
+from aiogram import types
 
 from ..config import bot
 from ..lib.models import Article
@@ -8,8 +8,8 @@ from ..lib.models import Article
 
 def send_article(func):
     @wraps(func)
-    async def wrapper(message: types.Message, *args):
-        result: Article = await func(message, *args)
+    async def wrapper(message: types.Message, *args, **kwargs):
+        result: Article = await func(message, *args, **kwargs)
 
         if result is None:
             return
@@ -32,12 +32,11 @@ def send_article(func):
             reply_markup=result.keyboard,
             **params,
         )
-
         try:
             await message.reply(
                 text, parse_mode=result.parse_mode, **params
             )
-        except exceptions.CantParseEntities as e:
+        except Exception as e:
             await message.reply(text, parse_mode=None, **params)
 
             raise e

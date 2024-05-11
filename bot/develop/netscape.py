@@ -1,19 +1,22 @@
 from aiogram import types
+from aiogram.filters import Command
+from readability import Document
 from tghtml import TgHTML
 
-from ..config import dp
 from .. import handlers
+from ..config import router
+from ..filters import GetText, IsSuperuser
 from ..lib.aioget import aioget
-
-from ..lib.models import Article, CustomField
-
-from readability import Document
+from ..lib.models import Article
 
 
-@dp.message_handler(commands=["netscape"], is_superuser=[946607335])
+@router.message(
+    Command("netscape", "net"),
+    IsSuperuser(),
+    GetText(disable_reply=True),
+)
 @handlers.send_article
-@handlers.parse_arguments_new
-async def netscape(message: types.Message, url: CustomField(str)) -> Article:
+async def netscape(message: types.Message, url: str) -> Article:
     res = await aioget(url)
     html = res.text
 
@@ -25,6 +28,5 @@ async def netscape(message: types.Message, url: CustomField(str)) -> Article:
         title=title,
         href=url,
         parse_mode="HTML",
-
-        force_add_title=True
+        force_add_title=True,
     )

@@ -1,13 +1,14 @@
 import urllib
 
-from aiogram import types
+from aiogram import types, F
 from wikipya.clients import MediaWiki
 from wikipya.constants import WGR_FLAG, WRW_FLAG
 from wikipya.models import Page
 
-from ..config import dp
-from ..lib.models import Article, CustomField
-from .parse_arguments import parse_arguments_new
+from ..filters import GetText
+from aiogram.filters import Command
+from ..config import dp, router
+from ..lib.models import Article
 from .send_article import send_article
 
 
@@ -38,13 +39,12 @@ def wikipya_handler(
     went_trigger_command=False
 ):
     def argument_wrapper(func):
-        @dp.message_handler(commands=prefix)
-        @dp.callback_query_handler(lambda x: x.data.startswith(f"{prefix[0]} "))
+        @router.message(Command(*prefix), GetText(disable_reply=True))
+        @router.callback_query(F.data.startswith(prefix[0] + " "))
         @send_article
-        @parse_arguments_new
         async def wrapper(
             message: types.Message,
-            query: CustomField(lambda x: x)
+            query: str
         ) -> Article:
             if extract_query_from_url:
                 url = query.split("/")

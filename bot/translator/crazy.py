@@ -3,12 +3,14 @@ import textwrap
 from random import choice
 
 from aiogram import types
+from aiogram.filters import Command, CommandObject
 from deep_translator import GoogleTranslator as DeepGoogleTranslator
+from fluentogram import TranslatorRunner
 
-from .. import handlers
-from ..config import dp, GTRANSLATE_LANGS
+from ..config import GTRANSLATE_LANGS, router
 from ..config.languages import LANGS, Language
-from ..config.i18n import i18n
+from ..config.lib.middleware import TranslatorRunnerMiddleware
+from ..filters import GetText
 from .lib.multitran import GoogleTranslator
 
 
@@ -26,18 +28,27 @@ def get_lang_emoji_by_name(lang_name: str) -> str:
     return LANGS.get(lang_name, Language(lang_name, lang_name)).emoji
 
 
-@dp.message_handler(commands=["crazy", "crazy2", "c"])
-@handlers.get_text
-async def crazy_translator(message: types.Message, text: str):
+@router.message(Command("crazy", "crazy2", "c"), GetText())
+async def crazy_translator(
+    message: types.Message,
+    query: str,
+    command: CommandObject,
+    _: TranslatorRunner,
+):
     msg = await message.reply("⏳")
+
+    mw = TranslatorRunnerMiddleware()
 
     user_lang = (
         user_lang
-        if (user_lang := await i18n.get_user_locale()) in ("uk", "ru", "en") or "ru"
+        if (user_lang := await mw.get_language(message))
+        in ("uk", "ru", "en")
+        or "ru"
         else "ru"
     )
 
     langs = []
+    text = query
 
     for __ in range(7):
         lang = choice(
@@ -58,9 +69,13 @@ async def crazy_translator(message: types.Message, text: str):
     await msg.edit_text(
         DeepGoogleTranslator(
             target=user_lang,
-        ).translate(text) or "None",
+        ).translate(text)
+        or "None",
         disable_web_page_preview=True,
+        parse_mode=None
     )
 
-    if message.get_command(pure=True).endswith("2"):
-        await message.answer("".join(map(get_lang_emoji_by_name, langs)))
+    if command.command.endswith("2"):
+        await message.answer(
+            "".join(map(get_lang_emoji_by_name, langs))
+        )

@@ -19,9 +19,10 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
         data: Dict[str, Any],
     ) -> Any:
         hub: TranslatorHub = data.get("_translator_hub")
-        data["_"] = hub.get_translator_by_locale(
-            await self.get_language(event)
-        )
+
+        data["user_lang"] = await self.get_language(event)
+        data["_"] = hub.get_translator_by_locale(data["user_lang"])
+
         return await handler(event, data)
 
     @classmethod
@@ -56,7 +57,6 @@ class SpyMiddleware(BaseMiddleware):
         message: types.Message,
         data: Dict[str, Any],
     ):
-        await message.reply("ПРИВЕТ Я ЗОНД")
         command_orig = CommandFilter.extract_command(
             self=CommandFilter, text=message.text
         )

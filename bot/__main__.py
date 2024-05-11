@@ -1,7 +1,7 @@
 import asyncio
 
 from . import *  # noqa
-from .config import dp, bot, router
+from .config import dp, router, bot, router
 from .database.tables.connection import init_db
 from fluentogram import FluentTranslator, TranslatorHub
 from fluent_compiler.bundle import FluentBundle
@@ -31,18 +31,18 @@ async def main():
             FluentTranslator(
                 "ru",
                 translator=FluentBundle.from_files(
-                    "en_US", Path("./locales/en").glob("*.ftl")
+                    "ru_RU", Path("./locales/ru").glob("*.ftl")
                 ),
             ),
         ],
     )
 
     await init_db()
-    router.message.middleware(TranslatorRunnerMiddleware())
-    router.callback_query.middleware(TranslatorRunnerMiddleware())
+    dp.update.outer_middleware(TranslatorRunnerMiddleware())
     router.message.middleware(SpyMiddleware())
 
     dp.include_router(router)
+
     await dp.start_polling(
         bot, reset_webhook=True, _translator_hub=translator_hub
     )

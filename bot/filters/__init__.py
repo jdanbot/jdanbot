@@ -1,5 +1,6 @@
-from .superuser import IsSuperuserFilter
-from .admin import IsAdminFilter
-from .random import WithRandomFilter
+from .superuser import IsSuperuser
+from .admin import IsAdmin
+from .random import WithRandom
+from .get_text import GetText
 
-__all__ = (IsSuperuserFilter, IsAdminFilter, WithRandomFilter)
+__all__ = (IsSuperuser, IsAdmin, WithRandom, GetText)

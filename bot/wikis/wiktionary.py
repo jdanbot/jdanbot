@@ -1,15 +1,19 @@
+from typing import Optional
+
 import httpx
-from pydantic import BaseModel
-import aiogram
+from ..lib.aioget import aioget
 from aiogram import types
-from .. import handlers
-from ..lib.models import CustomField
-from ..config import dp
+from aiogram.filters import Command, CommandObject
+from pydantic import BaseModel, Field
+
+from ..config import router
+from ..filters import GetText
 from ..translator.crazy import get_lang_emoji_by_name
+
 
 class Sense(BaseModel):
     glosses: list[str]
-    raw_glosses: list[str] = None
+    raw_glosses: Optional[list[str]] = None
 
     @property
     def any_glosses(self) -> list[str]:
@@ -20,16 +24,15 @@ class KaikkiWord(BaseModel):
     lang: str
     lang_code: str
     pos: str
-    word: str
+    name: str = Field(alias="word")
     senses: list[Sense]
-    etymology_text: str = None
-
+    etymology_text: Optional[str] = None
 
     @property
     def formatted_etymology(self) -> str:
         if self.etymology_text is None:
             return ""
-        
+
         return f"<i>{self.etymology_text}</i>"
 
     @property
@@ -38,6 +41,7 @@ class KaikkiWord(BaseModel):
             return get_lang_emoji_by_name(self.lang_code) + " "
         except:
             return ""
+
 
 LANGMAP = {
     "en": {
@@ -48,7 +52,7 @@ LANGMAP = {
         "la": "Latin",
         "pl": "Polish",
         "uk": "Ukranian",
-        "al": "All languages combined"
+        "al": "All languages combined",
     },
     "ru": {
         "de": "Немецкий",
@@ -58,33 +62,42 @@ LANGMAP = {
         "la": "Латинский",
         "pl": "Польский",
         "uk": "Украинский",
-        "al": "All languages combined"
-    }
+        "al": "All languages combined",
+    },
 }
 
 DOMAINS = {
     "en": "kaikki.org/dictionary",
-    "ru": "kaikki.org/ruwiktionary"
+    "ru": "kaikki.org/ruwiktionary",
 }
 
 
-@dp.message_handler(commands=[
-    f"v{slang}{flang}" for slang in LANGMAP["en"]
-                       for flang in ("inen", "inru", "")])
-@handlers.parse_arguments_new
+@router.message(
+    Command(
+        *[
+            f"v{slang}{flang}"
+            for slang in LANGMAP["en"]
+            for flang in ("inen", "inru", "")
+        ]
+    ),
+    GetText(disable_reply=True),
+)
 async def wiktionary(
-    message: types.message,
-    query: CustomField(str)
+    message: types.Message, query: str, command: CommandObject
 ):
-    command = message.get_command().split("@")[0].removeprefix("/v").split(" ")[0].split("2")
+    langs = (
+        command.command.removeprefix("v").split(" ")[0].split("2")
+    )
 
-    if len(command) == 1:
-        command = command[0].split("in")
+    if len(langs) == 1:
+        langs = langs[0].split("in")
 
-    lang_raw, inlang = command[0], next(iter(command[1:2]), "ru")
+    lang_raw, inlang = langs[0], next(iter(langs[1:2]), "ru")
     lang = LANGMAP[inlang][lang_raw]
 
-    res_raw = httpx.get(f"https://{DOMAINS[inlang]}/{lang}/meaning/{query[0]}/{query[0:2]}/{query}.json")
+    res_raw = await aioget(
+        f"https://{DOMAINS[inlang]}/{lang}/meaning/{query[0]}/{query[0:2]}/{query}.json"
+    )
 
     results = []
 
@@ -101,13 +114,20 @@ async def wiktionary(
 
             all_senses.extend(glos)
 
-        results.append((f"{word.lang_emoji}<b><a href='https://{inlang}.wiktionary.org/wiki/{query}'>{word.word}</a></b> ({word.pos}) in {word.lang}\n\n"
-            + "\n".join([". ".join(map(str, x)) for x in enumerate((
-            all_senses
-        ), 1)])).strip())
+        results.append(
+            (
+                f"{word.lang_emoji}<b><a href='https://{inlang}.wiktionary.org/wiki/{query}'>{word.name}</a></b> ({word.pos}) in {word.lang}\n\n"
+                + "\n".join(
+                    [
+                        ". ".join(map(str, x))
+                        for x in enumerate((all_senses), 1)
+                    ]
+                )
+            ).strip()
+        )
 
     await message.reply(
         "\n\n".join(results),
         parse_mode="HTML",
-        disable_web_page_preview=True
+        disable_web_page_preview=True,
     )

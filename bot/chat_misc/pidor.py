@@ -3,22 +3,27 @@ from random import choice
 from time import time
 
 from aiogram import types
-from aiogram.utils.markdown import escape_md, italic
+from aiogram.utils.markdown import bold, italic
 
-from ..config import _, bot, dp
+from aiogram.filters import Command
+from ..config import bot, router
 from ..database import Member, PidorEvent
 from ..database import tables as t
 from ..lib.text import prettyword
+from fluentogram import TranslatorRunner
 
 
-@dp.message_handler(commands=["pidor"])
+@router.message(Command("pidor"))
 async def find_pidor(
-    message: types.Message, ignore_pidor_wait: bool = False
+    message: types.Message,
+    _: TranslatorRunner,
+    ignore_pidor_wait: bool = False,
 ):
+    print(_.finder)
     member = await Member.get_by(message, pidor=True)
 
     if message.chat.id > 0:
-        await message.reply(_("pidor.work_only_in_chats"))
+        await message.reply(_.pidor.work_only_in_chats())
         return
 
     if not await member.chat.can_run_pidor():
@@ -27,10 +32,9 @@ async def find_pidor(
         return await message.reply(
             _(
                 "pidor.already_finded_templates",
-                user=escape_md(pidor.mention),
+                user=bold(pidor.mention),
                 went_random=True,
-            ),
-            parse_mode="MarkdownV2",
+            )
         )
 
     if not member.pidor or not member.pidor.is_allowed:
@@ -59,15 +63,12 @@ async def find_pidor(
 
     for phrase in choice(_("pidor.pidor_finding")).split("\n")[:-1]:
         if phrase != "":
-            await message.answer(
-                italic(phrase), parse_mode="MarkdownV2"
-            )
+            await message.answer(italic(phrase))
         if not ignore_pidor_wait:
             await asyncio.sleep(2.5)
 
     await message.answer(
         _("pidor.templates", went_random=True, user=new_pidor.tag),
-        parse_mode="MarkdownV2",
     )
 
     if message.chat.id == -1001176998310:
@@ -84,7 +85,7 @@ async def find_pidor(
 PIDOR_TEMPLATE = "_{}_. *{}* — `{}` {}\n"
 
 
-@dp.message_handler(commands=["pidorstats"])
+@router.message(Command("pidorstats"))
 async def pidor_stats(message):
     member = await Member.get_by(message)
 
@@ -107,7 +108,7 @@ async def pidor_stats(message):
     await message.reply(msg, parse_mode="Markdown")
 
 
-@dp.message_handler(commands=["pidorreg"])
+@router.message(Command("pidorreg"))
 async def reg_pidor(message: types.Message):
     member = await Member.get_by(message)
     pidor, status = await member.get_pidor()

@@ -76,14 +76,13 @@ class Chat(BaseModel):
     @classmethod
     async def get_by(cls, message: types.Message) -> "Chat":
         chat = message.chat
-
-        if chat.title is None:
-            chat.title = message.from_user.full_name
-
         return Chat.parse_obj(
             await t.Chat.get_or_update(
                 chat.id,
-                dict(username=chat.username, title=chat.title),
+                dict(
+                    username=chat.username,
+                    title=chat.title or message.from_user.full_name,
+                ),
             )
         )
 

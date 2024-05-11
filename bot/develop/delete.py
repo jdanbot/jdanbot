@@ -1,8 +1,11 @@
 from aiogram import types
-from ..config import dp
+from aiogram.filters import Command
+
+from ..config import router
+from ..filters import IsSuperuser
 
 
-@dp.message_handler(commands="rm", is_superuser=True)
+@router.message(Command("rm"), IsSuperuser())
 async def rm(message: types.Message):
     await message.reply_to_message.delete()
     await message.delete()

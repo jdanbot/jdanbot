@@ -1,16 +1,19 @@
 import httpx
 from aiogram import types
-from aiogram.utils.markdown import escape_md
+from aiogram.utils.markdown import code
 from tghtml import TgHTML
 from wikipya import Wikipya
 
 from wikipya.constants import TAG_BLOCKLIST
 
+from bot.filters.get_text import GetText
+
 from .. import handlers
-from ..config import WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS, _, dp
+from aiogram.filters import Command, CommandObject
+from ..config import WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS, _, dp, router
 from ..config.languages import WIKIPEDIA_LANGS
 from ..lib.models import Article, CustomField
-from ..lib.text import fixWords
+from ..lib.text import fix_words
 
 
 @handlers.wikipya_handler("lurk", "lurkmore")
@@ -25,9 +28,9 @@ async def lurkmore(message: types.Message) -> Wikipya:
                 "img",
                 "br",
                 "q",
-                *TAG_BLOCKLIST
+                *TAG_BLOCKLIST,
             ]
-        )
+        ),
     )
 
 
@@ -38,7 +41,9 @@ async def fallout(message: types.Message) -> Wikipya:
 
 @handlers.wikipya_handler("kaiser", "kaiserreich", "kr")
 async def kaiser(message: types.Message) -> Wikipya:
-    return Wikipya(base_url="https://kaiserreich.fandom.com/ru/api.php")
+    return Wikipya(
+        base_url="https://kaiserreich.fandom.com/ru/api.php"
+    )
 
 
 @handlers.wikipya_handler("kaiseren", "kaiserreichen", "kre")
@@ -48,12 +53,18 @@ async def kaiser(message: types.Message) -> Wikipya:
 
 @handlers.wikipya_handler("archwiki")
 async def archwiki(message: types.Message) -> Wikipya:
-    return Wikipya(base_url="https://wiki.archlinux.org/api.php", is_lurk=True)
+    return Wikipya(
+        base_url="https://wiki.archlinux.org/api.php", is_lurk=True
+    )
 
 
 @handlers.wikipya_handler("encycl")
 async def encyclopedia(message: types.Message) -> Wikipya:
-    return Wikipya(base_url="https://encyclopatia.ru/w/api.php", is_lurk=True, prefix="/wiki")
+    return Wikipya(
+        base_url="https://encyclopatia.ru/w/api.php",
+        is_lurk=True,
+        prefix="/wiki",
+    )
 
 
 @handlers.wikipya_handler("neolurk")
@@ -62,8 +73,8 @@ async def fallout(message: types.Message) -> Wikipya:
 
 
 @handlers.wikipya_handler("mediawiki", extract_query_from_url=True)
-async def custom_mediawiki(message: types.Message) -> Wikipya:
-    url = message.get_full_command()[1].split("/")
+async def custom_mediawiki(message: types.Message, command: CommandObject) -> Wikipya:
+    url = command.args.split("/")
     base_url = f"{'/'.join(url[:-2])}/api.php"
 
     try:
@@ -78,7 +89,9 @@ async def custom_mediawiki(message: types.Message) -> Wikipya:
 
 
 @handlers.wikipya_handler(*WIKI_COMMANDS, went_trigger_command=True)
-async def wikihandler(message: types.Message, trigger: str) -> Wikipya:
+async def wikihandler(
+    message: types.Message, trigger: str
+) -> Wikipya:
     command = trigger.split()[0]
     lang = command.replace("/wiki", "").replace("/w", "")
 
@@ -90,18 +103,16 @@ async def wikihandler(message: types.Message, trigger: str) -> Wikipya:
     if lang not in WIKIPEDIA_LANGS:
         lang = "ru"
 
-    return Wikipya(lang, params=dict(
-        tag_blocklist=["div.capsa-vicidata"]
-    ))
+    return Wikipya(
+        lang, params=dict(tag_blocklist=["div.capsa-vicidata"])
+    )
 
 
-@dp.message_handler(commands=["summary", "wiki"])
+@router.message(
+    Command("summary", "wiki"), GetText(disable_reply=True)
+)
 @handlers.send_article
-@handlers.parse_arguments_new
-async def get_summary(
-    message: types.message,
-    query: CustomField(str)
-) -> Article:
+async def get_summary(message: types.Message, query: str) -> Article:
     wiki = Wikipya("ru").get_instance()
 
     summary = await wiki.summary(query)
@@ -112,26 +123,31 @@ async def get_summary(
         image = None
 
     return Article(
-        text=fixWords(TgHTML(summary.extract_html, enable_preprocess=False).parsed),
+        text=fix_words(
+            TgHTML(
+                summary.extract_html, enable_preprocess=False
+            ).parsed
+        ),
         title=summary.title,
         href=summary.content_urls.desktop.page,
         image=image,
-        parse_mode="html"
+        parse_mode="html",
     )
 
 
-@dp.message_handler(commands="s")
+@router.message(Command("s"))
 async def wikiSearch(message: types.Message, lang: str = "ru"):
     opts = message.text.split(maxsplit=1)
 
     if len(opts) == 1:
-        await message.reply(_("errors.enter_wiki_query").format(opts[0]),
-                            parse_mode="Markdown")
+        await message.reply(
+            _("errors.enter_wiki_query").format(opts[0]),
+            parse_mode="Markdown",
+        )
         return
 
     return await message.reply(
-        f"*Use bot's inline instead of this command!*\nexample: `@jdan734_bot wiki {escape_md(opts[1])}.`",
-        parse_mode="markdown"
+        f"*Use bot's inline instead of this command!*\nexample: {code(f"@jdan734_bot wiki {(opts[1])}\.")}",
     )
 
     query = opts[1]
@@ -148,9 +164,13 @@ async def wikiSearch(message: types.Message, lang: str = "ru"):
     for item in r:
         kb.add(
             types.InlineKeyboardButton(
-                fixWords(item.title),
-                callback_data=f"wikiru id{item.page_id}"
+                fix_words(item.title),
+                callback_data=f"wikiru id{item.page_id}",
             )
         )
 
-    await message.reply("Выберите результат поиска", reply_markup=kb, parse_mode="HTML")
+    await message.reply(
+        "Выберите результат поиска",
+        reply_markup=kb,
+        parse_mode="HTML",
+    )

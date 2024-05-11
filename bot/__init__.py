@@ -71,13 +71,8 @@ def prepare_paths(
         )
 
 
-# force_import(*prepare_paths(files))
-# force_import(*prepare_paths(folders, is_folders=True))
-# # from bot.chat_misc.settings import settings_
-# force_import("bot.triggers.ban")
-# force_import("bot.chat_misc.ocr")
-force_import("bot.develop.status")
-force_import("bot.develop.eval")
-force_import("bot.chat_misc.settings")
-force_import("bot.chat_misc.settings_handlers")
-force_import("bot.youtube.preview")
+force_import(*prepare_paths(files))
+force_import(*prepare_paths(folders, is_folders=True))
+from bot.chat_misc.settings import settings_
+force_import("bot.triggers.ban")
+force_import("bot.chat_misc.ocr")

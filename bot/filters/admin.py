@@ -1,16 +1,13 @@
 import contextlib
-from dataclasses import dataclass
 
 from aiogram import types
 from aiogram.filters import BaseFilter
-
 
 from ..config import bot
 from ..lib.admin import check_admin
 
 
-@dataclass
-class IsAdminFilter(BaseFilter):
+class IsAdmin(BaseFilter):
     async def __call__(self, message: types.Message) -> bool:
         with contextlib.suppress(Exception):
             message = message.message
