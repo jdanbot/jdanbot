@@ -1,33 +1,42 @@
 import httpx
 from aiogram import types
+from aiogram.filters import Command, CommandObject
 from aiogram.utils.markdown import code
 from tghtml import TgHTML
 from wikipya import Wikipya
-
 from wikipya.constants import TAG_BLOCKLIST
 
 from bot.filters.get_text import GetText
 
 from .. import handlers
-from aiogram.filters import Command, CommandObject
-from ..config import WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS, _, dp, router
+from ..config import WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS, _, router
 from ..config.languages import WIKIPEDIA_LANGS
-from ..lib.models import Article, CustomField
+from ..lib.models import Article
 from ..lib.text import fix_words
+
+
+async def check_mediawiki_api_url(url: str) -> bool:
+    try:
+        async with httpx.AsyncClient() as client:
+            r = await client.get(url)
+
+            return r.status_code == 200
+    except:
+        return False
 
 
 @handlers.wikipya_handler("lurk", "lurkmore")
 async def lurkmore(message: types.Message) -> Wikipya:
     return Wikipya(
-        base_url="https://lurkmore.wtf/api.php",
+        base_url="https://lurkmore.online/api.php",
         params=dict(
             tag_blocklist=[
                 "p.quote_sign",
+                "div.quote_wrapper",
                 "div.template",
                 "div.thumb",
                 "img",
                 "br",
-                "q",
                 *TAG_BLOCKLIST,
             ]
         ),
@@ -36,7 +45,15 @@ async def lurkmore(message: types.Message) -> Wikipya:
 
 @handlers.wikipya_handler("fallout")
 async def fallout(message: types.Message) -> Wikipya:
-    return Wikipya(base_url="https://fallout.fandom.com/ru/api.php")
+    return Wikipya(
+        base_url="https://fallout.fandom.com/ru/api.php",
+        params=dict(
+            tag_blocklist=[
+                "div.cquote",
+                *TAG_BLOCKLIST,
+            ]
+        ),
+    )
 
 
 @handlers.wikipya_handler("kaiser", "kaiserreich", "kr")
@@ -73,17 +90,26 @@ async def fallout(message: types.Message) -> Wikipya:
 
 
 @handlers.wikipya_handler("mediawiki", extract_query_from_url=True)
-async def custom_mediawiki(message: types.Message, command: CommandObject) -> Wikipya:
-    url = command.args.split("/")
-    base_url = f"{'/'.join(url[:-2])}/api.php"
+async def custom_mediawiki(
+    message: types.Message, command: CommandObject
+) -> Wikipya:
+    host = httpx.URL(command.args).host
 
-    try:
-        async with httpx.AsyncClient() as client:
-            r = await client.get(base_url)
+    url_variants = [
+        f"https://{host}/w/api.php",
+        f"https://{host}/api.php",
+    ]
 
-            assert r.status_code == 200
-    except:
-        base_url = f"{'/'.join(url[:3])}/w/api.php"
+    if not any(
+        [
+            await check_mediawiki_api_url(base_url := var)
+            for var in url_variants
+        ]
+    ):
+        await message.reply("Can't find valid API url")
+        raise AttributeError
+
+    print(base_url)
 
     return Wikipya(base_url=base_url)
 

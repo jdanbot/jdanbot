@@ -8,11 +8,12 @@ from .. import handlers
 from ..lib.models import Article
 from ..filters import GetText
 
-from ..lib.models import CustomField
 from tghtml import TgHTML
 
 
-@router.message(Command("memepedia", "meme"), GetText(disable_reply=True))
+@router.message(
+    Command("memepedia", "meme"), GetText(disable_reply=True)
+)
 @handlers.send_article
 async def mempep(message: types.Message, query: str) -> Article:
     try:
@@ -29,5 +30,5 @@ async def mempep(message: types.Message, query: str) -> Article:
         image=page.main_image,
         href=f"https://memepedia.ru/{search[0].name}",
         title=page.title,
-        force_format=True
+        force_format=True,
     )

@@ -1,13 +1,13 @@
 import urllib
 
-from aiogram import types, F
+from aiogram import F, types
+from aiogram.filters import Command, CommandObject
 from wikipya.clients import MediaWiki
 from wikipya.constants import WGR_FLAG, WRW_FLAG
 from wikipya.models import Page
 
+from ..config import router
 from ..filters import GetText
-from aiogram.filters import Command
-from ..config import dp, router
 from ..lib.models import Article
 from .send_article import send_article
 
@@ -44,7 +44,8 @@ def wikipya_handler(
         @send_article
         async def wrapper(
             message: types.Message,
-            query: str
+            query: str,
+            command: CommandObject
         ) -> Article:
             if extract_query_from_url:
                 url = query.split("/")
@@ -53,7 +54,12 @@ def wikipya_handler(
 
             answer = (message, message.text) if went_trigger_command else (message,)
 
-            wiki: MediaWiki = (await func(*answer)).get_instance()
+            if "command" in func.__annotations__.keys():
+                kw = {"command": command}
+            else:
+                kw = {}
+
+            wiki: MediaWiki = (await func(*answer, **kw)).get_instance()
 
             if query.startswith("id"):
                 query = int(query.removeprefix("id"))
