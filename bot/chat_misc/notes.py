@@ -1,34 +1,54 @@
 import contextlib
 import io
 from datetime import datetime
+from typing import Annotated, List
 
 import humanize
-from aiogram import types
-
-from .. import handlers
+from aiogram import F, types
 from aiogram.filters import Command
-from ..config import _, dp, settings, router
+from pydantic import BaseModel, RootModel, field_validator
+
+
+from ..config import router, settings
 from ..database import Member, Note, User, str2bool
-from ..lib.models import CustomField
+from ..filters import IsAdmin, Arguments
+from fluentogram import TranslatorRunner
 
 
-@router.message(Command("remove"))
-@handlers.parse_arguments_new
+def remove_hash(x: str) -> str:
+    return x.removeprefix("#")
+
+
+class NoteSelectModel(BaseModel):
+    key: str
+    _normalize_key = field_validator("key")(remove_hash)
+
+
+NotesSelectModel = RootModel[List[NoteSelectModel]]
+
+
+class NoteUpdateModel(NoteSelectModel):
+    value: Annotated[str, dict(reply=True)]
+
+    @property
+    def is_admin_note(self) -> bool:
+        return self.key in settings.admin_notes
+
+
+@router.message(Command("remove"), Arguments())
 async def remove(
-    message: types.Message,
-    key: CustomField(lambda x: x.removeprefix("#")),
+    message: types.Message, args: NoteSelectModel, _: TranslatorRunner
 ):
     try:
-        await Note.remove(await Member.get_by(message), key)
+        await Note.remove(await Member.get_by(message), args.key)
     except AttributeError:
-        await message.reply(_("notes.no_rights_for_edit"))
+        await message.reply(_.no_rights_for_edit())
 
 
-@dp.message_handler(commands=["remove_bulk"], is_admin=True)
+@router.message(Command("remove_bulk"), IsAdmin())
 async def remove_bulk(message: types.Message):
-    notes: list[str] = message.get_args().split()
-
-    for note in notes:
+    for note in message.text.split(" ")[1:]:
+        print(note)
         message.text = f"/remove {note}"
 
         with contextlib.suppress(Exception):
@@ -39,7 +59,7 @@ def build_user_info(user: User) -> str:
     return f"{user.full_name} (@{user.username}, {user.id})"
 
 
-@dp.message_handler(commands=["export_notes"], is_admin=True)
+@router.message(Command("export_notes"), IsAdmin())
 async def export_notes(message: types.Message):
     notes = await Note.get_notes(message.chat.id)
     notes_raw = ""
@@ -95,42 +115,37 @@ async def export_notes(message: types.Message):
     await message.answer_document(f)
 
 
-@router.message(Command("set"))
-@handlers.parse_arguments_new
+@router.message(Command("set"), Arguments())
 async def set_(
-    message: types.Message,
-    key: CustomField(lambda x: x.removeprefix("#")),
-    value: CustomField(str, can_take_from_reply=True),
+    message: types.Message, args: NoteUpdateModel, _: TranslatorRunner
 ):
-    is_admin_note = key in settings.admin_notes
-
     try:
         is_edit = await Note.add(
             await Member.get_by(message),
-            key,
-            value.strip(),
-            is_admin_note,
+            args.key,
+            args.value.strip(),
+            args.is_admin_note,
         )
         await message.reply(
-            _(
-                f"notes.{'edit' if is_edit else 'add'}_{'system_' if is_admin_note else ''}note"
+            _.get(
+                f"{'edit' if is_edit else 'add'}_"
+                f"{'system_' if args.is_admin_note else ''}"
+                "note"
             )
         )
     except AttributeError:
-        await message.reply(_("notes.no_rights_for_edit"))
+        await message.reply(_.get("no_rights_for_edit"))
 
 
-@router.message(Command("get"))
-@handlers.parse_arguments_new
+@router.message(Command("get"), Arguments())
 async def get(
-    message: types.Message,
-    key: CustomField(lambda x: x.removeprefix("#")),
+    message: types.Message, args: NoteSelectModel, _: TranslatorRunner
 ):
-    note = await Note.get(message.chat.id, key)
+    note = await Note.get(message.chat.id, args.key)
 
     if note is None:
-        if message.from_id != -1:
-            await message.reply(_("notes.create_var"))
+        if message.from_user.id != -1:
+            await message.reply(_.create_var())
 
         return
 
@@ -142,10 +157,12 @@ async def get(
 
 @router.message(Command("show", "notes"))
 async def show(message: types.Message):
-    await message.reply(", ".join(await Note.show(message.chat.id)))
+    await message.reply(
+        ", ".join(await Note.get_notes_list(message.chat.id))
+    )
 
 
-@dp.message_handler(lambda message: message.text.startswith("#"))
+@router.message(F.message.text.startswith("#"))
 async def use_by_hashtag(message: types.Message):
     message.text = message.text.removeprefix("#")
 

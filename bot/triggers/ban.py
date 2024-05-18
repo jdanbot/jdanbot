@@ -3,6 +3,7 @@ import time
 
 from random import randint, choice
 
+from aiogram.filters import Command
 from ..config import bot, dp, _
 from .. import handlers
 

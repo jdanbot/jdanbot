@@ -1,6 +1,7 @@
 from aiogram import types
 
-from ..config import _, dp
+from aiogram.filters import Command
+from ..config import _, dp, router
 
 buttons = ["main", "network", "wiki", "settings", "admin", "system", "notes", "pidor"]
 
@@ -36,7 +37,7 @@ def generate_keyboard_grid(
     return keyboard
 
 
-@dp.message_handler(commands=["start", "help"])
+@router.message(Command("start", "help"))
 async def menu(message: types.Message):
     await message.reply(
         _("menu.main"),

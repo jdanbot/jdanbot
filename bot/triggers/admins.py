@@ -1,10 +1,11 @@
 from aiogram import types
 
+from aiogram.filters import Command
 from ..config import _, bot, dp
 from .. import handlers
 
 
-@dp.message_handler(commands=["admins"])
+@router.message(Command("admins"))
 @handlers.check("__enable_admin__")
 async def call_admins(message):
     # TODO: REWRITE: move keyboard to keyboards.py

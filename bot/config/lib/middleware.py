@@ -26,20 +26,27 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
         return await handler(event, data)
 
     @classmethod
-    async def get_language(cls, event: types.Message) -> str:
-        try:
-            event = event.message
-        except AttributeError:
-            pass
+    async def get_language(cls, event: types.Update) -> str:
+        if event.inline_query:
+            event: types.InlineQuery = event.inline_query
+            user_id, check_chat = (
+                event.from_user.id,
+                False,
+            )
+        else:
+            event: types.Message = event.message
 
-        member = await Member.get_by(event)
+            member = await Member.get_by(event)
+            user_id, check_chat = member.user.id, True
 
-        if chat_lang := await Note.get(
-            member.chat.id, "__chat_lang__"
+        if check_chat and (
+            chat_lang := await Note.get(
+                member.chat.id, "__chat_lang__"
+            )
         ):
             return chat_lang.strip()
         elif user_chat_lang := await Note.get(
-            member.user.id, "__chat_lang__"
+            user_id, "__chat_lang__"
         ):
             return user_chat_lang.strip()
         elif user := event.from_user:

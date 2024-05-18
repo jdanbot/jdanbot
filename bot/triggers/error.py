@@ -4,7 +4,8 @@ from aiogram import types
 
 from aiogram.utils.markdown import bold, code
 
-from ..config import dp, bot, _, settings, LANGS
+from aiogram.filters import Command
+from ..config import dp, router, bot, _, settings, LANGS
 
 
 log_schema = """

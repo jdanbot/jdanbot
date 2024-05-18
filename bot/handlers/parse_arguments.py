@@ -22,6 +22,8 @@ def parse_arguments_new(
     func: Callable,
 ):  # sourcery skip: bin-op-identity
     async def wrapper(message: types.message):
+        return
+
         text = message.get_args()
         params = {}
 

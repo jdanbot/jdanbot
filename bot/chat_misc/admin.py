@@ -1,27 +1,30 @@
-from aiogram import types
-
-from .lib.banhammer import BanHammer, WarnHammer, UnwarnHammer
-from aiogram.filters import Command
-from ..config import dp, router, _
-from ..schemas import Poll
-from .. import handlers
-from ..handlers.parse_arguments import parse_arguments_new
-
-from ..schemas import ChatMember
-
 import pytimeparse
-from ..lib.models import CustomField
+from aiogram import types
+from aiogram.filters import Command
+
+from ..config import router
+from ..filters import IsAdmin, Check, GetText, Arguments
+from pydantic import BaseModel, BeforeValidator, AfterValidator, Field
+from typing import Annotated
 
 
-@dp.message_handler(commands=["mute"], is_admin=True)
-@handlers.check("__enable_admin__")
-@parse_arguments_new
-async def admin_mute(
-    message: types.Message,
-    reply: types.Message,
-    time: CustomField(pytimeparse.parse, fallback=lambda x: int(x) * 60, default=60),
-    reason: CustomField(lambda x: str(x).strip(), default=lambda: _("ban.reason_not_found")),
-):
+class BaseHammer(BaseModel):
+    message: types.Message = Field(repr=False)
+    reply: types.Message | None = Field(repr=False)
+
+
+class BanHammer(BaseHammer):
+    time: Annotated[int, BeforeValidator(pytimeparse.parse)] = 60
+    reason: Annotated[str, AfterValidator(lambda x: x.strip())] = (
+        "None"
+    )
+
+
+@router.message(
+    Command("mute"), IsAdmin(), Check("__enable_admin__"), Arguments()
+)
+async def admin_mute(message: types.Message, args: BanHammer):
+    print(args)
     action = BanHammer(message, reply, time, reason)
 
     await action.execute()
@@ -31,78 +34,74 @@ async def admin_mute(
         await action.repost()
 
 
-@router.message(Command("selfmute", "selfban"))
-@handlers.check("__enable_admin__", "__enable_selfmute__")
-@handlers.parse_arguments_new
-async def selfmute(
-    message: types.Message,
-    time: CustomField(pytimeparse.parse, fallback=lambda x: int(x) / 60, default=1),
-    reason: CustomField(lambda x: str(x).strip(), default=lambda: _("ban.reason_not_found")),
-):
-    action = BanHammer(message, message, time, reason)
+# @router.message(Command("selfmute", "selfban"))
+# @handlers.check("__enable_admin__", "__enable_selfmute__")
+# @handlers.parse_arguments_new
+# async def selfmute(
+#     message: types.Message,
+#     time: CustomField(pytimeparse.parse, fallback=lambda x: int(x) / 60, default=1),
+#     reason: CustomField(lambda x: str(x).strip(), default=lambda: _("ban.reason_not_found")),
+# ):
+#     action = BanHammer(message, message, time, reason)
 
-    if await action.execute():
-        await action.log()
-    else:
-        await message.reply(_("ban.selfmute_limit_reached"))
-
-
-@dp.message_handler(commands=["warn"], is_admin=True)
-@handlers.check("__enable_admin__")
-@parse_arguments_new
-async def admin_warn(
-    message: types.Message,
-    reply: types.Message,
-    reason: CustomField(str, default=lambda: _("ban.reason_not_found")),
-):
-    action = WarnHammer(message, reply, reason)
-
-    await action.log()
-    await action.execute()
-
-    if message.chat.id == -1001176998310:
-        await action.repost()
+#     if await action.execute():
+#         await action.log()
+#     else:
+#         await message.reply(_("ban.selfmute_limit_reached"))
 
 
-@dp.message_handler(commands=["unwarn"], is_admin=True)
-@handlers.check("__enable_admin__")
-@parse_arguments_new
-async def admin_unwarn(
-    message: types.Message,
-    reply: types.Message,
-    reason: CustomField(str, default=lambda: _("ban.reason_not_found")),
-):
-    if reply.from_user.id == message.from_user.id:
-        await message.reply(_("ban.admin_cant_unwarn_self"))
-        return
+# @dp.message_handler(commands=["warn"], is_admin=True)
+# @handlers.check("__enable_admin__")
+# @parse_arguments_new
+# async def admin_warn(
+#     message: types.Message,
+#     reply: types.Message,
+#     reason: CustomField(str, default=lambda: _("ban.reason_not_found")),
+# ):
+#     action = WarnHammer(message, reply, reason)
 
-    try:
-        action = UnwarnHammer(message, reply, reason)
-    except IndexError:
-        await message.reply(_("ban.warns_not_found"))
-        return
+#     await action.log()
+#     await action.execute()
 
-    await action.execute()
-    await action.log()
-
-    if message.chat.id == -1001176998310:
-        await action.repost()
+#     if message.chat.id == -1001176998310:
+#         await action.repost()
 
 
-@router.message(Command("poll"))
-@handlers.check("enable_poll")
-@parse_arguments_new
-async def kz_poll(message: types.Message, name: CustomField(str)):
+# @dp.message_handler(commands=["unwarn"], is_admin=True)
+# @handlers.check("__enable_admin__")
+# @parse_arguments_new
+# async def admin_unwarn(
+#     message: types.Message,
+#     reply: types.Message,
+#     reason: CustomField(str, default=lambda: _("ban.reason_not_found")),
+# ):
+#     if reply.from_user.id == message.from_user.id:
+#         await message.reply(_("ban.admin_cant_unwarn_self"))
+#         return
+
+#     try:
+#         action = UnwarnHammer(message, reply, reason)
+#     except IndexError:
+#         await message.reply(_("ban.warns_not_found"))
+#         return
+
+#     await action.execute()
+#     await action.log()
+
+#     if message.chat.id == -1001176998310:
+#         await action.repost()
+
+
+@router.message(Command("poll"), Check("enable_poll"), GetText())
+async def kz_poll(message: types.Message, query: str):
     options = ["Да", "Нет", "Воздержусь"]
-    is_katz_bots = message.chat.id == -1001334412934
+    is_katz_bots = False and message.chat.id == -1001334412934
 
     if is_katz_bots:
         options.append("Нет прав")
 
     poll = await message.answer_poll(
-        name,
-        options,
-        is_anonymous=False
+        query, options, is_anonymous=False
     )
 
     if is_katz_bots:
@@ -110,7 +109,8 @@ async def kz_poll(message: types.Message, name: CustomField(str)):
         Poll.insert(
             id=poll.message_id,
             author_id=ChatMember.get_by_message(message).id,
-            description=name).execute()
+            description=query,
+        ).execute()
 
     await message.delete()
 
@@ -123,5 +123,5 @@ async def open_poll(message: types.Message):
         reply.question,
         [option.text for option in reply.options],
         is_anonymous=False,
-        allows_multiple_answers=reply.allows_multiple_answers
+        allows_multiple_answers=reply.allows_multiple_answers,
     )

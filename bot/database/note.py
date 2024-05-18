@@ -30,6 +30,7 @@ class Note(BaseModel):
     editor: Optional[Member] | int = None
     edited_at: Optional[datetime.datetime] = None
 
+    @staticmethod
     async def find(chat_id: int, query: str) -> Optional["Note"]:
         res = await (
             t.Note.select()
@@ -39,8 +40,9 @@ class Note(BaseModel):
         )
 
         if res is not None:
-            return Note.parse_obj(res)
+            return Note.model_validate(res)
 
+    @staticmethod
     async def add(
         member: Member, name: str, text: str, is_admin_note: bool
     ) -> bool:
@@ -68,6 +70,7 @@ class Note(BaseModel):
 
         return is_edit
 
+    @staticmethod
     async def get(
         chat_id: int,
         name: str,
@@ -85,15 +88,6 @@ class Note(BaseModel):
             return default
 
         return type(res["text"], default)
-
-    @staticmethod
-    async def show(
-        chat_id: int, raw: bool = False
-    ) -> list[str] | list["Note"]:
-        if raw:
-            return await Note.get_notes(chat_id)
-
-        return await Note.get_notes_list(chat_id)
 
     @staticmethod
     async def get_notes(chat_id: int) -> list["Note"]:
@@ -117,6 +111,7 @@ class Note(BaseModel):
             .output(as_list=True)
         )
 
+    @staticmethod
     async def remove(member: Member, name: str):
         note = await (
             t.Note.select()
@@ -128,4 +123,4 @@ class Note(BaseModel):
         if note.is_admin_note and not await member.check_admin():
             raise AttributeError
 
-        return await Note.delete().where(Note.id == note.id)
+        return await t.Note.delete().where(Note.id == note.id)

@@ -1,6 +1,7 @@
 from random import choice
 
-from ..config import dp, _
+from aiogram.filters import Command
+from ..config import dp, router, _
 from ..schemas import Note, ChatMember
 
 

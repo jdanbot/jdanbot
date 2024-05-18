@@ -1,4 +1,5 @@
-from ..config import dp
+from aiogram.filters import Command
+from ..config import dp, router
 
 from aiogram import types
 
