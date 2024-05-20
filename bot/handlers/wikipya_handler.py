@@ -64,7 +64,10 @@ def wikipya_handler(
                 "table",
                 ".error",
                 ".noprint",
-                ".thumb"
+                ".thumb",
+                "span.error",
+                "span.mw-ext-cite-error",
+                "p.hatnote",
             ]
 
             return Article(
