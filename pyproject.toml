@@ -35,7 +35,9 @@ fluentogram = "^1.1.6"
 shellous = "^0.36.0"
 aiopytesseract = "^0.14.0"
 tghtml = "1.1.6.post1"
+sqlalchemy-utils = "^0.41.2"
 sqlmodel = "^0.0.18"
+tortoise-orm = "^0.20.1"
 
 [tool.poetry.dev-dependencies]
 pytest-asyncio = "^0.16.0"

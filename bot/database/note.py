@@ -4,7 +4,7 @@ from typing import Any, Callable, Optional
 from pydantic import BaseModel
 
 from . import tables as t
-from .telegram import Member
+from .member import Member
 
 
 def str2bool(value: str, default: bool | None = None) -> bool | None:

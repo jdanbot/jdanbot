@@ -12,7 +12,9 @@ from ..lib.models import Article
 from .send_article import send_article
 
 
-async def more_cool_wiki_search(wiki: MediaWiki, query: str | int) -> tuple[Page, str, str]:
+async def more_cool_wiki_search(
+    wiki: MediaWiki, query: str | int
+) -> tuple[Page, str, str]:
     if isinstance(query, str):
         return await wiki.get_all(query)
 
@@ -34,43 +36,52 @@ async def more_cool_wiki_search(wiki: MediaWiki, query: str | int) -> tuple[Page
 
 
 def wikipya_handler(
-    *prefix,
-    extract_query_from_url=False,
-    went_trigger_command=False
+    *prefix, extract_query_from_url=False, went_trigger_command=False
 ):
     def argument_wrapper(func):
         @router.message(Command(*prefix), GetText(disable_reply=True))
         @router.callback_query(F.data.startswith(prefix[0] + " "))
         @send_article
         async def wrapper(
-            message: types.Message,
-            query: str,
-            command: CommandObject
+            message: types.Message, query: str, command: CommandObject
         ) -> Article:
             if extract_query_from_url:
                 url = query.split("/")
                 query = url[-1]
-                query = urllib.parse.unquote(query, encoding='utf-8', errors='replace').replace("_", " ")
+                query = urllib.parse.unquote(
+                    query, encoding="utf-8", errors="replace"
+                ).replace("_", " ")
 
-            answer = (message, message.text) if went_trigger_command else (message,)
+            answer = (
+                (message, message.text)
+                if went_trigger_command
+                else (message,)
+            )
 
             if "command" in func.__annotations__.keys():
                 kw = {"command": command}
             else:
                 kw = {}
 
-            wiki: MediaWiki = (await func(*answer, **kw)).get_instance()
+            wiki: MediaWiki = (
+                await func(*answer, **kw)
+            ).get_instance()
 
             if query.startswith("id"):
                 query = int(query.removeprefix("id"))
 
-            page, image, url = await more_cool_wiki_search(wiki, query)
+            page, image, url = await more_cool_wiki_search(
+                wiki, query
+            )
             page.tag_blocklist += [
                 "div.navigation-not-searchable",
                 "table",
                 ".error",
                 ".noprint",
-                ".thumb"
+                ".thumb",
+                "span.error",
+                "span.mw-ext-cite-error",
+                "p.hatnote",
             ]
 
             return Article(
@@ -81,4 +92,5 @@ def wikipya_handler(
             )
 
         return wrapper
+
     return argument_wrapper
