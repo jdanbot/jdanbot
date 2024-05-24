@@ -38,6 +38,7 @@ tghtml = "1.1.6.post1"
 sqlalchemy-utils = "^0.41.2"
 sqlmodel = "^0.0.18"
 tortoise-orm = "^0.20.1"
+pendulum = "^3.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest-asyncio = "^0.16.0"
@@ -46,6 +47,10 @@ bandit = "^1.7.4"
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"
 mypy = "^1.10.0"
+
+[tool.pyright]
+reportAssignmentType = false
+reportOptionalMemberAccess = false
 
 [[tool.poetry.source]]
 name = "PyPI"

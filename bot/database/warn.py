@@ -16,6 +16,7 @@ class Warn(BaseModel):
     unwarn_reason: Optional[int] = None
     unwarned_at: Optional[int] = None
 
+    @staticmethod
     async def count_warns(
         warned_id: int, period: timedelta = timedelta(hours=24)
     ) -> int:
