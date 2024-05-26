@@ -9,7 +9,9 @@ please-enter-text = Please enter command value or quote wanted
 only_vars = Only variables and numbers!
 
 not_found = Nothing found
-error = An error occurred during execution
+error =
+    An error occurred during execution:
+    { $error }
 
 is_too_big_gif = Is too big gif
 

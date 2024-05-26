@@ -1,1 +1,0 @@
-hello = hallo, { $username }

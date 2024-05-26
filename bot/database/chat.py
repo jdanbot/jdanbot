@@ -1,84 +1,65 @@
 from typing import TYPE_CHECKING, Optional
 
 from aiogram import types
-from piccolo.query import OrderByRaw
-from piccolo.query.methods.select import Count
-from sqlalchemy import func
-from sqlmodel import Field, Relationship, SQLModel, select
-from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ..chat_misc.models import ChatModules, ChatSettings
-from . import tables as t
-from .lib import IdModel, unpack_needen
+from .lib import BaseModel
+from tortoise import fields
 from .command import Command
 
-from .pidor import PidorTop
+from .pidor import PidorTop, PidorInTop, PidorEvent, Pidor
 
+from tortoise.contrib.postgres.functions import Random
+from tortoise.functions import Count
+
+import pendulum as pdl
 
 if TYPE_CHECKING:
     from .member import Member
 
 
-class Chat(SQLModel, table=True):
-    id: int = Field(primary_key=True)
-    username: Optional[str] = Field(default=None)
-    title: str
+class Chat(BaseModel):
+    id: int = fields.BigIntField(pk=True)
 
-    chat: list["Member"] = Relationship(
-        # back_populates="chat"
+    title: str = fields.TextField()
+    username: Optional[str] = fields.TextField(null=True)
+
+    pidor: fields.ForeignKeyField = fields.ForeignKeyRelation(
+        "models.Pidor", null=True
     )
-    # pidor: Optional["Member"] | int = None
+
+    def __str__(self):
+        return self.title
 
     @staticmethod
-    async def get_by(
-        conn: AsyncSession, message: types.Message
-    ) -> IdModel:
-        return await conn.merge(
-            Chat(
-                **unpack_needen(
-                    message.chat,
-                    {"id", "username"},
+    async def get_by(message: types.Message) -> "Chat":
+        return (
+            await Chat.update_or_create(
+                id=message.chat.id,
+                defaults=dict(
+                    username=message.chat.username,
+                    title=message.chat or message.from_user.full_name,
                 ),
-                title=message.chat.title
-                or message.from_user.full_name,
             )
-        )
+        )[0]
 
     async def get_random_pidor(self) -> "Member":
-        return Member.parse_obj(
-            await t.Member.select(
-                t.Member.id,
-                t.Member.pidor.all_columns(),
-                t.Member.user.all_columns(),
-                t.Member.chat.all_columns(),
-            )
-            .where(t.Member.chat == self.id)
-            .where(
-                t.Member.pidor._.is_allowed.eq(True),
-            )
-            .order_by(OrderByRaw("random()"))
-            .first()
-            .output(nested=True)
-        )
+        from .member import Member
 
-    async def get_pidor_count(self) -> int:
-        return await (
-            t.Member.count()
-            .where(t.Member.chat.id == self.id)
-            .where(t.Member.pidor.is_not_null())
-            .where(t.Member.pidor._.is_allowed.eq(True))
+        return (
+            await Member.filter(
+                chat_id=self.id, pidor__is_allowed=True
+            )
+            .annotate(order=Random())
+            .order_by("order")
+            .first()
         )
 
     async def can_run_pidor(self) -> bool:
-        if self.pidor is None:
+        if self.pidor_id is None:
             return True
 
-        pidor = Pidor.parse_obj(
-            await t.Pidor.select()
-            .where(t.Pidor.id == self.pidor)
-            .first()
-        )
-
+        pidor = await Pidor.get(id=self.pidor_id)
         date = await pidor.get_latest_datetime()
 
         if date is None:
@@ -92,35 +73,26 @@ class Chat(SQLModel, table=True):
 
         return pdl.now() >= next_pidor_day
 
-    async def get_top_pidors(self, limit: int = 10) -> list[PidorTop]:
-        return PidorTop.from_list(
-            await t.PidorEvent.select(
-                Count(),
-                t.PidorEvent.pidor.id,
-                t.PidorEvent.pidor.user._.all_columns(),
-            )
-            .where(t.PidorEvent.chat.id == self.id)
-            .group_by(t.PidorEvent.pidor)
-            .order_by(OrderByRaw("count"), ascending=False)
+    async def get_top_pidors(
+        self, limit: int = 10
+    ) -> list[PidorInTop]:
+        return PidorTop.validate_python(
+            await PidorEvent.annotate(count=Count("id"))
+            .filter(chat_id=self.id)
+            .group_by("pidor_id")
             .limit(limit)
-            .output(nested=True)
-        )
-
-    async def get_members_count(self, conn: AsyncSession) -> int:
-        res = await conn.exec(
-            select(func.count(Chat.id)).where(Chat.id == self.id)
-        )
-
-        return res.first()
-
-    async def get_commands_count(self, conn: AsyncSession) -> int:
-        res = await conn.exec(
-            select(func.count(Command.id)).where(
-                Command.chat_id == self.id
+            .order_by("-count")
+            .prefetch_related("pidor__user")
+            .values(
+                "count",
+                first_name="pidor__user__first_name",
+                last_name="pidor__user__last_name",
+                username="pidor__user__username",
             )
         )
 
-        return res.first()
+    async def get_commands_count(self) -> int:
+        return await Command.filter(chat_id=self.id).count()
 
     async def get_settings(self) -> ChatSettings:
         from .note import Note

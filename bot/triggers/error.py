@@ -1,11 +1,9 @@
-import traceback
-
 from aiogram import types
 
 from aiogram.utils.markdown import bold, code
 
-from aiogram.filters import Command
-from ..config import dp, router, bot, _, settings, LANGS
+from fluentogram import TranslatorRunner
+from ..config import router, bot, settings, LANGS
 
 
 log_schema = """
@@ -19,20 +17,16 @@ log_schema = """
 """
 
 
-@dp.errors_handler()
-async def catch_error(callback: types.CallbackQuery, exception: str):
-    message = callback.message
+@router.error()
+async def catch_error(
+    event: types.ErrorEvent, _: TranslatorRunner, user_lang: str
+):
+    message = event.update.message
+    err_name = event.exception.__class__.__name__
 
-    error = traceback.format_exc()
-    inf_err = error.split("\n")[-2]
-
-    exc_full = inf_err.split(":")[0]
-    exc = exc_full.split(".")[-1]
-
-    if exc in (
+    if err_name in (
         "MessageCantBeDeleted",
         "BadRequest",
-        "MessageCantBeDeleted",
         "MessageTextIsEmpty",
         "BotKicked",
         "TimeoutError",
@@ -42,13 +36,12 @@ async def catch_error(callback: types.CallbackQuery, exception: str):
     ):
         return
 
-    if exc in ("NotFound",):
-        await message.reply(bold(_("errors.not_found")), parse_mode="MarkdownV2")
-        return
+    if err_name in ("NotFound",):
+        return await message.reply(bold(_.not_found()))
 
-    if exc in ("JdanbotError",):
+    if err_name in ("JdanbotError",):
         return await message.reply(
-            bold(_(inf_err.split(": ")[1])), parse_mode="MarkdownV2"
+            bold(_.get(event.exception.args[0]))
         )
 
     if settings.logging_chat is not None:
@@ -59,23 +52,27 @@ async def catch_error(callback: types.CallbackQuery, exception: str):
             log_schema.format(
                 name=bold(message.chat.full_name),
                 id=code(message.chat.id),
-                user=message.from_user.get_mention(),
+                user=message.from_user.mention_markdown(),
                 user_id=code(message.from_user.id),
-                locale=LANGS[lang].emoji
-                if (lang := _(None, return_lang=True)) is not None
-                else lang,
+                locale=LANGS[user_lang].emoji,
                 query=code(message.text),
-                reply=reply.content_type if reply is not None else "❌",
+                reply=code(reply.content_type.value)
+                if reply is not None
+                else "❌",
                 error_small="\n".join(
-                    [code(inf_err.split(": ")[0]), bold(inf_err.split(": ")[1])]
+                    [
+                        code(err_name),
+                        bold(event.exception),
+                    ]
                 ),
             ),
-            parse_mode="MarkdownV2",
+            disable_web_page_preview=True,
         )
 
     if message is None:
         return
 
     await message.reply(
-        bold(_("errors.error")) + "\n" + code(exception), parse_mode="MarkdownV2"
+        _.error(error=code(event.exception.__str__().split("\n")[0]))
     )
+    raise event.exception

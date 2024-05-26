@@ -1,18 +1,21 @@
-from sqlmodel import SQLModel
-
 from .chat import Chat
 from .command import Command
-from .engine import engine
 from .member import Member
 from .note import Note, str2bool
 from .pidor import Pidor, PidorEvent, PidorTop
 from .user import User
 from .warn import Warn
 
+from tortoise import Tortoise
+
 
 async def setup_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
+    await Tortoise.init(
+        db_url="sqlite://tortoise.db",
+        modules={"models": ["bot.database"]},
+    )
+
+    await Tortoise.generate_schemas()
 
 
 __all__ = (
@@ -26,6 +29,5 @@ __all__ = (
     Note,
     str2bool,
     Warn,
-    engine,
     setup_db,
 )

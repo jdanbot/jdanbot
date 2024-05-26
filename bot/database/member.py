@@ -1,39 +1,41 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from aiogram import types
 from aiogram.utils.markdown import hlink, link
-from piccolo.query.methods.select import Count
-from sqlmodel import Field, Relationship, SQLModel
-from sqlmodel.ext.asyncio.session import AsyncSession
+from tortoise import fields
 
 from bot.lib.admin import check_admin
 
-from sqlmodel import select
-from sqlalchemy.orm import joinedload
-
 from ..config.bot import bot
-from . import tables as t
-
-from .user import User
 from .chat import Chat
+from .lib import BaseModel
+from .note import Member_NoteExt
+from .pidor import Pidor, PidorEvent
+from .user import User
 
 if TYPE_CHECKING:
     from .pidor import Pidor
 
 
-class Member(SQLModel, table=True):
-    id: int = Field(primary_key=True)
+class Member(Member_NoteExt, BaseModel):
+    id = fields.IntField(pk=True)
+    is_admin = fields.BooleanField(null=True)
+    user: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
+        "models.User"
+    )
+    chat: fields.ForeignKeyRelation[Chat] = fields.ForeignKeyField(
+        "models.Chat"
+    )
 
-    user_id: int = Field(foreign_key="user.id")
-    user: User = Relationship(back_populates="user")
+    pidor: fields.ForeignKeyRelation["Pidor"] = (
+        fields.ForeignKeyField("models.Pidor", null=True)
+    )
 
-    chat_id: int = Field(foreign_key="chat.id")
-    chat: Chat = Relationship(back_populates="chat")
+    user_id: int
+    chat_id: int
 
-    # pidor: Optional[Pidor | int] = None
-    # warns: Optional[bool] = None
-
-    is_admin: Optional[bool] = None
+    def __str__(self):
+        return f"Member {self.user_id}@{self.chat_id}"
 
     @property
     def mention(self) -> str:
@@ -49,99 +51,54 @@ class Member(SQLModel, table=True):
         )
 
     async def check_admin(self) -> bool:
-        is_admin = await check_admin(bot, self.chat.id, self.user.id)
-
-        await t.Member.update(is_admin=is_admin).where(
-            t.Member.id == self.id
+        self.is_admin = await check_admin(
+            bot, self.chat_id, self.user_id
         )
+        await self.save()
 
-        return is_admin
+        return self.is_admin
 
     @staticmethod
-    async def get_by(
-        conn: AsyncSession, message: types.Message
-    ) -> "Member":
-        user = await User.get_by(conn, message)
-        chat = await Chat.get_by(conn, message)
-
-        if res := await Member.get_raw_by(conn, message):
-            return res
-
-        await conn.merge(
-            Member(user_id=user.id, chat_id=chat.id),
-        )
-
-        return await Member.get_raw_by(conn, message)
+    async def get_by(message: types.Message) -> "Member":
+        return (
+            await Member.get_or_create(
+                chat=await Chat.get_by(message),
+                user=await User.get_by(message),
+            )
+        )[0]
 
     @staticmethod
-    async def get_raw_by(
-        conn: AsyncSession, message: types.Message
-    ) -> Optional["Member"]:
-        raw = await conn.exec(
-            select(Member)
-            .options(
-                joinedload(Member.user),
-                joinedload(Member.chat),
-            )
-            .where(Member.chat_id == message.chat.id)
-            .where(Member.user_id == message.from_user.id)
-        )
+    async def get_by_id(id: int) -> "Member":
+        return await Member.get(id=id)
 
-        if res := raw.first():
-            return res
-
-    @classmethod
-    async def get_id_by(cls, message: types.Message) -> int:
-        return (await cls.get_by(message)).id
-
-    @classmethod
-    async def get_by_id(
-        cls, id: int, pidor: bool = False
-    ) -> "Member":
-        return Member.parse_obj(
-            await t.Member.select(
-                t.Member.id,
-                t.Member.chat.all_columns(),
-                t.Member.user.all_columns(),
-                (
-                    t.Member.pidor.all_columns()
-                    if pidor
-                    else t.Member.pidor
-                ),
-            )
-            .where(t.Member.id == id)
-            .first()
-            .output(nested=True)
-        )
-
-    @classmethod
-    async def count(cls) -> int:
-        return await t.Member.count()
+    def get_members_count(self) -> int:
+        return Member.filter(chat_id=self.chat.id).count()
 
     async def get_pidor_count(self) -> int:
+        return await Member.filter(
+            chat_id=self.chat_id, pidor__is_allowed=True
+        ).count()
+
+    async def get_status(self) -> str:
         return (
-            await t.PidorEvent.select(
-                Count(alias="count"),
-            )
-            .where(t.PidorEvent.pidor.id == self.id)
-            .first()
-        )["count"]
+            await bot.get_chat_member(self.chat_id, self.user_id)
+        ).status
+
+    @staticmethod
+    async def get_id_by(message: types.Message) -> int:
+        return (await Member.get_by(message)).id
+
+    async def get_pidor_events_count(self) -> int:
+        return await PidorEvent.filter(pidor_id=self.id).count()
 
     async def get_pidor(self) -> tuple["Pidor", bool]:
         if self.pidor:
-            return await t.Pidor.get(self.pidor), False
+            return await Pidor.get(id=self.pidor_id), False
 
-        pidor = await t.Pidor.objects().get_or_create(
-            where=t.Pidor.member == self.id
-        )
+        pidor, _ = await Pidor.get_or_create(id=self.id)
 
-        await t.Member.update(pidor=pidor).where(
-            t.Member.id == self.id
-        )
+        await self.update(pidor=pidor)
+        return pidor, _
 
-        return pidor, True
-
-    async def get_in_chats_count(self) -> int:
-        return await t.Member.count().where(
-            t.Member.user == self.user.id
-        )
+    def get_in_chats_count(self) -> int:
+        return Member.filter(user_id=self.user.id).count()

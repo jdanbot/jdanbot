@@ -1,29 +1,22 @@
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
 from aiogram import types
-from piccolo.query.methods.select import Count
-from sqlalchemy import func
-from sqlmodel import Field, Relationship, SQLModel
-from sqlmodel.ext.asyncio.session import AsyncSession
+from tortoise import fields
+from tortoise.fields import Field
+
+from .lib import BaseModel
+from .pidor import PidorEvent
 
 
-from . import tables as t
-from .lib import unpack_needen, IdModel
+class User(BaseModel):
+    id: Field[int] = fields.BigIntField(pk=True)
 
+    first_name: Field[str] = fields.TextField()
+    last_name: Optional[Field[str]] = fields.TextField(null=True)
+    username: Optional[Field[str]] = fields.TextField(null=True)
 
-if TYPE_CHECKING:
-    from .member import Member
-
-
-class User(SQLModel, table=True):
-    id: int = Field(primary_key=True)
-    username: Optional[str] = Field(default=None)
-    first_name: str
-    last_name: Optional[str] = Field(default=None)
-
-    user: list["Member"] = Relationship(
-        # back_populates="user"
-    )
+    def __str__(self):
+        return f"{self.id} {self.full_name}"
 
     @property
     def full_name(self) -> str:
@@ -34,32 +27,18 @@ class User(SQLModel, table=True):
 
     @property
     def mention(self) -> str:
-        return self.user.username or self.user.full_name
+        return self.username or self.full_name
 
     @staticmethod
-    async def get_by(
-        conn: AsyncSession, message: types.Message
-    ) -> IdModel:
-        return await conn.merge(
-            User(
-                **unpack_needen(
-                    message.from_user,
-                    {"id", "username", "first_name", "last_name"},
+    async def get_by(message: types.Message) -> "User":
+        return (
+            await User.update_or_create(
+                id=message.from_user.id,
+                defaults=message.from_user.model_dump(
+                    include={"username", "first_name", "last_name"}
                 ),
             )
-        )
+        )[0]
 
-    async def get_pidor_count(self, conn: AsyncSession) -> int:
-        return (
-            await t.PidorEvent.select(
-                Count(alias="count"),
-            )
-            .where(t.PidorEvent.pidor.user.id == self.id)
-            .first()
-        )["count"]
-
-    @staticmethod
-    async def count(conn: AsyncSession) -> int:
-        res = await conn.exec(func.count(User.id))
-
-        return res.first()[0]
+    def get_pidor_count(self) -> int:
+        return PidorEvent.filter(pidor__user=self.id).count()

@@ -12,7 +12,6 @@ edit = Edit
 
 settings_text = Chat settings
 
-
 reactions = { $react ->
     *[None] ☑️
     [True] ✅

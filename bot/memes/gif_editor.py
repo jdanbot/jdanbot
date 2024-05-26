@@ -2,8 +2,7 @@ import ffmpeg
 from aiogram import types, F
 from aiogram.filters import Command, CommandObject
 
-from aiogram.filters import Command
-from ..config import _, router, bot
+from ..config import router, bot
 from shellous import sh
 from pathlib import Path
 
@@ -23,9 +22,6 @@ async def edit_gif(
     _: TranslatorRunner,
 ):
     reply: types.Message = message.reply_to_message
-
-    await message.reply("Alles Gute")
-
     video: types.Animation | types.Sticker | types.Video | None = (
         reply.animation or reply.sticker or reply.video
     )
@@ -65,9 +61,7 @@ async def edit_gif(
     F.reply_to_message,
     Command("fast", "slow", "reversed", "to_gif"),
 )
-async def edit_gif_without_source(
-    message: types.Message, command: CommandObject
-):
+async def edit_gif_without_source(message: types.Message):
     print(message.reply_to_message)
     await message.reply("you only replied")
 
@@ -75,7 +69,5 @@ async def edit_gif_without_source(
 @router.message(
     Command("fast", "slow", "reversed", "to_gif"),
 )
-async def edit_gif_without_source_and_reply(
-    message: types.Message, command: CommandObject
-):
+async def edit_gif_without_source_and_reply(message: types.Message):
     await message.reply("you only send command")

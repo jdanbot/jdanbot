@@ -16,39 +16,116 @@ from ..lib.models import Article
 from ..lib import chez
 
 
-@router.inline_query(F.query.startswith("w"))
-async def query_text(query: types.CallbackQuery):
-    if not (
-        query.query.endswith(".")
-        or query.query.endswith("?")
-        or query.query.endswith("!")
-    ):
-        btns = [
+@router.inline_query(F.query.len() == 0)
+async def inline_mode_menu(inline_query: types.InlineQuery):
+    await inline_query.answer(
+        results=[
             InlineQueryResultArticle(
-                id=1,
-                title="Поставь точку в конце!",
-                description="Надо. Вставь.",
+                id="4",
+                title="Озвучить текст",
+                description="Для использования введите @jdan734_bot say <запрос>",
                 input_message_content=InputTextMessageContent(
-                    message_text="ПРОСТО ВСТАВЬ ТОЧКУ."
+                    message_text="Мне нечего озвучивать\. Введи текст"
                 ),
-            )
-        ]
+            ),
+            InlineQueryResultArticle(
+                id="5",
+                title="Найти в Википедии",
+                description="Для использования введите @jdan734_bot wiki <запрос>",
+                input_message_content=InputTextMessageContent(
+                    message_text="Мне нечего находить\. Введи запрос"
+                ),
+            ),
+        ],
+        cache_time=1,
+    )
 
-        return await bot.answer_inline_query(query.id, btns)
 
-    params = query.query.split(maxsplit=1)
+@router.inline_query(
+    ~(
+        F.query.endswith(".")
+        | F.query.endswith("?")
+        | F.query.endswith("!")
+    )
+)
+async def dot_in_end_please(query: types.CallbackQuery):
+    btns = [
+        InlineQueryResultArticle(
+            id="1",
+            title="Поставь точку в конце!",
+            description="Надо. Вставь.",
+            input_message_content=InputTextMessageContent(
+                message_text="ПРОСТО ВСТАВЬ ТОЧКУ.", parse_mode=None
+            ),
+        )
+    ]
 
-    q = params[1]
-    lang = params[0].split(":", maxsplit=1)
-    lang = "ru" if len(lang) == 1 else lang[1]
+    return await bot.answer_inline_query(query.id, btns)
 
-    if lang not in WIKIPEDIA_LANGS:
-        return
+
+@router.inline_query(F.query.startswith("say"))
+async def query_say(query: types.InlineQuery):
+    q = query.query.strip()
+
+    btns = [
+        InlineQueryResultAudio(
+            id="1",
+            title=q[:-1],
+            audio_url=chez.say(q),
+        )
+    ]
+
+    await query.answer(btns)
+
+
+def parse_lang_and_query(query: str) -> tuple[str, str]:
+    params = query.split(maxsplit=1)
+
+    if params[0] in WIKIPEDIA_LANGS:
+        lang = params[0]
+        params = params[1:]
+    else:
+        lang = "ru"
+
+    q = " ".join(params)
+
+    return lang, q
+
+
+@router.chosen_inline_result()
+@handlers.send_article
+async def test(query: types.ChosenInlineResult) -> Article:
+    lang, _ = parse_lang_and_query(query.query)
+
+    wiki = Wikipya(lang).get_instance()
+    print(query.result_id)
+    page_name = await wiki.get_page_name(query.result_id)
+    page = await wiki.page(page_name)
+
+    try:
+        image = await wiki.image(page_name)
+    except Exception:
+        image = type("FakeImage", (), {"source": None})
+
+    opensearch = await wiki.opensearch(page_name)
+
+    return Article(
+        text=page.parsed,
+        image=image.source,
+        href=opensearch.results[0].link,
+    )
+
+
+@router.inline_query(F.query.len() > 0)
+async def wikijewfrew(query: types.CallbackQuery):
+    lang, q = parse_lang_and_query(query.query)
 
     wiki = Wikipya(lang).get_instance()
 
-    kb = InlineKeyboardMarkup()
-    kb.add(InlineKeyboardButton("Загрузка...", callback_data="wait"))
+    btn = InlineKeyboardButton(
+        text="Загрузка...", callback_data="wait"
+    )
+    kb = InlineKeyboardMarkup(inline_keyboard=[[btn]])
 
     try:
         search = await wiki.search_with_description(q, limit=10)
@@ -77,9 +154,6 @@ async def query_text(query: types.CallbackQuery):
     buttons = []
 
     for result in search:
-        # soup = BeautifulSoup(result.snippet, "lxml")
-        print(result)
-
         try:
             image = result.thumbnail.source
         except Exception:
@@ -100,86 +174,3 @@ async def query_text(query: types.CallbackQuery):
         )
 
     await bot.answer_inline_query(query.id, buttons)
-
-
-@router.inline_query(F.query.len() == 0)
-async def inline_mode_menu(inline_query: types.InlineQuery):
-    await inline_query.answer(
-        results=[
-            InlineQueryResultArticle(
-                id="4",
-                title="Озвучить текст",
-                description="Для использования введите @jdan734_bot say <запрос>",
-                input_message_content=InputTextMessageContent(
-                    message_text="Мне нечего озвучивать\. Введи текст"
-                ),
-            ),
-            InlineQueryResultArticle(
-                id="5",
-                title="Найти в Википедии",
-                description="Для использования введите @jdan734_bot wiki <запрос>",
-                input_message_content=InputTextMessageContent(
-                    message_text="Мне нечего находить\. Введи запрос"
-                ),
-            ),
-        ],
-        cache_time=1,
-    )
-
-
-@router.inline_query(F.query.startswith("say"))
-@router.inline_query(F.query.len() > 0)
-async def query_say(query: types.InlineQuery):
-    q = query.query.strip()
-
-    if q.endswith(".") or q.endswith("?") or q.endswith("!"):
-        btns = [
-            InlineQueryResultAudio(
-                id="1",
-                title=q[:-1],
-                audio_url=chez.say(q),
-            )
-        ]
-
-        await query.answer(btns)
-    else:
-        btns = [
-            InlineQueryResultArticle(
-                id="1",
-                title="Поставь точку в конце!",
-                description="Надо. Вставь.",
-                input_message_content=InputTextMessageContent(
-                    message_text="ПРОСТО ВСТАВЬ ТОЧКУ.",
-                    parse_mode=None,
-                ),
-            )
-        ]
-
-        await query.answer(btns)
-
-
-@router.inline_query(F.query.len() > 0)
-@handlers.send_article
-async def test(query: types.InlineQuery) -> Article:
-    params = query.query.split(maxsplit=1)
-
-    lang = params[0].split(":", maxsplit=1)
-    lang = "ru" if len(lang) == 1 else lang[1]
-
-    wiki = Wikipya(lang).get_instance()
-    page_name = await wiki.get_page_name(query.result_id)
-    page = await wiki.page(page_name)
-
-    try:
-        image = await wiki.image(page_name)
-    except:
-        image = type("FakeImage", (), {"source": None})
-
-    opensearch = await wiki.opensearch(page_name)
-
-    return Article(
-        text=page.parsed,
-        image=image.source,
-        href=opensearch.results[0].link,
-        params=dict(inline_message_id=query.inline_message_id),
-    )

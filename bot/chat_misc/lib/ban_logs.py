@@ -18,8 +18,8 @@ class BaseClass:
 @dataclass
 class BanLog(BaseClass):
     reason: str
-    ban_time: pdl.duration
-    until_date: pdl.datetime
+    ban_time: pdl.Duration
+    until_date: pdl.DateTime
 
     @property
     def is_selfmute(self) -> bool:
@@ -37,7 +37,7 @@ class BanLog(BaseClass):
         if self.ban_time >= pdl.duration(days=1):
             return "{} {}".format(
                 self.until_date.to_formatted_date_string(),
-                self.until_date.to_time_string()
+                self.until_date.to_time_string(),
             )
         else:
             return self.until_date.to_time_string()
@@ -48,11 +48,11 @@ class BanLog(BaseClass):
         return _(
             f"ban.{'mute' if not self.is_selfmute else 'selfmute'}",
             admin=admin.get_mention(),
-
-            **(dict(
-                user=user.get_mention()
-            ) if not self.is_selfmute else {}),
-
+            **(
+                dict(user=user.get_mention())
+                if not self.is_selfmute
+                else {}
+            ),
             why=escape_md(self.reason),
             time=self.time_localed,
             unban_time=escape_md(self.unban_time),
@@ -67,12 +67,12 @@ class WarnLog(BaseClass):
     def generate(self) -> str:
         user, admin = self.reply.from_user, self.message.from_user
 
-        return _("ban.warn",
+        return _(
+            "ban.warn",
             user=user.get_mention(),
             admin=admin.get_mention(),
-
             why=escape_md(self.reason),
-            i=self.i
+            i=self.i,
         )
 
 
@@ -84,10 +84,10 @@ class UnwarnLog(BaseClass):
     def generate(self) -> str:
         user, admin = self.reply.from_user, self.message.from_user
 
-        return _("ban.unwarn",
+        return _(
+            "ban.unwarn",
             user=user.get_mention(),
             admin=admin.get_mention(),
-
             why=escape_md(self.reason),
-            i=self.i
+            i=self.i,
         )

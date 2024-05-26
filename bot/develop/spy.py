@@ -12,6 +12,7 @@ from fluentogram import TranslatorRunner
 @router.message(Command("me", "pidorme"))
 async def me_info(message: types.Message, _: TranslatorRunner):
     member = await Member.get_by(message)
+    await member.fetch_related("user")
 
     user = await bot.get_chat_member(
         message.chat.id, message.from_user.id
@@ -24,7 +25,7 @@ async def me_info(message: types.Message, _: TranslatorRunner):
             chats=code(await member.get_in_chats_count()),
             status=code(user.status.value),
             pidor_all=await member.user.get_pidor_count(),
-            pidor_local=await member.get_pidor_count(),
+            pidor_local=await member.get_pidor_events_count(),
         ),
         parse_mode="MarkdownV2",
     )
@@ -33,10 +34,11 @@ async def me_info(message: types.Message, _: TranslatorRunner):
 @router.message(Command("stats"), IsSuperuser())
 async def calc_stats(message: types.Message, _: TranslatorRunner):
     member = await Member.get_by(message)
+    await member.fetch_related("chat")
 
     await message.reply(
         _.user.stats(
-            chat_users=await member.chat.get_members_count(),
+            chat_users=await member.get_members_count(),
             chat_commands=await member.chat.get_commands_count(),
             users=await User.count(),
             commands=await dCommand.count(),

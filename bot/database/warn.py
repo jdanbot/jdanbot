@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from datetime import datetime, timedelta
 
 from typing import Optional
-from . import tables as t
 
 
 class Warn(BaseModel):

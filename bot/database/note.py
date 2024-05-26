@@ -1,10 +1,13 @@
-import datetime
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, TYPE_CHECKING
 
-from pydantic import BaseModel
+from .lib import BaseModel, PdlField
+from tortoise import fields
+from tortoise.fields import Field
 
-from . import tables as t
-from .member import Member
+import pendulum as pdl
+
+if TYPE_CHECKING:
+    from .member import Member
 
 
 def str2bool(value: str, default: bool | None = None) -> bool | None:
@@ -18,55 +21,55 @@ def str2bool(value: str, default: bool | None = None) -> bool | None:
 
 
 class Note(BaseModel):
-    id: int
-    name: str
-    text: str
+    id: int = fields.IntField(pk=True)
+    name: str = fields.TextField()
+    text: str = fields.TextField()
 
-    is_admin_note: bool
+    is_admin_note: bool = fields.BooleanField(null=True)
 
-    author: Member | int
-    created_at: datetime.datetime
+    author: fields.ForeignKeyRelation["Member"] = (
+        fields.ForeignKeyField("models.Member")
+    )
+    created_at: Field[pdl.DateTime] = PdlField(auto_now_add=True)
 
-    editor: Optional[Member] | int = None
-    edited_at: Optional[datetime.datetime] = None
+    editor: Optional[fields.ForeignKeyRelation["Member"]] = (
+        fields.ForeignKeyField(
+            "models.Member", null=True, related_name="models.Member"
+        )
+    )
+    edited_at: Field[pdl.DateTime] = PdlField(null=True)
 
     @staticmethod
     async def find(chat_id: int, query: str) -> Optional["Note"]:
-        res = await (
-            t.Note.select()
-            .where(t.Note.author.chat.id == chat_id)
-            .where(t.Note.name == query)
-            .first()
-        )
-
-        if res is not None:
-            return Note.model_validate(res)
+        return await Note.filter(
+            author__chat_id=chat_id, name=query
+        ).first()
 
     @staticmethod
     async def add(
-        member: Member, name: str, text: str, is_admin_note: bool
+        member: "Member", name: str, text: str, is_admin_note: bool
     ) -> bool:
         if is_admin_note and not await member.check_admin():
             raise AttributeError
 
-        res = await Note.find(member.chat.id, name)
+        res = await Note.find((await member.chat).id, name)
         is_edit = res is not None
 
         if not is_edit:
-            await t.Note.insert(
-                t.Note(
-                    name=name,
-                    text=text,
-                    author=member.id,
-                    is_admin_note=is_admin_note,
-                )
+            await Note.create(
+                name=name,
+                text=text,
+                author=member,
+                is_admin_note=is_admin_note,
             )
         else:
-            await t.Note.update(
-                editor=member.id,
-                edited_at=datetime.datetime.now(),
-                text=text,
-            ).where(t.Note.id == res.id)
+            await res.update(
+                data=dict(
+                    editor=member,
+                    edited_at=pdl.now(),
+                    text=text,
+                ),
+            )
 
         return is_edit
 
@@ -77,50 +80,40 @@ class Note(BaseModel):
         default: Any = None,
         type: Callable[[str, Any], Any] = lambda x, y: x,
     ) -> Any:
-        res = await (
-            t.Note.select()
-            .where(t.Note.author.chat == chat_id)
-            .where(t.Note.name == name)
-            .first()
-        )
+        res = await Note.filter(
+            author__chat_id=chat_id, name=name
+        ).first()
 
         if res is None:
             return default
 
-        return type(res["text"], default)
+        return type(res.text, default)
 
     @staticmethod
     async def get_notes(chat_id: int) -> list["Note"]:
-        notes = await (
-            t.Note.select(
-                t.Note.all_columns(exclude=[t.Note.author]),
-                t.Note.author.all_columns(),
-                t.Note.author.user.all_columns(),
-            )
-            .where(t.Note.author.chat == chat_id)
-            .output(nested=True)
-        )
-
-        return [Note.parse_obj(note) for note in notes]
+        return await Note.filter(author__chat_id=chat_id)
 
     @staticmethod
     async def get_notes_list(chat_id: int) -> list[str]:
-        return await (
-            t.Note.select(t.Note.name)
-            .where(t.Note.author.chat == chat_id)
-            .output(as_list=True)
+        return await Note.filter(author__chat_id=chat_id).values_list(
+            "name", flat=True
         )
 
     @staticmethod
-    async def remove(member: Member, name: str):
-        note = await (
-            t.Note.select()
-            .where(t.Note.author.chat == member.chat.id)
-            .where(t.Note.name == name)
-            .first()
-        )
+    async def remove(member: "Member", name: str):
+        note = await Note.filter(
+            author__chat_id=member.chat_id, name=name
+        ).first()
+
+        if note is None:
+            return note
 
         if note.is_admin_note and not await member.check_admin():
             raise AttributeError
 
-        return await t.Note.delete().where(Note.id == note.id)
+        return await Note.filter(id=note.id).delete()
+
+
+class Member_NoteExt:
+    async def find_note(self: "Member", q: str) -> "Note":
+        return await Note.find(self.chat.id, q)

@@ -1,23 +1,17 @@
-import arrow
+import pendulum as pdl
 
-from pytz import timezone
-
+from .bot import bot, dp, router
 from .config import (
-    settings,
     LOCALES_DIR,
     WIKI_COMMANDS,
     WIKIPEDIA_SHORTCUTS,
+    settings,
 )
-
-from .languages import LANGS, GTRANSLATE_LANGS, WIKIPEDIA_LANGS
-
+from .languages import GTRANSLATE_LANGS, LANGS, WIKIPEDIA_LANGS
+from .lib.middleware import choice
 from .logger import logger
-from .bot import bot, dp, router
-from .i18n import _
 
-
-START_TIME = arrow.now()
-TIMEZONE = timezone("Europe/Moscow")
+START_TIME = pdl.now()
 
 
 __all__ = (
@@ -31,6 +25,6 @@ __all__ = (
     logger,
     bot,
     dp,
-    _,
     router,
+    choice,
 )

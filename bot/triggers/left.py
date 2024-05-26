@@ -1,24 +1,34 @@
+from aiogram import types
 from random import choice
 
-from aiogram.filters import Command
-from ..config import dp, router, _
-from ..schemas import Note
+from ..config import router
+from ..database import Note, str2bool
+from aiogram.filters import (
+    IS_MEMBER,
+    IS_NOT_MEMBER,
+    ChatMemberUpdatedFilter,
+)
+from .legacy import triggers
 
 
-@dp.message_handler(content_types=["left_chat_member"])
-async def left_john(message):
-    # TODO: REWRITE: Add cool phrases for left
-
+@router.chat_member(
+    ChatMemberUpdatedFilter(IS_MEMBER >> IS_NOT_MEMBER)
+)
+async def left_john(message: types.Message):
     chat_id = message.chat.id
 
-    welcome = Note.get(chat_id, "__enable_greatings__") == "True" or \
-        Note.get(chat_id, "__enable_welcome__") == "True"
+    welcome = await Note.get(
+        chat_id, "__enable_greatings__", False, str2bool
+    )
+    welcome = welcome or await Note.get(
+        chat_id, "__enable_welcome__", False, str2bool
+    )
 
     if welcome and message.from_user.id == 795449748:
-        trigger = choice(_("triggers.jdan_welcome"))
+        trigger = choice(triggers["jdan_welcome"])
 
     elif welcome:
-        trigger = choice(_("triggers.welcome"))
+        trigger = choice(triggers["welcome"])
 
     else:
         trigger = None

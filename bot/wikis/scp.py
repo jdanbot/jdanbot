@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.filters import Command
 
 from .. import handlers
-from ..config import _, router
+from ..config import router
 from ..filters import GetText
 from ..lib.models import Article
 from .lib.scp import SCP

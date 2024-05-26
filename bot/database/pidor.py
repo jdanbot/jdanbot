@@ -1,65 +1,60 @@
-import datetime
-from datetime import datetime as DateTime
-from typing import Annotated, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, List
 
-from pydantic import BaseModel
+from tortoise import fields
+from tortoise.fields import Field
 
+from pydantic import BaseModel as Model, TypeAdapter
 
-from . import tables as t
+from .lib import BaseModel, PdlField
+import pendulum as pdl
 
 
 if TYPE_CHECKING:
     from .member import Member
-    from .user import User
-    from .chat import Chat  # noqa
+    from .chat import Chat
 
 
 class PidorEvent(BaseModel):
-    pidor: Annotated[int, "Member"]
-    chat: Annotated[int, "Chat"]
-    caused_at: datetime.datetime
+    id: Field[int] = fields.IntField(pk=True)
 
-    @property
-    def pdl_caused_at(self) -> DateTime:
-        return pdl.instance(self.caused_at)
-
-    @classmethod
-    async def insert(cls, pidor, chat) -> int:
-        return (
-            await t.PidorEvent.insert(
-                t.PidorEvent(pidor=pidor.id, chat=chat.id)
-            )
-        )[0]["id"]
+    pidor: fields.ForeignKeyRelation["Member"] = (
+        fields.ForeignKeyField("models.Member")
+    )
+    chat: fields.ForeignKeyRelation["Chat"] = fields.ForeignKeyField(
+        "models.Chat"
+    )
+    caused_at: pdl.DateTime = PdlField(auto_now=True)
 
 
 class Pidor(BaseModel):
-    member: Optional["Member"] | int = None
-    is_allowed: bool
-    count: int = 0
-    # pidor_events: PidorEvents
-    latest_time: Optional[PidorEvent | int] = None
+    id: Field[int] = fields.BigIntField(pk=True)
+    is_allowed: bool = fields.BooleanField(default=True)
+    latest_time: Optional[int] = fields.IntField(null=True)
 
-    async def get_latest_datetime(self) -> DateTime | None:
+    async def get_latest_datetime(self) -> pdl.DateTime | None:
         if self.latest_time is None:
             return None
 
-        return PidorEvent.parse_obj(
-            await t.PidorEvent.get(self.latest_time)
-        ).pdl_caused_at
+        print(f"{self.latest_time=}")
 
-    @classmethod
-    async def count(cls) -> int:
-        return await t.Pidor.count()
+        event = await PidorEvent.get(id=self.latest_time)
+
+        return event.caused_at
 
 
-class PidorInTop(BaseModel):
-    id: int
-    user: "User"
-
-
-class PidorTop(BaseModel):
+class PidorInTop(Model):
     count: int
-    pidor: PidorInTop
 
-    def from_list(pidors_top: dict) -> list["PidorTop"]:
-        return [PidorTop.parse_obj(pidor) for pidor in pidors_top]
+    username: Optional[str]
+    first_name: str
+    last_name: Optional[str]
+
+    @property
+    def full_name(self) -> str:
+        if self.last_name:
+            return " ".join([self.first_name, self.last_name])
+
+        return self.first_name
+
+
+PidorTop = TypeAdapter(List[PidorInTop])

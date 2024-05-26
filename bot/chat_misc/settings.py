@@ -4,7 +4,6 @@ from aiogram.filters import Command
 from ..config import LANGS, router
 from ..database import Chat
 from ..filters import IsAdmin
-from aiogram.filters import Command
 
 from fluentogram import TranslatorRunner
 
@@ -17,8 +16,6 @@ async def settings_(message: types.Message, _: TranslatorRunner):
         is_inline = True
     except Exception:
         is_inline = False
-
-    # _(None, return_lang=True, force_reload=True)
 
     chat = await Chat.get_by(message)
     settings = await chat.get_settings()

@@ -16,13 +16,6 @@ def send_article(func):
 
         params = result.params or {}
 
-        if isinstance(message, types.CallbackQuery):
-            message = message.message
-            message.reply = message.edit_text
-        elif isinstance(message, types.ChosenInlineResult):
-            message.reply = bot.edit_message_text
-            params |= {"inline_message_id": message.inline_message_id}
-
         text = result.get_text()
 
         params = dict(
@@ -32,13 +25,25 @@ def send_article(func):
             reply_markup=result.keyboard,
             **params,
         )
-        try:
-            await message.reply(
+
+        if isinstance(message, types.CallbackQuery):
+            await message.message.edit_text(
                 text, parse_mode=result.parse_mode, **params
             )
-        except Exception as e:
-            await message.reply(text, parse_mode=None, **params)
+        elif isinstance(message, types.ChosenInlineResult):
+            await bot.edit_message_text(
+                text,
+                parse_mode=result.parse_mode,
+                inline_message_id=message.inline_message_id,
+                **params,
+            )
+        # try:
+        #     await message.reply(
+        #         text, parse_mode=result.parse_mode, **params
+        #     )
+        # except Exception as e:
+        #     await message.reply(text, parse_mode=None, **params)
 
-            raise e
+        #     raise e
 
     return wrapper

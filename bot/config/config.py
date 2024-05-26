@@ -32,6 +32,7 @@ class Settings(BaseSettings):
 
     class Tokens(BaseModel):
         bot_token: str = ""
+
     bot_token: str = ""
 
     tokens: Tokens = Tokens()
@@ -41,9 +42,12 @@ class Settings(BaseSettings):
     @property
     def token(self) -> str:
         if (_ := self.bot_token or self.tokens.bot_token) == "":
-            raise AttributeError("SET BOT_TOKEN IN ENV OR CONFIG FILE")
-        
-        return _ 
+            raise AttributeError(
+                "SET BOT_TOKEN IN ENV OR CONFIG FILE"
+            )
+
+        return _
+
 
 try:
     with open("settings.toml") as file:
@@ -53,7 +57,7 @@ try:
         secrets_file = toml.loads(file.read())
 
     settings = Settings.model_validate(settings_file | secrets_file)
-except:
+except Exception:
     settings = Settings.model_validate(settings_file)
 
 
@@ -65,7 +69,7 @@ WIKIPEDIA_SHORTCUTS = {
     "en": ["v"],
     "uk": ["wua", "wikiua"],
     "uk": ["wikiua", "wua", "pawuk"],
-    "be-tarask": ["wikibe-tarask", "wikibet", "wbet", "xbet"]
+    "be-tarask": ["wikibe-tarask", "wikibet", "wbet", "xbet"],
 }
 
 WIKI_COMMANDS = []

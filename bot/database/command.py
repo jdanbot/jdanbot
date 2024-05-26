@@ -1,29 +1,18 @@
 from typing import Optional
 
+from tortoise import fields
+import pendulum as pdl
 
-from sqlalchemy import func
-from sqlmodel import Field, SQLModel
-from sqlmodel.ext.asyncio.session import AsyncSession
-from datetime import datetime
-import arrow
+from .lib import PdlField, BaseModel
 
 
-class Command(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+class Command(BaseModel):
+    id: int = fields.IntField(pk=True)
 
-    chat_id: int
-    user_id: int
+    chat_id: int = fields.BigIntField()
+    user_id: int = fields.BigIntField()
 
-    name: str
-    args: Optional[str] = Field(default=None)
+    name: str = fields.TextField()
+    args: Optional[str] = fields.TextField()
 
-    runned_at: datetime = Field(default_factory=datetime.now)
-
-    @property
-    def _runned_at(self) -> arrow.Arrow:
-        return arrow.get(self.runned_at)
-
-    async def count(conn: AsyncSession) -> int:
-        res = await conn.exec(func.count(Command.id))
-
-        return res.first()[0]
+    runned_at: pdl.DateTime = PdlField(auto_now=True)

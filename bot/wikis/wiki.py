@@ -1,5 +1,6 @@
+from fluentogram import TranslatorRunner
 import httpx
-from aiogram import types
+from aiogram import types, F
 from aiogram.filters import Command, CommandObject
 from aiogram.utils.markdown import code
 from tghtml import TgHTML
@@ -9,7 +10,7 @@ from wikipya.constants import TAG_BLOCKLIST
 from bot.filters.get_text import GetText
 
 from .. import handlers
-from ..config import WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS, _, router
+from ..config import WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS, router
 from ..config.languages import WIKIPEDIA_LANGS
 from ..lib.models import Article
 from ..lib.text import fix_words
@@ -21,7 +22,7 @@ async def check_mediawiki_api_url(url: str) -> bool:
             r = await client.get(url)
 
             return r.status_code == 200
-    except:
+    except Exception:
         return False
 
 
@@ -162,41 +163,19 @@ async def get_summary(message: types.Message, query: str) -> Article:
 
 
 @router.message(Command("s"))
-async def wikiSearch(message: types.Message, lang: str = "ru"):
+@router.message(F.text.regexp("s(\w\w)").as_("lang"))
+async def wikiSearch(
+    message: types.Message, _: TranslatorRunner, lang: str = "ru"
+):
     opts = message.text.split(maxsplit=1)
 
     if len(opts) == 1:
         await message.reply(
-            _("errors.enter_wiki_query").format(opts[0]),
+            _.enter_wiki_query().format(opts[0]),
             parse_mode="Markdown",
         )
         return
 
     return await message.reply(
-        f"*Use bot's inline instead of this command!*\nexample: {code(f"@jdan734_bot wiki {(opts[1])}\.")}",
-    )
-
-    query = opts[1]
-
-    wiki = Wikipya(lang=lang).get_instance()
-
-    r = await wiki.search(query, 10)
-
-    if r == -1:
-        await message.reply(_("error.not_found"))
-        return
-
-    kb = types.InlineKeyboardMarkup()
-    for item in r:
-        kb.add(
-            types.InlineKeyboardButton(
-                fix_words(item.title),
-                callback_data=f"wikiru id{item.page_id}",
-            )
-        )
-
-    await message.reply(
-        "Выберите результат поиска",
-        reply_markup=kb,
-        parse_mode="HTML",
+        f"*Use bot's inline instead of this command\!*\nexample: {code(f"@jdan734_bot {lang} {(opts[1])}.")}"
     )

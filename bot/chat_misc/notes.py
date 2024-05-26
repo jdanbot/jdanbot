@@ -1,18 +1,17 @@
 import contextlib
 import io
-from datetime import datetime
 from typing import Annotated, List
 
 import humanize
+import pendulum as pdl
 from aiogram import F, types
 from aiogram.filters import Command
+from fluentogram import TranslatorRunner
 from pydantic import BaseModel, RootModel, field_validator
-
 
 from ..config import router, settings
 from ..database import Member, Note, User, str2bool
-from ..filters import IsAdmin, Arguments
-from fluentogram import TranslatorRunner
+from ..filters import Arguments, IsAdmin
 
 
 def remove_hash(x: str) -> str:
@@ -37,10 +36,19 @@ class NoteUpdateModel(NoteSelectModel):
 
 @router.message(Command("remove"), Arguments())
 async def remove(
-    message: types.Message, args: NoteSelectModel, _: TranslatorRunner
+    message: types.Message,
+    args: NoteSelectModel,
+    _: TranslatorRunner,
+    member: Member,
 ):
     try:
-        await Note.remove(await Member.get_by(message), args.key)
+        res = await Note.remove(member, args.key)
+
+        if res is None:
+            await message.reply("Заметка не найдена")
+
+        else:
+            await message.reply("Заметка успешно удалена")
     except AttributeError:
         await message.reply(_.no_rights_for_edit())
 
@@ -48,7 +56,6 @@ async def remove(
 @router.message(Command("remove_bulk"), IsAdmin())
 async def remove_bulk(message: types.Message):
     for note in message.text.split(" ")[1:]:
-        print(note)
         message.text = f"/remove {note}"
 
         with contextlib.suppress(Exception):
@@ -61,12 +68,15 @@ def build_user_info(user: User) -> str:
 
 @router.message(Command("export_notes"), IsAdmin())
 async def export_notes(message: types.Message):
+    humanize.i18n.activate("ru_RU")
+
     notes = await Note.get_notes(message.chat.id)
     notes_raw = ""
 
-    humanize.i18n.activate("ru_RU")
-
     for note in notes:
+        await note.fetch_related("author")
+        await note.author.fetch_related("user")
+
         notes_raw += (
             f"{note.name} {'★' if note.is_admin_note else ''}\n"
         )
@@ -89,8 +99,10 @@ async def export_notes(message: types.Message):
                 + "\n"
             )
 
+        note.editor = await note.editor
+
         if note.editor is not None:
-            note.editor = await Member.get_by_id(note.editor)
+            await note.editor.fetch_related("user")
 
             notes_raw += (
                 " ".join(
@@ -105,14 +117,14 @@ async def export_notes(message: types.Message):
 
         notes_raw += f"\n{note.text}\n\n\n"
 
-    f = io.StringIO(notes_raw)
+    f = io.BytesIO(notes_raw.strip().encode())
 
-    today = datetime.now().strftime("%d.%m.%Y")
-    f.name = (
-        f"{message.chat.full_name.strip()} notes backup {today}.txt"
+    today = pdl.now().format("DD.MM.Y")
+    name = f"{message.chat.full_name} notes backup {today}.txt"
+
+    await message.answer_document(
+        types.BufferedInputFile(f.read(), filename=name)
     )
-
-    await message.answer_document(f)
 
 
 @router.message(Command("set"), Arguments())
@@ -126,15 +138,15 @@ async def set_(
             args.value.strip(),
             args.is_admin_note,
         )
+
         await message.reply(
-            _.get(
-                f"{'edit' if is_edit else 'add'}_"
-                f"{'system_' if args.is_admin_note else ''}"
-                "note"
-            )
+            getattr(
+                getattr(_, "edit" if is_edit else "add"),
+                f"{'system_' if args.is_admin_note else ''}note",
+            )(),
         )
     except AttributeError:
-        await message.reply(_.get("no_rights_for_edit"))
+        await message.reply(_.no_rights_for_edit())
 
 
 @router.message(Command("get"), Arguments())
@@ -158,7 +170,8 @@ async def get(
 @router.message(Command("show", "notes"))
 async def show(message: types.Message):
     await message.reply(
-        ", ".join(await Note.get_notes_list(message.chat.id))
+        ", ".join(await Note.get_notes_list(message.chat.id)),
+        parse_mode=None,
     )
 
 

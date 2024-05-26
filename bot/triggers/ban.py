@@ -1,14 +1,19 @@
-import re
 import time
+from random import choice, randint
 
-from random import randint, choice
+from aiogram import F, types
+from fluentogram import TranslatorRunner
 
-from aiogram.filters import Command
-from ..config import bot, dp, _
-from .. import handlers
+from ..config import bot, router
+from ..filters import Check, WithRandom
+from .legacy import triggers
 
 
-# TODO: REWRITE: use regular
+def smart_split(x: str) -> list[str] | None:
+    if x is None:
+        return None
+
+    return x.split(" ")
 
 
 space = r"[^a-zа-яё\d]"
@@ -16,105 +21,122 @@ BAN_REGEXP = rf"(^|{space})[бb][\W]*[аaα@🅰️][\W]*[нnh🅱️]({space}|$
 NAKI_REGEXP = rf"(^|{space})наки({space}|$)"
 
 
-@dp.message_handler(
-    lambda msg: msg.text.lower().find("бот, сколько") != -1
-    and msg.text.lower().find("?") != -1
+@router.message(
+    F.text.lower().startwith("бот, сколько ") | F.text.endswith("?"),
+    Check("__enable_response__"),
 )
-@handlers.check("__enable_response__")
-async def random_answer(message):
+async def random_answer(message: types.Message):
     number = randint(0, 1000)
 
-    word = message.text.lower().replace("бот, сколько", "").split()[0]
+    word = message.text.lower()[:-1].split(" ")[2:][0]
     await message.reply(f"{number} {word}")
 
 
-@dp.message_handler(
-    lambda msg: msg.reply_to_message
-    and msg.reply_to_message.from_user.id in (1121412322,)
-    and msg.text.lower().find("спасибо") != -1
+@router.message(
+    F.reply_to_message.from_user.id.in_([1121412322])
+    | F.text.lower().func(smart_split).contains("спасибо"),
 )
-async def duakyu(message):
+async def duakyu(message: types.Message):
     await message.reply_sticker(
         "CAACAgIAAx0CRieRpgABA7bCX1aW70b_1a0OspsDDXYk8iPACEkAArwBAAKUmWkvXbzmLd8q5dcbBA"
-    )  # noqa
+    )
 
 
-@dp.message_handler(lambda msg: msg.text.lower().find("бот, почему") != -1)
-@handlers.check("__enable_response__")
-async def why_list(message):
-    await message.reply(choice(_("triggers.why_list")))
-
-
-@dp.message_handler(
-    lambda msg: msg.text.lower().find("секс") != -1
-    or msg.text.lower().find("кфс") != -1,
-    with_random=True,
+@router.message(
+    F.text.lower().startwith("бот, почему") | F.text.endswith("?"),
+    Check("__enable_response__"),
 )
-@handlers.check("__enable_response__")
-async def who(message):
+async def why_list(message: types.Message):
+    await message.reply(choice(("triggers.why_list")))
+
+
+@router.message(
+    F.text.lower().func(smart_split).contains("секс")
+    | F.text.lower().func(smart_split).contains("кфс"),
+    WithRandom(),
+    Check("__enable_response__"),
+)
+async def who(message: types.Message):
     await message.reply("Что?")
 
 
-@dp.message_handler(lambda msg: msg.text.lower().find("бойкот") != -1, with_random=True)
-@handlers.check("__enable_response__")
-async def boikot(message):
-    await message.reply(_("triggers.boikot"))
-
-
-@dp.message_handler(
-    lambda msg: re.search(NAKI_REGEXP, msg.text.lower()) is not None, with_random=True
+@router.message(
+    F.text.lower().func(smart_split).contains("бойкот"),
+    WithRandom(),
+    Check("__enable_response__"),
 )
-@handlers.check("__enable_response__")
+async def boikot(message: types.Message, _: TranslatorRunner):
+    await message.reply(_.triggers.boikot())
+
+
+@router.message(
+    F.text.lower().regexp(NAKI_REGEXP, search=True),
+    WithRandom(),
+    Check("__enable_response__"),
+)
 async def naki(message):
     await message.reply("Майкл Наки — в жопе козинаки")
 
 
-@dp.message_handler(
-    lambda msg: (
-        msg.text.lower().find("яблоко") != -1 or msg.text.lower().find("яблочн") != -1
+@router.message(
+    F.text.lower().func(smart_split).contains("яблоко")
+    | F.text.lower().func(lambda x: x.find("яблочн") != -1),
+    WithRandom(),
+    Check("__enable_response__"),
+)
+async def apple(message: types.Message, _: TranslatorRunner):
+    await message.reply(_.triggers.apple())
+
+
+@router.message(
+    F.text.lower().regexp(BAN_REGEXP), Check("__enable_response__")
+)
+async def get_a_ban(message: types.Message):
+    messages = triggers["ban_messages"]
+    words = messages.get(message.from_user.id) or messages["all"]
+
+    word = choice(words)
+
+    if isinstance(word, str):
+        await message.reply(
+            word, parse_mode="HTML", disable_web_page_preview=True
+        )
+
+    elif isinstance(word, dict):
+        await message.reply(word["text"], parse_mode="HTML")
+        await message.answer_sticker(word["sticker"])
+
+    try:
+        await bot.restrict_chat_member(
+            message.chat.id,
+            message.from_user.id,
+            until_date=time.time() + 60,
+            permissions=types.ChatPermissions(can_send_messages=True),
+        )
+    except Exception:
+        pass
+
+
+@router.message(
+    F.text.lower().startswith("бот,")
+    | F.text.func(smart_split).func(
+        lambda text: any((x in text for x in (" или ", " чи ")))
     ),
-    with_random=True,
+    Check("__enable_response__"),
 )
-@handlers.check("__enable_response__")
-async def apple(message):
-    await message.reply(_("triggers.apple"))
-
-
-@dp.message_handler(
-    lambda msg: re.search(BAN_REGEXP, msg.text.lower()) is not None, with_random=True
-)
-@handlers.check("__enable_response__")
-async def get_a_ban(message):
-    ban_messages = _("triggers.ban_messages")
-    bwords = ban_messages.get(message.from_user.id) or ban_messages["all"]
-
-    bword = choice(bwords)
-
-    if type(bword) == str:
-        await message.reply(bword, parse_mode="HTML", disable_web_page_preview=True)
-
-    elif type(bword) == dict:
-        await message.reply(bword["text"], parse_mode="HTML")
-        await message.answer_sticker(bword["sticker"])
-
-    await bot.restrict_chat_member(
-        message.chat.id, message.from_user.id, until_date=time.time() + 60, permissions=False
-    )
-
-
-@dp.message_handler(lambda msg: (
-    (text := msg.text.lower()).startswith("бот,") and
-    any((x in text for x in (" или ", " чи ")))
-))
-@handlers.check("__enable_response__")
 async def question(message):
     text = message.text.lower().removeprefix("бот,").removesuffix("?")
-    cuts = cuts if len((cuts := text.split(" или "))) > 1 else text.split(" чи ")
+    cuts = (
+        cuts
+        if len((cuts := text.split(" или "))) > 1
+        else text.split(" чи ")
+    )
 
     await message.reply(choice(cuts).strip().capitalize())
 
 
-@dp.message_handler(lambda msg: msg.text.lower().startswith("бот,"))
-@handlers.check("__enable_response__")
-async def question(message):
+@router.message(
+    F.text.lower().startswith("бот,"), Check("__enable_response__")
+)
+async def all_question(message: types.Message):
     await message.reply(choice(["Да", "Нет"]))

@@ -1,7 +1,6 @@
 from aiogram import types, F
 
-from aiogram.filters import Command
-from ..config import LANGS, _, router
+from ..config import LANGS, router
 from ..database import Member, Note
 from .modules import modules_
 from .settings import settings_
@@ -43,58 +42,66 @@ async def test(call: types.CallbackQuery, _: TranslatorRunner):
 
 
 @router.callback_query(F.data == "set_reactions", IsAdmin())
-async def test(call: types.CallbackQuery):
-    kb = types.InlineKeyboardMarkup()
+async def test(call: types.CallbackQuery, _: TranslatorRunner):
+    buttons = []
 
     try:
         message = call.message
-    except:
+    except Exception:
         message = call
 
     btns = []
 
     for a, b in (
-        ("3", f"⚠️ {_('settings.disable_all_reactions')}"),
-        ("5", f"⚠️ {_('settings.disable_join_message')}"),
+        ("3", f"⚠️ {_.disable_all_reactions()}"),
+        ("5", f"⚠️ {_.disable_join_message()}"),
     ):
-        btns.append(types.InlineKeyboardButton(b, callback_data=a))
-
-    kb.row(*btns)
-
-    btns = []
-
-    for a, b in (
-        ("3", f"⚠️ {_('settings.welcome')}"),
-        ("5", f"⚠️ {_('settings.edit')}"),
-    ):
-        btns.append(types.InlineKeyboardButton(b, callback_data=a))
-
-    kb.row(*btns)
-
-    btns = []
-
-    for a, b in (
-        ("3", f"⚠️ {_('settings.rules')}"),
-        ("5", f"⚠️ {_('settings.edit')}"),
-    ):
-        btns.append(types.InlineKeyboardButton(b, callback_data=a))
-
-    kb.row(*btns)
-
-    kb.add(
-        types.InlineKeyboardButton(
-            _("settings.button_back"), callback_data="settings_menu"
+        btns.append(
+            types.InlineKeyboardButton(text=b, callback_data=a)
         )
+
+    buttons.append(btns)
+
+    btns = []
+
+    for a, b in (
+        ("3", f"⚠️ {_.welcome()}"),
+        ("5", f"⚠️ {_.settings.edit()}"),
+    ):
+        btns.append(
+            types.InlineKeyboardButton(text=b, callback_data=a)
+        )
+
+    buttons.append(btns)
+
+    btns = []
+
+    for a, b in (
+        ("3", f"⚠️ {_.rules()}"),
+        ("5", f"⚠️ {_.edit()}"),
+    ):
+        btns.append(
+            types.InlineKeyboardButton(text=b, callback_data=a)
+        )
+
+    buttons.append(btns)
+
+    buttons.append(
+        [
+            types.InlineKeyboardButton(
+                text=_.button_back(), callback_data="settings_menu"
+            )
+        ]
     )
 
-    await message.edit_text(
-        _("settings.reactions_text"), reply_markup=kb
-    )
+    kb = types.InlineKeyboardMarkup(inline_keyboard=buttons)
+
+    await message.edit_text(_.settings_text(), reply_markup=kb)
 
 
 @router.callback_query(F.data == "set_warn_count", IsAdmin())
-async def test(call: types.CallbackQuery):
-    kb = types.InlineKeyboardMarkup()
+async def test(call: types.CallbackQuery, _: TranslatorRunner):
+    buttons = []
     message = call.message
 
     btns = []
@@ -102,21 +109,23 @@ async def test(call: types.CallbackQuery):
     for a, b in (("3", "3️⃣"), ("5", "5️⃣"), ("-1", "⛔️")):
         btns.append(
             types.InlineKeyboardButton(
-                b, callback_data=f"set settings __warns_to_ban__ {a}"
+                text=b,
+                callback_data=f"set settings __warns_to_ban__ {a}",
             )
         )
 
-    kb.row(*btns)
+    buttons.append(btns)
 
-    kb.add(
-        types.InlineKeyboardButton(
-            _("settings.button_back"), callback_data="settings_menu"
-        )
+    buttons.append(
+        [
+            types.InlineKeyboardButton(
+                text=_.button_back(), callback_data="settings_menu"
+            )
+        ]
     )
 
-    await message.edit_text(
-        _("settings.warns_to_ban_text"), reply_markup=kb
-    )
+    kb = types.InlineKeyboardMarkup(inline_keyboard=buttons)
+    await message.edit_text(_.warns_to_ban_text(), reply_markup=kb)
 
 
 @router.callback_query(F.data.startswith("set "), IsAdmin())

@@ -1,19 +1,17 @@
 import asyncio
-
-from . import *  # noqa
-from .config import dp, bot, router
-from .database.tables.connection import init_db
-from .database import setup_db
-from fluentogram import FluentTranslator, TranslatorHub
-from fluent_compiler.bundle import FluentBundle
-
 from pathlib import Path
 
-from .config.lib.middleware import (
-    TranslatorRunnerMiddleware,
-    SpyMiddleware,
-)
+from fluent_compiler.bundle import FluentBundle
+from fluentogram import FluentTranslator, TranslatorHub
+from tortoise import run_async
 
+from . import *  # noqa
+from .config import bot, dp, router
+from .config.lib.middleware import (
+    SpyMiddleware,
+    TranslatorRunnerMiddleware,
+)
+from .database import setup_db
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
@@ -38,8 +36,8 @@ async def main():
         ],
     )
 
-    await init_db()
     await setup_db()
+
     dp.update.outer_middleware(TranslatorRunnerMiddleware())
     router.message.middleware(SpyMiddleware())
 
@@ -50,4 +48,4 @@ async def main():
     )
 
 
-asyncio.get_event_loop().run_until_complete(main())
+run_async(main())
