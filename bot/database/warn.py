@@ -1,10 +1,32 @@
-from pydantic import BaseModel
 from datetime import datetime, timedelta
 
-from typing import Optional
+import pendulum as pdl
+from typing import Optional, TYPE_CHECKING
+from tortoise import fields
+from .lib import BaseModel, PdlField
+
+
+if TYPE_CHECKING:
+    from .member import Member
 
 
 class Warn(BaseModel):
+    id: int = fields.IntField(pk=True)
+    who_warned: fields.ForeignKeyRelation["Member"] = (
+        fields.ForeignKeyField("models.Member", related_name="warns")
+    )
+
+    who_warn: fields.ForeignKeyRelation["Member"] = (
+        fields.ForeignKeyField("models.Member", related_name="warned")
+    )
+    reason: str | None
+    warned_at: pdl.DateTime = PdlField(auto_now=True)
+
+    def __repr__(self) -> str:
+        return f"<Warn [{self.id}] m{self.who_warned_id} by m{self.who_warn_id}>"
+
+
+class WarnOld:
     who_warned: int
 
     who_warn: int

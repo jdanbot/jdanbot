@@ -67,8 +67,7 @@ LOCALES_DIR = BASE_DIR / "locales"
 WIKIPEDIA_SHORTCUTS = {
     "ru": ["w"],
     "en": ["v"],
-    "uk": ["wua", "wikiua"],
-    "uk": ["wikiua", "wua", "pawuk"],
+    "uk": ["wua", "wikiua", "pawuk"],
     "be-tarask": ["wikibe-tarask", "wikibet", "wbet", "xbet"],
 }
 

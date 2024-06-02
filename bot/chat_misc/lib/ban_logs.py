@@ -1,18 +1,21 @@
 import humanize
 
 from aiogram import types
-from aiogram.utils.markdown import escape_md
+from aiogram.utils.text_decorations import markdown_decoration as md
 from dataclasses import dataclass
 
 import pendulum as pdl
+from fluentogram import TranslatorRunner
 
-from ...config import _
+
+escape_md = md.quote
 
 
 @dataclass
 class BaseClass:
     message: types.Message
     reply: types.Message
+    _: TranslatorRunner
 
 
 @dataclass
@@ -27,7 +30,7 @@ class BanLog(BaseClass):
 
     @property
     def time_localed(self) -> str:
-        lang = _(None, return_lang=True)
+        lang = self._._lang
         humanize.i18n.activate(None if lang == "en" else lang)
 
         return humanize.precisedelta(self.ban_time)
@@ -45,11 +48,14 @@ class BanLog(BaseClass):
     def generate(self) -> str:
         user, admin = self.reply.from_user, self.message.from_user
 
-        return _(
-            f"ban.{'mute' if not self.is_selfmute else 'selfmute'}",
-            admin=admin.get_mention(),
+        return (
+            self._.admin.mute
+            if not self.is_selfmute
+            else self._.selfmutr
+        )(
+            admin=admin.mention_markdown(),
             **(
-                dict(user=user.get_mention())
+                dict(user=user.mention_markdown())
                 if not self.is_selfmute
                 else {}
             ),

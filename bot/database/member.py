@@ -12,6 +12,7 @@ from .lib import BaseModel
 from .note import Member_NoteExt
 from .pidor import Pidor, PidorEvent
 from .user import User
+from .warn import Warn
 
 if TYPE_CHECKING:
     from .pidor import Pidor
@@ -33,6 +34,9 @@ class Member(Member_NoteExt, BaseModel):
 
     user_id: int
     chat_id: int
+
+    warns: fields.ReverseRelation
+    warned: fields.ReverseRelation
 
     def __str__(self):
         return f"Member {self.user_id}@{self.chat_id}"
@@ -102,3 +106,10 @@ class Member(Member_NoteExt, BaseModel):
 
     def get_in_chats_count(self) -> int:
         return Member.filter(user_id=self.user.id).count()
+
+    async def warn(self, victim: "Member", reason: str) -> Warn:
+        return await Warn.create(
+            who_warn_id=self.id,
+            who_warned_id=victim.id,
+            reason=reason,
+        )

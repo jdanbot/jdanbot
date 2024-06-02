@@ -1,5 +1,4 @@
 import json
-import subprocess
 import traceback
 from pprint import pformat
 
@@ -43,10 +42,10 @@ async def supereval(
         output: types.Message
 
         return await message.reply(
-            code(pformat(json.loads(output.model_dump_json())))
+            code(pformat(json.loads(output.model_dump_json()))[:4096])
         )
 
-    await message.reply(code(output))
+    await message.reply(code(str(output)[:4096]))
 
 
 @router.message(

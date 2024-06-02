@@ -3,6 +3,7 @@ from aiogram.dispatcher.event.handler import HandlerObject
 from aiogram.filters import BaseFilter, CommandObject
 from pydantic import BaseModel
 
+from fluentogram import TranslatorRunner
 from ..lib.errors import JdanbotError
 
 
@@ -12,6 +13,7 @@ class Arguments(BaseFilter):
         message: types.Message,
         command: CommandObject,
         handler: HandlerObject,
+        _: TranslatorRunner,
     ) -> dict[str, BaseModel]:
         model: BaseModel = handler.callback.__annotations__["args"]
 
@@ -26,6 +28,9 @@ class Arguments(BaseFilter):
                 continue
             elif name == "reply":
                 params |= {name: message.reply_to_message}
+                continue
+            elif name == "i18n":
+                params |= {name: _}
                 continue
 
             if list(model.model_fields)[-1] == name:

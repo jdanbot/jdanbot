@@ -37,13 +37,11 @@ def send_article(func):
                 inline_message_id=message.inline_message_id,
                 **params,
             )
-        # try:
-        #     await message.reply(
-        #         text, parse_mode=result.parse_mode, **params
-        #     )
-        # except Exception as e:
-        #     await message.reply(text, parse_mode=None, **params)
-
-        #     raise e
+        try:
+            await message.reply(
+                text, parse_mode=result.parse_mode, **params
+            )
+        except Exception:
+            await message.reply(text, parse_mode=None, **params)
 
     return wrapper

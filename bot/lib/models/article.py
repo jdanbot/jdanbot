@@ -1,17 +1,15 @@
-from dataclasses import dataclass
 from typing import Any
 
 from aiogram import types
 
 from ..text import cute_crop
 from aiogram.utils.markdown import hide_link
-
+from pydantic import BaseModel
 
 from bs4 import BeautifulSoup
 
 
-@dataclass
-class Article:
+class Article(BaseModel):
     text: str
     title: str | None = None
     image: str | None = None

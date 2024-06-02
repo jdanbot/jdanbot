@@ -31,7 +31,11 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
         hub: TranslatorHub = data.get("_translator_hub")
 
         data["user_lang"] = await self.get_language(event)
-        data["_"] = hub.get_translator_by_locale(data["user_lang"])
+
+        hub = hub.get_translator_by_locale(data["user_lang"])
+        hub._lang = data["user_lang"]
+
+        data["_"] = hub
 
         return await handler(event, data)
 
@@ -55,6 +59,9 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
             user_id, check_chat = event.from_user.id, False
         else:
             event: types.Message = event.message
+
+            if event is None:
+                return "ru"
 
             member = await Member.get_by(event)
             user_id, check_chat = member.user_id, True

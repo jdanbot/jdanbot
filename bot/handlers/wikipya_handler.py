@@ -85,7 +85,7 @@ def wikipya_handler(
             ]
 
             return Article(
-                page.parsed,
+                text=page.parsed,
                 href=url,
                 image=image,
                 disable_web_page_preview=image is None,
