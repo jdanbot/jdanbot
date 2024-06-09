@@ -24,9 +24,10 @@ class Chat(BaseModel):
     title: str = fields.TextField()
     username: Optional[str] = fields.TextField(null=True)
 
-    pidor: fields.ForeignKeyField = fields.ForeignKeyRelation(
+    pidor: fields.ForeignKeyRelation[Pidor] = fields.ForeignKeyField(
         "models.Pidor", null=True
     )
+    pidor_id: int
 
     def __str__(self):
         return self.title
@@ -43,7 +44,7 @@ class Chat(BaseModel):
             )
         )[0]
 
-    async def get_random_pidor(self) -> "Member":
+    async def get_random_pidor(self) -> Optional["Member"]:
         from .member import Member
 
         return (

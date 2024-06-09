@@ -11,6 +11,30 @@ from ..filters import GetText
 from ..lib.models import Article
 from .send_article import send_article
 
+from markdownify import markdownify as html2md
+from markdown import markdown as md2html
+from pyquery import PyQuery as jq
+
+
+def unwrap(i: int, tag: jq, space: str = "\n\n", strip=False):
+    contents = jq(tag).html()
+    if contents is None:
+        jq(tag).remove()
+    else:
+        jq(tag).replace_with(contents + space)
+
+
+def remove(i: int, tag: jq):
+    jq(tag).replace_with("")
+
+
+def rename(i: int, tag: jq, tag_name: str):
+    contents = jq(tag).html()
+    if contents is None:
+        jq(tag).remove()
+    else:
+        jq(tag).replace_with((f"<{tag_name}>{contents}</{tag_name}>"))
+
 
 async def more_cool_wiki_search(
     wiki: MediaWiki, query: str | int
@@ -73,6 +97,50 @@ def wikipya_handler(
             page, image, url = await more_cool_wiki_search(
                 wiki, query
             )
+
+            t = jq(page.text)
+            t.find("table").each(remove)
+
+            t.find("span").filter(
+                lambda i, x: jq(x).attr("style")
+                == "font-style:italic;"
+            ).each(lambda i, x: rename(i, x, "i"))
+
+            t.find("img").each(remove)
+            t.find("sup.noexcerpt").each(remove)
+            t.find("sup.reference a").each(remove)
+            t.find("div.hatnote").each(remove)
+            t.find("small").each(remove)
+            t.find("sup.reference a").each(remove)
+            t.find("a").each(lambda i, x: unwrap(i, x, ""))
+            t.find("blockquote blockquote").each(
+                lambda i, x: unwrap(i, x, "")
+            )
+            t.find("ol.references").each(remove)
+
+            md = html2md(t.html())
+
+            print([md])
+
+            # clean result html
+            html = md2html(md)
+            tag = jq(html)
+
+            tag.find("div").each(lambda i, x: unwrap(i, x, ""))
+            tag.find("p").each(unwrap)
+
+            print(tag)
+            print(tag.html())
+
+            return Article(
+                text=str(tag.html())
+                .replace("\n\n", "\n")
+                .replace("<blockquote>\n", "<blockquote>"),
+                href=url,
+                image=image,
+                disable_web_page_preview=image is None,
+            )
+
             page.tag_blocklist += [
                 "div.navigation-not-searchable",
                 "table",

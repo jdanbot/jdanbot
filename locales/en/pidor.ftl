@@ -1,7 +1,7 @@
 pidor-top_10 = Top 10 *pidors* of all time:
 pidor-members = All members — `{ $count }`
 
-reg = You're not in the database\. Sign up via /pidorreg
+pidor-reg = You're not in the database\. Sign up via /pidorreg
 in_db = Caught in the database, look for yourself in `jdanbot\.db`
 already_in_db = Find youself in `jdanbot\.db`
 work_only_in_chats = Pidor of the day only works in chats!

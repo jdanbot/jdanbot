@@ -1,5 +1,6 @@
 import itertools
 import re
+from typing import Iterable
 
 from aiogram import types
 from aiogram.filters import Command, CommandObject
@@ -9,7 +10,9 @@ from ..config import router
 import yaml
 
 
-def generate_word_variants_with_uppercase(word: str, combinations: list = None):
+def generate_word_variants_with_uppercase(
+    word: str, combinations: list[str] | None = None
+):
     if combinations is None:
         combinations = get_word_variants_based_on_word_len(word)
 
@@ -31,7 +34,9 @@ def generate_word_variants_with_uppercase(word: str, combinations: list = None):
     return variants
 
 
-def get_word_variants_based_on_word_len(word: str):
+def get_word_variants_based_on_word_len(
+    word: str,
+) -> Iterable[list[str]]:
     variants = [
         [1],
         [10, 11],
@@ -63,7 +68,10 @@ def load_polish_cyrillic_variant(path: str):
 
         uppercase_schemas.extend(
             list(
-                map(lambda x: (prefix + x, rus.capitalize() + suffix), variants)
+                map(
+                    lambda x: (prefix + x, rus.capitalize() + suffix),
+                    variants,
+                )
             )
         )
 
@@ -80,7 +88,9 @@ POLISH_TRAD_TRANSLITERATION_SCHEMAS = load_polish_cyrillic_variant(
 
 
 @router.message(Command("cyr", "cyr2"), GetText())
-async def cyr(message: types.Message, query: str, command: CommandObject):
+async def cyr(
+    message: types.Message, query: str, command: CommandObject
+):
     schemas = (
         POLISH_EXP_TRANSLITERATION_SCHEMAS
         if command.command == "cyr"

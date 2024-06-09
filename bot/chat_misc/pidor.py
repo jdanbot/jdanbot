@@ -1,11 +1,10 @@
 import asyncio
-from time import time
 
 from aiogram import types
 from aiogram.utils.markdown import bold, italic
 
 from aiogram.filters import Command
-from ..config import bot, router, choice
+from ..config import router, choice
 from ..database import Member, PidorEvent
 from ..lib.text import prettyword
 from fluentogram import TranslatorRunner
@@ -33,7 +32,7 @@ async def find_pidor(
         )
 
     if not member.pidor or not member.pidor.is_allowed:
-        return await message.reply(_("pidor.reg"), parse_mode="None")
+        return await message.reply(_.pidor.reg())
 
     new_pidor = await member.chat.get_random_pidor()
 
@@ -59,16 +58,6 @@ async def find_pidor(
     await message.answer(
         choice(_.pidor.templates.finden, user=bold(new_pidor.tag))
     )
-
-    if message.chat.id == -1001176998310:
-        try:
-            await bot.restrict_chat_member(
-                new_pidor.chat.id,
-                new_pidor.user.id,
-                until_date=time() + 60,
-            )
-        except Exception:
-            pass
 
 
 PIDOR_TEMPLATE = "_{}_ *{}* — `{}` {}\n"
