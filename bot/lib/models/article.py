@@ -44,12 +44,14 @@ class Article(BaseModel):
             self.text[:4096]
 
     def get_text(self) -> str:
-        text = hide_link(self.image) if self.image else ""
-        return text + self.bold2link(self.text, self.title)
+        return "".join(
+            [
+                hide_link(self.image) if self.image else "",
+                self.bold2link(self.text, self.title),
+            ]
+        )
 
-    def bold2link(
-        self, text: str | None, title: str | None = None
-    ) -> str:
+    def bold2link(self, text: str, title: str | None = None) -> str:
         if self.href is None:
             return text
 

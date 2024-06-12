@@ -90,7 +90,9 @@ async def fallout(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://neolurk.org/w/api.php")
 
 
-@handlers.wikipya_handler("mediawiki", extract_query_from_url=True)
+@handlers.wikipya_handler(
+    "mediawiki", "mw", extract_query_from_url=True
+)
 async def custom_mediawiki(
     message: types.Message, command: CommandObject
 ) -> Wikipya:
@@ -109,8 +111,6 @@ async def custom_mediawiki(
     ):
         await message.reply("Can't find valid API url")
         raise AttributeError
-
-    print(base_url)
 
     return Wikipya(base_url=base_url)
 

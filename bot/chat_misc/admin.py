@@ -39,6 +39,10 @@ class BaseHammer(BaseModel):
     i18n: TranslatorRunner = Field(repr=False)
 
 
+class UnbanHammer(BaseHammer):
+    reason: str = "None"
+
+
 class BanHammer(BaseHammer):
     time: Annotated[int, BeforeValidator(pytimeparse.parse)] = 60
     reason: Annotated[str, AfterValidator(lambda x: x.strip())] = (
@@ -46,7 +50,7 @@ class BanHammer(BaseHammer):
     )
 
     @cached_property
-    def until_duration(self) -> pdl.DateTime:
+    def until_duration(self) -> pdl.Duration:
         return pdl.Duration(seconds=self.time)
 
     @cached_property
@@ -86,7 +90,7 @@ async def admin_mute(
 
     await message.chat.restrict(
         args.reply.from_user.id,
-        until_date=args.until.timestamp(),
+        until_date=args.until.timestamp().__int__(),
         permissions=types.ChatPermissions(),
     )
 
@@ -99,12 +103,56 @@ async def admin_mute(
         args.until,
     )
 
-    print(_.get("admin_cant_unwarn_self"))
-    print(_.get("mute"))
-    print(log.generate())
-    print(log.generate())
+    await args.reply.reply(admin_log := log.generate())
 
-    await args.reply.reply(log.generate())
+    if message.chat.id == -1001176998310:
+        await args.reply.forward(-1001334412934)
+        await bot.send_message(-1001334412934, admin_log)
+
+    await message.delete()
+
+
+@router.message(
+    Command("unmute"),
+    IsAdmin(),
+    Check("__enable_admin__"),
+    Arguments(),
+)
+async def admin_unmute(
+    message: types.Message, args: UnbanHammer, _: TranslatorRunner
+):
+    print(args)
+
+    await message.chat.restrict(
+        args.reply.from_user.id,
+        until_date=30,
+        use_independent_chat_permissions=False,
+        permissions=types.ChatPermissions(),
+    )
+    await message.chat.restrict(
+        args.reply.from_user.id,
+        until_date=30,
+        use_independent_chat_permissions=False,
+        permissions=types.ChatPermissions(
+            can_send_messages=True,
+            can_send_polls=True,
+            can_send_other_messages=True,
+            can_send_media_messages=True,
+            can_add_web_page_previews=True,
+        ),
+    )
+
+    await message.chat.unban(
+        args.reply.from_user.id, only_if_banned=True
+    )
+
+    await args.reply.reply(admin_log := "UNMUTTED")
+
+    if message.chat.id == -1001176998310:
+        await args.reply.forward(-1001334412934)
+        await bot.send_message(-1001334412934, admin_log)
+
+    await message.delete()
 
 
 # @router.message(Command("selfmute", "selfban"))

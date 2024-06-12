@@ -42,8 +42,14 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
     @classmethod
     async def get_language(cls, event: types.Update) -> str:
         # print(event.model_dump_json(indent=4))
-        skip_to_message = event.callback_query
-        if event.callback_query:
+        try:
+            skip_to_message = event.callback_query
+            if_has_callback = bool(event.callback_query)
+        except Exception:
+            skip_to_message = True
+            if_has_callback = False
+
+        if if_has_callback:
             event: types.CallbackQuery = event.callback_query
 
         if not skip_to_message and event.inline_query:
@@ -58,7 +64,10 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
             )
             user_id, check_chat = event.from_user.id, False
         else:
-            event: types.Message = event.message
+            try:
+                event: types.Message = event.message
+            except Exception:
+                pass
 
             if event is None:
                 return "ru"

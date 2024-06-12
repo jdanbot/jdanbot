@@ -15,6 +15,8 @@ from ..lib.models import Article
 
 from ..lib import chez
 
+from ..handlers.tghtml import TgHTML
+
 
 @router.inline_query(F.query.len() == 0)
 async def inline_mode_menu(inline_query: types.InlineQuery):
@@ -23,7 +25,7 @@ async def inline_mode_menu(inline_query: types.InlineQuery):
             InlineQueryResultArticle(
                 id="4",
                 title="Озвучить текст",
-                description="Для использования введите @jdan734_bot say <запрос>",
+                description="Для использования введите @jdan734_bot say <запрос>.",
                 input_message_content=InputTextMessageContent(
                     message_text="Мне нечего озвучивать\. Введи текст"
                 ),
@@ -31,7 +33,7 @@ async def inline_mode_menu(inline_query: types.InlineQuery):
             InlineQueryResultArticle(
                 id="5",
                 title="Найти в Википедии",
-                description="Для использования введите @jdan734_bot wiki <запрос>",
+                description="Для использования введите @jdan734_bot <запрос>.",
                 input_message_content=InputTextMessageContent(
                     message_text="Мне нечего находить\. Введи запрос"
                 ),
@@ -98,7 +100,6 @@ async def test(query: types.ChosenInlineResult) -> Article:
     lang, _ = parse_lang_and_query(query.query)
 
     wiki = Wikipya(lang).get_instance()
-    print(query.result_id)
     page_name = await wiki.get_page_name(query.result_id)
     page = await wiki.page(page_name)
 
@@ -109,9 +110,26 @@ async def test(query: types.ChosenInlineResult) -> Article:
 
     opensearch = await wiki.opensearch(page_name)
 
+    x = TgHTML(
+        page.text,
+        blocklist=[
+            "div.navigation-not-searchable",
+            "table",
+            ".error",
+            ".noprint",
+            ".thumb",
+            "span.error",
+            "span.mw-ext-cite-error",
+            "p.hatnote",
+        ],
+    )
+
     return Article(
-        text=page.parsed,
+        text="<blockquote expandable>"
+        + (x.output or "None")[:-100]
+        + "</blockquote>",
         image=image.source,
+        title=page.title,
         href=opensearch.results[0].link,
     )
 

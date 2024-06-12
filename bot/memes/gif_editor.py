@@ -62,7 +62,6 @@ async def edit_gif(
     Command("fast", "slow", "reversed", "to_gif"),
 )
 async def edit_gif_without_source(message: types.Message):
-    print(message.reply_to_message)
     await message.reply("you only replied")
 
 

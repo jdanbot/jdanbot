@@ -15,13 +15,13 @@ def send_article(func):
             return
 
         params = result.params or {}
-
         text = result.get_text()
 
         params = dict(
-            disable_web_page_preview=False
-            if result.disable_web_page_preview
-            else result.image is None,
+            disable_web_page_preview=(
+                result.disable_web_page_preview
+                or result.image is None
+            ),
             reply_markup=result.keyboard,
             **params,
         )
@@ -30,6 +30,7 @@ def send_article(func):
             await message.message.edit_text(
                 text, parse_mode=result.parse_mode, **params
             )
+            return
         elif isinstance(message, types.ChosenInlineResult):
             await bot.edit_message_text(
                 text,
@@ -37,6 +38,7 @@ def send_article(func):
                 inline_message_id=message.inline_message_id,
                 **params,
             )
+            return
         try:
             await message.reply(
                 text, parse_mode=result.parse_mode, **params

@@ -1,4 +1,4 @@
-import urllib
+from typing import Optional
 
 from aiogram import F, types
 from aiogram.filters import Command, CommandObject
@@ -6,39 +6,19 @@ from wikipya.clients import MediaWiki
 from wikipya.constants import WGR_FLAG, WRW_FLAG
 from wikipya.models import Page
 
+from httpx import URL
+
 from ..config import router
 from ..filters import GetText
 from ..lib.models import Article
 from .send_article import send_article
 
-from markdownify import markdownify as html2md
-from markdown import markdown as md2html
-from pyquery import PyQuery as jq
-
-
-def unwrap(i: int, tag: jq, space: str = "\n\n", strip=False):
-    contents = jq(tag).html()
-    if contents is None:
-        jq(tag).remove()
-    else:
-        jq(tag).replace_with(contents + space)
-
-
-def remove(i: int, tag: jq):
-    jq(tag).replace_with("")
-
-
-def rename(i: int, tag: jq, tag_name: str):
-    contents = jq(tag).html()
-    if contents is None:
-        jq(tag).remove()
-    else:
-        jq(tag).replace_with((f"<{tag_name}>{contents}</{tag_name}>"))
+from .tghtml import TgHTML
 
 
 async def more_cool_wiki_search(
     wiki: MediaWiki, query: str | int
-) -> tuple[Page, str, str]:
+) -> tuple[Page, str | int, str]:
     if isinstance(query, str):
         return await wiki.get_all(query)
 
@@ -56,7 +36,7 @@ async def more_cool_wiki_search(
     except Exception:
         image = None
 
-    return page, image, result.link
+    return page, image or -1, result.link
 
 
 def wikipya_handler(
@@ -70,11 +50,8 @@ def wikipya_handler(
             message: types.Message, query: str, command: CommandObject
         ) -> Article:
             if extract_query_from_url:
-                url = query.split("/")
-                query = url[-1]
-                query = urllib.parse.unquote(
-                    query, encoding="utf-8", errors="replace"
-                ).replace("_", " ")
+                url = URL(query)
+                query = url.path.split("/")[-1].replace("_", " ")
 
             answer = (
                 (message, message.text)
@@ -98,64 +75,29 @@ def wikipya_handler(
                 wiki, query
             )
 
-            t = jq(page.text)
-            t.find("table").each(remove)
-
-            t.find("span").filter(
-                lambda i, x: jq(x).attr("style")
-                == "font-style:italic;"
-            ).each(lambda i, x: rename(i, x, "i"))
-
-            t.find("img").each(remove)
-            t.find("sup.noexcerpt").each(remove)
-            t.find("sup.reference a").each(remove)
-            t.find("div.hatnote").each(remove)
-            t.find("small").each(remove)
-            t.find("sup.reference a").each(remove)
-            t.find("a").each(lambda i, x: unwrap(i, x, ""))
-            t.find("blockquote blockquote").each(
-                lambda i, x: unwrap(i, x, "")
-            )
-            t.find("ol.references").each(remove)
-
-            md = html2md(t.html())
-
-            print([md])
-
-            # clean result html
-            html = md2html(md)
-            tag = jq(html)
-
-            tag.find("div").each(lambda i, x: unwrap(i, x, ""))
-            tag.find("p").each(unwrap)
-
-            print(tag)
-            print(tag.html())
-
-            return Article(
-                text=str(tag.html())
-                .replace("\n\n", "\n")
-                .replace("<blockquote>\n", "<blockquote>"),
-                href=url,
-                image=image,
-                disable_web_page_preview=image is None,
+            x = TgHTML(
+                page.text,
+                blocklist=[
+                    "div.navigation-not-searchable",
+                    "table",
+                    ".error",
+                    ".noprint",
+                    ".thumb",
+                    "span.error",
+                    "span.mw-ext-cite-error",
+                    "p.hatnote",
+                ],
             )
 
-            page.tag_blocklist += [
-                "div.navigation-not-searchable",
-                "table",
-                ".error",
-                ".noprint",
-                ".thumb",
-                "span.error",
-                "span.mw-ext-cite-error",
-                "p.hatnote",
-            ]
+            image: Optional[str] = (
+                None if image in (-1, "-1") else image
+            )
 
             return Article(
-                text=page.parsed,
+                text=x.output or "",
                 href=url,
                 image=image,
+                title=page.title,
                 disable_web_page_preview=image is None,
             )
 
