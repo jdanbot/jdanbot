@@ -1,9 +1,7 @@
 from sys import platform
 
 import distro
-import humanize
 import pendulum as pdl
-import psutil
 import toml
 from aiogram import types
 from aiogram.filters import Command
@@ -30,15 +28,11 @@ def format_interval(duration: pdl.Interval) -> str:
 @router.message(Command("status"))
 async def get_status(message: types.Message, _: TranslatorRunner):
     interval = pdl.now() - START_TIME
-    mem = psutil.virtual_memory()
-
     await message.reply(
         _.dev.status(
             name=settings.status,
             platform=distro.id() if platform == "linux" else platform,
             version=__version__,
-            memory=humanize.naturalsize(mem.used, binary=True),
-            total_memory=humanize.naturalsize(mem.total, binary=True),
             uptime=format_interval(interval),
         ),
         parse_mode="Markdown",

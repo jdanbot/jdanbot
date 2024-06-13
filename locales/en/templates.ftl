@@ -13,8 +13,6 @@ user-stats =
 
 dev-status =
   🤖 *{ $name }* `v{ $version }`
-
-  🧮 *ram*: { $memory } of { $total_memory }
   🕓 *uptime*: { $uptime }
 
 wget =
