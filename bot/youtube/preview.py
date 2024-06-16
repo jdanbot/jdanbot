@@ -1,12 +1,9 @@
 from aiogram import types
-import urllib
-
 from aiogram.filters import Command
-from ..config import router, bot
+from httpx import URL
+
+from ..config import bot, router
 from ..filters import GetText
-
-from aiogram.filters import Command
-
 
 max_url = "https://img.youtube.com/vi/{id}/maxresdefault.jpg"
 hq_url = "https://img.youtube.com/vi/{id}/hqdefault.jpg"
@@ -14,9 +11,7 @@ hq_url = "https://img.youtube.com/vi/{id}/hqdefault.jpg"
 
 def get_video_id(url: str) -> str:
     try:
-        return urllib.parse.parse_qs(
-            urllib.parse.urlparse(url).query
-        )["v"][0]
+        return URL(url).params["v"]
     except Exception:
         return url.replace("&feature=share", "").split("/")[-1]
 

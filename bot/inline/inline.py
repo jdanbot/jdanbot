@@ -104,9 +104,9 @@ async def test(query: types.ChosenInlineResult) -> Article:
     page = await wiki.page(page_name)
 
     try:
-        image = await wiki.image(page_name)
+        image = (await wiki.image(page_name)).source
     except Exception:
-        image = type("FakeImage", (), {"source": None})
+        image = ""
 
     opensearch = await wiki.opensearch(page_name)
 
@@ -128,7 +128,7 @@ async def test(query: types.ChosenInlineResult) -> Article:
         text="<blockquote expandable>"
         + (x.output or "None")[:-100]
         + "</blockquote>",
-        image=image.source,
+        image=image,
         title=page.title,
         href=opensearch.results[0].link,
     )

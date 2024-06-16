@@ -65,8 +65,6 @@ class TgHTML(BaseModel):
         # 0. clean html and filter shit
         d = jq(self.text)
 
-        d.find("a").each(lambda i, x: unwrap(i, x, ""))
-
         d.find("span").filter(
             lambda i, x: jq(x).attr("style") == "font-style:italic;"
         ).each(lambda i, x: rename(i, x, "i"))
@@ -96,8 +94,12 @@ class TgHTML(BaseModel):
             "span.mw-ext-cite-error",
             "p.hatnote",
             "figure",
+            "sup.reference a",
             *self.blocklist,
         )
+
+        d.find("a").each(lambda i, x: unwrap(i, x, ""))
+
         # 1. to markdown
         self.markdown = html2md(d.html(), bullets="■•")
 

@@ -9,7 +9,15 @@ from emoji import EMOJI_DATA
 import random
 
 
-emoji_list = list(set([emoji[0] for emoji in EMOJI_DATA if EMOJI_DATA[emoji]["status"] == 2]))
+emoji_list = list(
+    set(
+        [
+            emoji[0]
+            for emoji in EMOJI_DATA
+            if EMOJI_DATA[emoji]["status"] == 2
+        ]
+    )
+)
 
 
 @router.message(Command("emojize"), GetText())

@@ -8,7 +8,7 @@ from ..lib.models.article import Article
 
 from ..filters import GetText
 from aiogram.filters import Command
-from ..config import dp, router
+from ..config import router
 
 
 @router.message(Command("slovnyk"), GetText(disable_reply=True))
@@ -16,14 +16,10 @@ from ..config import dp, router
 async def slovnyk(message: types.Message, query: str) -> Article:
     async with AsyncClient() as client:
         r = await client.get(
-            "https://slovnyk.ua/index.php",
-            params={"swrd": query}
+            "https://slovnyk.ua/index.php", params={"swrd": query}
         )
 
     soup = BeautifulSoup(r.text, "lxml")
     _sum = soup.find_all(class_="toggle-sum")
 
-    return Article(
-        text=TgHTML(str(_sum[0])).parsed,
-        href=r.url
-    )
+    return Article(text=TgHTML(str(_sum[0])).parsed, href=r.url)
