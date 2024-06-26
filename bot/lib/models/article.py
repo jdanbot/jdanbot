@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 
 class Article(BaseModel):
     text: str
+    format_schema: str = "{}"
     title: str | None = None
     image: str | None = None
     href: str | None = None
@@ -44,11 +45,13 @@ class Article(BaseModel):
             self.text[:4096]
 
     def get_text(self) -> str:
-        return "".join(
-            [
-                hide_link(self.image) if self.image else "",
-                self.bold2link(self.text, self.title),
-            ]
+        return self.format_schema.format(
+            "".join(
+                [
+                    hide_link(self.image) if self.image else "",
+                    self.bold2link(self.text, self.title),
+                ]
+            )
         )
 
     def bold2link(self, text: str, title: str | None = None) -> str:

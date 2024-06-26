@@ -127,16 +127,15 @@ async def test(query: types.ChosenInlineResult) -> Article:
 
     text = x.output.strip()
 
-    schema = (
-        "<blockquote expandable>{}</blockquote>"
-        if len(text) > 400
-        else "{}"
-    )
-
     image: Optional[str] = None if image in (-1, "-1") else image
 
     return Article(
-        text=schema.format(text[:4000]),
+        text=text[:4000],
+        format_schema=(
+            "<blockquote expandable>{}</blockquote>"
+            if len(text) > 400
+            else "{}"
+        ),
         image=image,
         title=page.title,
         disable_web_page_preview=not bool(image),
