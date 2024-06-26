@@ -22,7 +22,7 @@ NAKI_REGEXP = rf"(^|{space})наки({space}|$)"
 
 
 @router.message(
-    F.text.lower().startwith("бот, сколько ") | F.text.endswith("?"),
+    F.text.lower().startwith("бот, сколько ") & F.text.endswith("?"),
     Check("__enable_response__"),
 )
 async def random_answer(message: types.Message):
@@ -34,7 +34,7 @@ async def random_answer(message: types.Message):
 
 @router.message(
     F.reply_to_message.from_user.id.in_([1121412322])
-    | F.text.lower().func(smart_split).contains("спасибо"),
+    & F.text.lower().func(smart_split).contains("спасибо"),
 )
 async def duakyu(message: types.Message):
     await message.reply_sticker(
@@ -43,7 +43,7 @@ async def duakyu(message: types.Message):
 
 
 @router.message(
-    F.text.lower().startwith("бот, почему") | F.text.endswith("?"),
+    F.text.lower().startwith("бот, почему") & F.text.endswith("?"),
     Check("__enable_response__"),
 )
 async def why_list(message: types.Message):
@@ -110,7 +110,7 @@ async def get_a_ban(message: types.Message):
         await bot.restrict_chat_member(
             message.chat.id,
             message.from_user.id,
-            until_date=time.time() + 60,
+            until_date=int(time.time() + 60),
             permissions=types.ChatPermissions(can_send_messages=True),
         )
     except Exception:
@@ -119,7 +119,7 @@ async def get_a_ban(message: types.Message):
 
 @router.message(
     F.text.lower().startswith("бот,")
-    | F.text.func(smart_split).func(
+    & F.text.func(smart_split).func(
         lambda text: any((x in text for x in (" или ", " чи ")))
     ),
     Check("__enable_response__"),

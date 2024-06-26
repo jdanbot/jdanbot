@@ -5,9 +5,6 @@ from os import listdir, walk
 from pathlib import Path
 
 
-__version__ = "test"
-
-
 __import__("bot.config.logger")
 __import__("bot.filters")
 root, folders, files = walk("bot", topdown=True).__next__()
@@ -74,5 +71,6 @@ def prepare_paths(
 force_import(*prepare_paths(files))
 force_import(*prepare_paths(folders, is_folders=True))
 from bot.chat_misc.settings import settings_
+
 force_import("bot.triggers.ban")
 force_import("bot.chat_misc.ocr")
