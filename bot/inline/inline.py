@@ -1,3 +1,4 @@
+from typing import Optional
 from ..config import bot, WIKIPEDIA_LANGS, router
 from aiogram.utils.markdown import code, bold
 
@@ -124,12 +125,21 @@ async def test(query: types.ChosenInlineResult) -> Article:
         ],
     )
 
+    text = x.output.strip()
+
+    schema = (
+        "<blockquote expandable>{}</blockquote>"
+        if len(text) > 400
+        else "{}"
+    )
+
+    image: Optional[str] = None if image in (-1, "-1") else image
+
     return Article(
-        text="<blockquote expandable>"
-        + (x.output or "None")[:-100]
-        + "</blockquote>",
+        text=schema.format(text[:4000]),
         image=image,
         title=page.title,
+        disable_web_page_preview=not bool(image),
         href=opensearch.results[0].link,
     )
 
@@ -155,7 +165,7 @@ async def wikijewfrew(query: types.CallbackQuery):
                 InlineQueryResultArticle(
                     id="0",
                     title="При выполнении запроса возникла ошибка",
-                    description=e,
+                    description=str(e),
                     input_message_content=InputTextMessageContent(
                         message_text=bold(
                             "При выполнении запроса возникла ошибка:"

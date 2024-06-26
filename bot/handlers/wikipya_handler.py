@@ -68,7 +68,7 @@ def wikipya_handler(
                 await func(*answer, **kw)
             ).get_instance()
 
-            if query.startswith("id"):
+            if query.startswith("id_"):
                 query = int(query.removeprefix("id"))
 
             page, image, url = await more_cool_wiki_search(
@@ -98,7 +98,7 @@ def wikipya_handler(
                 href=url,
                 image=image,
                 title=page.title,
-                disable_web_page_preview=image is None,
+                disable_web_page_preview=not bool(image),
             )
 
         return wrapper
