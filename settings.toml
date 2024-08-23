@@ -1,6 +1,7 @@
 status = "jdanbot-nightly"
 logging_chat = -1001410092459
 
+
 admin_notes = [
     "__rules__",
     "__enable_bot__",

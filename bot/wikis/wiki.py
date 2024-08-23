@@ -16,6 +16,23 @@ from ..lib.models import Article
 from ..lib.text import fix_words
 
 
+from wikipya.clients import Fandom
+
+
+@handlers.wikipya_handler("fallout")
+async def fallout(message: types.Message) -> Wikipya:
+    return Wikipya(
+        base_url="https://fallout.fandom.com/ru/api.php",
+        client=Fandom,
+        params=dict(
+            tag_blocklist=[
+                "div.cquote",
+                *TAG_BLOCKLIST,
+            ]
+        ),
+    )
+
+
 async def check_mediawiki_api_url(url: str) -> bool:
     try:
         async with httpx.AsyncClient() as client:

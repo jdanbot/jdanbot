@@ -6,6 +6,7 @@ from wikipya.clients import MediaWiki
 from wikipya.constants import WGR_FLAG, WRW_FLAG
 from wikipya.models import Page
 
+
 from httpx import URL
 
 from ..config import router
@@ -64,9 +65,7 @@ def wikipya_handler(
             else:
                 kw = {}
 
-            wiki: MediaWiki = (
-                await func(*answer, **kw)
-            ).get_instance()
+            wiki: MediaWiki = await func(*answer, **kw)
 
             if query.startswith("id_"):
                 query = int(query.removeprefix("id"))
@@ -75,8 +74,13 @@ def wikipya_handler(
                 wiki, query
             )
 
+            page2 = await wiki.page(page.title, section=1)
+            page3 = await wiki.page(page.title, section=2)
+
             x = TgHTML(
-                page.text,
+                page.text
+                + page2.text[: page2.text.find("<h3>")]
+                + page3.text[: page3.text.find("<h3>")],
                 blocklist=[
                     "div.navigation-not-searchable",
                     "table",
@@ -86,6 +90,7 @@ def wikipya_handler(
                     "span.error",
                     "span.mw-ext-cite-error",
                     "p.hatnote",
+                    "div#toc",
                 ],
             )
 
