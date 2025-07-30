@@ -65,7 +65,9 @@ def wikipya_handler(
             else:
                 kw = {}
 
-            wiki: MediaWiki = await func(*answer, **kw)
+            wiki: MediaWiki = (
+                await func(*answer, **kw)
+            ).get_instance()
 
             if query.startswith("id_"):
                 query = int(query.removeprefix("id"))
@@ -74,13 +76,21 @@ def wikipya_handler(
                 wiki, query
             )
 
-            page2 = await wiki.page(page.title, section=1)
-            page3 = await wiki.page(page.title, section=2)
+            page_text = page.text
+            is_fandom = "fandom.com" in url
+
+            if is_fandom:
+                page2 = await wiki.page(page.title, section=1)
+                page3 = await wiki.page(page.title, section=2)
+
+                page_text = (
+                    page_text
+                    + page2.text[: page2.text.find("<h3>")]
+                    + page3.text[: page3.text.find("<h3>")]
+                )
 
             x = TgHTML(
-                page.text
-                + page2.text[: page2.text.find("<h3>")]
-                + page3.text[: page3.text.find("<h3>")],
+                page_text,
                 blocklist=[
                     "div.navigation-not-searchable",
                     "table",

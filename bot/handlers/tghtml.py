@@ -18,13 +18,6 @@ def remove(i: int, tag: jq):
     jq(tag).replace_with("")
 
 
-def deh2scrt(i: int, tag: jq):
-    if tag.text() is None:
-        return
-
-    jq(tag).replace_with(f"<b>{jq(tag).text()}HEADEREND</b>")
-
-
 def rename(i: int, tag: jq, tag_name: str):
     contents = jq(tag).html()
     if contents is None:
@@ -70,13 +63,11 @@ class TgHTML(BaseModel):
 
     def __post_init__(self):
         # 0. clean html and filter shit
-        d = jq(self.text.replace("<cite>", "<cite>\n — "))
+        d = jq(self.text)
 
         d.find("span").filter(
             lambda i, x: jq(x).attr("style") == "font-style:italic;"
         ).each(lambda i, x: rename(i, x, "i"))
-        d.find("span.mw-headline").each(deh2scrt)
-        d.find("h2").each(lambda i, x: rename(i, x, "p"))
         d.find("cite").each(lambda i, x: rename(i, x, "i"))
         d.find("strong").each(lambda i, x: rename(i, x, "b"))
         d.find("blockquote blockquote").each(
@@ -87,13 +78,6 @@ class TgHTML(BaseModel):
             and (
                 "Это статья о" in p.text
                 or "Vide etiam paginam discretivam:" in p.text
-            )
-        ).each(remove)
-
-        d.find("i").filter(
-            lambda i, p: p.text is not None
-            and p.text.startswith(
-                "Вся обновлённая информация была взята"
             )
         ).each(remove)
 
@@ -111,27 +95,13 @@ class TgHTML(BaseModel):
             "p.hatnote",
             "figure",
             "sup.reference a",
-            "span.mw-editsection-bracket",
             *self.blocklist,
         )
 
         d.find("a").each(lambda i, x: unwrap(i, x, ""))
 
-        source = (
-            d.html()
-            .replace("<i>", "ITALICRESERVEDSIGN")
-            .replace("</i>", "ITALICRESERVEDSIGN")
-        )
-
         # 1. to markdown
-        self.markdown = html2md(
-            source,
-            bullets="■•",
-        )
-
-        self.markdown = self.markdown.replace(
-            "ITALICRESERVEDSIGN", "_"
-        )
+        self.markdown = html2md(d.html(), bullets="■•")
 
         # 2. make some markdown features ignorable
         #    in next step
@@ -152,7 +122,6 @@ class TgHTML(BaseModel):
         # 5. shitcodded fixes in the end
         self.output = (
             str(tag.html())
-            .replace("HEADEREND</strong>\n\n", "</strong>")
             .replace("\n\n", "\n")
             # .replace("\n\n", "\n")
             # .replace("\n", "\n\n")
