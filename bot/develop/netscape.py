@@ -16,17 +16,17 @@ from ..lib.models import Article
     GetText(disable_reply=True),
 )
 @handlers.send_article
-async def netscape(message: types.Message, query: str) -> Article:
-    res = await aioget(query)
+async def netscape(message: types.Message, url: str) -> Article:
+    res = await aioget(url)
     html = res.text
 
     parsed_html = TgHTML(html, enable_preprocess=True)
     title = Document(html).title()
 
     return Article(
-        text=str(parsed_html),
+        str(parsed_html),
         title=title,
-        href=query,
+        href=url,
         parse_mode="HTML",
         force_add_title=True,
     )

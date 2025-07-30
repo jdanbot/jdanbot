@@ -17,14 +17,11 @@ __version__ = pyproject["tool"]["poetry"]["version"]
 
 
 def format_interval(duration: pdl.Interval) -> str:
-    s = duration.total_seconds()
-
-    days, remainder = divmod(s, 60 * 60 * 24)
-    hours, remainder = divmod(remainder, 60 * 60)
-    minutes, seconds = divmod(remainder, 60)
-
     return "{:02}:{:02}:{:02}:{:02}".format(
-        int(days), int(hours), int(minutes), int(seconds)
+        duration.days,
+        duration.hours,
+        duration.minutes,
+        duration.seconds,
     )
 
 
