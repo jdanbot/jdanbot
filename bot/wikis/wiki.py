@@ -16,7 +16,6 @@ from ..lib.models import Article
 from ..lib.text import fix_words
 
 
-
 @handlers.wikipya_handler("fallout")
 async def fallout(message: types.Message) -> Wikipya:
     return Wikipya(

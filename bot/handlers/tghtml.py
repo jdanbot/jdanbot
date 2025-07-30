@@ -95,6 +95,7 @@ class TgHTML(BaseModel):
             "p.hatnote",
             "figure",
             "sup.reference a",
+            "div.hatnote",
             *self.blocklist,
         )
 
