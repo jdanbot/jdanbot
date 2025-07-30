@@ -43,7 +43,7 @@ async def get_status(message: types.Message):
     await message.reply(_(
         "dev.status",
         name=settings.status,
-        branch=get_current_branch(),
+        branch="NONE",
         platform=distro.id() if platform == "linux" else platform,
         version=__version__,
 
