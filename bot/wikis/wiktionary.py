@@ -84,7 +84,7 @@ async def wiktionary(
     lang_raw, inlang = command[0], next(iter(command[1:2]), "ru")
     lang = LANGMAP[inlang][lang_raw]
 
-    res_raw = httpx.get(f"https://{DOMAINS[inlang]}/{lang}/meaning/{query[0]}/{query[0:2]}/{query}.json")
+    res_raw = httpx.get(f"https://{DOMAINS[inlang]}/{lang}/meaning/{query[0]}/{query[0:2]}/{query}.jsonl")
 
     results = []
 

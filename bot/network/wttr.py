@@ -7,6 +7,10 @@ from ..lib.aioget import aioget
 from ..lib.models import CustomField
 
 
+def to_celsius(grad: int) -> int:
+    return int((grad - 32) / 1.8)
+
+
 @dp.message_handler(commands=["wttr", "weather"])
 @parse_arguments_new
 async def simple_test_func(
@@ -14,16 +18,23 @@ async def simple_test_func(
     format: CustomField(int, default=3),
     query: CustomField(str)
 ):
-    response = await aioget(f"https://wttr.in/{query}", params=dict(format=format))
-    response_text = response.text.replace("   ", " ")
+    response = await aioget(
+        f"https://wttr.in/{query}?u", params=dict(format=1)
+    )
 
-    if format in {3, 4}:
-        text = (
-            bold((parts := response_text.split(": "))[0].title())
-            + ": "
-            + code(parts[1])
-        )
-    else:
-        text = code(response_text)
+    emoji, grads = [
+        x.strip()
+        for x in response.text.split(" ")
+        if x != ""
+    ]
 
-    await message.reply(text, parse_mode="markdownv2")
+    if grads.endswith("F"):
+        grads = f"{to_celsius(int(grads[0:-2]))}°C"
+
+    if grads[0] not in {"-", "+"} and grads[0] != "0":
+        grads = f"+{grads}"
+
+    await message.reply(
+        f"{emoji} {bold(query.title())} {grads}",
+        parse_mode="markdown",
+    )

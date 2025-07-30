@@ -42,6 +42,28 @@ async def edit_gif(message: types.Message):
     os.remove("test2.mp4")
 
 
+@dp.message_handler(commands=["to_gif"])
+async def to_gif(message: types.Message):
+    reply = message.reply_to_message
+
+    if reply.animation:
+        (video := reply.animation).file_size
+    elif reply.sticker and reply.sticker.is_video:
+        (video := reply.sticker).file_size
+    elif reply.video:
+        (video := reply.video).file_size
+    else:
+        raise KeyError("Reply to GIF | video | video sticker")
+
+    if video.file_size > 5000000:
+        await message.reply(_("errors.is_too_big_gif"))
+        return
+
+    await video.download(destination_file="test6.mp4")
+    await message.reply_animation(animation=open("test6.mp4", "rb"))
+
+    os.remove("test6.mp4")
+
 @dp.message_handler(commands=["reverse"])
 async def reverse_gif(message: types.Message):
     reply = message.reply_to_message
