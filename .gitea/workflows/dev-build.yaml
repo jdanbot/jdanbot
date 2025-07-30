@@ -16,7 +16,7 @@ jobs:
     with:
       version: ${{ needs.build.outputs.version }}
       deploy_repo: ${{ vars.DEPLOY_REPO }}
-      values_file_path: ${{ vars.VALUES_FILE_PATH }}
+      values_file_path: ${{ vars.VALUES_DEV_FILE_PATH }}
     secrets:
       deploy_repo_ssh_key: ${{ secrets.DEPLOY_REPO_SSH_KEY }}
     needs: build
