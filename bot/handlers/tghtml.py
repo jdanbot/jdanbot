@@ -96,6 +96,8 @@ class TgHTML(BaseModel):
             "figure",
             "sup.reference a",
             "div.hatnote",
+            "div#disambig",
+            "div.ts-disambig",
             *self.blocklist,
         )
 
