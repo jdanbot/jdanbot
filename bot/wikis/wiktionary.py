@@ -96,7 +96,7 @@ async def wiktionary(
     lang = LANGMAP[inlang][lang_raw]
 
     res_raw = await aioget(
-        f"https://{DOMAINS[inlang]}/{lang}/meaning/{query[0]}/{query[0:2]}/{query}.json"
+        f"https://{DOMAINS[inlang]}/{lang}/meaning/{query[0]}/{query[0:2]}/{query}.jsonl"
     )
 
     results = []
