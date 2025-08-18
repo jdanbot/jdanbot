@@ -176,7 +176,7 @@ async def get_summary(message: types.Message, query: str) -> Article:
 
 
 @router.message(Command("s"))
-@router.message(F.text.regexp("s(\w\w)").as_("lang"))
+@router.message(F.text.regexp("^/s(\w\w)").as_("lang"))
 async def wikiSearch(
     message: types.Message, _: TranslatorRunner, lang: str = "ru"
 ):
