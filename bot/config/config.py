@@ -41,7 +41,7 @@ class Settings(BaseSettings):
 
     @property
     def bot_owners(self) -> list[int]:
-        return list(map(int, bot_owners_raw.split(" ")))
+        return list(map(int, self.bot_owners_raw.split(" ")))
 
     @property
     def token(self) -> str:
