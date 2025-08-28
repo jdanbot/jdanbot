@@ -1,22 +1,10 @@
-from typing import Any
+from typing import Any, Awaitable, Callable, Dict, override
 
-from aiogram import types, BaseMiddleware
-
-from random import randint
-
-from typing import Callable, Dict, Awaitable
-from fluentogram import TranslatorHub, TranslatorRunner
-
+from aiogram import BaseMiddleware, types
 from aiogram.filters import Command as CommandFilter
-from ...database import Command, Member, Note
 
-
-def choice(_: TranslatorRunner, **kwargs) -> str:
-    __ = _.request_line
-    count = randint(0, int(_.count()))
-
-    _.request_line = __
-    return _(prop=count, **kwargs)
+from ...database import Command, Member
+from .locales import locales
 
 
 class TranslatorRunnerMiddleware(BaseMiddleware):
@@ -28,20 +16,19 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
         event: types.Message,
         data: Dict[str, Any],
     ) -> Any:
-        hub: TranslatorHub = data.get("_translator_hub")
-
         data["user_lang"] = await self.get_language(event)
 
-        hub = hub.get_translator_by_locale(data["user_lang"])
-        hub._lang = data["user_lang"]
-
-        data["_"] = hub
+        try:
+            data["_"] = getattr(locales, data["user_lang"])
+        except KeyError:
+            data["_"] = locales.ru
 
         return await handler(event, data)
 
     @classmethod
     async def get_language(cls, event: types.Update) -> str:
         # print(event.model_dump_json(indent=4))
+
         try:
             skip_to_message = event.callback_query
             if_has_callback = bool(event.callback_query)
@@ -50,7 +37,9 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
             if_has_callback = False
 
         if if_has_callback:
-            event: types.CallbackQuery = event.callback_query
+            event: types.CallbackQuery = (
+                event.callback_query
+            )
 
         if not skip_to_message and event.inline_query:
             event: types.InlineQuery = event.inline_query
@@ -58,7 +47,10 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
                 event.from_user.id,
                 False,
             )
-        elif not skip_to_message and event.chosen_inline_result:
+        elif (
+            not skip_to_message
+            and event.chosen_inline_result
+        ):
             event: types.ChosenInlineResult = (
                 event.chosen_inline_result
             )
@@ -75,14 +67,10 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
             member = await Member.get_by(event)
             user_id, check_chat = member.user_id, True
 
-        if check_chat and (
-            chat_lang := await Note.get(
-                member.chat_id, "__chat_lang__"
-            )
-        ):
+        if check_chat and (chat_lang := member.lang):
             return chat_lang.strip()
-        elif user_chat_lang := await Note.get(
-            user_id, "__chat_lang__"
+        elif user_chat_lang := await Member.get_note(
+            "__chat_lang__"
         ):
             return user_chat_lang.strip()
         elif user := event.from_user:
@@ -92,10 +80,12 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
 
 
 class SpyMiddleware(BaseMiddleware):
+    @override
     async def __call__(
         self,
         handler: Callable[
-            [types.TelegramObject, Dict[str, Any]], Awaitable[Any]
+            [types.TelegramObject, Dict[str, Any]],
+            Awaitable[Any],
         ],
         message: types.Message,
         data: Dict[str, Any],
@@ -107,23 +97,22 @@ class SpyMiddleware(BaseMiddleware):
         command = command_orig.command
         args = command_orig.args
 
-        locked_commands = await Note.get(
-            message.chat.id,
-            "locked_commands",
-            [],
-            lambda x, default: x.split(" "),
-        )
+        member = await Member.get_by(message)
+
+        locked_commands = (
+            await Member.get_note("locked_commands") or ""
+        ).split(" ")
 
         if command is not None:
             member = await Member.get_by(message)
             data["member"] = member
 
-            await Command().create(
+            await Command(
                 user_id=member.user_id,
                 chat_id=member.chat_id,
                 name=command.lower(),
                 args=args or "",
-            )
+            ).save()
 
         for lcommand_raw in locked_commands:
             lcommand = lcommand_raw.removeprefix("-")
@@ -133,7 +122,8 @@ class SpyMiddleware(BaseMiddleware):
                 continue
 
             if (not is_force_admin) or (
-                is_force_admin and not await member.check_admin()
+                is_force_admin
+                and not await member.check_admin()
             ):
                 return
 
