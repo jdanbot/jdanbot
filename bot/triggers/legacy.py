@@ -1,5 +1,3 @@
-import yaml
+import toml
 
-
-with open("bot/triggers/legacy_triggers.yml") as f:
-    triggers = yaml.safe_load(f.read())
+triggers = toml.load("bot/triggers/legacy_triggers.toml")
