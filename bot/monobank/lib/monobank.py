@@ -8,13 +8,7 @@ from typing import Optional
 from dataclasses import dataclass, field
 
 
-CURRENCIES = {
-    840: "🇺🇸",
-    980: "🇺🇦",
-    978: "🇪🇺",
-    643: "🇷🇺",
-    985: "🇵🇱"
-}
+CURRENCIES = {840: "🇺🇸", 980: "🇺🇦", 978: "🇪🇺", 643: "🇷🇺", 985: "🇵🇱"}
 
 
 def get_emoji(code: int) -> str:
@@ -48,7 +42,7 @@ Currencies = RootModel[list[Currency]]
 @dataclass
 class MonobankApi:
     """
-    A simple async api for monobank.ua with pydantic 
+    A simple async api for monobank.ua with pydantic
     """
 
     _currencies: list[Currency] = field(default_factory=list)
@@ -56,8 +50,12 @@ class MonobankApi:
     async def get_currencies(self) -> list[Currency]:
         async with httpx.AsyncClient() as client:
             try:
-                res = await client.get("https://api.monobank.ua/bank/currency")
-                self._currencies = Currencies.model_validate_json(res.text).root
+                res = await client.get(
+                    "https://api.monobank.ua/bank/currency"
+                )
+                self._currencies = Currencies.model_validate_json(
+                    res.text
+                ).root
             except:
                 traceback.print_exc()
 

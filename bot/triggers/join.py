@@ -19,7 +19,7 @@ async def on_john_join(message: types.Message):
     chat_id = message.chat.id
 
     if await Note.get(chat_id, "__polish_mode__", False, str2bool):
-        await Member.get_by_message(message)
+        await Member.get_by(message)
         await message.delete()
         return
 

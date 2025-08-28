@@ -1,10 +1,15 @@
 import pytest
 
-from ..mocks import MessageMock
 from bot.translator.translator import translate
+from tests.mocks import mock
 
 
 @pytest.mark.asyncio
 async def test_translate_handler():
-    await translate(message_mock := MessageMock(text="/tru test"))
-    assert message_mock.replies[0].text == "тестовое задание"
+    assert (
+        await mock(
+            func=translate,
+            command="/tru test",
+        )
+        == "тест"
+    )

@@ -5,15 +5,14 @@ import pendulum as pdl
 import toml
 from aiogram import types
 from aiogram.filters import Command
-from fluentogram import TranslatorRunner
 
-from ..config import START_TIME, router, settings
-
+from ..config import START_TIME, Locale, router, settings
 
 with open("pyproject.toml", "r") as f:
     pyproject = toml.loads(f.read())
 
-__version__ = pyproject["tool"]["poetry"]["version"]
+
+__version__ = pyproject["project"]["version"]
 
 
 def format_interval(duration: pdl.Interval) -> str:
@@ -29,14 +28,19 @@ def format_interval(duration: pdl.Interval) -> str:
 
 
 @router.message(Command("status"))
-async def get_status(message: types.Message, _: TranslatorRunner):
+async def get_status(
+    message: types.Message, _: Locale
+):
     interval = pdl.now() - START_TIME
+
     await message.reply(
-        _.dev.status(
+        _.templates.status(
             name=settings.status,
-            platform=distro.id() if platform == "linux" else platform,
             version=__version__,
+            platform=distro.id()
+            if platform == "linux"
+            else platform,
             uptime=format_interval(interval),
         ),
-        parse_mode="Markdown",
+        parse_mode="markdown",
     )

@@ -2,12 +2,12 @@ import itertools
 import re
 from typing import Iterable
 
+import toml
 from aiogram import types
 from aiogram.filters import Command, CommandObject
-from ..filters import GetText
-from ..config import router
 
-import yaml
+from ..config import router
+from ..filters import GetText
 
 
 def generate_word_variants_with_uppercase(
@@ -51,9 +51,7 @@ def get_word_variants_based_on_word_len(
 
 
 def load_polish_cyrillic_variant(path: str):
-    with open(path) as file:
-        schemas = yaml.safe_load(file.read()).items()
-
+    schemas = toml.load(path).items()
     uppercase_schemas = []
 
     for schema in schemas:
@@ -80,10 +78,10 @@ def load_polish_cyrillic_variant(path: str):
 
 
 POLISH_EXP_TRANSLITERATION_SCHEMAS = load_polish_cyrillic_variant(
-    "bot/chat_misc/lib/polish_cyr_exp.yml"
+    "bot/chat_misc/lib/polish_cyr_exp.toml"
 )
 POLISH_TRAD_TRANSLITERATION_SCHEMAS = load_polish_cyrillic_variant(
-    "bot/chat_misc/lib/polish_cyr_trad.yml"
+    "bot/chat_misc/lib/polish_cyr_trad.toml"
 )
 
 

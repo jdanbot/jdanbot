@@ -1,8 +1,10 @@
 import logging
+import sys
 import traceback
-
 from os import listdir, walk
 from pathlib import Path
+
+is_pytest_session = "pytest" in sys.modules
 
 
 __import__("bot.config.logger")
@@ -31,13 +33,9 @@ def force_import(*args):
             print(trace)
 
 
-def prepare_paths(
-    modules, is_folders=False, folder_name=None, prefix=Path("bot")
-):
+def prepare_paths(modules, is_folders=False, folder_name=None, prefix=Path("bot")):
     if is_folders:
-        allowed_folders = filter(
-            lambda x: x not in ("__pycache__", "config"), modules
-        )
+        allowed_folders = filter(lambda x: x not in ("__pycache__", "config"), modules)
 
         return tuple(
             map(
@@ -59,18 +57,17 @@ def prepare_paths(
         return tuple(
             map(
                 lambda x: str(
-                    prefix / folder_name / x[:-3]
-                    if folder_name
-                    else prefix / x[:-3]
+                    prefix / folder_name / x[:-3] if folder_name else prefix / x[:-3]
                 ).replace("/", "."),
                 allowed_modules,
             )
         )
 
 
-force_import(*prepare_paths(files))
-force_import(*prepare_paths(folders, is_folders=True))
-from bot.chat_misc.settings import settings_
+if not is_pytest_session:
+    force_import(*prepare_paths(files))
+    force_import(*prepare_paths(folders, is_folders=True))
+    from bot.chat_misc.settings import settings_
 
-force_import("bot.triggers.ban")
-force_import("bot.chat_misc.ocr")
+    force_import("bot.triggers.ban")
+    force_import("bot.chat_misc.ocr")

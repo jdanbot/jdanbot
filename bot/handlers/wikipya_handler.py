@@ -3,7 +3,6 @@ from typing import Optional
 from aiogram import F, types
 from aiogram.filters import Command, CommandObject
 from wikipya.clients import MediaWiki
-from wikipya.constants import WGR_FLAG, WRW_FLAG
 from wikipya.models import Page
 
 
@@ -32,7 +31,6 @@ async def more_cool_wiki_search(
 
     try:
         image = await wiki.image(page.title)
-        image = WRW_FLAG if image.source == WGR_FLAG else image.source
 
     except Exception:
         image = None
@@ -70,7 +68,7 @@ def wikipya_handler(
             if query.startswith("id_"):
                 query = int(query.removeprefix("id"))
 
-            page, image, url = await more_cool_wiki_search(
+            page, image, url = await wiki.fetch_all(
                 wiki, query
             )
 

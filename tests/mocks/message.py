@@ -4,8 +4,8 @@ from typing import Any
 from aiogram import types
 
 from .chat import ChatMock
-from .user import UserMock
 from .lib import append_to_replies
+from .user import UserMock
 
 
 @dataclass
@@ -13,24 +13,24 @@ class MessageMock:
     text: str
 
     message_id: int = 0
-    reply_to_message: "MessageMock" = None
+    reply_to_message: "MessageMock | None" = None
     chat: ChatMock = field(default_factory=ChatMock)
 
     from_user: UserMock = field(default_factory=UserMock)
 
-    parse_mode: str = None
+    parse_mode: str = "HTML"
     disable_web_page_preview: bool = False
-    reply_markup: types.InlineKeyboardMarkup = None
+    reply_markup: types.InlineKeyboardMarkup | None = None
 
     _is_forward: bool = False
 
     def __post_init__(self):
         self.replies: list[MessageMock] = []
 
-    is_command = types.Message.is_command
-    get_full_command = types.Message.get_full_command
-    get_command = types.Message.get_command
-    get_args = types.Message.get_args
+    # is_command = types.Message.is_command
+    # get_full_command = types.Message.get_full_command
+    # get_command = types.Message.get_command
+    # get_args = types.Message.get_args
 
     @append_to_replies
     async def reply(self, text: Any, **kwargs) -> "MessageMock":
@@ -49,3 +49,7 @@ class MessageMock:
 
     def is_forward(self) -> bool:
         return self._is_forward
+
+    @property
+    def answer_text(self) -> str:
+        return self.replies[0].text

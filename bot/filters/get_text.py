@@ -1,9 +1,10 @@
-from typing import Dict, Union
 from dataclasses import dataclass
+from typing import Dict, Union
+
 from aiogram import types
 from aiogram.filters import BaseFilter, CommandObject
 
-from fluentogram import TranslatorRunner
+from ..config import Locale
 
 
 @dataclass
@@ -14,7 +15,7 @@ class GetText(BaseFilter):
         self,
         message: types.Message,
         command: CommandObject,
-        _: TranslatorRunner,
+        _: Locale,
     ) -> Union[bool, Dict[str, str]]:
         reply = message.reply_to_message
 
@@ -23,9 +24,7 @@ class GetText(BaseFilter):
         elif message.quote and message.quote.is_manual:
             text = message.quote.text
         elif self.disable_reply:
-            await message.reply(
-                _.please.enter.text()
-            )
+            await message.reply("_.errors.please.enter.text()")
 
             return False
         elif reply and reply.text:
@@ -38,7 +37,7 @@ class GetText(BaseFilter):
             return False
         else:
             await message.reply(
-                _.few_args(num=1), parse_mode="Markdown"
+                _.errors.few_args(num=1), parse_mode="Markdown"
             )
 
             return False

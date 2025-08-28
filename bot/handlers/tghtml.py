@@ -19,7 +19,7 @@ def remove(i: int, tag: jq):
 
 
 def deh2scrt(i: int, tag: jq):
-    if tag.text() is None:
+    if tag.text is None:
         return
 
     jq(tag).replace_with(f"<b>{jq(tag).text()}HEADEREND</b>")
@@ -82,12 +82,20 @@ class TgHTML(BaseModel):
         d.find("blockquote blockquote").each(
             lambda i, x: unwrap(i, x, "")
         )
+        d.find("b").filter(
+            lambda i, p: p.text is not None
+            and p.text == ("Избранная статья")
+        ).each(remove)
         d.find("p").filter(
             lambda i, p: p.text is not None
             and (
                 "Это статья о" in p.text
                 or "Vide etiam paginam discretivam:" in p.text
             )
+        ).each(remove)
+        d.find("div").filter(
+            lambda i, p: p.text is not None
+            and (p.text.startswith("Эта статья является избранной."))
         ).each(remove)
 
         d.find("i").filter(
@@ -118,7 +126,7 @@ class TgHTML(BaseModel):
         d.find("a").each(lambda i, x: unwrap(i, x, ""))
 
         source = (
-            d.html()
+            str(d.html())
             .replace("<i>", "ITALICRESERVEDSIGN")
             .replace("</i>", "ITALICRESERVEDSIGN")
         )
@@ -157,7 +165,9 @@ class TgHTML(BaseModel):
             # .replace("\n\n", "\n")
             # .replace("\n", "\n\n")
             .replace("<blockquote>\n", "<blockquote>")
-        )
+            .replace("\n</blockquote>", "</blockquote>")
+            .replace("■", "■ ")
+        ).strip()
 
     def bulk_remove(self, d: jq, *selectors):
         for sel in selectors:

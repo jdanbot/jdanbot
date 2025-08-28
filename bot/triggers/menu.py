@@ -1,9 +1,8 @@
 from aiogram import types, F
 
 from aiogram.filters import Command
-from ..config import router
+from ..config import Locale, router
 
-from fluentogram import TranslatorRunner
 
 buttons = [
     "main",
@@ -17,12 +16,12 @@ buttons = [
 ]
 
 
-def update_menu_buttons(_: TranslatorRunner) -> list:
+def update_menu_buttons(_: Locale) -> list:
     return [getattr(_.btn, btn)() for btn in buttons]
 
 
 def generate_keyboard_grid(
-    buttons: list[str], _: TranslatorRunner, selected_button: str
+    buttons: list[str], _: Locale, selected_button: str
 ) -> types.InlineKeyboardMarkup:
     """Makes 2x2 keyboard grid
 
@@ -66,7 +65,7 @@ async def menu(
 
 @router.callback_query(F.data.in_(buttons))
 async def callback_worker(
-    call: types.CallbackQuery, _: TranslatorRunner
+    call: types.CallbackQuery, _: Locale
 ):
     await call.message.edit_text(
         _(f"menu.{call.data}"),

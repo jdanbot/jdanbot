@@ -1,5 +1,4 @@
-from .pdl_field import PdlField
-from .base_model import BaseModel
+from .base_table import BaseTable, Table
+from .pdl_field import PendulumField
 
-
-__all__ = (PdlField, BaseModel)
+__all__ = (PendulumField, Table, BaseTable)

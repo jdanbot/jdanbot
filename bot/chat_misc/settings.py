@@ -1,16 +1,14 @@
-from aiogram import types, F
-
+from aiogram import F, types
 from aiogram.filters import Command
-from ..config import LANGS, router
+
+from ..config import LANGS, Locale, router
 from ..database import Chat
 from ..filters import IsAdmin
-
-from fluentogram import TranslatorRunner
 
 
 @router.message(Command("settings"), IsAdmin())
 @router.callback_query(F.data == "settings_menu", IsAdmin())
-async def settings_(message: types.Message, _: TranslatorRunner):
+async def settings_(message: types.Message, _: Locale):
     try:
         message: types.Message = message.message
         is_inline = True

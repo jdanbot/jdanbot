@@ -26,9 +26,6 @@ class Article(BaseModel):
     params: Any = None
 
     def __post_init__(self):
-        if self.image == -1:
-            self.image = None
-
         if self.force_format:
             self.text = "\n\n".join(
                 list(

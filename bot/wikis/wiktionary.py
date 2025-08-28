@@ -1,19 +1,16 @@
-from typing import Optional
-
-import httpx
-from ..lib.aioget import aioget
 from aiogram import types
 from aiogram.filters import Command, CommandObject
 from pydantic import BaseModel, Field
 
-from ..config import router
+from ..config.bot import router
 from ..filters import GetText
+from ..lib.aioget import aioget
 from ..translator.crazy import get_lang_emoji_by_name
 
 
 class Sense(BaseModel):
     glosses: list[str]
-    raw_glosses: Optional[list[str]] = None
+    raw_glosses: list[str] | None = None
 
     @property
     def any_glosses(self) -> list[str]:
@@ -26,7 +23,7 @@ class KaikkiWord(BaseModel):
     pos: str
     name: str = Field(alias="word")
     senses: list[Sense]
-    etymology_text: Optional[str] = None
+    etymology_text: str | None = None
 
     @property
     def formatted_etymology(self) -> str:
@@ -38,7 +35,9 @@ class KaikkiWord(BaseModel):
     @property
     def lang_emoji(self) -> str:
         try:
-            return get_lang_emoji_by_name(self.lang_code) + " "
+            return (
+                get_lang_emoji_by_name(self.lang_code) + " "
+            )
         except:
             return ""
 
@@ -64,11 +63,22 @@ LANGMAP = {
         "uk": "Украинский",
         "al": "All languages combined",
     },
+    "de": {
+        "de": "Deutsch",
+        "ru": "Russisch",
+        "en": "Englisch",
+        "it": "Italienisch",
+        "la": "Latein",
+        "pl": "Polnisch",
+        "uk": "Ukrainisch",
+        "al": "All languages combined",
+    },
 }
 
 DOMAINS = {
     "en": "kaikki.org/dictionary",
     "ru": "kaikki.org/ruwiktionary",
+    "de": "kaikki.org/dewiktionary",
 }
 
 
@@ -77,26 +87,33 @@ DOMAINS = {
         *[
             f"v{slang}{flang}"
             for slang in LANGMAP["en"]
-            for flang in ("inen", "inru", "")
+            for flang in ("inen", "inru", "inde", "")
         ]
     ),
     GetText(disable_reply=True),
 )
 async def wiktionary(
-    message: types.Message, query: str, command: CommandObject
+    message: types.Message,
+    query: str,
+    command: CommandObject,
 ):
     langs = (
-        command.command.removeprefix("v").split(" ")[0].split("2")
+        command.command.removeprefix("v")
+        .split(" ")[0]
+        .split("2")
     )
 
     if len(langs) == 1:
         langs = langs[0].split("in")
 
-    lang_raw, inlang = langs[0], next(iter(langs[1:2]), "ru")
+    lang_raw, inlang = (
+        langs[0],
+        next(iter(langs[1:2]), "ru"),
+    )
     lang = LANGMAP[inlang][lang_raw]
 
     res_raw = await aioget(
-        f"https://{DOMAINS[inlang]}/{lang}/meaning/{query[0]}/{query[0:2]}/{query}.json"
+        f"https://{DOMAINS[inlang]}/{lang}/meaning/{query[0]}/{query[0:2]}/{query}.jsonl"
     )
 
     results = []

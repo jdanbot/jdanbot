@@ -10,7 +10,7 @@ def pdl_to_dt(x: pdl.DateTime) -> datetime:
     return datetime.fromisoformat(x.to_iso8601_string())
 
 
-class PdlField(Field[pdl.DateTime], pdl.DateTime):
+class PendulumField(Field[pdl.DateTime], pdl.DateTime):
     SQL_TYPE = "TIMESTAMP"
 
     class _db_mysql:
@@ -32,23 +32,16 @@ class PdlField(Field[pdl.DateTime], pdl.DateTime):
         **kwargs: Any,
     ) -> None:
         if auto_now_add and auto_now:
-            raise AttributeError(
-                "You can choose only 'auto_now' or 'auto_now_add'"
-            )
+            raise AttributeError("You can choose only 'auto_now' or 'auto_now_add'")
         super().__init__(**kwargs)
         self.auto_now = auto_now
         self.auto_now_add = auto_now | auto_now_add
 
-    def to_db_value(
-        self, value: Optional[pdl.DateTime], instance
-    ) -> Optional[datetime]:
+    def to_db_value(self, value: Optional[pdl.DateTime], instance) -> Optional[datetime]:
         # Only do this if it is a Model instance, not class. Test for guaranteed instance var
         if hasattr(instance, "_saved_in_db") and (
             self.auto_now
-            or (
-                self.auto_now_add
-                and getattr(instance, self.model_field_name) is None
-            )
+            or (self.auto_now_add and getattr(instance, self.model_field_name) is None)
         ):
             setattr(instance, self.model_field_name, value)
             return pdl_to_dt(pdl.now())

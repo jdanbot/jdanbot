@@ -1,22 +1,22 @@
 from aiogram import types
-
-from deep_translator import GoogleTranslator as DeepGoogleTranslator
-
-
-from fluentogram import TranslatorRunner
-from ..filters import GetText
 from aiogram.filters import Command, CommandObject
-from ..config import router
-from ..lib.text import cute_crop
 from aiogram.utils.markdown import hcode
-from ..config.languages import (
-    Language,
-    GTRANSLATE_LANGS as LANGS,
-    GLANGS,
-    reverse,
-    GOOGLE_LANGUAGES_TO_CODES,
+from deep_translator import (
+    GoogleTranslator as DeepGoogleTranslator,
 )
 
+from ..config import router
+from ..config.languages import (
+    GLANGS,
+    GOOGLE_LANGUAGES_TO_CODES,
+    Language,
+    reverse,
+)
+from ..config.languages import (
+    GTRANSLATE_LANGS as LANGS,
+)
+from ..filters import GetText
+from ..lib.text import cute_crop
 
 LANG_COMMANDS_TR = [
     *[f"t{lang}" for lang in LANGS],
@@ -29,8 +29,7 @@ LANG_COMMANDS_TR = [
 async def translate(
     message: types.Message,
     query: str,
-    command: CommandObject,
-    _: TranslatorRunner,
+    command: CommandObject
 ):
     command_parts = command.command.removeprefix("t").split("2")
 

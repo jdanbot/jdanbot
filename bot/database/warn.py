@@ -1,27 +1,28 @@
 from datetime import datetime, timedelta
+from typing import override
 
 import pendulum as pdl
-from typing import Optional, TYPE_CHECKING
 from tortoise import fields
-from .lib import BaseModel, PdlField
+from tortoise.fields import Field
+
+from .lib.base_table import BaseTable
 
 
-if TYPE_CHECKING:
-    from .member import Member
+class Warn(BaseTable):
+    id: Field[int] | int = fields.IntField(pk=True)
 
+    who_warned_id: Field[int] | int = fields.IntField()
 
-class Warn(BaseModel):
-    id: int = fields.IntField(pk=True)
-    who_warned: fields.ForeignKeyRelation["Member"] = (
-        fields.ForeignKeyField("models.Member", related_name="warns")
+    who_warn_id: Field[int] | int = fields.IntField()
+
+    reason: Field[str] | str | None = fields.TextField(
+        nullable=True
+    )
+    warned_at: Field[pdl.DateTime] | pdl.DateTime = (
+        fields.DatetimeField(auto_now=True)
     )
 
-    who_warn: fields.ForeignKeyRelation["Member"] = (
-        fields.ForeignKeyField("models.Member", related_name="warned")
-    )
-    reason: str | None
-    warned_at: pdl.DateTime = PdlField(auto_now=True)
-
+    @override
     def __repr__(self) -> str:
         return f"<Warn [{self.id}] m{self.who_warned_id} by m{self.who_warn_id}>"
 
@@ -33,26 +34,15 @@ class WarnOld:
     reason: str
     warned_at: datetime
 
-    who_unwarn: Optional[int] = None
-    unwarn_reason: Optional[int] = None
-    unwarned_at: Optional[int] = None
-
-    @staticmethod
-    async def count_warns(
-        warned_id: int, period: timedelta = timedelta(hours=24)
-    ) -> int:
-        period_bound = datetime.now() - period
-
-        return await (
-            t.Warn.count()
-            .where(t.Warn.warned_at >> period_bound)
-            .where(t.Warn.who_warned == warned_id)
-            .where(t.Warn.who_unwarn.is_null())
-        )
+    who_unwarn: int | None = None
+    unwarn_reason: int | None = None
+    unwarned_at: int | None = None
 
     @classmethod
     async def get_user_warns(
-        cls, warned_id: int, period: timedelta = timedelta(hours=24)
+        cls,
+        warned_id: int,
+        period: timedelta = timedelta(hours=24),
     ) -> list["Warn"]:
         period_bound = datetime.now() - period
 

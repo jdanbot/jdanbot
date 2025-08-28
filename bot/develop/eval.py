@@ -1,15 +1,16 @@
 import json
 import traceback
 from pprint import pformat
+from types import FunctionType
 
 from aiogram import types
 from aiogram.filters import Command, CommandObject
 from aiogram.utils.markdown import code
+from shellous import sh
 
 from ..config import bot, router
 from ..database import Member
-from ..filters import IsSuperuser, GetText
-from shellous import sh
+from ..filters import GetText, IsSuperuser
 
 
 @router.message(
@@ -21,7 +22,12 @@ async def supereval(
     q = [f"\n {line}" for line in query.split("\n")]
     q[-1] = q[-1].replace("\n ", "\n return ")
 
-    exec("async def __ex(message, reply, bot, member): " + "".join(q))
+    f_code = compile(
+        f"async def gfg(message, reply, bot, member): {"   ".join(q)}",
+        "<int>",
+        "exec",
+    )
+    f_func = FunctionType(f_code.co_consts[0], globals(), "gfg")
 
     try:
         member = await Member.get_by(message)
@@ -29,7 +35,7 @@ async def supereval(
         member = None
 
     try:
-        output = await locals()["__ex"](
+        output = await f_func(
             message, message.reply_to_message, bot, member
         )
     except Exception:

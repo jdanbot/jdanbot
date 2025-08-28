@@ -47,6 +47,8 @@ class Template(str):
 
 
 class Locale(BaseModel):
+    cases: list[str]
+
     class Pidor(BaseModel):
         top_10: str
         works_only_in_chats: str

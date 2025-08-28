@@ -1,29 +1,74 @@
-from fluentogram import TranslatorRunner
 import httpx
-from aiogram import types, F
+from aiogram import types
 from aiogram.filters import Command, CommandObject
 from aiogram.utils.markdown import code
-from tghtml import TgHTML
 from wikipya import Wikipya
+from wikipya.clients import Fandom
 from wikipya.constants import TAG_BLOCKLIST
 
 from bot.filters.get_text import GetText
 
 from .. import handlers
-from ..config import WIKI_COMMANDS, WIKIPEDIA_SHORTCUTS, router
+from ..config import (
+    WIKI_COMMANDS,
+    WIKIPEDIA_SHORTCUTS,
+    Locale,
+    router,
+)
 from ..config.languages import WIKIPEDIA_LANGS
+from ..handlers.tghtml import TgHTML
 from ..lib.models import Article
 from ..lib.text import fix_words
 
 
-from wikipya.clients import Fandom
+@router.message(Command("test"), GetText(disable_reply=True))
+@handlers.send_article
+async def test(message: types.Message, query: str) -> Article:
+    await message.reply("ping")
+
+    w = Wikipya(
+        base_url="https://fallout.fandom.com/ru/api.php",
+        client=Fandom,
+        params=dict(
+            tag_blocklist=[
+                "div.cquote",
+                *TAG_BLOCKLIST,
+            ]
+        ),
+    )
+
+    s = await w.fandom_search(query)
+    page = await w.page(s[0].title)
+
+    x = TgHTML(
+        page.text,
+        blocklist=[
+            "div.navigation-not-searchable",
+            "table",
+            ".error",
+            ".noprint",
+            ".thumb",
+            "span.error",
+            "span.mw-ext-cite-error",
+            "p.hatnote",
+            "div#toc",
+        ],
+    )
+
+    print(s[0].image.__str__())
+    print(s[0].image.__str__().split("revision/latest/smart")[0])
+
+    return Article(
+        text=x.output or "",
+        title=s[0].title,
+        image=s[0].image.__str__().split("revision/latest/smart")[0],
+    )
 
 
 @handlers.wikipya_handler("fallout")
 async def fallout(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://fallout.fandom.com/ru/api.php",
-        client=Fandom,
         params=dict(
             tag_blocklist=[
                 "div.cquote",
@@ -61,10 +106,23 @@ async def lurkmore(message: types.Message) -> Wikipya:
     )
 
 
-@handlers.wikipya_handler("fallout")
+@handlers.wikipya_handler("fallout", full_load=True)
 async def fallout(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://fallout.fandom.com/ru/api.php",
+        params=dict(
+            tag_blocklist=[
+                "div.cquote",
+                *TAG_BLOCKLIST,
+            ]
+        ),
+    )
+
+
+@handlers.wikipya_handler("wtno", full_load=False)
+async def tno(message: types.Message) -> Wikipya:
+    return Wikipya(
+        base_url="https://the-new-order-last-days-of-europe.fandom.com/ru/api.php",
         params=dict(
             tag_blocklist=[
                 "div.cquote",
@@ -180,19 +238,19 @@ async def get_summary(message: types.Message, query: str) -> Article:
 
 
 @router.message(Command("s"))
-@router.message(F.text.regexp("s(\w\w)").as_("lang"))
+# @router.message(F.text.regexp("s(\w\w)").as_("lang"))
 async def wikiSearch(
-    message: types.Message, _: TranslatorRunner, lang: str = "ru"
+    message: types.Message, _: Locale, lang: str = "ru"
 ):
     opts = message.text.split(maxsplit=1)
 
     if len(opts) == 1:
         await message.reply(
-            _.enter_wiki_query().format(opts[0]),
+            _.errors.enter_wiki_query.format(opts[0]),
             parse_mode="Markdown",
         )
         return
 
     return await message.reply(
-        f"*Use bot's inline instead of this command\!*\nexample: {code(f"@jdan734_bot {lang} {(opts[1])}.")}"
+        f"*Use bot's inline instead of this command*\nexample: {code(f"@jdan734_bot {lang} {(opts[1])}.")}"
     )

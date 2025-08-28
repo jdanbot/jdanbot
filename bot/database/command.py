@@ -1,18 +1,20 @@
-from typing import Optional
-
 from tortoise import fields
-import pendulum as pdl
+from tortoise.fields import Field
 
-from .lib import PdlField, BaseModel
+from bot.database.lib.base_table import BaseTable
 
 
-class Command(BaseModel):
-    id: int = fields.IntField(pk=True)
+class Command(BaseTable):
+    id: Field[int] | int = fields.IntField(
+        default=None,
+        primary_key=True,
+    )
 
-    chat_id: int = fields.BigIntField()
-    user_id: int = fields.BigIntField()
+    chat_id: Field[int] | int = fields.IntField()
+    user_id: Field[int] | int = fields.IntField()
 
-    name: str = fields.TextField()
-    args: Optional[str] = fields.TextField()
-
-    runned_at: pdl.DateTime = PdlField(auto_now=True)
+    name: Field[str] | str = fields.TextField()
+    args: Field[str] | str | None = fields.TextField(
+        nullable=True,
+        default=None,
+    )
