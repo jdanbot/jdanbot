@@ -193,6 +193,7 @@ class TgHTML(BaseModel):
             .replace("<blockquote>\n", "<blockquote>")
             .replace("\n</blockquote>", "</blockquote>")
             .replace("■", "■ ")
+            .replace("■  ", "■ ")
         ).strip()
 
     def bulk_remove(self, d: jq, *selectors):
