@@ -174,6 +174,7 @@ async def wikihandler(
                 "div.capsa-vicidata",
                 "div.side-box-flex",
                 "span.navigation-not-searchable",
+                ".ts-fix-template",
             ]
         ),
     ), args
