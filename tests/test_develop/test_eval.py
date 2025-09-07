@@ -1,10 +1,12 @@
 import pytest
 
-from ..mocks import MessageMock
+from ..mocks import mock
 from bot.develop.eval import supereval
 
 
 @pytest.mark.asyncio
 async def test_eval_handler():
-    await supereval(message_mock := MessageMock(text="/eval 2*2+2"))
-    assert message_mock.replies[0].text == "`6`"
+    assert (
+        await mock(func=supereval, command="/eval 2*2+2")
+        == "`6`"
+    )

@@ -35,13 +35,17 @@ class GoogleTranslator:
         self,
         text: str,
         src_lang: str = "auto",
-        tgt_lang: str = "auto"
+        tgt_lang: str = "auto",
     ) -> str:
         parameter = [[text.strip(), src_lang, tgt_lang, True], [None]]
-        escaped_parameter = json.dumps(parameter, separators=(',', ':'))
+        escaped_parameter = json.dumps(
+            parameter, separators=(",", ":")
+        )
 
-        rpc = [[[self.GOOGLE_RPC, escaped_parameter, None, "generic"]]]
-        escaped_rpc = json.dumps(rpc, separators=(',', ':'))
+        rpc = [
+            [[self.GOOGLE_RPC, escaped_parameter, None, "generic"]]
+        ]
+        escaped_rpc = json.dumps(rpc, separators=(",", ":"))
         params = {"f.req": escaped_rpc}
 
         async with self._session.post(self.URL, params=params) as r:
@@ -53,13 +57,13 @@ class GoogleTranslator:
                 _t = json.loads(part)[0][2]
                 _translation = json.loads(_t)[1]
 
-                source_lang = _translation[3]      # noqa
-                target_lang = _translation[1]      # noqa
-                source_text = _translation[4][0]   # noqa
+                source_lang = _translation[3]  # noqa
+                target_lang = _translation[1]  # noqa
+                source_text = _translation[4][0]  # noqa
 
                 translated = _translation[0][0]
 
-                pronounce = translated[1]          # noqa
+                pronounce = translated[1]  # noqa
                 _parts = translated[5]
 
                 translated_text = ""

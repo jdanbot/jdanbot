@@ -1,28 +1,24 @@
-from aiogram import types
-
-from fluentogram import TranslatorRunner
 import pymemeru
-
+from aiogram import types
 from aiogram.filters import Command
-from ..config import router
-from .. import handlers
-from ..lib.models import Article
-from ..filters import GetText
-
 from tghtml import TgHTML
+
+from ..config import Locale, router
+from ..filters import GetText
+from ..lib.models import Article
 
 
 @router.message(
-    Command("memepedia", "meme"), GetText(disable_reply=True)
+    Command("memepedia", "meme"),
+    GetText(disable_reply=True),
 )
-@handlers.send_article
 async def mempep(
-    message: types.Message, query: str, _: TranslatorRunner
+    message: types.Message, query: str, _: Locale
 ) -> Article:
     try:
         search = await pymemeru.search(query)
     except AttributeError:
-        await message.reply(_.not_found())
+        await message.reply(_.errors.not_found)
         return
 
     page = await pymemeru.page(search[0].name)

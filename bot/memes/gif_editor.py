@@ -1,12 +1,11 @@
-import ffmpeg
-from aiogram import types, F
-from aiogram.filters import Command, CommandObject
-
-from ..config import router, bot
-from shellous import sh
 from pathlib import Path
 
-from fluentogram import TranslatorRunner
+import ffmpeg
+from aiogram import F, types
+from aiogram.filters import Command, CommandObject
+from shellous import sh
+
+from ..config import Locale, bot, router
 
 
 @router.message(
@@ -19,15 +18,15 @@ from fluentogram import TranslatorRunner
 async def edit_gif(
     message: types.Message,
     command: CommandObject,
-    _: TranslatorRunner,
+    _: Locale,
 ):
     reply: types.Message = message.reply_to_message
-    video: types.Animation | types.Sticker | types.Video | None = (
-        reply.animation or reply.sticker or reply.video
-    )
+    video: (
+        types.Animation | types.Sticker | types.Video | None
+    ) = reply.animation or reply.sticker or reply.video
 
     if video.file_size > 500_000_00:
-        await message.reply(_.is_too_big_gif())
+        await message.reply(_.errors.too_big_gif)
         return
 
     _in = Path("/tmp/TEST.mp4")
@@ -68,5 +67,7 @@ async def edit_gif_without_source(message: types.Message):
 @router.message(
     Command("fast", "slow", "reversed", "to_gif"),
 )
-async def edit_gif_without_source_and_reply(message: types.Message):
+async def edit_gif_without_source_and_reply(
+    message: types.Message,
+):
     await message.reply("you only send command")

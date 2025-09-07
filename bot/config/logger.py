@@ -1,6 +1,6 @@
-import coloredlogs
-
 import logging
+
+import coloredlogs
 
 from .lib.filters import NoRunningJobFilter
 
@@ -13,4 +13,6 @@ coloredlogs.install(
     logger=logger,
 )
 
-logging.getLogger("schedule").addFilter(NoRunningJobFilter())
+logging.getLogger("schedule").addFilter(
+    NoRunningJobFilter()
+)

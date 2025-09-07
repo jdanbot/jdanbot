@@ -4,12 +4,17 @@ from random import choice
 
 from aiogram import types
 from aiogram.filters import Command, CommandObject
-from deep_translator import GoogleTranslator as DeepGoogleTranslator
-from fluentogram import TranslatorRunner
+from deep_translator import (
+    GoogleTranslator as DeepGoogleTranslator,
+)
 
 from ..config import router
-from ..config.languages import LANGS, CRAZY_LANGS, TranslationLanguage
-from ..config.lib.middleware import TranslatorRunnerMiddleware
+from ..config.languages import (
+    CRAZY_LANGS,
+    LANGS,
+    TranslationLanguage,
+)
+from ..config.lib.i18n_middleware import i18nMiddleware
 from ..filters import GetText
 from .lib.multitran import GoogleTranslator
 
@@ -30,16 +35,17 @@ def get_lang_emoji_by_name(lang_name: str) -> str:
     ).emoji
 
 
-@router.message(Command("crazy", "crazy2", "c", "c2"), GetText())
+@router.message(
+    Command("crazy", "crazy2", "c", "c2"), GetText()
+)
 async def crazy_translator(
     message: types.Message,
     query: str,
     command: CommandObject,
-    _: TranslatorRunner,
 ):
     msg = await message.reply("⏳")
 
-    mw = TranslatorRunnerMiddleware()
+    mw = i18nMiddleware()
 
     user_lang = (
         user_lang

@@ -1,7 +1,6 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class BotMock:
+class BotMock(BaseModel):
     token: str = None
     parse_mode: str = None

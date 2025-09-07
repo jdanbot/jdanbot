@@ -1,15 +1,12 @@
-import contextlib
 import json
 
 import humanize
-import yaml
+import toml
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.utils.markdown import code
 
-from fluentogram import TranslatorRunner
-
-from ..config import router
+from ..config import Locale, router
 from ..filters import GetText, IsSuperuser
 from ..lib.aioget import aioget
 
@@ -21,8 +18,10 @@ async def download(message: types.Message, query: str):
     response = await aioget(query)
     text = response.text
 
-    with contextlib.suppress(json.decoder.JSONDecodeError):
-        text = yaml.dump(json.loads(text))
+    try:
+        text = toml.dumps(json.loads(text))
+    except:
+        pass
 
     await message.reply(
         code(text[:4096]),
@@ -35,12 +34,12 @@ async def download(message: types.Message, query: str):
     GetText(disable_reply=True),
 )
 async def wget(
-    message: types.Message, query: str, _: TranslatorRunner
+    message: types.Message, query: str, _: Locale
 ):
     res = await aioget(query)
 
     await message.reply(
-        _.wget(
+        _.templates.wget(
             url=query,
             code=res.status_code,
             code_emoji=["🟡", "🟢", "🟡", "🔴", "🔴"][

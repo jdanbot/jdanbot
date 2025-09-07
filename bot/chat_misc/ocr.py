@@ -3,7 +3,9 @@ import re
 
 import aiopytesseract as pytesseract
 from aiogram import F, types
-from deep_translator import GoogleTranslator as DeepGoogleTranslator
+from deep_translator import (
+    GoogleTranslator as DeepGoogleTranslator,
+)
 
 from ..config import bot, router
 from ..lib.errors import JdanbotError

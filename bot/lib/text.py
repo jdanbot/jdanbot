@@ -3,7 +3,7 @@ from typing import Union, Iterable
 # TODO: Full rewrite
 
 
-def prettyword(n: int, forms: Union[list, tuple, str]) -> str:
+def prettyword(n: int, forms: list[str] | tuple[str, str, str] | str) -> str:
     if isinstance(forms, str):
         return forms
 
@@ -20,9 +20,7 @@ def prettyword(n: int, forms: Union[list, tuple, str]) -> str:
         return forms[2]
 
 
-def paginate(
-    data: Iterable, page: int = 0, limit: int = 10
-) -> Iterable:
+def paginate(data: Iterable, page: int = 0, limit: int = 10) -> Iterable:
     """
     FROM AIOGRAM2
 
@@ -47,11 +45,6 @@ def cute_crop(text: str, limit: int = 100) -> str:
 def fix_words(text: str) -> str:
     namelist = [
         ["у́", "у"],
-        ["Белоруссия", "Беларусь"],
-        ["Белоруссии", "Беларуси"],
-        ["Беларуссию", "Беларусь"],
-        ["Белоруссией", "Беларусью"],
-        ["Белоруссиею", "Беларусью"],
         ["на Украин", "в Украин"],
     ]
 

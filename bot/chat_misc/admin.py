@@ -1,28 +1,36 @@
 from functools import cached_property
+from typing import Annotated
+
+import pendulum as pdl
 import pytimeparse
 from aiogram import types
 from aiogram.filters import Command
+from aiogram.utils.text_decorations import (
+    markdown_decoration as md,
+)
+from async_property import (
+    async_cached_property,
+    async_property,
+)
+from async_property.base import AsyncPropertyDescriptor
+from async_property.cached import (
+    AsyncCachedPropertyDescriptor,
+)
+from fluentogram import TranslatorRunner
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+)
 
 from bot.config import bot
 
 from ..config import router
-from ..filters import IsAdmin, Check, GetText, Arguments
 from ..database import Member
-from pydantic import (
-    BaseModel,
-    BeforeValidator,
-    AfterValidator,
-    Field,
-    ConfigDict,
-)
+from ..filters import Arguments, Check, GetText, IsAdmin
 from .lib.ban_logs import BanLog
-import pendulum as pdl
-from aiogram.utils.text_decorations import markdown_decoration as md
-from typing import Annotated
-from fluentogram import TranslatorRunner
-from async_property import async_property, async_cached_property
-from async_property.base import AsyncPropertyDescriptor
-from async_property.cached import AsyncCachedPropertyDescriptor
 
 
 class BaseHammer(BaseModel):
@@ -44,10 +52,12 @@ class UnbanHammer(BaseHammer):
 
 
 class BanHammer(BaseHammer):
-    time: Annotated[int, BeforeValidator(pytimeparse.parse)] = 60
-    reason: Annotated[str, AfterValidator(lambda x: x.strip())] = (
-        "None"
-    )
+    time: Annotated[
+        int, BeforeValidator(pytimeparse.parse)
+    ] = 60
+    reason: Annotated[
+        str, AfterValidator(lambda x: x.strip())
+    ] = "None"
 
     @cached_property
     def until_duration(self) -> pdl.Duration:
@@ -71,7 +81,8 @@ class WarnHammer(BaseHammer):
 
     @async_cached_property
     async def warn_counter(self) -> int:
-        return await (await self.member).warns.filter().count()
+        return 0
+        # return await (await self.member).warns.filter().count()
 
     @async_cached_property
     async def new_warn_counter(self) -> int:
@@ -79,10 +90,15 @@ class WarnHammer(BaseHammer):
 
 
 @router.message(
-    Command("mute"), IsAdmin(), Check("__enable_admin__"), Arguments()
+    Command("mute"),
+    IsAdmin(),
+    Check("__enable_admin__"),
+    Arguments(),
 )
 async def admin_mute(
-    message: types.Message, args: BanHammer, _: TranslatorRunner
+    message: types.Message,
+    args: BanHammer,
+    _: TranslatorRunner,
 ):
     print(args)
 
@@ -119,7 +135,9 @@ async def admin_mute(
     Arguments(),
 )
 async def admin_unmute(
-    message: types.Message, args: UnbanHammer, _: TranslatorRunner
+    message: types.Message,
+    args: UnbanHammer,
+    _: TranslatorRunner,
 ):
     print(args)
 
@@ -172,10 +190,15 @@ async def admin_unmute(
 
 
 @router.message(
-    Command("warn"), IsAdmin(), Check("__enable_admin__"), Arguments()
+    Command("warn"),
+    IsAdmin(),
+    Check("__enable_admin__"),
+    Arguments(),
 )
 async def admin_warn(
-    message: types.Message, args: WarnHammer, _: TranslatorRunner
+    message: types.Message,
+    args: WarnHammer,
+    _: TranslatorRunner,
 ):
     member = await Member.get_by(args.reply)
     admin = await Member.get_by(args.message)
@@ -187,7 +210,9 @@ async def admin_warn(
         admin_log := _.warn_member(
             user=args.reply.from_user.mention_markdown(),
             admin=message.from_user.mention_markdown(),
-            why=md.quote(args.reason) if args.reason else "null",
+            why=md.quote(args.reason)
+            if args.reason
+            else "null",
             i=await args.new_warn_counter,
         )
     )
@@ -198,7 +223,10 @@ async def admin_warn(
 
     await message.delete()
 
-    if await args.new_warn_counter >= await args.warns_to_ban:
+    if (
+        await args.new_warn_counter
+        >= await args.warns_to_ban
+    ):
         await args.reply.reply("TOO MANY WARNS")
 
 
@@ -225,27 +253,3 @@ async def admin_warn(
 
 #     if message.chat.id == -1001176998310:
 #         await action.repost()
-
-
-@router.message(Command("poll"), Check("enable_poll"), GetText())
-async def kz_poll(message: types.Message, query: str):
-    options = ["Да", "Нет", "Воздержусь"]
-    is_katz_bots = False and message.chat.id == -1001334412934
-
-    if is_katz_bots:
-        options.append("Нет прав")
-
-    await message.answer_poll(query, options, is_anonymous=False)
-    await message.delete()
-
-
-@router.message(Command("open"))
-async def open_poll(message: types.Message):
-    reply = message.reply_to_message.poll
-
-    await message.answer_poll(
-        reply.question,
-        [option.text for option in reply.options],
-        is_anonymous=False,
-        allows_multiple_answers=reply.allows_multiple_answers,
-    )

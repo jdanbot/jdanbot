@@ -1,62 +1,94 @@
 import asyncio
+from random import choice
 
 from aiogram import types
+from aiogram.filters import Command
 from aiogram.utils.markdown import bold, italic
 
-from aiogram.filters import Command
-from ..config import router, choice
+from bot.database.member import Member
+from bot.database.pidor import Pidor, PidorEvent
+
+from ..config.bot import router
+from ..config.lib.locales import Locale
 from ..database import Member, PidorEvent
 from ..lib.text import prettyword
-from fluentogram import TranslatorRunner
+
+
+async def init_pidor(
+    message: types.Message,
+    member: Member,
+    _: Locale,
+) -> bool:
+    if message.chat.id > 0:
+        await message.reply(_.pidor.works_only_in_chats)
+        return False
+
+    if not await member.is_pidor():
+        await message.reply(_.pidor.reg)
+        return False
+
+    if not await member.check_run_pidor():
+        pidor = await Pidor.get(id=member.chat.pidor_id)
+        mem = await Member.get(pidor.user_id, pidor.chat_id)
+
+        await message.reply(
+            choice(
+                _.pidor.already_finded,
+            ).format(
+                user=bold(mem.mention),
+            )
+        )
+        return False
+
+    return True
 
 
 @router.message(Command("pidor"))
 async def find_pidor(
     message: types.Message,
-    _: TranslatorRunner,
+    _: Locale,
     ignore_pidor_wait: bool = False,
 ):
-    member = await Member.get_by(message)
-    await member.fetch_related("chat", "pidor")
+    member: Member = await Member.get_by(message)
 
-    if message.chat.id > 0:
-        await message.reply(_.pidor.work_only_in_chats())
+    if not await init_pidor(message, member, _):
         return
 
-    if not await member.chat.can_run_pidor():
-        pidor = await Member.get(id=member.chat.pidor_id)
-        await pidor.fetch_related("user", "pidor")
+    pidor, __ = await member.get_pidor()
 
-        return await message.reply(
-            choice(_.pidor.templates.finden, user=bold(pidor.mention))
-        )
+    await PidorEvent.create(
+        pidor_id=pidor.id,
+        chat_id=member.chat_id,
+    )
 
-    if not member.pidor or not member.pidor.is_allowed:
-        return await message.reply(_.pidor.reg())
+    new_pidor: Pidor = await member.get_random_pidor()
+    new_member: Member = await Member.get(
+        user_id=new_pidor.user_id,
+        chat_id=new_pidor.chat_id,
+    )
 
-    new_pidor = await member.chat.get_random_pidor()
-
-    if await new_pidor.get_status() == "left":
-        await message.reply(_.pidor.pidor_left())
+    if await new_member.is_left():
+        await message.reply(_.pidor.pidor_left)
         return
 
-    await new_pidor.fetch_related("pidor", "user")
-
-    event = await PidorEvent.create(
+    event: PidorEvent = await PidorEvent.create(
         pidor_id=new_pidor.id, chat_id=new_pidor.chat_id
     )
 
-    await new_pidor.pidor.update(latest_time=event.id)
+    await new_pidor.update(latest_time=event.id)
     await member.chat.update(pidor_id=new_pidor.id)
 
-    for phrase in choice(_.pidor.finding).split("\n")[:-1]:
+    for phrase in choice(_.pidor.pidor_searching).split("\n"):
         if phrase != "":
             await message.answer(italic(phrase))
         if not ignore_pidor_wait:
             await asyncio.sleep(2.5)
 
     await message.answer(
-        choice(_.pidor.templates.finden, user=bold(new_pidor.tag))
+        choice(
+            _.pidor.today_pidor,
+            user=bold(new_member.tag),
+        )
     )
 
 
@@ -64,48 +96,46 @@ PIDOR_TEMPLATE = "_{}_ *{}* — `{}` {}\n"
 
 
 def get_emojed_num(num: int) -> str:
-    match num:
-        case 1:
-            return "🥇"
-        case 2:
-            return "🥈"
-        case 3:
-            return "🥉"
-
-    return num + "."
+    return ["🥇", "🥈", "🥉", f"{num}."][min(num - 1, 3)]
 
 
 @router.message(Command("pidorstats"))
-async def pidor_stats(message: types.Message, _: TranslatorRunner):
+async def pidor_stats(message: types.Message, _: Locale):
     member = await Member.get_by(message)
-    await member.fetch_related("chat")
 
-    msg = _.pidor.top_10() + "\n\n"
+    msg = _.pidor.top_10 + "\n\n"
 
     for num, pidor in enumerate(
-        await member.chat.get_top_pidors(), 1
+        await member.get_top_pidors(), 1
     ):
-        count = prettyword(pidor.count, _.count())
+        count = prettyword(pidor.count, _.count)
 
         msg += PIDOR_TEMPLATE.format(
-            get_emojed_num(num), pidor.full_name, pidor.count, count
+            get_emojed_num(num),
+            pidor.full_name,
+            pidor.count,
+            count,
         )
 
     msg += "\n"
-    msg += _.pidor.members(count=await member.get_pidor_count())
+    msg += _.pidor.total_members(
+        count=await member.get_pidor_count()
+    )
 
-    await message.reply(msg, parse_mode="Markdown")
+    await message.reply(
+        msg,
+        parse_mode="Markdown",
+    )
 
 
 @router.message(Command("pidorreg", "pidoreg"))
 async def reg_pidor(
-    message: types.Message,
-    _: TranslatorRunner,
-):
-    member = await Member.get_by(message)
-    pidor, is_created = await member.get_pidor()
+    message: types.Message, _: Locale, member: Member
+) -> None:
+    __, is_created = await member.get_pidor()
 
     if is_created:
-        return await message.reply(_.in_db())
+        await message.reply(_.pidor.in_db)
+        return
 
-    await message.reply(_.already_in_db())
+    await message.reply(_.pidor.already_in_db)

@@ -1,10 +1,9 @@
 from aiogram import types
 from aiogram.filters import Command
 from readability import Document
-from tghtml import TgHTML
 
-from .. import handlers
 from ..config import router
+from ..config.lib.tghtml import TgHTML
 from ..filters import GetText, IsSuperuser
 from ..lib.aioget import aioget
 from ..lib.models import Article
@@ -15,18 +14,19 @@ from ..lib.models import Article
     IsSuperuser(),
     GetText(disable_reply=True),
 )
-@handlers.send_article
-async def netscape(message: types.Message, url: str) -> Article:
-    res = await aioget(url)
+async def netscape(
+    message: types.Message, query: str
+) -> Article:
+    res = await aioget(query)
     html = res.text
 
     parsed_html = TgHTML(html, enable_preprocess=True)
     title = Document(html).title()
 
     return Article(
-        str(parsed_html),
+        text=str(parsed_html),
         title=title,
-        href=url,
+        href=query,
         parse_mode="HTML",
         force_add_title=True,
     )

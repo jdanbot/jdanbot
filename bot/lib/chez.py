@@ -2,7 +2,8 @@ import httpx
 
 
 def say(text: str, voice: str = "aleksandr") -> str:
-    r = httpx.Request("GET",
+    r = httpx.Request(
+        "GET",
         "https://tts.chez.work/say",
         params=dict(
             text=text,
@@ -10,8 +11,8 @@ def say(text: str, voice: str = "aleksandr") -> str:
             format="opus",
             rate=55,
             pitch=10,
-            volume=100
-        )
+            volume=100,
+        ),
     )
 
     return str(r.url)

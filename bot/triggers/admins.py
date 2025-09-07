@@ -1,36 +1,36 @@
-from aiogram import types, F
-
+from aiogram import F, types
 from aiogram.filters import Command
-from ..config import bot, router
+
+from ..config import Locale, bot, router
+from ..triggers.legacy import triggers
 from ..filters import Check
-from fluentogram import TranslatorRunner
 
 
 @router.message(Command("admins"), Check("__enable_admin__"))
-async def call_admins(message, _: TranslatorRunner):
+async def call_admins(message, _: Locale):
     buttons = [
         [
             types.InlineKeyboardButton(
-                text=_.triggers.yes_(), callback_data="call_admin"
+                text=triggers["yes_"], callback_data="call_admin"
             ),
             types.InlineKeyboardButton(
-                text=_.triggers.delete(), callback_data="delete"
+                text=triggers["delete"], callback_data="delete"
             ),
         ]
     ]
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
 
     await message.reply(
-        _.triggers.call_admin_warn(), reply_markup=keyboard
+        triggers["call_admin_warn"], reply_markup=keyboard
     )
 
 
 @router.callback_query(F.data == "call_admin")
-async def call_admin(call: types.CallbackQuery, _: TranslatorRunner):
+async def call_admin(call: types.CallbackQuery, _: Locale):
     buttons = [
         [
             types.InlineKeyboardButton(
-                text=_.triggers.delete(), callback_data="delete"
+                text=triggers["delete"], callback_data="delete"
             )
         ]
     ]
@@ -41,7 +41,7 @@ async def call_admin(call: types.CallbackQuery, _: TranslatorRunner):
     admins_call = ", ".join(usernames) + "\n\n"
 
     await call.message.edit_text(
-        text=admins_call + _.triggers.admins_called(),
+        text=admins_call + triggers["admins_called"],
         reply_markup=keyboard,
         parse_mode="HTML",
     )

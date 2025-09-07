@@ -1,12 +1,11 @@
 from typing import Any
 
 from aiogram import types
-
-from ..text import cute_crop
 from aiogram.utils.markdown import hide_link
+from bs4 import BeautifulSoup
 from pydantic import BaseModel
 
-from bs4 import BeautifulSoup
+from ..text import cute_crop
 
 
 class Article(BaseModel):
@@ -26,9 +25,6 @@ class Article(BaseModel):
     params: Any = None
 
     def __post_init__(self):
-        if self.image == -1:
-            self.image = None
-
         if self.force_format:
             self.text = "\n\n".join(
                 list(
@@ -39,7 +35,9 @@ class Article(BaseModel):
                 )
             )
 
-        if (new_text := cute_crop(self.text, limit=4096)) != "":
+        if (
+            new_text := cute_crop(self.text, limit=4096)
+        ) != "":
             self.text = new_text
         else:
             self.text[:4096]
@@ -48,21 +46,48 @@ class Article(BaseModel):
         return self.format_schema.format(
             "".join(
                 [
-                    hide_link(self.image) if self.image else "",
-                    self.bold2link(self.text, self.title),
+                    hide_link(self.image)
+                    if self.image
+                    else "",
+                    self.bold2link(self.text),
                 ]
             )
         )
 
-    def bold2link(self, text: str, title: str | None = None) -> str:
+    def bold2link(self, text: str) -> str:
         if self.href is None:
             return text
 
         soup = BeautifulSoup(text, "html.parser")
         b = soup.find_all(["b", "strong"])
 
-        if (len(b) == 0 or self.force_add_title) and title:
-            return self.bold2link(f"<b>{title}</b>\n\n{str(soup)}")
+        if str(soup).startswith(self.title):
+            return self.bold2link(
+                f"<b>{self.title}</b>"
+                + str(soup).removeprefix(self.title)
+            )
+
+        if (
+            len(b) == 0 or self.force_add_title
+        ) and self.title:
+            soup = str(soup).replace(" – ", " — ")
+            self.force_add_title = False
+
+            if (
+                "Beholder" in soup
+                or soup.split(" — ", maxsplit=1)[0]
+                == self.title
+            ):
+                return self.bold2link(
+                    soup.replace(
+                        f"{self.title} — ",
+                        f"<b>{self.title}</b> — ",
+                    )
+                )
+            else:
+                return self.bold2link(
+                    f"<b>{self.title}</b>\n\n{soup}"
+                )
 
         if len(b) > 0:
             b = b[0]

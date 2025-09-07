@@ -1,10 +1,10 @@
 from aiogram import types
+from aiogram.filters import Command
+from aiogram.utils.markdown import code
 from art import text2art
 
-from aiogram.filters import Command
 from ..config import router
 from ..filters import GetText
-from aiogram.utils.markdown import code
 
 
 @router.message(Command("art"), GetText())

@@ -1,10 +1,12 @@
 import pytest
 
-from ..mocks import MessageMock
 from bot.develop.calc import eban
+
+from tests.mocks import mock
 
 
 @pytest.mark.asyncio
 async def test_calc_handler():
-    await eban(message_mock := MessageMock(text="/calc 5+5"))
-    assert message_mock.replies[0].text == "10"
+    assert (
+        await mock(func=eban, command="/calc 5+5") == "`10`"
+    )

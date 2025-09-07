@@ -1,11 +1,11 @@
-from aiogram import types, F
+from aiogram import F, types
+from fluentogram import TranslatorRunner
 
-from ..config import LANGS, router
+from ..config import LANGS, Locale, router
 from ..database import Member, Note
+from ..filters import IsAdmin
 from .modules import modules_
 from .settings import settings_
-from fluentogram import TranslatorRunner
-from ..filters import IsAdmin
 
 
 @router.callback_query(F.data == "set_lang", IsAdmin())

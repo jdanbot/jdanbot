@@ -3,7 +3,7 @@ from aiogram.dispatcher.event.handler import HandlerObject
 from aiogram.filters import BaseFilter, CommandObject
 from pydantic import BaseModel
 
-from fluentogram import TranslatorRunner
+from ..config import Locale
 from ..lib.errors import JdanbotError
 
 
@@ -13,12 +13,26 @@ class Arguments(BaseFilter):
         message: types.Message,
         command: CommandObject,
         handler: HandlerObject,
-        _: TranslatorRunner,
+        _: Locale,
     ) -> dict[str, BaseModel]:
-        model: BaseModel = handler.callback.__annotations__["args"]
+        return {
+            "args": await self.parse(
+                message,
+                handler.callback.__annotations__["args"],
+                command.args or "",
+                _,
+            )
+        }
 
-        text = command.args or ""
+    @staticmethod
+    async def parse(
+        message: types.Message,
+        model: BaseModel,
+        args: str,
+        _: Locale,
+    ) -> BaseModel:
         params = {}
+        print(args)
 
         for name in model.model_fields:
             field = model.model_fields[name]
@@ -34,27 +48,33 @@ class Arguments(BaseFilter):
                 continue
 
             if list(model.model_fields)[-1] == name:
-                param = text
+                param = args
             else:
-                param, text = f"{text} ".split(" ", maxsplit=1)
+                param, args = f"{args}".split(
+                    " ", maxsplit=1
+                )
 
             if param.strip() == "":
                 if (
                     field.metadata != []
-                    and isinstance((meta := field.metadata[0]), dict)
+                    and isinstance(
+                        (meta := field.metadata[0]), dict
+                    )
                     and (reply := meta.get("reply", False))
                     and message.reply_to_message
                 ):
                     param = message.reply_to_message.text
                 elif not field.is_required():
                     # skip; went text to previous variant
-                    text = param + text
+                    args = param + args
                 elif reply and not message.reply_to_message:
                     raise JdanbotError(
                         "errors.command_requires_reply_or_text"
                     )
                 else:
-                    raise JdanbotError("errors.command_requires_text")
+                    raise JdanbotError(
+                        "errors.command_requires_text"
+                    )
 
             if param:
                 params |= {name: param}
@@ -69,4 +89,4 @@ class Arguments(BaseFilter):
             #     params |= {name: run_if_func(annotation.default)}
             #     text = f"{param} {text}"
 
-        return {"args": model.model_validate(params)}
+        return model.model_validate(params)

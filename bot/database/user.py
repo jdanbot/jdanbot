@@ -1,22 +1,20 @@
-from typing import Optional
-
 from aiogram import types
 from tortoise import fields
 from tortoise.fields import Field
 
-from .lib import BaseModel
+from .lib.base_table import BaseTable
 from .pidor import PidorEvent
 
 
-class User(BaseModel):
-    id: Field[int] = fields.BigIntField(pk=True)
+class User(BaseTable):
+    id: int | Field[int] = fields.BigIntField(pk=True, default=None)
 
-    first_name: Field[str] = fields.TextField()
-    last_name: Optional[Field[str]] = fields.TextField(null=True)
-    username: Optional[Field[str]] = fields.TextField(null=True)
+    first_name: str | Field[str] = fields.TextField()
+    last_name: str | None | Field[str] = fields.TextField(null=True)
+    username: str | None | Field[str] = fields.TextField(null=True)
 
-    def __str__(self):
-        return f"{self.id} {self.full_name}"
+    # def __str__(self):
+    #     return f"{self.id} {self.full_name}"
 
     @property
     def full_name(self) -> str:

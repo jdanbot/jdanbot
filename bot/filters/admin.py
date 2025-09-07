@@ -8,7 +8,9 @@ from ..lib.admin import check_admin
 
 
 class IsAdmin(BaseFilter):
-    async def __call__(self, message: types.Message) -> bool:
+    async def __call__(
+        self, message: types.Message
+    ) -> bool:
         with contextlib.suppress(Exception):
             message = message.message
 
