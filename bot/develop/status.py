@@ -28,9 +28,7 @@ def format_interval(duration: pdl.Interval) -> str:
 
 
 @router.message(Command("status"))
-async def get_status(
-    message: types.Message, _: Locale
-):
+async def get_status(message: types.Message, _: Locale):
     interval = pdl.now() - START_TIME
 
     await message.reply(

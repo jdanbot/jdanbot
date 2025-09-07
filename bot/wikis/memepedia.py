@@ -3,16 +3,15 @@ from aiogram import types
 from aiogram.filters import Command
 from tghtml import TgHTML
 
-from .. import handlers
 from ..config import Locale, router
 from ..filters import GetText
 from ..lib.models import Article
 
 
 @router.message(
-    Command("memepedia", "meme"), GetText(disable_reply=True)
+    Command("memepedia", "meme"),
+    GetText(disable_reply=True),
 )
-@handlers.send_article
 async def mempep(
     message: types.Message, query: str, _: Locale
 ) -> Article:

@@ -1,22 +1,20 @@
-from typing import Optional
-from ..config import bot, WIKIPEDIA_LANGS, router
-from aiogram.utils.markdown import code, bold
-
-from aiogram import types, F
+from aiogram import F, types
 from aiogram.types import (
-    InputTextMessageContent,
-    InlineQueryResultAudio,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
     InlineQueryResultArticle,
+    InlineQueryResultAudio,
+    InputTextMessageContent,
 )
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.markdown import bold, code
 from wikipya.aiowiki import Wikipya
 
-from .. import handlers
-from ..lib.models import Article
+from ..config.lib.spy_middleware import SpyMiddleware
 
+from ..config import WIKIPEDIA_LANGS, bot, router
+from ..config.lib.tghtml import TgHTML
 from ..lib import chez
-
-from ..handlers.tghtml import TgHTML
+from ..lib.models import Article
 
 
 @router.inline_query(F.query.len() == 0)
@@ -28,7 +26,7 @@ async def inline_mode_menu(inline_query: types.InlineQuery):
                 title="Озвучить текст",
                 description="Для использования введите @jdan734_bot say <запрос>.",
                 input_message_content=InputTextMessageContent(
-                    message_text="Мне нечего озвучивать\. Введи текст"
+                    message_text="Мне нечего озвучивать\\. Введи текст"
                 ),
             ),
             InlineQueryResultArticle(
@@ -36,7 +34,7 @@ async def inline_mode_menu(inline_query: types.InlineQuery):
                 title="Найти в Википедии",
                 description="Для использования введите @jdan734_bot <запрос>.",
                 input_message_content=InputTextMessageContent(
-                    message_text="Мне нечего находить\. Введи запрос"
+                    message_text="Мне нечего находить\\. Введи запрос"
                 ),
             ),
         ],
@@ -58,7 +56,8 @@ async def dot_in_end_please(query: types.CallbackQuery):
             title="Поставь точку в конце!",
             description="Надо. Вставь.",
             input_message_content=InputTextMessageContent(
-                message_text="ПРОСТО ВСТАВЬ ТОЧКУ.", parse_mode=None
+                message_text="ПРОСТО ВСТАВЬ ТОЧКУ.",
+                parse_mode=None,
             ),
         )
     ]
@@ -96,11 +95,10 @@ def parse_lang_and_query(query: str) -> tuple[str, str]:
 
 
 @router.chosen_inline_result()
-@handlers.send_article
 async def test(query: types.ChosenInlineResult) -> Article:
     lang, _ = parse_lang_and_query(query.query)
 
-    wiki = Wikipya(lang).get_instance()
+    wiki = Wikipya(lang)
     page_name = await wiki.get_page_name(query.result_id)
     page = await wiki.page(page_name)
 
@@ -127,19 +125,24 @@ async def test(query: types.ChosenInlineResult) -> Article:
 
     text = x.output.strip()
 
-    image: Optional[str] = None if image in (-1, "-1") else image
+    image: str | None = (
+        None if image in (-1, "-1") else image
+    )
 
-    return Article(
-        text=text[:4000],
-        format_schema=(
-            "<blockquote expandable>{}</blockquote>"
-            if len(text) > 400
-            else "{}"
+    await SpyMiddleware.send_article(
+        query,
+        Article(
+            text=text[:4000],
+            format_schema=(
+                "<blockquote expandable>{}</blockquote>"
+                if len(text) > 400
+                else "{}"
+            ),
+            image=image,
+            title=page.title,
+            disable_web_page_preview=not bool(image),
+            href=opensearch.results[0].link,
         ),
-        image=image,
-        title=page.title,
-        disable_web_page_preview=not bool(image),
-        href=opensearch.results[0].link,
     )
 
 
@@ -147,7 +150,7 @@ async def test(query: types.ChosenInlineResult) -> Article:
 async def wikijewfrew(query: types.CallbackQuery):
     lang, q = parse_lang_and_query(query.query)
 
-    wiki = Wikipya(lang).get_instance()
+    wiki = Wikipya(lang)
 
     btn = InlineKeyboardButton(
         text="Загрузка...", callback_data="wait"
@@ -155,7 +158,9 @@ async def wikijewfrew(query: types.CallbackQuery):
     kb = InlineKeyboardMarkup(inline_keyboard=[[btn]])
 
     try:
-        search = await wiki.search_with_description(q, limit=10)
+        search = await wiki.search_with_description(
+            q, limit=10
+        )
     except Exception as e:
         print(e)
         await bot.answer_inline_query(
@@ -193,7 +198,8 @@ async def wikijewfrew(query: types.CallbackQuery):
                 description=result.description,
                 thumb_url=image,
                 input_message_content=InputTextMessageContent(
-                    message_text=result.description or result.title,
+                    message_text=result.description
+                    or result.title,
                     parse_mode="html",
                 ),
                 reply_markup=kb,

@@ -1,27 +1,28 @@
-from typing import Any, Awaitable, Callable, Dict, override
+from collections.abc import Awaitable
+from typing import Any, Callable, override
 
 from aiogram import BaseMiddleware, types
-from aiogram.filters import Command as CommandFilter
 
-from ...database import Command, Member
+from ...database import Member
 from .locales import locales
 
 
-class TranslatorRunnerMiddleware(BaseMiddleware):
+class i18nMiddleware(BaseMiddleware):
+    @override
     async def __call__(
         self,
         handler: Callable[
-            [types.Message, Dict[str, Any]], Awaitable[Any]
+            [types.Message, dict[str, Any]], Awaitable[Any]
         ],
         event: types.Message,
-        data: Dict[str, Any],
+        data: dict[str, Any],
     ) -> Any:
         data["user_lang"] = await self.get_language(event)
 
-        try:
-            data["_"] = getattr(locales, data["user_lang"])
-        except KeyError:
-            data["_"] = locales.ru
+        # try:
+        #     data["_"] = getattr(locales, data["user_lang"])
+        # except KeyError:
+        data["_"] = locales.ru
 
         return await handler(event, data)
 
@@ -77,54 +78,3 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
             return user.language_code
         else:
             return "ru"
-
-
-class SpyMiddleware(BaseMiddleware):
-    @override
-    async def __call__(
-        self,
-        handler: Callable[
-            [types.TelegramObject, Dict[str, Any]],
-            Awaitable[Any],
-        ],
-        message: types.Message,
-        data: Dict[str, Any],
-    ):
-        command_orig = CommandFilter.extract_command(
-            self=CommandFilter, text=message.text
-        )
-
-        command = command_orig.command
-        args = command_orig.args
-
-        member = await Member.get_by(message)
-
-        locked_commands = (
-            await Member.get_note("locked_commands") or ""
-        ).split(" ")
-
-        if command is not None:
-            member = await Member.get_by(message)
-            data["member"] = member
-
-            await Command(
-                user_id=member.user_id,
-                chat_id=member.chat_id,
-                name=command.lower(),
-                args=args or "",
-            ).save()
-
-        for lcommand_raw in locked_commands:
-            lcommand = lcommand_raw.removeprefix("-")
-            is_force_admin = command != lcommand_raw
-
-            if command != lcommand:
-                continue
-
-            if (not is_force_admin) or (
-                is_force_admin
-                and not await member.check_admin()
-            ):
-                return
-
-        await handler(message, data)

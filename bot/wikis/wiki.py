@@ -1,71 +1,24 @@
 import httpx
-from aiogram import types
+from aiogram import F, types
 from aiogram.filters import Command, CommandObject
 from aiogram.utils.markdown import code
 from wikipya import Wikipya
-from wikipya.clients import Fandom
 from wikipya.constants import TAG_BLOCKLIST
 
 from bot.filters.get_text import GetText
 
-from .. import handlers
-from ..config import (
+from ..config import router
+from ..config.config import (
     WIKI_COMMANDS,
     WIKIPEDIA_SHORTCUTS,
-    Locale,
-    router,
 )
 from ..config.languages import WIKIPEDIA_LANGS
-from ..handlers.tghtml import TgHTML
+from ..config.lib.tghtml import TgHTML
 from ..lib.models import Article
 from ..lib.text import fix_words
 
 
-@router.message(Command("test"), GetText(disable_reply=True))
-@handlers.send_article
-async def test(message: types.Message, query: str) -> Article:
-    await message.reply("ping")
-
-    w = Wikipya(
-        base_url="https://fallout.fandom.com/ru/api.php",
-        client=Fandom,
-        params=dict(
-            tag_blocklist=[
-                "div.cquote",
-                *TAG_BLOCKLIST,
-            ]
-        ),
-    )
-
-    s = await w.fandom_search(query)
-    page = await w.page(s[0].title)
-
-    x = TgHTML(
-        page.text,
-        blocklist=[
-            "div.navigation-not-searchable",
-            "table",
-            ".error",
-            ".noprint",
-            ".thumb",
-            "span.error",
-            "span.mw-ext-cite-error",
-            "p.hatnote",
-            "div#toc",
-        ],
-    )
-
-    print(s[0].image.__str__())
-    print(s[0].image.__str__().split("revision/latest/smart")[0])
-
-    return Article(
-        text=x.output or "",
-        title=s[0].title,
-        image=s[0].image.__str__().split("revision/latest/smart")[0],
-    )
-
-
-@handlers.wikipya_handler("fallout")
+@router.message(Command("fallout"))
 async def fallout(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://fallout.fandom.com/ru/api.php",
@@ -78,17 +31,20 @@ async def fallout(message: types.Message) -> Wikipya:
     )
 
 
-async def check_mediawiki_api_url(url: str) -> bool:
-    try:
-        async with httpx.AsyncClient() as client:
-            r = await client.get(url)
+@router.message(Command("beholder"))
+async def beholder(message: types.Message) -> Wikipya:
+    return Wikipya(
+        base_url="https://beholder.fandom.com/ru/api.php",
+        params=dict(
+            tag_blocklist=[
+                "div.cquote",
+                *TAG_BLOCKLIST,
+            ]
+        ),
+    )
 
-            return r.status_code == 200
-    except Exception:
-        return False
 
-
-@handlers.wikipya_handler("lurk", "lurkmore")
+@router.message(Command("lurk", "lurkmore"))
 async def lurkmore(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://lurkmore.online/api.php",
@@ -106,20 +62,7 @@ async def lurkmore(message: types.Message) -> Wikipya:
     )
 
 
-@handlers.wikipya_handler("fallout", full_load=True)
-async def fallout(message: types.Message) -> Wikipya:
-    return Wikipya(
-        base_url="https://fallout.fandom.com/ru/api.php",
-        params=dict(
-            tag_blocklist=[
-                "div.cquote",
-                *TAG_BLOCKLIST,
-            ]
-        ),
-    )
-
-
-@handlers.wikipya_handler("wtno", full_load=False)
+@router.message(Command("wtno"))
 async def tno(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://the-new-order-last-days-of-europe.fandom.com/ru/api.php",
@@ -132,50 +75,66 @@ async def tno(message: types.Message) -> Wikipya:
     )
 
 
-@handlers.wikipya_handler("kaiser", "kaiserreich", "kr")
-async def kaiser(message: types.Message) -> Wikipya:
+@router.message(Command("kaiser", "kaiserreich", "kr"))
+async def kaiserru(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://kaiserreich.fandom.com/ru/api.php"
     )
 
 
-@handlers.wikipya_handler("kaiseren", "kaiserreichen", "kre")
+@router.message(Command("kaiseren", "kaiserreichen", "kre"))
 async def kaiser(message: types.Message) -> Wikipya:
-    return Wikipya(base_url="https://kaiserreich.fandom.com/api.php")
+    return Wikipya(
+        base_url="https://kaiserreich.fandom.com/api.php"
+    )
 
 
-@handlers.wikipya_handler("archwiki")
+@router.message(Command("archwiki"))
 async def archwiki(message: types.Message) -> Wikipya:
     return Wikipya(
-        base_url="https://wiki.archlinux.org/api.php", is_lurk=True
+        base_url="https://wiki.archlinux.org/api.php",
+        params=dict(
+            tag_blocklist=[
+                "div.archwiki-template-meta-related-articles"
+            ]
+        ),
     )
 
 
-@handlers.wikipya_handler("encycl")
+@router.message(Command("encycl"))
 async def encyclopedia(message: types.Message) -> Wikipya:
     return Wikipya(
-        base_url="https://encyclopatia.ru/w/api.php",
-        is_lurk=True,
-        prefix="/wiki",
+        base_url="https://encyclopatia.ru/w/api.php"
     )
 
 
-@handlers.wikipya_handler("neolurk")
-async def fallout(message: types.Message) -> Wikipya:
+@router.message(Command("neolurk"))
+async def neolurk(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://neolurk.org/w/api.php")
 
 
-@handlers.wikipya_handler(
-    "mediawiki", "mw", extract_query_from_url=True
-)
+async def check_mediawiki_api_url(url: str) -> bool:
+    try:
+        async with httpx.AsyncClient() as client:
+            r = await client.get(url)
+
+            return r.status_code == 200
+    except Exception:
+        return False
+
+
+@router.message(Command("mediawiki", "mw"))
 async def custom_mediawiki(
     message: types.Message, command: CommandObject
-) -> Wikipya:
+) -> dict[Wikipya, str]:
     host = httpx.URL(command.args).host
+    host = command.args.split("/wiki")[0].removeprefix(
+        "https://"
+    )
 
     url_variants = [
-        f"https://{host}/w/api.php",
         f"https://{host}/api.php",
+        f"https://{host}/w/api.php",
     ]
 
     if not any(
@@ -187,18 +146,21 @@ async def custom_mediawiki(
         await message.reply("Can't find valid API url")
         raise AttributeError
 
-    return Wikipya(base_url=base_url)
+    url = httpx.URL(command.args)
+    query = url.path.split("/")[-1].replace("_", " ")
+
+    return Wikipya(base_url=base_url), query
 
 
-@handlers.wikipya_handler(*WIKI_COMMANDS, went_trigger_command=True)
+@router.message(Command(*WIKI_COMMANDS))
 async def wikihandler(
-    message: types.Message, trigger: str
-) -> Wikipya:
-    command = trigger.split()[0]
-    lang = command.replace("/wiki", "").replace("/w", "")
+    message: types.Message, command: CommandObject
+) -> tuple[Wikipya, str]:
+    command, args = command.command, command.args
+    lang = command.removeprefix("wiki").removeprefix("w")
 
     for lang_ in WIKIPEDIA_SHORTCUTS:
-        if command[1:] in WIKIPEDIA_SHORTCUTS[lang_]:
+        if command in WIKIPEDIA_SHORTCUTS[lang_]:
             lang = lang_
             break
 
@@ -206,16 +168,24 @@ async def wikihandler(
         lang = "ru"
 
     return Wikipya(
-        lang, params=dict(tag_blocklist=["div.capsa-vicidata"])
-    )
+        lang,
+        params=dict(
+            tag_blocklist=[
+                "div.capsa-vicidata",
+                "div.side-box-flex",
+                "span.navigation-not-searchable",
+            ]
+        ),
+    ), args
 
 
 @router.message(
     Command("summary", "wiki"), GetText(disable_reply=True)
 )
-@handlers.send_article
-async def get_summary(message: types.Message, query: str) -> Article:
-    wiki = Wikipya("ru").get_instance()
+async def get_summary(
+    message: types.Message, query: str
+) -> Article:
+    wiki = Wikipya("ru")
 
     summary = await wiki.summary(query)
 
@@ -227,7 +197,8 @@ async def get_summary(message: types.Message, query: str) -> Article:
     return Article(
         text=fix_words(
             TgHTML(
-                summary.extract_html, enable_preprocess=False
+                summary.extract_html,
+                enable_preprocess=False,
             ).parsed
         ),
         title=summary.title,
@@ -237,20 +208,21 @@ async def get_summary(message: types.Message, query: str) -> Article:
     )
 
 
-@router.message(Command("s"))
-# @router.message(F.text.regexp("s(\w\w)").as_("lang"))
-async def wikiSearch(
-    message: types.Message, _: Locale, lang: str = "ru"
-):
-    opts = message.text.split(maxsplit=1)
+# @router.message(Command("s"))
+# @router.message(F.text.regexp("^/s(\w\w)").as_("lang"))
+# async def wikiSearch(
+#     message: types.Message, _: Locale, lang: str = "ru"
+# ):
+#     opts = message.text.split(maxsplit=1)
+#
+#     if len(opts) == 1:
+#         await message.reply(
+#             _.errors.enter_wiki_query.format(opts[0]),
+#             parse_mode="Markdown",
+#         )
+#         return
 
-    if len(opts) == 1:
-        await message.reply(
-            _.errors.enter_wiki_query.format(opts[0]),
-            parse_mode="Markdown",
-        )
-        return
-
-    return await message.reply(
-        f"*Use bot's inline instead of this command*\nexample: {code(f"@jdan734_bot {lang} {(opts[1])}.")}"
-    )
+#     return await message.reply(
+#         f"*Use bot's inline instead of
+# this command*\nexample:{code(f'@jdan734_bot {lang} {(opts[1])}.')}"
+#     )

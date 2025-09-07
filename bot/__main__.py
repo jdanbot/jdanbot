@@ -5,17 +5,15 @@ from tortoise import run_async
 
 from . import *  # noqa
 from .config.bot import bot, dp, router
-from .config.lib.middleware import (
-    SpyMiddleware,
-    TranslatorRunnerMiddleware,
-)
+from .config.lib.i18n_middleware import i18nMiddleware
+from .config.lib.spy_middleware import SpyMiddleware
 from .database import setup_db
 
 
 async def main() -> None:
     await setup_db()
 
-    dp.update.outer_middleware(middleware=TranslatorRunnerMiddleware())
+    dp.update.outer_middleware(middleware=i18nMiddleware())
     router.message.middleware(middleware=SpyMiddleware())
 
     dp.include_router(router)
