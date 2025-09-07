@@ -3,7 +3,7 @@ FROM python:3.12-alpine3.19
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-RUN apk add --no-cache ffmpeg tesseract-ocr tesseract-ocr-data-rus tesseract-ocr-data-ukr tesseract-ocr-data-deu build-base uv
+RUN apk add --no-cache ffmpeg tesseract-ocr tesseract-ocr-data-rus tesseract-ocr-data-ukr tesseract-ocr-data-deu build-base
 
 WORKDIR /app
 
@@ -14,8 +14,9 @@ USER 2000
 
 RUN mkdir db
 
-RUN uv sync
+RUN pip install uv
+RUN python -m uv sync
 
 ENV TZ="Europe/Moscow"
 
-ENTRYPOINT ["uv", "run", "python", "-m", "bot"]
+ENTRYPOINT ["python", "-m", "uv", "run", "python", "-m", "bot"]
