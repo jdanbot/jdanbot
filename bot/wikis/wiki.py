@@ -209,21 +209,18 @@ async def get_summary(
     )
 
 
-# @router.message(Command("s"))
-# @router.message(F.text.regexp("^/s(\w\w)").as_("lang"))
-# async def wikiSearch(
-#     message: types.Message, _: Locale, lang: str = "ru"
-# ):
-#     opts = message.text.split(maxsplit=1)
-#
-#     if len(opts) == 1:
-#         await message.reply(
-#             _.errors.enter_wiki_query.format(opts[0]),
-#             parse_mode="Markdown",
-#         )
-#         return
+@router.message(Command("s"))
+@router.message(
+    F.text.startswith("/s"),
+    F.text.func(
+        lambda x: len(x.split(" ", maxsplit=1)[0]) == 4
+    ),
+)
+async def wikiSearch(message: types.Message):
+    opts = message.text.split(maxsplit=1)
+    lang = opts[0].removeprefix("/s") or "ru"
+    query = opts[1] if len(opts) == 2 else "Название Статьи"
 
-#     return await message.reply(
-#         f"*Use bot's inline instead of
-# this command*\nexample:{code(f'@jdan734_bot {lang} {(opts[1])}.')}"
-#     )
+    return await message.reply(
+        f"*Use bot's inline instead of this command*\nexample: {code(f'@jdan734_bot {lang} {query}.')}"
+    )
