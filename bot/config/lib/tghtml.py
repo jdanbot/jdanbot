@@ -82,7 +82,7 @@ class TgHTML(BaseModel):
 
     def __post_init__(self):
         # 0. clean html and filter shit
-        d = jq(self.text.replace("<cite>", "<cite>\n— "))
+        d = jq(self.text.replace("<cite>", "<cite>\n— ").replace("&nbsp;", " "))
 
         d.find("span").filter(
             lambda i, x: jq(x).attr("style")
