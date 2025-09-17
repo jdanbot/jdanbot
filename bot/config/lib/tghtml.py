@@ -82,8 +82,10 @@ class TgHTML(BaseModel):
 
     def __post_init__(self):
         # 0. clean html and filter shit
+
         d = jq(
             self.text.replace("<cite>", "<cite>\n— ")
+            .replace("&nbsp;", " ")
             .replace("<s>", "DELETEDDELETEDOPEN")
             .replace("</s>", "DELETEDDELETEDCLOSED")
         )
