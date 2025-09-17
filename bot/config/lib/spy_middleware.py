@@ -151,14 +151,14 @@ class SpyMiddleware(BaseMiddleware):
         res = await handler(message, data)
 
         if isinstance(res, dict | tuple):
-            __, query = res
+            res, query = res
         else:
-            __ = message.text.split(" ", maxsplit=1)
+            res = message.text.split(" ", maxsplit=1)
 
-            if len(__) < 2:
+            if len(res) < 2:
                 return
             else:
-                query = __[1]
+                query = res[1]
 
         if isinstance(res, Wikipedia | Fandom | MediaWiki):
             res = await self.run_mediawiki_handler(
