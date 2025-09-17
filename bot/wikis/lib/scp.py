@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 from bs4 import BeautifulSoup
-from tghtml import TgHTML
 
+from ...config.lib.tghtml import TgHTML
 from ...lib.aioget import aioget
 from ...lib.models.article import Article
 
@@ -41,6 +41,11 @@ class SCP:
         ):
             tag.replace_with("")
 
+        img = content.find_all("img")
+
+        for tag in content.find_all("div", class_="rimg"):
+            tag.replace_with("")
+
         for tag in content.find_all(
             "div", class_="w-stars-rate-module"
         ):
@@ -55,11 +60,11 @@ class SCP:
         )
 
         return Article(
-            text=str(parsed_text),
+            text=parsed_text,
             title=title,
             image=(
                 None
-                if len(img := content.find_all("img")) == 0
+                if len(img) == 0
                 else f"https:{url}"
                 if (url := img[0]["src"]).startswith("//")
                 else url

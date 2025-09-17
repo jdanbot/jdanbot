@@ -16,7 +16,7 @@ class Article(BaseModel):
     href: str | None = None
 
     keyboard: types.InlineKeyboardMarkup | None = None
-    parse_mode: str = "HTML"
+    parse_mode: str | None = "HTML"
     disable_web_page_preview: bool = False
 
     force_format: bool = False

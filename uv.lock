@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.13"
 
 [[package]]
@@ -449,7 +449,7 @@ wheels = [
 
 [[package]]
 name = "jdanbot"
-version = "4.0.0a5"
+version = "4.0.0a6"
 source = { virtual = "." }
 dependencies = [
     { name = "aiogram" },

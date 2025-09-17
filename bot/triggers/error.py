@@ -1,10 +1,8 @@
 from aiogram import types
-
 from aiogram.utils.markdown import bold, code
 
-from fluentogram import TranslatorRunner
-from ..config import router, bot, settings, LANGS
-
+from ..config import LANGS, bot, router, settings
+from ..config.lib.locales import Locale
 
 log_schema = """
 {name} [{id}]
@@ -19,7 +17,7 @@ log_schema = """
 
 @router.error()
 async def catch_error(
-    event: types.ErrorEvent, _: TranslatorRunner, user_lang: str
+    event: types.ErrorEvent, _: Locale, user_lang: str
 ):
     message = event.update.message
     err_name = event.exception.__class__.__name__
@@ -37,9 +35,10 @@ async def catch_error(
         return
 
     if err_name in ("NotFound",):
-        return await message.reply(bold(_.not_found()))
+        return await message.reply(bold(_.errors.not_found))
 
     if err_name in ("JdanbotError",):
+        print(event.exception.args[0])
         return await message.reply(
             bold(_.get(event.exception.args[0]))
         )
@@ -73,6 +72,14 @@ async def catch_error(
         return
 
     await message.reply(
-        _.error(error=code(event.exception.__str__().split("\n")[0]))
+        "\n".join(
+            [
+                bold(_.errors.template),
+                code(
+                    event.exception.__str__().split("\n")[0]
+                ),
+            ]
+        )
     )
+
     raise event.exception

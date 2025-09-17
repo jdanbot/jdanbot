@@ -7,7 +7,7 @@ from ..lib.models import Article
 from .lib.scp import SCP
 
 
-@router.message(Command("scp"), GetText())
+@router.message(Command("scp"), GetText(disable_reply=True))
 async def scp(
     message: types.Message, query: str
 ) -> Article:

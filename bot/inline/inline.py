@@ -119,7 +119,13 @@ async def test(query: types.ChosenInlineResult) -> Article:
             ".thumb",
             "span.error",
             "span.mw-ext-cite-error",
-            "p.hatnote",
+            ".hatnote",
+            "div#toc",
+            "div.mbox-text-div",
+            "span.hide-when-compact",
+            "span.mbox-date",
+            ".ts-disambig",
+            *wiki.tag_blocklist,
         ],
     )
 

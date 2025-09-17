@@ -91,7 +91,7 @@ class Locale(BaseModel):
 
         only_vars: str
         not_found: str
-        error: str
+        template: str
 
         too_big_gif: str
         failed_to_recognize: str
@@ -104,6 +104,8 @@ class Locale(BaseModel):
         command_requires: CommandRequires
 
     errors: Errors
+
+    docs: dict[str, str]
 
 
 class Locales(BaseModel):

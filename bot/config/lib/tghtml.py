@@ -82,7 +82,11 @@ class TgHTML(BaseModel):
 
     def __post_init__(self):
         # 0. clean html and filter shit
-        d = jq(self.text.replace("<cite>", "<cite>\n— "))
+        d = jq(
+            self.text.replace("<cite>", "<cite>\n— ")
+            .replace("<s>", "DELETEDDELETEDOPEN")
+            .replace("</s>", "DELETEDDELETEDCLOSED")
+        )
 
         d.find("span").filter(
             lambda i, x: jq(x).attr("style")
@@ -194,6 +198,8 @@ class TgHTML(BaseModel):
             .replace("\n</blockquote>", "</blockquote>")
             .replace("■", "■ ")
             .replace("■  ", "■ ")
+            .replace("DELETEDDELETEDOPEN", "<s>")
+            .replace("DELETEDDELETEDCLOSED", "</s>")
         ).strip()
 
     def bulk_remove(self, d: jq, *selectors):

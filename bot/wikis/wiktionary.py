@@ -1,6 +1,7 @@
 from aiogram import types
 from aiogram.filters import Command, CommandObject
 from pydantic import BaseModel, Field
+from wikipya.exceptions import NotFound
 
 from ..config.bot import router
 from ..filters import GetText
@@ -21,9 +22,12 @@ class KaikkiWord(BaseModel):
     lang: str
     lang_code: str
     pos: str
+    pos_title: str | None = None
     name: str = Field(alias="word")
     senses: list[Sense]
     etymology_text: str | None = None
+
+    tags: list[str] = []
 
     @property
     def formatted_etymology(self) -> str:
@@ -40,6 +44,24 @@ class KaikkiWord(BaseModel):
             )
         except:
             return ""
+
+    @property
+    def article(self) -> str | None:
+        if self.lang_code == "de" and len(self.tags) > 0:
+            match self.tags[0]:
+                case "feminine":
+                    return "die "
+                case "":
+                    return "der "
+                case "":
+                    return "das "
+
+
+def format_list(i: str, sense: str, lang: str) -> str:
+    if lang == "de":
+        return f"[{i}] {sense}"
+
+    return ". ".join([i, sense])
 
 
 LANGMAP = {
@@ -116,6 +138,9 @@ async def wiktionary(
         f"https://{DOMAINS[inlang]}/{lang}/meaning/{query[0]}/{query[0:2]}/{query}.jsonl"
     )
 
+    if "404 Not Found" in res_raw.text:
+        raise NotFound("test")
+
     results = []
 
     for line in res_raw.text.strip().split("\n"):
@@ -131,12 +156,22 @@ async def wiktionary(
 
             all_senses.extend(glos)
 
+        emoji = get_lang_emoji_by_name(word.lang_code)
+
+        if emoji == word.lang_code:
+            prefix = f" in {word.lang}"
+            emoji = "🏁"
+        else:
+            prefix = ""
+
         results.append(
             (
-                f"{word.lang_emoji}<b><a href='https://{inlang}.wiktionary.org/wiki/{query}'>{word.name}</a></b> ({word.pos}) in {word.lang}\n\n"
+                f"{emoji} <b>{word.article or ''}<a href='https://{inlang}.wiktionary.org/wiki/{query}'>{word.name}</a></b> ({word.pos_title or word.pos}){prefix}\n"
                 + "\n".join(
                     [
-                        ". ".join(map(str, x))
+                        format_list(
+                            *map(str, x), word.lang_code
+                        )
                         for x in enumerate((all_senses), 1)
                     ]
                 )

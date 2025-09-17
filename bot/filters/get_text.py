@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import Dict, Union
 
 from aiogram import types
 from aiogram.filters import BaseFilter, CommandObject
+from aiogram.utils.markdown import bold
 
 from ..config import Locale
 
@@ -16,28 +16,39 @@ class GetText(BaseFilter):
         message: types.Message,
         command: CommandObject,
         _: Locale,
-    ) -> Union[bool, Dict[str, str]]:
+    ) -> bool | dict[str, str]:
         reply = message.reply_to_message
+        docs = _.docs.get(command.command)
 
         if command.args:
             text = command.args
         elif message.quote and message.quote.is_manual:
             text = message.quote.text
         elif self.disable_reply:
-            await message.reply("_.errors.please.enter.text()")
+            await message.reply(
+                docs
+                or bold(_.errors.command_requires.text),
+                parse_mode="markdown",
+                disable_web_page_preview=True,
+            )
 
             return False
         elif reply and reply.text:
             text = reply.text
         elif reply and reply.caption:
             text = reply.caption
-        elif docs := _.get(f"docs-{command.command}"):
-            await message.reply(docs, parse_mode="markdown")
+        elif docs:
+            await message.reply(
+                docs,
+                parse_mode="markdown",
+                disable_web_page_preview=True,
+            )
 
             return False
         else:
             await message.reply(
-                _.errors.few_args(num=1), parse_mode="Markdown"
+                _.errors.few_args(num=1),
+                parse_mode="Markdown",
             )
 
             return False

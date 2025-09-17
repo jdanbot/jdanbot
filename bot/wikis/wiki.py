@@ -18,7 +18,9 @@ from ..lib.models import Article
 from ..lib.text import fix_words
 
 
-@router.message(Command("fallout"))
+@router.message(
+    Command("fallout"), GetText(disable_reply=True)
+)
 async def fallout(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://fallout.fandom.com/ru/api.php",
@@ -31,7 +33,9 @@ async def fallout(message: types.Message) -> Wikipya:
     )
 
 
-@router.message(Command("beholder"))
+@router.message(
+    Command("beholder"), GetText(disable_reply=True)
+)
 async def beholder(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://beholder.fandom.com/ru/api.php",
@@ -44,7 +48,9 @@ async def beholder(message: types.Message) -> Wikipya:
     )
 
 
-@router.message(Command("lurk", "lurkmore"))
+@router.message(
+    Command("lurk", "lurkmore"), GetText(disable_reply=True)
+)
 async def lurkmore(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://lurkmore.online/api.php",
@@ -62,7 +68,9 @@ async def lurkmore(message: types.Message) -> Wikipya:
     )
 
 
-@router.message(Command("wtno"))
+@router.message(
+    Command("wtno"), GetText(disable_reply=True)
+)
 async def tno(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://the-new-order-last-days-of-europe.fandom.com/ru/api.php",
@@ -75,21 +83,29 @@ async def tno(message: types.Message) -> Wikipya:
     )
 
 
-@router.message(Command("kaiser", "kaiserreich", "kr"))
+@router.message(
+    Command("kaiser", "kaiserreich", "kr"),
+    GetText(disable_reply=True),
+)
 async def kaiserru(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://kaiserreich.fandom.com/ru/api.php"
     )
 
 
-@router.message(Command("kaiseren", "kaiserreichen", "kre"))
+@router.message(
+    Command("kaiseren", "kaiserreichen", "kre"),
+    GetText(disable_reply=True),
+)
 async def kaiser(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://kaiserreich.fandom.com/api.php"
     )
 
 
-@router.message(Command("archwiki"))
+@router.message(
+    Command("archwiki"), GetText(disable_reply=True)
+)
 async def archwiki(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://wiki.archlinux.org/api.php",
@@ -101,14 +117,18 @@ async def archwiki(message: types.Message) -> Wikipya:
     )
 
 
-@router.message(Command("encycl"))
+@router.message(
+    Command("encycl"), GetText(disable_reply=True)
+)
 async def encyclopedia(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://encyclopatia.ru/w/api.php"
     )
 
 
-@router.message(Command("neolurk"))
+@router.message(
+    Command("neolurk"), GetText(disable_reply=True)
+)
 async def neolurk(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://neolurk.org/w/api.php")
 
@@ -123,7 +143,9 @@ async def check_mediawiki_api_url(url: str) -> bool:
         return False
 
 
-@router.message(Command("mediawiki", "mw"))
+@router.message(
+    Command("mediawiki", "mw"), GetText(disable_reply=True)
+)
 async def custom_mediawiki(
     message: types.Message, command: CommandObject
 ) -> dict[Wikipya, str]:
@@ -152,7 +174,9 @@ async def custom_mediawiki(
     return Wikipya(base_url=base_url), query
 
 
-@router.message(Command(*WIKI_COMMANDS))
+@router.message(
+    Command(*WIKI_COMMANDS), GetText(disable_reply=True)
+)
 async def wikihandler(
     message: types.Message, command: CommandObject
 ) -> tuple[Wikipya, str]:
@@ -215,6 +239,7 @@ async def get_summary(
     F.text.func(
         lambda x: len(x.split(" ", maxsplit=1)[0]) == 4
     ),
+    F.text.func(lambda x: not x.startswith("/scp")),
 )
 async def wikiSearch(message: types.Message):
     opts = message.text.split(maxsplit=1)

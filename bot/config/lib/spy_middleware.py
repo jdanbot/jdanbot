@@ -1,6 +1,7 @@
 from collections.abc import Awaitable
 from typing import Any, Callable, override
 
+import httpx
 from aiogram import BaseMiddleware, types
 from aiogram.filters import Command as CommandFilter
 from bs4 import BeautifulSoup as bs4
@@ -21,24 +22,42 @@ async def fetch_all(
     if isinstance(query, int):
         query = await client.get_page_name(query)
 
-    search = await client.search(query)
-    result = search[0]
+    async with httpx.AsyncClient() as web:
+        r = await web.get(
+            f"https://ru.wikipedia.org/w/api.php?prop=pageterms&action=query&titles={query}&format=json"
+        )
+
+    result = None
+
+    if all(
+        [
+            "страница значений" in r.text,
+            "-1" not in list(r.json()["query"]["pages"]),
+        ]
+    ):
+        page = await client.page(
+            query, to_section=to_section
+        )
+        title = query
+    else:
+        search = await client.search(query)
+        result = search[0]
+
+        page = await client.page(
+            result.title, to_section=to_section
+        )
+
+        title = result.title
 
     BASE_URL = client.url.url.removesuffix(
         "/api.php"
     ).removesuffix("/w")
 
     try:
-        opensearch = await client.opensearch(
-            search[0].title
-        )
+        opensearch = await client.opensearch(title)
         link = opensearch.results[0].link
     except:
-        link = f"{BASE_URL}/wiki/{result.title}"
-
-    page = await client.page(
-        result.title, to_section=to_section
-    )
+        link = f"{BASE_URL}/wiki/{title}"
 
     if fetch_image_from_page:
         try:
@@ -55,6 +74,30 @@ async def fetch_all(
             image = None
 
     return page, image, link
+
+
+def parse_html(source: str, blocklist: tuple) -> TgHTML:
+    return TgHTML(
+        source,
+        blocklist=[
+            "div.navigation-not-searchable",
+            "table",
+            ".error",
+            ".noprint",
+            ".thumb",
+            "span.error",
+            "span.mw-ext-cite-error",
+            ".hatnote",
+            "div#toc",
+            "div.mbox-text-div",
+            "span.hide-when-compact",
+            "span.mbox-date",
+            ".ts-disambig",
+            ".ve-hide",
+            ".mw-editsection",
+            *blocklist,
+        ],
+    )
 
 
 class SpyMiddleware(BaseMiddleware):
@@ -108,9 +151,14 @@ class SpyMiddleware(BaseMiddleware):
         res = await handler(message, data)
 
         if isinstance(res, dict | tuple):
-            res, query = res
+            __, query = res
         else:
-            query = message.text.split(" ", maxsplit=1)[1]
+            __ = message.text.split(" ", maxsplit=1)
+
+            if len(__) < 2:
+                return
+            else:
+                query = __[1]
 
         if isinstance(res, Wikipedia | Fandom | MediaWiki):
             res = await self.run_mediawiki_handler(
@@ -123,6 +171,14 @@ class SpyMiddleware(BaseMiddleware):
     async def run_mediawiki_handler(
         self, wiki: Fandom, query: int | str
     ) -> Article:
+        if isinstance(query, str) and query.endswith(
+            "SOURCE"
+        ):
+            query = query.removesuffix("SOURCE")
+            send_original_html = True
+        else:
+            send_original_html = False
+
         page, image, url = await fetch_all(
             client=wiki,
             query=query,
@@ -134,7 +190,15 @@ class SpyMiddleware(BaseMiddleware):
         page_text: str = page.text
         is_fandom = "fandom.com" in url
 
-        if is_fandom:
+        if (
+            is_fandom
+            or len(
+                parse_html(
+                    page_text, wiki.tag_blocklist
+                ).output
+            )
+            < 200
+        ):
             try:
                 page2 = await wiki.page(
                     page.title, section=1, to_section=2
@@ -151,21 +215,19 @@ class SpyMiddleware(BaseMiddleware):
         if page_text.strip().endswith("</h2>"):
             page_text = page_text[: page_text.rfind("<h2>")]
 
-        x = TgHTML(
-            page_text,
-            blocklist=[
-                "div.navigation-not-searchable",
-                "table",
-                ".error",
-                ".noprint",
-                ".thumb",
-                "span.error",
-                "span.mw-ext-cite-error",
-                "p.hatnote",
-                "div#toc",
-                *wiki.tag_blocklist,
-            ],
-        )
+        if send_original_html:
+            print(page_text)
+            with open("test.html", "w") as f:
+                f.write(page_text)
+            return Article(
+                text=page_text or "",
+                href=url,
+                title=page.title,
+                disable_web_page_preview=True,
+                parse_mode=None,
+            )
+
+        x = parse_html(page_text, wiki.tag_blocklist)
 
         image: str | None = (
             None if image in (-1, "-1") else image
