@@ -152,6 +152,7 @@ class TgHTML(BaseModel):
             "div.vector-dropdown-content",
             "title",
             "head",
+            ".mbox-text",
             *self.blocklist,
         )
 
