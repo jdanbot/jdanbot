@@ -4,8 +4,9 @@ from typing import Any, Callable, override
 import httpx
 from aiogram import BaseMiddleware, types
 from aiogram.filters import Command as CommandFilter
-from bs4 import BeautifulSoup as bs4
 from wikipya.clients import Fandom, MediaWiki, Wikipedia
+
+from bot.database.command import Command
 
 from ...config import bot
 from ...config.lib.tghtml import TgHTML
@@ -128,12 +129,12 @@ class SpyMiddleware(BaseMiddleware):
             member = await Member.get_by(message)
             data["member"] = member
 
-            await Command(
+            await Command.create(
                 user_id=member.user_id,
                 chat_id=member.chat_id,
                 name=command.lower(),
                 args=args or "",
-            ).save()
+            )
 
         for lcommand_raw in locked_commands:
             lcommand = lcommand_raw.removeprefix("-")
@@ -152,6 +153,8 @@ class SpyMiddleware(BaseMiddleware):
 
         if isinstance(res, dict | tuple):
             res, query = res
+        elif isinstance(res, Article):
+            pass
         else:
             res = message.text.split(" ", maxsplit=1)
 
