@@ -4,6 +4,7 @@ from typing import Any, Callable, override
 import httpx
 from aiogram import BaseMiddleware, types
 from aiogram.filters import Command as CommandFilter
+from bs4 import BeautifulSoup as bs4
 from wikipya.clients import Fandom, MediaWiki, Wikipedia
 
 from bot.database.command import Command
@@ -150,22 +151,27 @@ class SpyMiddleware(BaseMiddleware):
                 return
 
         res = await handler(message, data)
+        mw_types = Wikipedia | Fandom | MediaWiki
 
         if isinstance(res, dict | tuple):
             res, query = res
         elif isinstance(res, Article):
             pass
         else:
-            res = message.text.split(" ", maxsplit=1)
+            arguments: list[str] = message.text.split(
+                " ", maxsplit=1
+            )
 
-            if len(res) < 2:
-                return
+            if len(arguments) == 2:
+                query: str = arguments[1]
             else:
-                query = res[1]
+                return
 
-        if isinstance(res, Wikipedia | Fandom | MediaWiki):
+        res_client: MediaWiki = res
+
+        if isinstance(res, mw_types):
             res = await self.run_mediawiki_handler(
-                wiki=res, query=query
+                wiki=res_client, query=query
             )
 
         if isinstance(res, Article):
