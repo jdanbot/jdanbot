@@ -3,6 +3,8 @@ from markdownify import markdownify as html2md
 from pydantic import BaseModel, Field
 from pyquery import PyQuery as jq
 
+import bleach
+
 
 def unwrap(i: int, tag: jq, space: str = "\n\n"):
     contents = jq(tag).html()
@@ -25,13 +27,13 @@ def deh2scrt(i: int, tag: jq):
     )
 
 
-def rename(i: int, tag: jq, tag_name: str):
+def rename(i: int, tag: jq, tag_name: str, extra: str = ""):
     contents = jq(tag).html()
     if contents is None:
         jq(tag).remove()
     else:
         jq(tag).replace_with(
-            (f"<{tag_name}>{contents}</{tag_name}>")
+            (f"<{tag_name}>{contents}{extra}</{tag_name}>")
         )
 
 
@@ -98,14 +100,13 @@ class TgHTML(BaseModel):
         d = jq(
             self.text.replace("<cite>", "<cite>\n— ")
             .replace("&nbsp;", " ")
-            .replace("<s>", "DELETEDDELETEDOPEN")
-            .replace("</s>", "DELETEDDELETEDCLOSED")
         )
 
         d(".mwe-math-element").each(
             lambda i, x: jq(x).replace_with(
                 "<code>"
-                + jq(x).find("annotation")
+                + jq(x)
+                .find("annotation")
                 .text()
                 .replace("\displaystyle ", "")
                 .removeprefix("{")
@@ -157,9 +158,15 @@ class TgHTML(BaseModel):
             )
         ).each(remove)
 
+        d(".mw-heading").each(
+            lambda i, x: rename(
+                i, x, "b", extra="HEADEREND"
+            )
+        )
+
         self.bulk_remove(
             d,
-            "div.navigation-not-searchable",
+            ".navigation-not-searchable",
             "table",
             "aside",
             ".error",
@@ -178,56 +185,48 @@ class TgHTML(BaseModel):
             "head",
             ".mbox-text",
             "dl",
+            ".references",
+            "style",
+            "script",
+            ".ext-phonos",
             *self.blocklist,
+        )
+
+        d("li").each(
+            lambda i, x: d(x).replace_with(
+                "■ " + d(x).html()
+            )
         )
 
         d("a").each(lambda i, x: unwrap(i, x, ""))
 
-        source = (
-            str(d.html())
-            .replace("<i>", "ITALICRESERVEDSIGN")
-            .replace("</i>", "ITALICRESERVEDSIGN")
+        # 1. sanitaze html
+
+        self.output = bleach.clean(
+            str(d.html()),
+            tags=self.ALLOWED_TAGS,
+            strip=True,
         )
 
-        # 1. to markdown
-        self.markdown = html2md(
-            source,
-            bullets="■•",
-        )
-
-        self.markdown = self.markdown.replace(
-            "ITALICRESERVEDSIGN", "_"
-        )
-
-        # 2. make some markdown features ignorable
-        #    in next step
-        # self.md = self.md.replace("\n* ", "\n■ ")
-
-        # 3. to html
-        html = md2html(self.markdown)  # type: ignore
-        tag = jq(html)
-
-        # 4. remove default html shit like as p and div
-        tag("div").each(lambda i, x: unwrap(i, x, ""))
-        tag("p").each(unwrap)
-
-        tag.find("*").filter(
-            lambda i, x: x.tag not in self.ALLOWED_TAGS
-        ).each(remove)
-
-        # 5. shitcodded fixes in the end
         self.output = (
-            str(tag.html())
-            .replace("HEADEREND</strong>\n\n", "</strong>")
-            .replace("\n\n", "\n")
+            self.output.replace(
+                "HEADEREND</b>\n\n", "</b>\n"
+            )
             # .replace("\n\n", "\n")
+            .replace("\n\n\n", "\n\n")
+            .replace("\n\n\n", "\n\n")
+            .replace("\n\n\n", "\n\n")
+            .replace("\n\n\n", "\n\n")
+            .replace("<b>\n", "<b>")
+            .replace("  ", " ")
+            .replace(" )", ')')
+            .replace("( ", "(")
+            .replace(" ; ", "; ")
             # .replace("\n", "\n\n")
             .replace("<blockquote>\n", "<blockquote>")
             .replace("\n</blockquote>", "</blockquote>")
             .replace("■", "■ ")
             .replace("■  ", "■ ")
-            .replace("DELETEDDELETEDOPEN", "<s>")
-            .replace("DELETEDDELETEDCLOSED", "</s>")
         ).strip()
 
     def bulk_remove(self, d: jq, *selectors):
