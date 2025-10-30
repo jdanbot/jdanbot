@@ -102,6 +102,8 @@ class TgHTML(BaseModel):
             .replace("&nbsp;", " ")
         )
 
+        d(".navigation-not-searchable").each(remove)
+
         d(".mwe-math-element").each(
             lambda i, x: jq(x).replace_with(
                 "<code>"
@@ -166,7 +168,7 @@ class TgHTML(BaseModel):
 
         self.bulk_remove(
             d,
-            ".navigation-not-searchable",
+            "span.navigation-not-searchable",
             "table",
             "aside",
             ".error",
@@ -199,7 +201,7 @@ class TgHTML(BaseModel):
         )
 
         d("a").each(lambda i, x: unwrap(i, x, ""))
-
+        print(d.html())
         # 1. sanitaze html
 
         self.output = bleach.clean(
