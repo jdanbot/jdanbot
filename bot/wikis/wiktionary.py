@@ -51,9 +51,9 @@ class KaikkiWord(BaseModel):
             match self.tags[0]:
                 case "feminine":
                     return "die "
-                case "":
+                case "masculine":
                     return "der "
-                case "":
+                case "neuter":
                     return "das "
 
 
@@ -139,7 +139,13 @@ async def wiktionary(
     )
 
     if "404 Not Found" in res_raw.text:
-        raise NotFound("test")
+        query = query[0].swapcase() + query[1:]
+        res_raw = await aioget(
+            f"https://{DOMAINS[inlang]}/{lang}/meaning/{query[0]}/{query[0:2]}/{query}.jsonl"
+        )
+
+        if "404 Not Found" in res_raw.text:
+            raise NotFound("test")
 
     results = []
 

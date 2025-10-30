@@ -35,6 +35,18 @@ def rename(i: int, tag: jq, tag_name: str):
         )
 
 
+def replace_with_its_text(i: int, tag: jq):
+    jq(tag).replace_with(jq(tag).text())
+
+
+def unpack_ipa_from_span(i: int, tag: jq):
+    parents = jq(tag).parents()
+
+    for parent in parents:
+        if jq(parent).is_("span.navigation-not-searchable"):
+            return replace_with_its_text(i, parent)
+
+
 def remove_hidden_elements(i: int, tag: jq):
     if (
         tag.attrib.get("style", "").replace(" ", "")
@@ -90,25 +102,37 @@ class TgHTML(BaseModel):
             .replace("</s>", "DELETEDDELETEDCLOSED")
         )
 
-        d.find("span").filter(
-            lambda i, x: jq(x).attr("style")
-            == "font-style:italic;"
-        ).each(lambda i, x: rename(i, x, "i"))
-        d.find("span.mw-headline").each(deh2scrt)
-        d.find("h2").each(lambda i, x: rename(i, x, "p"))
-        d.find("cite").each(lambda i, x: rename(i, x, "i"))
-        d.find("strong").each(
-            lambda i, x: rename(i, x, "b")
+        d(".mwe-math-element").each(
+            lambda i, x: jq(x).replace_with(
+                "<code>"
+                + jq(x).find("annotation")
+                .text()
+                .replace("\displaystyle ", "")
+                .removeprefix("{")
+                .removesuffix("}")
+                .strip()
+                + "</code>"
+            )
         )
-        d.find("blockquote blockquote").each(
+
+        d("span[style*='font-style:italic']").each(
+            lambda i, x: rename(i, x, "i")
+        )
+        d("span.mw-headline").each(deh2scrt)
+        d("h2").each(lambda i, x: rename(i, x, "p"))
+        d("cite").each(lambda i, x: rename(i, x, "i"))
+        d("strong").each(lambda i, x: rename(i, x, "b"))
+        d("blockquote blockquote").each(
             lambda i, x: unwrap(i, x, "")
         )
-        d.find("b").filter(
+        d("b").filter(
             lambda i, p: p.text is not None
             and p.text == ("Избранная статья")
         ).each(remove)
-        d.find("*").each(remove_hidden_elements)
-        d.find("p").filter(
+        d(".IPA").each(unpack_ipa_from_span)
+        d(".IPA").each(replace_with_its_text)
+        d("*").each(remove_hidden_elements)
+        d("p").filter(
             lambda i, p: p.text is not None
             and (
                 "Это статья о" in p.text
@@ -116,8 +140,8 @@ class TgHTML(BaseModel):
                 in p.text
             )
         ).each(remove)
-        d.find("head").each(remove)
-        d.find("div").filter(
+        d("head").each(remove)
+        d("div").filter(
             lambda i, p: p.text is not None
             and (
                 p.text.startswith(
@@ -126,7 +150,7 @@ class TgHTML(BaseModel):
             )
         ).each(remove)
 
-        d.find("i").filter(
+        d("i").filter(
             lambda i, p: p.text is not None
             and p.text.startswith(
                 "Вся обновлённая информация была взята"
@@ -153,10 +177,11 @@ class TgHTML(BaseModel):
             "title",
             "head",
             ".mbox-text",
+            "dl",
             *self.blocklist,
         )
 
-        d.find("a").each(lambda i, x: unwrap(i, x, ""))
+        d("a").each(lambda i, x: unwrap(i, x, ""))
 
         source = (
             str(d.html())
@@ -183,8 +208,8 @@ class TgHTML(BaseModel):
         tag = jq(html)
 
         # 4. remove default html shit like as p and div
-        tag.find("div").each(lambda i, x: unwrap(i, x, ""))
-        tag.find("p").each(unwrap)
+        tag("div").each(lambda i, x: unwrap(i, x, ""))
+        tag("p").each(unwrap)
 
         tag.find("*").filter(
             lambda i, x: x.tag not in self.ALLOWED_TAGS
@@ -207,7 +232,7 @@ class TgHTML(BaseModel):
 
     def bulk_remove(self, d: jq, *selectors):
         for sel in selectors:
-            d.find(sel).each(remove)
+            d(sel).each(remove)
 
     def __str__(self) -> str:
         return self.output or ""
