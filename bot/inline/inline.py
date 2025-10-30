@@ -80,10 +80,21 @@ async def query_say(query: types.InlineQuery):
     await query.answer(btns)
 
 
+FANDOMS = ["fallout", "beholder", "kaiserreich", "kr"]
+
+
 def parse_lang_and_query(query: str) -> tuple[str, str]:
-    params = query.split(maxsplit=1)
+    print(query)
+    params = query.removesuffix(".").split(maxsplit=1)
+    print(params)
 
     if params[0] in WIKIPEDIA_LANGS:
+        lang = params[0]
+        params = params[1:]
+    elif params[0] in FANDOMS:
+        lang = params[0]
+        params = params[1:]
+    elif params[0] in ["archwiki", "arch"]:
         lang = params[0]
         params = params[1:]
     else:
@@ -98,7 +109,30 @@ def parse_lang_and_query(query: str) -> tuple[str, str]:
 async def test(query: types.ChosenInlineResult) -> Article:
     lang, _ = parse_lang_and_query(query.query)
 
-    wiki = Wikipya(lang)
+    if lang == "kr":
+        lang = "kaiserreich"
+
+    if lang in FANDOMS:
+        wiki = Wikipya(
+            base_url=f"https://{lang}.fandom.com/ru/api.php",
+            params=dict(
+                tag_blocklist=[
+                    "div.cquote",
+                ]
+            ),
+        )
+    elif lang in ["arch", "archwiki"]:
+        wiki = Wikipya(
+            base_url="https://wiki.archlinux.org/api.php",
+            params=dict(
+                tag_blocklist=[
+                    "div.archwiki-template-meta-related-articles"
+                ]
+            ),
+        )
+    else:
+        wiki = Wikipya(lang)
+
     page_name = await wiki.get_page_name(query.result_id)
     page = await wiki.page(page_name)
 
@@ -155,8 +189,30 @@ async def test(query: types.ChosenInlineResult) -> Article:
 @router.inline_query(F.query.len() > 0)
 async def wikijewfrew(query: types.CallbackQuery):
     lang, q = parse_lang_and_query(query.query)
+    
+    if lang == "kr":
+        lang = "kaiserreich"
 
-    wiki = Wikipya(lang)
+    if lang in FANDOMS:
+        wiki = Wikipya(
+            base_url=f"https://{lang}.fandom.com/ru/api.php",
+            params=dict(
+                tag_blocklist=[
+                    "div.cquote",
+                ]
+            ),
+        )
+    elif lang in ["arch", "archwiki"]:
+        wiki = Wikipya(
+            base_url="https://wiki.archlinux.org/api.php",
+            params=dict(
+                tag_blocklist=[
+                    "div.archwiki-template-meta-related-articles"
+                ]
+            ),
+        )
+    else:
+        wiki = Wikipya(lang)
 
     btn = InlineKeyboardButton(
         text="Загрузка...", callback_data="wait"
