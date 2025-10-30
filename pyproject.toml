@@ -5,7 +5,7 @@ description = "Multifunctional Telegram Bot for banning and stuff."
 authors = ["Daniel Zakharov <gzdan734@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<=3.14"
 dependencies = [
   "aiogram>=3.21.0",
   "art>=6.2",
