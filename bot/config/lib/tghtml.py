@@ -201,7 +201,6 @@ class TgHTML(BaseModel):
         )
 
         d("a").each(lambda i, x: unwrap(i, x, ""))
-        print(d.html())
         # 1. sanitaze html
 
         self.output = bleach.clean(

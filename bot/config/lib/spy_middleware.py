@@ -24,23 +24,24 @@ async def fetch_all(
     if isinstance(query, int):
         query = await client.get_page_name(query)
 
-    async with httpx.AsyncClient() as web:
+    async with httpx.AsyncClient(
+        headers={
+            "User-Agent": "Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+            "Accept-Encoding": "gzip",
+        }
+    ) as web:
         r = await web.get(
-            f"https://ru.wikipedia.org/w/api.php?prop=pageterms&action=query&titles={query}&format=json"
+            f"{client.url}?&action=query&titles={query}&format=json"
         )
 
     result = None
 
-    if all(
-        [
-            "страница значений" in r.text,
-            "-1" not in list(r.json()["query"]["pages"]),
-        ]
-    ):
-        page = await client.page(
-            query, to_section=to_section
-        )
-        title = query
+    res = r.json()
+    id_ = list(res["query"]["pages"].keys())[0]
+
+    if id != -1:
+        title = res["query"]["pages"][id_]["title"]
+        page = await client.page(title, to_section=to_section)
     else:
         search = await client.search(query)
         result = search[0]

@@ -84,9 +84,7 @@ FANDOMS = ["fallout", "beholder", "kaiserreich", "kr"]
 
 
 def parse_lang_and_query(query: str) -> tuple[str, str]:
-    print(query)
     params = query.removesuffix(".").split(maxsplit=1)
-    print(params)
 
     if params[0] in WIKIPEDIA_LANGS:
         lang = params[0]

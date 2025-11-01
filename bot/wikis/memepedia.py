@@ -22,7 +22,7 @@ async def mempep(
         return
 
     page = await pymemeru.page(search[0].name)
-    text = TgHTML(str(page.cleared_text), ["img"]).parsed
+    text = TgHTML(str(page.cleared_text)).parsed
 
     return Article(
         text=text,
