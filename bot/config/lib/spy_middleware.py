@@ -39,7 +39,7 @@ async def fetch_all(
     res = r.json()
     id_ = list(res["query"]["pages"].keys())[0]
 
-    if id != -1:
+    if id_ != -1:
         title = res["query"]["pages"][id_]["title"]
         page = await client.page(title, to_section=to_section)
     else:
