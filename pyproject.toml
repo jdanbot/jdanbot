@@ -22,7 +22,7 @@ dependencies = [
   "humanize>=4.1.0",
   "pytimeparse>=1.1.8",
   "ffmpeg-python>=0.2.0",
-  "wikipya>=4.1.0",
+  "wikipya>=4.1.1",
   "toml>=0.10.2",
   "pydantic-settings>=2.2.1",
   "pymemeru==0.2.4",
