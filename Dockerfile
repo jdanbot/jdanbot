@@ -1,9 +1,9 @@
-FROM python:3.12-alpine3.19
+FROM python:3.13-alpine3.19
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-RUN apk add --no-cache ffmpeg tesseract-ocr tesseract-ocr-data-rus tesseract-ocr-data-ukr tesseract-ocr-data-deu build-base libxml2-dev libxslt-dev cargo
+RUN apk add --no-cache ffmpeg tesseract-ocr tesseract-ocr-data-rus tesseract-ocr-data-ukr tesseract-ocr-data-deu
 
 WORKDIR /app
 
