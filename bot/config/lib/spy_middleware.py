@@ -28,7 +28,8 @@ async def fetch_all(
         headers={
             "User-Agent": "Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
             "Accept-Encoding": "gzip",
-        }
+        },
+        http2=True,
     ) as web:
         r = await web.get(
             f"{client.url}?&action=query&titles={query}&format=json"
@@ -41,7 +42,9 @@ async def fetch_all(
 
     if id_ != "-1":
         title = res["query"]["pages"][id_]["title"]
-        page = await client.page(title, to_section=to_section)
+        page = await client.page(
+            title, to_section=to_section
+        )
     else:
         search = await client.search(query)
         result = search[0]

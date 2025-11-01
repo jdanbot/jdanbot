@@ -14,7 +14,7 @@ async def aioget(
     }
 
     if not any([url.startswith("https://"), url.startswith("http://")]):
-        url = f"http://{url}"
+        url = f"https://{url}"
 
     async with httpx.AsyncClient() as client:
         return await client.get(url, params=params, timeout=timeout, headers=headers)
