@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jdanbot"
-version = "3.1.6"
+version = "3.1.7"
 description = "Multifunctional Telegram Bot for banning and stuff."
 authors = ["Daniel Zakharov <gzdan734@gmail.com>"]
 license = "MIT"
@@ -29,7 +29,7 @@ pytesseract = "^0.3.10"
 pyi18n-new = "^1.1.0"
 ffmpeg-python = "^0.2.0"
 tghtml = "1.1.6.post1"
-wikipya = "^4.0.8"
+wikipya = { git = "https://github.com/jdan735/wikipya.git", branch = "main" }
 cached-property = "^1.5.2"
 toml = "^0.10.2"
 async-property = "^0.2.2"
