@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     admin_notes: list[str]
 
-    bot_owners: list[int] = [795449748, 0]
+    bot_owners_raw: str = "0"
 
     class Schedule(BaseModel):
         delay_seconds: int = 20
@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     tokens: Tokens = Tokens()
     schedule: Schedule = Schedule()
     eggs: list[Egg]
+
+    @property
+    def bot_owners(self) -> list[int]:
+        return list(map(int, self.bot_owners_raw.split(" ")))
 
     @property
     def token(self) -> str:
