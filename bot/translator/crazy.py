@@ -4,9 +4,6 @@ from random import choice
 
 from aiogram import types
 from aiogram.filters import Command, CommandObject
-from deep_translator import (
-    GoogleTranslator as DeepGoogleTranslator,
-)
 
 from ..config import router
 from ..config.languages import (
@@ -19,11 +16,8 @@ from ..filters import GetText
 from .lib.multitran import GoogleTranslator
 
 
-async def cleared_translate(*args, **kwargs) -> str:
-    t = GoogleTranslator()
-
+async def cleared_translate(t: GoogleTranslator, *args, **kwargs) -> str:
     source_text = await t.translate(*args, **kwargs)
-    await t.close()
 
     text = re.sub(" +", " ", source_text)
     return textwrap.dedent(text)
@@ -46,6 +40,7 @@ async def crazy_translator(
     msg = await message.reply("⏳")
 
     mw = i18nMiddleware()
+    t = GoogleTranslator()
 
     user_lang = (
         user_lang
@@ -70,7 +65,8 @@ async def crazy_translator(
         lang = "uk" if lang == "ua" else lang
         langs.append(lang)
 
-        text = await cleared_translate(text, tgt_lang=lang)
+        text = await cleared_translate(t, text, tgt_lang=lang)
+    await t.close()
 
     langs.append(user_lang)
 

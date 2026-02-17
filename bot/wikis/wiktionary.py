@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from aiogram import types
 from aiogram.filters import Command, CommandObject
 from pydantic import BaseModel, Field
@@ -103,6 +105,13 @@ DOMAINS = {
     "de": "kaikki.org/dewiktionary",
 }
 
+@dataclass
+class Kaikki:
+    lang: str
+    
+    def get_word(self, word: str) -> str:
+        return "ping"
+
 
 @router.message(
     Command(
@@ -132,24 +141,34 @@ async def wiktionary(
         langs[0],
         next(iter(langs[1:2]), "ru"),
     )
+
+    results = await get_word(inlang, lang_raw, query)
+
+    await message.reply(
+        "\n\n".join(results),
+        parse_mode="HTML",
+        disable_web_page_preview=True,
+    )
+
+async def get_word(inlang: str, lang_raw: str, query: str) -> str:
     lang = LANGMAP[inlang][lang_raw]
 
-    res_raw = await aioget(
+    res, text = await aioget(
         f"https://{DOMAINS[inlang]}/{lang}/meaning/{query[0]}/{query[0:2]}/{query}.jsonl"
     )
 
-    if "404 Not Found" in res_raw.text:
+    if "404 Not Found" in text:
         query = query[0].swapcase() + query[1:]
-        res_raw = await aioget(
+        res, text = await aioget(
             f"https://{DOMAINS[inlang]}/{lang}/meaning/{query[0]}/{query[0:2]}/{query}.jsonl"
         )
 
-        if "404 Not Found" in res_raw.text:
+        if "404 Not Found" in text:
             raise NotFound("test")
 
     results = []
 
-    for line in res_raw.text.strip().split("\n"):
+    for line in text.strip().split("\n"):
         word = KaikkiWord.model_validate_json(line)
 
         all_senses = []
@@ -184,8 +203,4 @@ async def wiktionary(
             ).strip()
         )
 
-    await message.reply(
-        "\n\n".join(results),
-        parse_mode="HTML",
-        disable_web_page_preview=True,
-    )
+    return results

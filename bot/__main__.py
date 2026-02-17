@@ -1,6 +1,9 @@
+import builtins
 import asyncio
 from asyncio.events import AbstractEventLoop
 
+from rich.traceback import install
+from rich import print
 from tortoise import run_async
 
 from . import *  # noqa
@@ -9,6 +12,8 @@ from .config.lib.i18n_middleware import i18nMiddleware
 from .config.lib.spy_middleware import SpyMiddleware
 from .database import setup_db
 
+install(show_locals=True)
+builtins.print = print
 
 async def main() -> None:
     await setup_db()

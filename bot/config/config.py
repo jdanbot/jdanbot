@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .languages import WIKIPEDIA_LANGS
 
-import toml
+from msgspec import toml
 
 
 class Settings(BaseSettings):
@@ -55,10 +55,10 @@ class Settings(BaseSettings):
 
 try:
     with open("settings.toml") as file:
-        settings_file = toml.loads(file.read())
+        settings_file = toml.decode(file.read())
 
     with open(".secrets.toml") as file:
-        secrets_file = toml.loads(file.read())
+        secrets_file = toml.decode(file.read())
 
     settings = Settings.model_validate(settings_file | secrets_file)
 except Exception:

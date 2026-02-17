@@ -9,12 +9,12 @@ from aiogram.types import (
 from aiogram.utils.markdown import bold, code
 from wikipya.aiowiki import Wikipya
 
-from ..config.lib.spy_middleware import SpyMiddleware
-
 from ..config import WIKIPEDIA_LANGS, bot, router
+from ..config.lib.spy_middleware import SpyMiddleware
 from ..config.lib.tghtml import TgHTML
 from ..lib import chez
 from ..lib.models import Article
+from ..wikis.wiktionary import get_word
 
 
 @router.inline_query(F.query.len() == 0)
@@ -23,16 +23,56 @@ async def inline_mode_menu(inline_query: types.InlineQuery):
         results=[
             InlineQueryResultArticle(
                 id="4",
-                title="Озвучить текст",
-                description="Для использования введите @jdan734_bot say <запрос>.",
+                title="Озвучить текст (не работает)",
+                description="Для использования введите\n@jdan734_bot say <запрос>.",
                 input_message_content=InputTextMessageContent(
                     message_text="Мне нечего озвучивать\\. Введи текст"
                 ),
             ),
             InlineQueryResultArticle(
                 id="5",
-                title="Найти в Википедии",
-                description="Для использования введите @jdan734_bot <запрос>.",
+                title="Найти в Википедии (ru)",
+                description="Для использования введите\n@jdan734_bot <запрос>.",
+                input_message_content=InputTextMessageContent(
+                    message_text="Мне нечего находить\\. Введи запрос"
+                ),
+            ),
+            InlineQueryResultArticle(
+                id="6",
+                title="Найти в Википедии на языке lang",
+                description="Для использования введите\n@jdan734_bot [lang] <запрос>.",
+                input_message_content=InputTextMessageContent(
+                    message_text="Мне нечего находить\\. Введи запрос"
+                ),
+            ),
+            InlineQueryResultArticle(
+                id="7",
+                title="Найти в Викисловаре (ru)",
+                description="Для использования введите\n@jdan734_bot v <запрос>.",
+                input_message_content=InputTextMessageContent(
+                    message_text="Мне нечего находить\\. Введи запрос"
+                ),
+            ),
+            InlineQueryResultArticle(
+                id="8",
+                title="Найти в Викисловаре на языке lang",
+                description="Для использования введите\n@jdan734_bot v[lang] <запрос>.",
+                input_message_content=InputTextMessageContent(
+                    message_text="Мне нечего находить\\. Введи запрос"
+                ),
+            ),
+            InlineQueryResultArticle(
+                id="9",
+                title="Найти в Убежище (ru)",
+                description="Для использования введите\n@jdan734_bot fallout <запрос>.",
+                input_message_content=InputTextMessageContent(
+                    message_text="Мне нечего находить\\. Введи запрос"
+                ),
+            ),
+            InlineQueryResultArticle(
+                id="10",
+                title="Найти в ArchWiki (en)",
+                description="Для использования введите\n@jdan734_bot arch <запрос>.",
                 input_message_content=InputTextMessageContent(
                     message_text="Мне нечего находить\\. Введи запрос"
                 ),
@@ -80,6 +120,32 @@ async def query_say(query: types.InlineQuery):
     await query.answer(btns)
 
 
+@router.inline_query(
+    F.query.startswith("v")
+    and ~(
+        F.query.endswith(".")
+        | F.query.endswith("?")
+        | F.query.endswith("!")
+    )
+)
+async def wiktionary(query: types.InlineQuery):
+    q = query.query.strip()
+
+    btns = [
+        InlineQueryResultArticle(
+            id="1",
+            title="PING!!!!",
+            description="Надо. Вставь.",
+            input_message_content=InputTextMessageContent(
+                message_text="ping",
+                parse_mode=None,
+            ),
+        )
+    ]
+
+    await query.answer(btns)
+
+
 FANDOMS = ["fallout", "beholder", "kaiserreich", "kr"]
 
 
@@ -95,11 +161,17 @@ def parse_lang_and_query(query: str) -> tuple[str, str]:
     elif params[0] in ["archwiki", "arch"]:
         lang = params[0]
         params = params[1:]
+    elif params[0] in ["v", "vde", "vru", "ven"]:
+        lang = params[0]
+
+        if lang == "v":
+            lang = "vru"
+
+        params = params[1:]
     else:
         lang = "ru"
 
     q = " ".join(params)
-
     return lang, q
 
 
@@ -128,8 +200,38 @@ async def test(query: types.ChosenInlineResult) -> Article:
                 ]
             ),
         )
+    elif lang in ["vru", "vde", "ven"]:
+        lang = lang.removeprefix("v")
+        print(lang)
+        wiki = Wikipya(
+            lang,
+            base_url="https://{lang}.wiktionary.org/w/api.php",
+        )
+
+        page_name = await wiki.get_page_name(
+            query.result_id
+        )
+        results = await get_word(lang, "al", page_name)
+        text = "\n\n".join(results)
+
+        return await SpyMiddleware.send_article(
+            query,
+            Article(
+                text=text[:4000],
+                format_schema=(
+                    "<blockquote expandable>{}</blockquote>"
+                    if len(text) > 400
+                    else "{}"
+                ),
+                title="page.title",
+                disable_web_page_preview=True,
+                href="https://example.org",
+            ),
+        )
     else:
         wiki = Wikipya(lang)
+
+    wiki.automatic_session_close=False
 
     page_name = await wiki.get_page_name(query.result_id)
     page = await wiki.page(page_name)
@@ -140,6 +242,7 @@ async def test(query: types.ChosenInlineResult) -> Article:
         image = ""
 
     opensearch = await wiki.opensearch(page_name)
+    await wiki.close()
 
     x = TgHTML(
         page.text,
@@ -184,10 +287,68 @@ async def test(query: types.ChosenInlineResult) -> Article:
     )
 
 
+async def wiktionaryf(query: types.CallbackQuery):
+    print(query.query)
+    lang, q = parse_lang_and_query(query.query)
+
+    lang = lang.removeprefix("v")
+    wiki = Wikipya(
+        lang,
+        base_url="https://{lang}.wiktionary.org/w/api.php",
+    )
+
+    btn = InlineKeyboardButton(
+        text="Загрузка...", callback_data="wait"
+    )
+    kb = InlineKeyboardMarkup(inline_keyboard=[[btn]])
+
+    try:
+        search = await wiki.rest_search(q, limit=10)
+    except Exception as e:
+        await bot.answer_inline_query(
+            query.id,
+            [
+                InlineQueryResultArticle(
+                    id="0",
+                    title="При выполнении запроса возникла ошибка",
+                    description=str(e),
+                    input_message_content=InputTextMessageContent(
+                        message_text=bold(
+                            "При выполнении запроса возникла ошибка:"
+                        )
+                        + code(e),
+                        parse_mode="HTML",
+                    ),
+                )
+            ],
+        )
+
+        raise e
+
+    buttons = []
+
+    for result in search:
+        buttons.append(
+            InlineQueryResultArticle(
+                id=str(result.page_id),
+                title=result.title,
+                description=result.description,
+                input_message_content=InputTextMessageContent(
+                    message_text=result.description
+                    or result.title,
+                    parse_mode="html",
+                ),
+                reply_markup=kb,
+            )
+        )
+
+    await bot.answer_inline_query(query.id, buttons)
+
+
 @router.inline_query(F.query.len() > 0)
 async def wikijewfrew(query: types.CallbackQuery):
     lang, q = parse_lang_and_query(query.query)
-    
+
     if lang == "kr":
         lang = "kaiserreich"
 
@@ -209,6 +370,8 @@ async def wikijewfrew(query: types.CallbackQuery):
                 ]
             ),
         )
+    elif lang in ["ven", "vde", "vru", "v"]:
+        return await wiktionaryf(query)
     else:
         wiki = Wikipya(lang)
 
@@ -222,7 +385,6 @@ async def wikijewfrew(query: types.CallbackQuery):
             q, limit=10
         )
     except Exception as e:
-        print(e)
         await bot.answer_inline_query(
             query.id,
             [
@@ -241,7 +403,7 @@ async def wikijewfrew(query: types.CallbackQuery):
             ],
         )
 
-        return
+        raise e
 
     buttons = []
 

@@ -5,7 +5,6 @@ import toml
 from pydantic import BaseModel, GetCoreSchemaHandler
 from pydantic_core import CoreSchema, core_schema
 from pytils import numeral
-from rich import print
 
 
 def fix_russian(count: int, variants: str):

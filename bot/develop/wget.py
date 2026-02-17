@@ -1,10 +1,8 @@
-import json
-
 import humanize
-import toml
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.utils.markdown import code
+from msgspec import json, toml
 
 from ..config import Locale, router
 from ..filters import GetText, IsSuperuser
@@ -12,16 +10,17 @@ from ..lib.aioget import aioget
 
 
 @router.message(
-    Command("d"), IsSuperuser(), GetText(disable_reply=True)
+    Command("d"),
+    IsSuperuser(),
+    GetText(disable_reply=True),
 )
 async def download(message: types.Message, query: str):
-    response = await aioget(query)
-    text = response.text
+    r, text = await aioget(query)
 
     try:
-        text = toml.dumps(json.loads(text))
-    except:
-        pass
+        text = toml.encode(json.decode(text))
+    except Exception as e:
+        raise e
 
     await message.reply(
         code(text[:4096]),
@@ -45,7 +44,9 @@ async def wget(
             code_emoji=["🟡", "🟢", "🟡", "🔴", "🔴"][
                 int(str(res.status_code)[0]) - 1
             ],
-            size=humanize.naturalsize(len(res.content), binary=True),
+            size=humanize.naturalsize(
+                len(res.content), binary=True
+            ),
             time=str(res.elapsed),
         ),
         parse_mode="Markdown",
