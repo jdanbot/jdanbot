@@ -1,54 +1,40 @@
 import re
 from typing import Any
 
-from msgspec import toml
-from pydantic import BaseModel, GetCoreSchemaHandler
-from pydantic_core import CoreSchema, core_schema
-from pytils import numeral
+from msgspec import Struct, toml
 
-
-def fix_russian(count: int, variants: str):
-    variants = variants.replace(",", "/,").replace("|", ",")
-
-    return numeral.get_plural(count, variants)
+from ...lib.text import prettyword
 
 
 class Template(str):
-    def __call__(self, *args, **kwargs) -> str:
-        tmpl = self
-        tmpl = self[:]
-        tmpl = re.sub(
-            r"\[(\w+):([^\]]+)\]",
-            lambda x: fix_russian(
-                int(
-                    kwargs[
-                        (
-                            y := x.group(0)[1:-1].split(
-                                ":", maxsplit=1
-                            )
-                        )[0]
+    def __call__(self, **kwargs) -> str:
+        return self.format(**kwargs)
+
+    def format(self, **kwargs) -> str:
+        def replace_plural(match):
+            key, forms = match.group(1), match.group(2)
+            count = kwargs.get(key, 0)
+            forms_list = forms.split("|")
+
+            if len(forms_list) == 3:
+                return " ".join(
+                    [
+                        str(count),
+                        prettyword(count, forms_list),
                     ]
-                ),
-                y[1],
-            ),
-            tmpl,
+                )
+            return count + " " + match.group(0)
+
+        result = re.sub(
+            r"\[(\w+):([^\]]+)\]", replace_plural, self
         )
-
-        return tmpl.format(**kwargs)
-
-    @classmethod
-    def __get_pydantic_core_schema__(
-        cls, source_type: Any, handler: GetCoreSchemaHandler
-    ) -> CoreSchema:
-        return core_schema.no_info_after_validator_function(
-            cls, handler(str)
-        )
+        return result.format(**kwargs)
 
 
-class Locale(BaseModel):
-    cases: list[str]
+class Locale(Struct, frozen=True):
+    cases: set[str]
 
-    class Pidor(BaseModel):
+    class Pidor(Struct, frozen=True):
         top_10: str
         works_only_in_chats: str
         total_members: Template
@@ -59,12 +45,12 @@ class Locale(BaseModel):
 
         pidor_left: str
         already_finded: list[Template]
-        pidor_searching: list[list[str]]
+        pidor_searching: list[frozenset[str]]
         today_pidor: list[Template]
 
     pidor: Pidor
 
-    class Notes(BaseModel):
+    class Notes(Struct, frozen=True):
         create_var: Template
         enter_note_name: str
 
@@ -76,7 +62,7 @@ class Locale(BaseModel):
 
     notes: Notes
 
-    class Templates(BaseModel):
+    class Templates(Struct, frozen=True):
         about_user: Template
         stats: Template
         status: Template
@@ -84,7 +70,7 @@ class Locale(BaseModel):
 
     templates: Templates
 
-    class Errors(BaseModel):
+    class Errors(Struct, frozen=True):
         enter_wiki_query: str
         few_args: Template
 
@@ -95,7 +81,7 @@ class Locale(BaseModel):
         too_big_gif: str
         failed_to_recognize: str
 
-        class CommandRequires(BaseModel):
+        class CommandRequires(Struct, frozen=True):
             reply: str
             text: str
             reply_or_text: str
@@ -107,14 +93,23 @@ class Locale(BaseModel):
     docs: dict[str, str]
 
 
-class Locales(BaseModel):
+class Locales(Struct):
     ru: Locale
     # en: Locale
 
 
+def dec_hook(type: type, o: Any) -> Template:
+    if type is Template:
+        return Template(o)
+
+    raise NotImplementedError(
+        f"Objects of type {type(o)} are not supported."
+    )
+
+
 with open("locales/ru.toml") as file:
-    locales = Locales(ru=toml.decode(file.read()))
-
-
-# print(locales)
-# print(locales.ru.pidor.reg)
+    locales = Locales(
+        ru=toml.decode(
+            file.read(), type=Locale, dec_hook=dec_hook
+        ),
+    )

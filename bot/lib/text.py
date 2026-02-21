@@ -1,9 +1,12 @@
-from typing import Union, Iterable
+from typing import Iterable
 
 # TODO: Full rewrite
 
 
-def prettyword(n: int, forms: list[str] | tuple[str, str, str] | str) -> str:
+def prettyword(
+    n: int,
+    forms: list[str] | tuple[str, str, str] | str,
+) -> str:
     if isinstance(forms, str):
         return forms
 
@@ -20,7 +23,9 @@ def prettyword(n: int, forms: list[str] | tuple[str, str, str] | str) -> str:
         return forms[2]
 
 
-def paginate(data: Iterable, page: int = 0, limit: int = 10) -> Iterable:
+def paginate(
+    data: Iterable, page: int = 0, limit: int = 10
+) -> Iterable:
     """
     FROM AIOGRAM2
 
