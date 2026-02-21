@@ -24,9 +24,9 @@ class SCP:
             if path.startswith(SCP.BASE_URL)
             else f"{SCP.BASE_URL}/{path}"
         )
-        r = await aioget(url)
+        r, text = await aioget(url)
 
-        soup = BeautifulSoup(r.text, "lxml")
+        soup = BeautifulSoup(text, "lxml")
         content = soup.find(id="page-content")
 
         title = soup.find("title").text

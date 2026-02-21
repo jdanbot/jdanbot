@@ -1,10 +1,11 @@
 import itertools
 import re
+from pathlib import Path
 from typing import Iterable
 
-import toml
 from aiogram import types
 from aiogram.filters import Command, CommandObject
+from msgspec import toml
 
 from ..config import router
 from ..filters import GetText
@@ -51,7 +52,7 @@ def get_word_variants_based_on_word_len(
 
 
 def load_polish_cyrillic_variant(path: str):
-    schemas = toml.load(path).items()
+    schemas = toml.decode(Path(path).open().read()).items()
     uppercase_schemas = []
 
     for schema in schemas:
@@ -59,7 +60,7 @@ def load_polish_cyrillic_variant(path: str):
 
         prefix = "^" if pol.startswith("^") else ""
         pol = pol.removeprefix("^")
-        end = re.match("\w*", pol).end()
+        end = re.match("\\w*", pol).end()
         pol, suffix = pol[:end], pol[end:]
 
         variants = generate_word_variants_with_uppercase(pol)

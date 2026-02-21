@@ -1,10 +1,12 @@
-import logging
 import sys
-import traceback
 from os import listdir, walk
 from pathlib import Path
 
+from rich.console import Console
+from rich.traceback import Traceback
+
 is_pytest_session = "pytest" in sys.modules
+console = Console()
 
 
 __import__("bot.config.logger")
@@ -22,25 +24,26 @@ def force_import(*args):
             __import__(module.replace("\\", "."))
 
         except Exception:
-            trace = traceback.format_exc()
-
-            logging.error(
-                "{module}: {error}".format(
-                    module=module, error=str(trace).split("\n")[-2]
-                )
-            )
-
-            print(trace)
+            console.print(Traceback())
 
 
-def prepare_paths(modules, is_folders=False, folder_name=None, prefix=Path("bot")):
+def prepare_paths(
+    modules,
+    is_folders=False,
+    folder_name=None,
+    prefix=Path("bot"),
+):
     if is_folders:
-        allowed_folders = filter(lambda x: x not in ("__pycache__", "config"), modules)
+        allowed_folders = filter(
+            lambda x: x not in ("__pycache__", "config"),
+            modules,
+        )
 
         return tuple(
             map(
                 lambda folder: prepare_paths(
-                    listdir(prefix / folder), folder_name=folder
+                    listdir(prefix / folder),
+                    folder_name=folder,
                 ),
                 allowed_folders,
             )
@@ -57,7 +60,9 @@ def prepare_paths(modules, is_folders=False, folder_name=None, prefix=Path("bot"
         return tuple(
             map(
                 lambda x: str(
-                    prefix / folder_name / x[:-3] if folder_name else prefix / x[:-3]
+                    prefix / folder_name / x[:-3]
+                    if folder_name
+                    else prefix / x[:-3]
                 ).replace("/", "."),
                 allowed_modules,
             )

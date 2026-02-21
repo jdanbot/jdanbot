@@ -1,9 +1,6 @@
 from aiogram import types
 from aiogram.filters import Command, CommandObject
 from aiogram.utils.markdown import hcode
-from deep_translator import (
-    GoogleTranslator as DeepGoogleTranslator,
-)
 
 from ..config import router
 from ..config.languages import (
@@ -17,6 +14,7 @@ from ..config.languages import (
 )
 from ..filters import GetText
 from ..lib.text import cute_crop
+from .lib.aiogoogletrans import AioGoogleTranslator
 
 LANG_COMMANDS_TR = [
     *[f"t{lang}" for lang in LANGS],
@@ -29,9 +27,9 @@ LANG_COMMANDS_TR = [
 async def translate(
     message: types.Message,
     query: str,
-    command: CommandObject
+    command: CommandObject,
 ):
-    command_parts = command.command.removeprefix("t").split("2")
+    command_parts = command.command[1:].split("2")
 
     if len(command_parts) == 1:
         command_parts = command_parts[0].split("to")
@@ -42,19 +40,19 @@ async def translate(
     )
 
     if slang is None:
-        to_lang, from_lang = Language(flang).google, "auto"
+        t = AioGoogleTranslator(
+            to_lang=Language(flang).google
+        )
     else:
-        to_lang, from_lang = (
-            Language(slang[0]).google,
-            Language(flang).google,
+        t = AioGoogleTranslator(
+            to_lang=Language(slang[0]).google,
+            from_lang=Language(flang).google,
         )
 
-    t = DeepGoogleTranslator(source=from_lang, target=to_lang)
-
-    text = t.translate(query)
+    translation = await t.translate(query)
 
     await message.reply(
-        cute_crop(text, limit=4096),
+        cute_crop(translation, limit=4096),
         disable_web_page_preview=True,
         parse_mode=None,
     )

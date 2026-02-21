@@ -2,7 +2,7 @@ import contextlib
 
 from aiogram import types
 from aiogram.filters import Command
-from httpx import URL
+from yarl import URL
 
 from ..config import bot, router
 from ..filters import GetText
@@ -15,7 +15,7 @@ hq_url = "{base_url}/vi/{id}/hqdefault.jpg"
 
 def get_video_id(url: str) -> str:
     with contextlib.suppress():
-        return URL(url).params["v"]
+        return URL(url).query["v"]
 
     return url.replace("&feature=share", "").split("/")[-1]
 
@@ -23,6 +23,7 @@ def get_video_id(url: str) -> str:
 @router.message(Command("preview"), GetText())
 async def preview(message: types.Message, query: str):
     video_id = get_video_id(query)
+
     await bot.send_chat_action(
         message.chat.id, "upload_photo"
     )

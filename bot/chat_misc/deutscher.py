@@ -9,10 +9,15 @@ from ..lib.aioget import aioget
 ARTICLES = ("der", "die", "das")
 
 
-async def check_word_article(article: str, word: str) -> bool:
-    r = await aioget(f"https://der-artikel.de/{article}/{word}.html")
+async def check_word_article(
+    article: str, word: str
+) -> bool:
+    r, _ = await aioget(
+        f"https://der-artikel.de/{article}/{word}.html",
+        disable_text_loading=False,
+    )
 
-    return r.status_code == 200
+    return r.status == 200
 
 
 async def get_word_article(word: str) -> str:

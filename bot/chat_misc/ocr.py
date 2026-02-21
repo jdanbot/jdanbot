@@ -3,13 +3,13 @@ import re
 
 import aiopytesseract as pytesseract
 from aiogram import F, types
-from deep_translator import (
-    GoogleTranslator as DeepGoogleTranslator,
-)
 
 from ..config import bot, router
 from ..lib.errors import JdanbotError
 from ..lib.text import cute_crop
+from ..translator.lib.aiogoogletrans import (
+    AioGoogleTranslator,
+)
 
 COMMAND = r"/(ocr_|o)"
 LANG = r"([a-z\+]{2,10})"
@@ -71,11 +71,10 @@ async def from_ocr(message: types.Message):
 
     to_lang = to_lang if to_lang != "ua" else "uk"
 
-    t = DeepGoogleTranslator(
-        source="auto",
-        target=to_lang,
+    t = AioGoogleTranslator(
+        to_lang=to_lang,
     )
-    text = t.translate(text)
+    text = await t.translate(text)
 
     await message.reply(
         cute_crop(text, limit=4096),

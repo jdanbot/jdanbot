@@ -4,9 +4,6 @@ from random import choice
 
 from aiogram import types
 from aiogram.filters import Command, CommandObject
-from deep_translator import (
-    GoogleTranslator as DeepGoogleTranslator,
-)
 
 from ..config import router
 from ..config.languages import (
@@ -16,23 +13,25 @@ from ..config.languages import (
 )
 from ..config.lib.i18n_middleware import i18nMiddleware
 from ..filters import GetText
-from .lib.multitran import GoogleTranslator
-
-
-async def cleared_translate(*args, **kwargs) -> str:
-    t = GoogleTranslator()
-
-    source_text = await t.translate(*args, **kwargs)
-    await t.close()
-
-    text = re.sub(" +", " ", source_text)
-    return textwrap.dedent(text)
+from .lib.aiogoogletrans import AioGoogleTranslator
+from .lib.multitran import (
+    GoogleTranslator as CrazyTranslator,
+)
 
 
 def get_lang_emoji_by_name(lang_name: str) -> str:
     return LANGS.get(
         lang_name, TranslationLanguage(lang_name, lang_name)
     ).emoji
+
+
+async def cleared_translate(
+    t: CrazyTranslator, *args, **kwargs
+) -> str:
+    source_text = await t.translate(*args, **kwargs)
+
+    text = re.sub(" +", " ", source_text)
+    return textwrap.dedent(text)
 
 
 @router.message(
@@ -46,6 +45,7 @@ async def crazy_translator(
     msg = await message.reply("⏳")
 
     mw = i18nMiddleware()
+    t = CrazyTranslator()
 
     user_lang = (
         user_lang
@@ -56,9 +56,9 @@ async def crazy_translator(
     )
 
     langs = []
-    text = query
+    text = query[:1000]
 
-    for __ in range(7):
+    for __ in range(8):
         lang = choice(
             tuple(
                 filter(
@@ -70,15 +70,19 @@ async def crazy_translator(
         lang = "uk" if lang == "ua" else lang
         langs.append(lang)
 
-        text = await cleared_translate(text, tgt_lang=lang)
+        text = await cleared_translate(
+            t, text, tgt_lang=lang
+        )
+    await t.close()
 
     langs.append(user_lang)
 
+    translation = await AioGoogleTranslator(
+        to_lang=user_lang,
+    ).translate(text)
+
     await msg.edit_text(
-        DeepGoogleTranslator(
-            target=user_lang,
-        ).translate(text)
-        or "None",
+        translation or "None",
         disable_web_page_preview=True,
         parse_mode=None,
     )

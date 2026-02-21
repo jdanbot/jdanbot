@@ -1,9 +1,10 @@
-import httpx
+import aiohttp
 from aiogram import F, types
 from aiogram.filters import Command, CommandObject
 from aiogram.utils.markdown import code
 from wikipya import Wikipya
 from wikipya.constants import TAG_BLOCKLIST
+from yarl import URL
 
 from bot.filters.get_text import GetText
 
@@ -134,13 +135,9 @@ async def neolurk(message: types.Message) -> Wikipya:
 
 
 async def check_mediawiki_api_url(url: str) -> bool:
-    try:
-        async with httpx.AsyncClient() as client:
-            r = await client.get(url)
-
-            return r.status_code == 200
-    except Exception:
-        return False
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as r:
+            return r.status == 200
 
 
 @router.message(
@@ -149,10 +146,7 @@ async def check_mediawiki_api_url(url: str) -> bool:
 async def custom_mediawiki(
     message: types.Message, command: CommandObject
 ) -> dict[Wikipya, str]:
-    host = httpx.URL(command.args).host
-    host = command.args.split("/wiki")[0].removeprefix(
-        "https://"
-    )
+    host = URL(command.args).host
 
     url_variants = [
         f"https://{host}/api.php",
@@ -165,10 +159,9 @@ async def custom_mediawiki(
             for var in url_variants
         ]
     ):
-        await message.reply("Can't find valid API url")
-        raise AttributeError
+        return await message.reply("Can't find valid API url")
 
-    url = httpx.URL(command.args)
+    url = URL(command.args)
     query = url.path.split("/")[-1].replace("_", " ")
 
     return Wikipya(base_url=base_url), query

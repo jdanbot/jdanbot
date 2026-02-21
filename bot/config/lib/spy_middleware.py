@@ -1,7 +1,7 @@
 from collections.abc import Awaitable
 from typing import Any, Callable, override
 
-import httpx
+import aiohttp
 from aiogram import BaseMiddleware, types
 from aiogram.filters import Command as CommandFilter
 from bs4 import BeautifulSoup as bs4
@@ -14,6 +14,8 @@ from ...config.lib.tghtml import TgHTML
 from ...database import Command, Member
 from ...lib.models import Article
 
+from msgspec import json
+
 
 async def fetch_all(
     client: Wikipedia,
@@ -24,21 +26,22 @@ async def fetch_all(
     if isinstance(query, int):
         query = await client.get_page_name(query)
 
-    async with httpx.AsyncClient(
+    client.automatic_session_close=False
+
+    async with aiohttp.ClientSession(
         headers={
             "User-Agent": "Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
             "Accept-Encoding": "gzip",
         },
-        http2=True,
-    ) as web:
-        r = await web.get(
+    ) as session:
+        r = await session.get(
             f"{client.url}?&action=query&titles={query}&format=json"
         )
 
-    result = None
+        result = None
 
-    res = r.json()
-    id_ = list(res["query"]["pages"].keys())[0]
+        res = json.decode(await r.text())
+        id_ = list(res["query"]["pages"].keys())[0]
 
     if id_ != "-1":
         title = res["query"]["pages"][id_]["title"]
@@ -76,8 +79,11 @@ async def fetch_all(
     else:
         try:
             image = await client.image(page.title)
-        except:
+        except Exception as e:
+            raise e
             image = None
+
+    await client.close()
 
     return page, image, link
 
@@ -118,7 +124,7 @@ class SpyMiddleware(BaseMiddleware):
         data: dict[str, Any],
     ):
         command_orig = CommandFilter.extract_command(
-            self=CommandFilter, text=message.text
+            text=message.text
         )
 
         command = command_orig.command
