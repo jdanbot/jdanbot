@@ -161,7 +161,7 @@ def parse_lang_and_query(query: str) -> tuple[str, str]:
     elif params[0] in ["archwiki", "arch"]:
         lang = params[0]
         params = params[1:]
-    elif params[0] in ["v", "vde", "vru", "ven"]:
+    elif params[0] in ["v", "vde", "vru", "ven", "vte"]:
         lang = params[0]
 
         if lang == "v":
@@ -200,9 +200,15 @@ async def test(query: types.ChosenInlineResult) -> Article:
                 ]
             ),
         )
-    elif lang in ["vru", "vde", "ven"]:
+    elif lang in ["vru", "vde", "ven", "vte"]:
         lang = lang.removeprefix("v")
-        print(lang)
+
+        if lang == "te":
+            lang = "ru"
+            inlang = "de"
+        else:
+            inlang = lang
+
         wiki = Wikipya(
             lang,
             base_url="https://{lang}.wiktionary.org/w/api.php",
@@ -211,7 +217,7 @@ async def test(query: types.ChosenInlineResult) -> Article:
         page_name = await wiki.get_page_name(
             query.result_id
         )
-        results = await get_word(lang, "al", page_name)
+        results = await get_word(lang, inlang, page_name)
         text = "\n\n".join(results)
 
         return await SpyMiddleware.send_article(
@@ -225,7 +231,7 @@ async def test(query: types.ChosenInlineResult) -> Article:
                 ),
                 title="page.title",
                 disable_web_page_preview=True,
-                href="https://example.org",
+                href=f"https://{lang}/wiki/{page_name}",
             ),
         )
     else:
@@ -288,10 +294,13 @@ async def test(query: types.ChosenInlineResult) -> Article:
 
 
 async def wiktionaryf(query: types.CallbackQuery):
-    print(query.query)
     lang, q = parse_lang_and_query(query.query)
 
     lang = lang.removeprefix("v")
+
+    if lang == "te":
+        lang = "ru"
+    
     wiki = Wikipya(
         lang,
         base_url="https://{lang}.wiktionary.org/w/api.php",
@@ -370,7 +379,7 @@ async def wikijewfrew(query: types.CallbackQuery):
                 ]
             ),
         )
-    elif lang in ["ven", "vde", "vru", "v"]:
+    elif lang in ["ven", "vde", "vru", "v", "vte"]:
         return await wiktionaryf(query)
     else:
         wiki = Wikipya(lang)

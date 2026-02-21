@@ -135,7 +135,7 @@ async def reg_pidor(
     __, is_created = await member.get_pidor()
 
     if is_created:
-        await message.reply(_.pidor.in_db)
+        await message.reply(_.pidor.in_db, parse_mode="Markdown")
         return
 
     await message.reply(_.pidor.already_in_db)
