@@ -2,14 +2,14 @@ from sys import platform
 
 import distro
 import pendulum as pdl
-import toml
 from aiogram import types
 from aiogram.filters import Command
+from msgspec import toml
 
 from ..config import START_TIME, Locale, router, settings
 
 with open("pyproject.toml", "r") as f:
-    pyproject = toml.loads(f.read())
+    pyproject = toml.decode(f.read())
 
 
 __version__ = pyproject["project"]["version"]

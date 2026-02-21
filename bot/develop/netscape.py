@@ -1,6 +1,5 @@
 from aiogram import types
 from aiogram.filters import Command
-from readability import Document
 
 from ..config import router
 from ..config.lib.tghtml import TgHTML
@@ -17,15 +16,12 @@ from ..lib.models import Article
 async def netscape(
     message: types.Message, query: str
 ) -> Article:
-    res = await aioget(query)
-    html = res.text
+    res, text = await aioget(query)
 
-    parsed_html = TgHTML(html, enable_preprocess=True)
-    title = Document(html).title()
+    html = TgHTML(text, enable_preprocess=True)
 
     return Article(
-        text=str(parsed_html),
-        title=title,
+        text=str(html),
         href=query,
         parse_mode="HTML",
         force_add_title=True,

@@ -1,6 +1,6 @@
 [project]
 name = "jdanbot"
-version = "4.0.0.a9"
+version = "4.0.0.a10"
 description = "Multifunctional Telegram Bot for banning and stuff."
 authors = [
   { name = "Daniel Zakharov", email = "gzdan734@gmail.com" }
@@ -13,13 +13,12 @@ dependencies = [
   "art>=6.2",
   "beautifulsoup4>=4.14.2",
   "lxml>=6.0.0",
-  # "pyduckgo>=0.2.0",
+  "pyduckgo",
   "emoji>=1.6.1",
-  # "deep-translator>=1.11.4",
   "distro>=1.7.0",
   "humanize>=4.1.0",
   "pytimeparse>=1.1.8",
-  "ffmpeg-python>=0.2.0",
+  "python-ffmpeg>=2.0.12",
   "pydantic-settings>=2.2.1",
   # "pymemeru==0.2.4",
   "shellous>=0.36.0",
@@ -29,19 +28,16 @@ dependencies = [
   "pendulum>=3.1.0",
   "pyquery>=2.0.1",
   "iso639-lang>=2.2.3",
-  "perfect-eval>=0.0.10",
   "pydantic-extra-types>=2.10.1",
-  "orjson>=3.10.13",
   "async-property>=0.2.2",
   "arrow>=1.3.0",
   "pypika-tortoise>=0.6.1",
   "pytils>=0.4.4",
   "bleach>=6.3.0",
-  "wikipya",
   # "whenever>=0.9.5",
   "rich>=14.3.2",
-  "tomli-w>=1.2.0",
-  "toml>=0.10.2",
+  "wikipya",
+  "msgspec[toml]>=0.20.0",
 ]
 
 [dependency-groups]
@@ -67,13 +63,14 @@ line-length = 60
 
 [tool.ruff.lint]
 extend-select = [
-  "F",  # pyflakes
-  "I",  # isort
-  "FURB",  # refurb
+  "F",      # pyflakes
+  "I",      # isort
+  "FURB",   # refurb
 ]
 
-[tool.tombi]
-exclude = ["**/*.toml"]
-
 [tool.uv.sources]
-wikipya = { path = "../wikipya" }
+wikipya = { git = "https://github.com/jdan735/wikipya", branch = "dev" }
+pyduckgo = { git = "https://github.com/jdan735/pyduckgo" }
+
+[tool.uv]
+default-groups = []

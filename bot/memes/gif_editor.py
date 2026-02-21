@@ -1,9 +1,10 @@
 from pathlib import Path
 
-import ffmpeg
 from aiogram import F, types
 from aiogram.filters import Command, CommandObject
-from shellous import sh
+from ffmpeg import Progress
+from ffmpeg.asyncio import FFmpeg
+from msgspec import json
 
 from ..config import Locale, bot, router
 
@@ -13,7 +14,9 @@ from ..config import Locale, bot, router
     F.reply_to_message.animation
     | F.reply_to_message.sticker.is_video
     | F.reply_to_message.video,
-    Command("fast", "slow", "reversed", "to_gif"),
+    Command(
+        "fast", "slow", "reverse", "reversed", "to_gif"
+    ),
 )
 async def edit_gif(
     message: types.Message,
@@ -29,43 +32,108 @@ async def edit_gif(
         await message.reply(_.errors.too_big_gif)
         return
 
-    _in = Path("/tmp/TEST.mp4")
-    out = Path("/tmp/TEST2.mp4")
+    file = Path("/tmp") / (
+        "test-" + str(video.file_name or "test.mp4")
+    )
+    output = Path("/tmp") / "abibiri_edit.mp4"
 
-    await bot.download(video, _in.absolute())
-    is_fast = command.command == "fast"
+    await bot.download(video, file)
 
-    process = ffmpeg.input(str(_in))
+    match command.command:
+        case "fast":
+            params = dict(
+                vf="setpts=0.5*PTS",
+                af="atempo=2.0",
+            )
+        case "slow":
+            params = dict(
+                vf="setpts=2.0*PTS",
+                af="atempo=0.5",
+            )
+        case "reverse" | "reversed":
+            params = dict(
+                vf="reverse",
+                af="areverse",
+            )
+        case "to_gif":
+            params = dict(an=None)
+        case _:
+            params = dict()
 
-    if command.command in ("fast", "slow"):
-        process = process.filter(
-            "setpts", "0.25*PTS" if is_fast else "1.25*PTS"
-        )
-
-    if command.command == "reversed":
-        process = process.output(str(out), vf="reverse")
-    else:
-        process = process.output(str(out))
-
-    await sh(process.compile())
-    await message.reply_animation(
-        animation=types.FSInputFile(path=out)
+    ffprobe = FFmpeg(executable="ffprobe").input(
+        str(file),
+        print_format="json",
+        show_entries="stream=nb_read_frames",
+        count_frames=None,
+        select_streams="v:0",
     )
 
-    _in.unlink()
-    out.unlink()
+    media = json.decode(await ffprobe.execute())
+    total_frames = int(
+        media["streams"][0]["nb_read_frames"]
+    )
+
+    ffmpeg = FFmpeg().input(file).output(output, **params)
+
+    @ffmpeg.on("stderr")
+    def on_stderr(line):
+        print("stderr:", line)
+
+    global i
+    i=0
+
+    global msg
+    msg = await message.reply("We started!", parse_mode=None)
+
+    @ffmpeg.on("progress")
+    async def on_progress(progress: Progress):        
+        global i
+        global msg
+
+        if i != 0:
+            i -= 1
+            return
+
+        percent = 100 * (progress.frame / total_frames)
+            
+        await msg.edit_text(
+            f"<b>{int(percent)}%</b> {progress.frame} / {total_frames} | {progress.time}",
+            parse_mode="html",
+        )
+
+        i = 3
+
+    @ffmpeg.on("completed")
+    async def on_completed():
+        global msg
+        await msg.delete()
+
+
+    await ffmpeg.execute()
+
+    await bot.send_chat_action(message.chat.id, "upload_video")
+    await message.reply_animation(
+        animation=types.FSInputFile(path=output)
+    )
+
+    file.unlink()
+    output.unlink()
 
 
 @router.message(
     F.reply_to_message,
-    Command("fast", "slow", "reversed", "to_gif"),
+    Command(
+        "fast", "slow", "reversed", "reverse", "to_gif"
+    ),
 )
 async def edit_gif_without_source(message: types.Message):
     await message.reply("you only replied")
 
 
 @router.message(
-    Command("fast", "slow", "reversed", "to_gif"),
+    Command(
+        "fast", "slow", "reversed", "reverse", "to_gif"
+    ),
 )
 async def edit_gif_without_source_and_reply(
     message: types.Message,

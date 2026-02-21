@@ -1,11 +1,10 @@
 import aiohttp
-from yarl import URL
-
 from aiogram import F, types
 from aiogram.filters import Command, CommandObject
 from aiogram.utils.markdown import code
 from wikipya import Wikipya
 from wikipya.constants import TAG_BLOCKLIST
+from yarl import URL
 
 from bot.filters.get_text import GetText
 

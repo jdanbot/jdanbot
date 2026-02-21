@@ -1,7 +1,6 @@
 from aiogram import types
 from aiogram.filters import Command, CommandObject
 from aiogram.utils.markdown import hcode
-from msgspec import json
 
 from ..config import router
 from ..config.languages import (
@@ -14,8 +13,8 @@ from ..config.languages import (
     GTRANSLATE_LANGS as LANGS,
 )
 from ..filters import GetText
-from ..lib.aioget import aioget
 from ..lib.text import cute_crop
+from .lib.aiogoogletrans import AioGoogleTranslator
 
 LANG_COMMANDS_TR = [
     *[f"t{lang}" for lang in LANGS],
@@ -30,9 +29,7 @@ async def translate(
     query: str,
     command: CommandObject,
 ):
-    command_parts = command.command.removeprefix("t").split(
-        "2"
-    )
+    command_parts = command.command[1:].split("2")
 
     if len(command_parts) == 1:
         command_parts = command_parts[0].split("to")
@@ -43,25 +40,16 @@ async def translate(
     )
 
     if slang is None:
-        to_lang, from_lang = Language(flang).google, "auto"
+        t = AioGoogleTranslator(
+            to_lang=Language(flang).google
+        )
     else:
-        to_lang, from_lang = (
-            Language(slang[0]).google,
-            Language(flang).google,
+        t = AioGoogleTranslator(
+            to_lang=Language(slang[0]).google,
+            from_lang=Language(flang).google,
         )
 
-    # t = DeepGoogleTranslator(source=from_lang, target=to_lang)
-
-    # text = t.translate(query)
-    r, text = await aioget(
-        "https://clients5.google.com/translate_a/t",
-        client="dict-chrome-ex",
-        sl=from_lang,
-        tl=to_lang,
-        q=query,
-    )
-
-    translation= json.decode(text)[0][0]
+    translation = await t.translate(query)
 
     await message.reply(
         cute_crop(translation, limit=4096),

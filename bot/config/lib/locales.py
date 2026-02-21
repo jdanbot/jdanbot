@@ -1,7 +1,7 @@
 import re
 from typing import Any
 
-import toml
+from msgspec import toml
 from pydantic import BaseModel, GetCoreSchemaHandler
 from pydantic_core import CoreSchema, core_schema
 from pytils import numeral
@@ -112,8 +112,8 @@ class Locales(BaseModel):
     # en: Locale
 
 
-toml_file = toml.load("locales/ru.toml")
-locales = Locales(ru=toml_file)
+with open("locales/ru.toml") as file:
+    locales = Locales(ru=toml.decode(file.read()))
 
 
 # print(locales)

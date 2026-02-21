@@ -1,11 +1,10 @@
+from pathlib import Path
+
+from msgspec import toml
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
-from pathlib import Path
-
 from .languages import WIKIPEDIA_LANGS
-
-from msgspec import toml
 
 
 class Settings(BaseSettings):

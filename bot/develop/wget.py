@@ -1,3 +1,5 @@
+import time
+
 import humanize
 from aiogram import types
 from aiogram.filters import Command
@@ -23,7 +25,7 @@ async def download(message: types.Message, query: str):
         raise e
 
     await message.reply(
-        code(text[:4096]),
+        code(text[:4080]),
     )
 
 
@@ -35,19 +37,21 @@ async def download(message: types.Message, query: str):
 async def wget(
     message: types.Message, query: str, _: Locale
 ):
-    res = await aioget(query)
+    start = time.perf_counter()
+    res, text = await aioget(query, disable_text_loading=False)
+    end = time.perf_counter() - start
 
     await message.reply(
         _.templates.wget(
             url=query,
-            code=res.status_code,
+            code=res.status,
             code_emoji=["🟡", "🟢", "🟡", "🔴", "🔴"][
-                int(str(res.status_code)[0]) - 1
+                int(str(res.status)[0]) - 1
             ],
             size=humanize.naturalsize(
-                len(res.content), binary=True
+                len(text), binary=True
             ),
-            time=str(res.elapsed),
+            time=f"{round(end, 3)}s",
         ),
         parse_mode="Markdown",
     )
