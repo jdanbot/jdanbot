@@ -422,6 +422,7 @@ dependencies = [
     { name = "lxml" },
     { name = "msgspec", extra = ["toml"] },
     { name = "pendulum" },
+    { name = "pydantic" },
     { name = "pydantic-extra-types" },
     { name = "pydantic-settings" },
     { name = "pyduckgo" },
@@ -446,7 +447,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiogram", specifier = ">=3.21.0" },
+    { name = "aiogram", specifier = ">=3.25.0" },
     { name = "aiopytesseract", specifier = ">=0.14.0" },
     { name = "art", specifier = ">=6.2" },
     { name = "async-property", specifier = ">=0.2.2" },
@@ -459,6 +460,7 @@ requires-dist = [
     { name = "lxml", specifier = ">=6.0.0" },
     { name = "msgspec", extras = ["toml"], specifier = ">=0.20.0" },
     { name = "pendulum", specifier = ">=3.1.0" },
+    { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-extra-types", specifier = ">=2.10.1" },
     { name = "pydantic-settings", specifier = ">=2.2.1" },
     { name = "pyduckgo", git = "https://github.com/jdan735/pyduckgo" },
