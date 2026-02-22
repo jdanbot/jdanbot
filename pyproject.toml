@@ -37,6 +37,9 @@ dependencies = [
   "rich>=14.3.2",
   "wikipya",
   "msgspec[toml]>=0.20.0",
+  "peewee>=4.0.0",
+  "aiosql>=15.0",
+  "aiosqlite>=0.21.0",
 ]
 
 [dependency-groups]
