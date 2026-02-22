@@ -2,6 +2,7 @@ FROM python:3.14.3-alpine3.22
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV UV_PYTHON_DOWNLOADS=never
 
 RUN apk add --no-cache ffmpeg tesseract-ocr tesseract-ocr-data-rus tesseract-ocr-data-ukr tesseract-ocr-data-deu tesseract-ocr-data-eng git uv
 
