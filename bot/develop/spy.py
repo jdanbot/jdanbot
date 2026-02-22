@@ -19,7 +19,7 @@ async def me_info(message: types.Message, _: Locale):
         _.templates.about_user(
             name=text(message.from_user.full_name),
             id=str(message.from_user.id),
-            status=code(user.status.value),
+            status=code(user.status),
             pidor_local=await member.get_pidor_events_count(),
             pidor_all=await member.get_pidor_count(),
         ),
@@ -27,7 +27,7 @@ async def me_info(message: types.Message, _: Locale):
     )
 
 
-@router.message(Command("stats"), IsSuperuser())
+@router.message(Command("stats"),)# IsSuperuser())
 async def calc_stats(message: types.Message, _: Locale):
     member = await Member.get_by(message)
 

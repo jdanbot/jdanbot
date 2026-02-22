@@ -8,6 +8,8 @@ from aiogram.utils.markdown import bold, italic
 from bot.database.member import Member
 from bot.database.pidor import Pidor, PidorEvent
 
+from tortoise.contrib.pydantic import pydantic_model_creator
+
 from ..config.bot import router
 from ..config.lib.locales import Locale
 from ..database import Member, PidorEvent
@@ -24,10 +26,12 @@ async def init_pidor(
         return False
 
     if not await member.is_pidor():
-        await message.reply(_.pidor.reg)
+        await message.reply(
+            _.pidor.reg, parse_mode="Markdown"
+        )
         return False
 
-    if not await member.check_run_pidor():
+    if False and not await member.check_run_pidor():
         pidor = await Pidor.get(id=member.chat.pidor_id)
         mem = await Member.get(pidor.user_id, pidor.chat_id)
 
@@ -78,15 +82,14 @@ async def find_pidor(
     await new_pidor.update(latest_time=event.id)
     await member.chat.update(pidor_id=new_pidor.id)
 
-    for phrase in choice(_.pidor.pidor_searching).split("\n"):
-        if phrase != "":
+    for phrase in choice(_.pidor.pidor_searching):
+        if phrase != "\n":
             await message.answer(italic(phrase))
         if not ignore_pidor_wait:
             await asyncio.sleep(2.5)
 
     await message.answer(
-        choice(
-            _.pidor.today_pidor,
+        choice(_.pidor.today_pidor)(
             user=bold(new_member.tag),
         )
     )
@@ -108,7 +111,7 @@ async def pidor_stats(message: types.Message, _: Locale):
     for num, pidor in enumerate(
         await member.get_top_pidors(), 1
     ):
-        count = prettyword(pidor.count, _.count)
+        count = prettyword(pidor.count, _.cases)
 
         msg += PIDOR_TEMPLATE.format(
             get_emojed_num(num),
@@ -135,7 +138,11 @@ async def reg_pidor(
     __, is_created = await member.get_pidor()
 
     if is_created:
-        await message.reply(_.pidor.in_db, parse_mode="Markdown")
+        await message.reply(
+            _.pidor.in_db, parse_mode="Markdown"
+        )
         return
 
-    await message.reply(_.pidor.already_in_db)
+    await message.reply(
+        _.pidor.already_in_db, parse_mode="Markdown"
+    )

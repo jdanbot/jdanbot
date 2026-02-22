@@ -32,7 +32,7 @@ class Template(str):
 
 
 class Locale(Struct, frozen=True):
-    cases: set[str]
+    cases: list[str]
 
     class Pidor(Struct, frozen=True):
         top_10: str
