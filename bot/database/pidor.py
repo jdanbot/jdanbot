@@ -1,53 +1,108 @@
-from typing import TYPE_CHECKING
-
-import pendulum as pdl
-from pydantic import BaseModel
-from pydantic.type_adapter import TypeAdapter
-from pydantic_extra_types.pendulum_dt import DateTime
+import aiosqlite
+from msgspec import convert
 from tortoise import fields
 from tortoise.fields import Field
+from whenever import Instant, ZonedDateTime, PlainDateTime
 
+from ._base import Base, queries
 from .lib.base_table import BaseTable
 from .lib.pdl_field import PendulumField
 
-if TYPE_CHECKING:
-    from .user import User
 
-
-class PidorEvent(BaseTable):
-    id: int | Field[int] = fields.IntField(pk=True)
-    pidor_id: int
-    pidor: fields.ForeignKeyRelation["Pidor"] = fields.ForeignKeyField(
-        "models.Pidor", default=None
+class Usera(BaseTable):
+    id: int | Field[int] = fields.BigIntField(
+        pk=True, default=None
     )
-    chat_id: int | Field[int] = fields.IntField()
-    caused_at: DateTime | Field[pdl.DateTime] = PendulumField(auto_now=True)
+
+    first_name: str | Field[str] = fields.TextField()
+    last_name: str | None | Field[str] = fields.TextField(
+        null=True
+    )
+    username: str | None | Field[str] = fields.TextField(
+        null=True
+    )
+
+    class Meta:
+        table = "user"
 
 
-class Pidor(BaseTable):
-    id: int | Field[int] = fields.IntField(pk=True)
-    chat_id: int | Field[int] = fields.IntField()
+class PidorEvent_(Base):
+    id: int
+    pidor_id: int
+    chat_id: int
+
+    caused_at: Instant
+
+
+# class PidorEvent:
+#     id: int | Field[int] = fields.IntField(pk=True)
+#     pidor_id: int
+#     pidor: fields.ForeignKeyRelation["Pidor"] = (
+#         fields.ForeignKeyField("models.Pidor", default=None)
+#     )
+#     chat_id: int | Field[int] = fields.IntField()
+#     caused_at = PendulumField(auto_now=True)
+
+
+# class Pidor:
+#     id: int = fields.IntField(pk=True)
+#     chat_id: int = fields.IntField()
+#     user_id: int
+
+#     user: "Usera" = fields.ForeignKeyField(
+#         "models.Usera", default=None
+#     )
+
+#     is_allowed: bool = fields.BooleanField(default=True)
+#     latest_time: int | None = fields.IntField(null=True)
+
+
+class Pidor_(Base):
+    id: int
+    chat_id: int
     user_id: int
 
-    user: fields.ForeignKeyRelation["User"] = fields.ForeignKeyField(
-        "models.User", default=None
-    )
+    is_allowed: bool
+    latest_time: int | None  # backed by latest_time_id
 
-    is_allowed: bool | Field[bool] = fields.BooleanField(default=True)
-    latest_time: int | None | Field[int] = fields.IntField(null=True)
+    async def get(id: int) -> "Pidor_":
+        async with aiosqlite.connect("tortoise.db") as conn:
+            _ = await queries.pidor.get(conn, id=id)
 
-    async def get_latest_datetime(self) -> pdl.DateTime | None:
+            return convert(
+                (
+                    *_[:-2],
+                    bool(_[-2]),
+                    _[-1],
+                ),
+                Pidor_,
+            )
+
+        raise NotImplementedError
+
+    async def get_latest_datetime(
+        self, timezone: str
+    ) -> Instant | None:
         if self.latest_time is None:
             return None
 
-        print(f"{self.latest_time=}")
+        async with aiosqlite.connect("tortoise.db") as conn:
+            time = await queries.pidor.get_latest_datetime(
+                conn, event_id=self.latest_time
+            )
 
-        event: PidorEvent = await PidorEvent.get(id=self.latest_time)
+            from datetime import datetime
 
-        return event.caused_at
+            return PlainDateTime.from_py_datetime(
+                datetime.fromisoformat(time)
+            ).assume_utc()
+
+    async def get_pidor_count(self) -> int:
+        async with aiosqlite.connect("tortoise.db") as conn:
+            return await queries.pidor.get_pidor_count(conn, pidor_id=self.id)
 
 
-class PidorInTop(BaseModel):
+class PidorInTop(Base):
     count: int
 
     first_name: str
@@ -57,9 +112,11 @@ class PidorInTop(BaseModel):
     @property
     def full_name(self) -> str:
         if self.last_name:
-            return " ".join([self.first_name, self.last_name])
+            return " ".join(
+                [self.first_name, self.last_name]
+            )
 
         return self.first_name
 
 
-PidorTop: TypeAdapter[list[PidorInTop]] = TypeAdapter(list[PidorInTop])
+type PidorTop = list[PidorInTop]

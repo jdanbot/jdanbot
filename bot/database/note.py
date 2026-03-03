@@ -1,10 +1,9 @@
-from typing import Any, Callable, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable
 
-from .lib import BaseTable, PendulumField
 from tortoise import fields
 from tortoise.fields import Field
 
-import pendulum as pdl
+from .lib import BaseTable
 
 if TYPE_CHECKING:
     from .member import Member

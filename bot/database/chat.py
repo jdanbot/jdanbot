@@ -1,18 +1,88 @@
-from typing import override
+from typing import Literal
 
+import aiosqlite
 import pendulum as pdl
 from aiogram import types
+from msgspec import Struct, convert
 from tortoise import fields
 from tortoise.fields import Field
 
+from ..config.languages import Language
+from ._base import Base, queries
 from .command import Command
 from .lib.base_table import BaseTable
-from .pidor import PidorEvent, PidorInTop, PidorTop
 
 # from ..chat_misc.models import ChatModules, ChatSettings
 
 
-class Chat(BaseTable):
+class ChatSettings(Struct, frozen=True):
+    enable_admin: bool = True
+    warns_to_ban: Literal[-1, 3, 5] = 3
+
+    enable_admin: bool = True
+    enable_welcome: bool = True
+    enable_rules: bool = True
+    enable_selfmute: bool = True
+    enable_kick_on_join: bool = False  # polish mode
+
+    enable_poll: bool = True
+    enable_triggers: bool = True
+    enable_twitter_redirect: bool = True
+
+    enable_inline_set_note: bool = False
+
+    locked_commands: list[str] = []
+
+
+class Chat(Base):
+    id: int
+
+    title: str
+    username: str | None
+    language: Language
+
+    current_pidor_id: int | None
+    settings: ChatSettings
+
+    welcome: str | None = None
+    rules: str | None = None
+
+    @staticmethod
+    async def get_by(message: types.Message) -> "Chat":
+        if message.from_user is None:
+            raise KeyError
+
+        async with aiosqlite.connect("tortoise.db") as conn:
+            chat = await queries.chat.get_by(
+                conn,
+                **message.chat.model_dump(
+                    include={
+                        "id",
+                        "title",
+                        "username",
+                    }
+                ),
+            )
+            await conn.commit()
+
+        return convert(
+            [*chat[:3], Language.from_str("ru"), 1, dict()],
+            Chat,
+        )
+
+    @staticmethod
+    async def get(id: int) -> "Chat":
+        async with aiosqlite.connect("tortoise.db") as conn:
+            chat = await queries.chat.get(conn, id=id)
+
+        # return convert(chat, Chat)
+        return convert(
+            [*chat[:3], Language.from_str("ru"), 1, dict()],
+            Chat,
+        )
+
+
+class Chat_:
     id: int | Field[int] = fields.IntField(
         default=None, pk=True, repr=False
     )
@@ -22,16 +92,7 @@ class Chat(BaseTable):
         null=True
     )
 
-    # pidor_events: list[PidorEvent] = ormar.ManyToMany(
-    #     PidorEvent, related_name="pidor_events"
-    # )
-
     pidor_id: int | Field[int] = fields.IntField(null=True)
-
-    # pidor: fields.ForeignKeyRelation[Pidor] = fields.ForeignKeyField(
-    #     "models.Pidor", null=True
-    # )
-    # pidor_id: int
 
     @classmethod
     async def find_or_place_in_db(
@@ -43,35 +104,6 @@ class Chat(BaseTable):
             return await cls.update_or_create(
                 *args, **kwargs
             )
-
-    @staticmethod
-    async def get_by(message: types.Message) -> "Chat":
-        return (
-            await Chat.update_or_create(
-                id=message.chat.id,
-                defaults=dict(
-                    username=message.chat.username,
-                    title=message.chat.title
-                    or message.from_user.full_name,
-                ),
-            )
-        )[0]
-
-    async def get_random_pidor(self) -> "Member | None":
-        from .member import Member
-
-        table = Member.ormar_config.table
-
-        return await Member.get(
-            id=await Member.database.fetch_val(
-                select(table)
-                .where(
-                    table.c.is_pidor == 1,
-                    table.c.chat == self.id,
-                )
-                .order_by(text("RANDOM()"))
-            )
-        )
 
     async def can_run_pidor(self) -> bool:
         from .member import Member
@@ -94,51 +126,6 @@ class Chat(BaseTable):
         ) + pdl.duration(days=1)
 
         return pdl.now() >= next_pidor_day
-
-    async def get_top_pidors(
-        self, limit: int = 10
-    ) -> list[PidorInTop]:
-        from .member import Member
-        from .user import User
-
-        # return PidorTop.validate_python(
-        #     await PidorEvent.filter(chat_id=self.id)..values()
-        # )
-
-        table = PidorEvent.ormar_config.table
-        m_table = Member.ormar_config.table
-        u_table = User.ormar_config.table
-        c = table.c
-
-        res = await PidorEvent.database.fetch_all(
-            select(
-                func.count(c.id).label("count_1"),
-                u_table.c.username,
-                u_table.c.first_name,
-                u_table.c.last_name,
-            )
-            .where(c.chat_id == self.id)
-            .group_by(c.pidor_id)
-            .order_by(text("-count_1"))
-            .limit(10)
-            .join(
-                m_table,
-                c.pidor_id == m_table.c.id,
-            )
-            .join(u_table, m_table.c.user == u_table.c.id)
-        )
-
-        return PidorTop.validate_python(
-            [
-                PidorInTop(
-                    count=r[0],
-                    username=r[1],
-                    first_name=r[2],
-                    last_name=r[3],
-                )
-                for r in res
-            ]
-        )
 
     async def get_commands_count(self) -> int:
         return await Command.filter(chat_id=self.id).count()

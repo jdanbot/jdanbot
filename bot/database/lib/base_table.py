@@ -1,11 +1,6 @@
 from typing import Any, override
 
-from pydantic.config import ConfigDict
 from tortoise import Model as Table
-from tortoise.contrib.pydantic.base import PydanticModel
-from tortoise.contrib.pydantic.creator import (
-    pydantic_model_creator,
-)
 
 
 class BaseTable(Table):
@@ -13,32 +8,19 @@ class BaseTable(Table):
     class Meta:
         abstract: bool = True
 
-    @property
-    def model(self) -> type[PydanticModel]:
-        return pydantic_model_creator(
-            self.__class__,
-            model_config=ConfigDict(
-                arbitrary_types_allowed=True,
-                extra="forbid",
-                validate_assignment=True,
-            ),
-        )
+    def __rich_repr__(self):
+        for field_name in self._meta.fields:
+            value = getattr(self, field_name)
 
-    def __rich_repr__(self) -> PydanticModel:
-        return self.model(
-            **dict(
-                filter(
-                    lambda item: not item[0].startswith("_"),
-                    self.__dict__.items(),
-                )
-            )
-        )
+            yield field_name, value
 
     @classmethod
     async def count(cls) -> int:
         return await cls.filter().count()
 
-    async def update(self, data: dict[Any, Any] | None = None, **kwargs):
+    async def update(
+        self, data: dict[Any, Any] | None = None, **kwargs
+    ):
         if data is None:
             data: dict[Any, Any] = {}
 

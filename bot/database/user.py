@@ -1,25 +1,26 @@
+import aiosqlite
 from aiogram import types
-from tortoise import fields
-from tortoise.fields import Field
+from msgspec import convert
 
-from .lib.base_table import BaseTable
-from .pidor import PidorEvent
+from ..config.languages import Language
+from ._base import Base, queries
 
 
-class User(BaseTable):
-    id: int | Field[int] = fields.BigIntField(pk=True, default=None)
+class User(Base):
+    id: int
 
-    first_name: str | Field[str] = fields.TextField()
-    last_name: str | None | Field[str] = fields.TextField(null=True)
-    username: str | None | Field[str] = fields.TextField(null=True)
+    first_name: str
+    last_name: str | None
+    username: str | None
 
-    # def __str__(self):
-    #     return f"{self.id} {self.full_name}"
+    language: Language | None
 
     @property
     def full_name(self) -> str:
         if self.last_name:
-            return " ".join([self.first_name, self.last_name])
+            return " ".join(
+                [self.first_name, self.last_name]
+            )
 
         return self.first_name
 
@@ -29,14 +30,36 @@ class User(BaseTable):
 
     @staticmethod
     async def get_by(message: types.Message) -> "User":
-        return (
-            await User.update_or_create(
-                id=message.from_user.id,
-                defaults=message.from_user.model_dump(
-                    include={"username", "first_name", "last_name"}
+        if message.from_user is None:
+            raise KeyError
+
+        async with aiosqlite.connect("tortoise.db") as conn:
+            user = await queries.user.get_by(
+                conn,
+                **message.from_user.model_dump(
+                    include={
+                        "username",
+                        "first_name",
+                        "last_name",
+                        "id",
+                    }
                 ),
             )
-        )[0]
+            await conn.commit()
 
-    def get_pidor_count(self) -> int:
-        return PidorEvent.filter(pidor__user=self.id).count()
+        return convert(
+            [*user, Language.from_str("ru")],
+            User,
+        )
+
+    @staticmethod
+    async def get(id: int) -> "User":
+        async with aiosqlite.connect("tortoise.db") as conn:
+            user = await queries.user.get(conn, id=id)
+
+        # return convert(chat, Chat)
+        return convert(
+            [*user, Language.from_str("ru")],
+            User,
+        )
+    async def update(*args, **kwargs):...

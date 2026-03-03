@@ -5,16 +5,13 @@ import aiohttp
 from aiogram import BaseMiddleware, types
 from aiogram.filters import Command as CommandFilter
 from bs4 import BeautifulSoup as bs4
+from msgspec import json
 from wikipya.clients import Fandom, MediaWiki, Wikipedia
-
-from bot.database.command import Command
 
 from ...config import bot
 from ...config.lib.tghtml import TgHTML
 from ...database import Command, Member
 from ...lib.models import Article
-
-from msgspec import json
 
 
 async def fetch_all(
@@ -26,7 +23,7 @@ async def fetch_all(
     if isinstance(query, int):
         query = await client.get_page_name(query)
 
-    client.automatic_session_close=False
+    client.automatic_session_close = False
 
     async with aiohttp.ClientSession(
         headers={
@@ -137,15 +134,15 @@ class SpyMiddleware(BaseMiddleware):
         ).split(" ")
 
         if command is not None:
-            member = await Member.get_by(message)
             data["member"] = member
 
-            await Command.create(
+            await Command(
+                id=None,
                 user_id=member.user_id,
                 chat_id=member.chat_id,
                 name=command.lower(),
                 args=args or "",
-            )
+            ).save()
 
         for lcommand_raw in locked_commands:
             lcommand = lcommand_raw.removeprefix("-")

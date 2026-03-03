@@ -1,10 +1,10 @@
 from sys import platform
 
 import distro
-import pendulum as pdl
 from aiogram import types
 from aiogram.filters import Command
 from msgspec import toml
+from whenever import Instant, TimeDelta
 
 from ..config import START_TIME, Locale, router, settings
 
@@ -15,21 +15,18 @@ with open("pyproject.toml", "r") as f:
 __version__ = pyproject["project"]["version"]
 
 
-def format_interval(duration: pdl.Interval) -> str:
-    s = duration.total_seconds()
-
-    days, remainder = divmod(s, 60 * 60 * 24)
-    hours, remainder = divmod(remainder, 60 * 60)
-    minutes, seconds = divmod(remainder, 60)
+def format_interval(duration: TimeDelta) -> str:
+    hours, minutes, seconds, _ = duration.in_hrs_mins_secs_nanos()
+    days, hours = divmod(hours, 24)
 
     return "{:02}:{:02}:{:02}:{:02}".format(
-        int(days), int(hours), int(minutes), int(seconds)
+        days, hours, minutes, seconds
     )
 
 
 @router.message(Command("status"))
 async def get_status(message: types.Message, _: Locale):
-    interval = pdl.now() - START_TIME
+    interval = Instant.now() - START_TIME
 
     await message.reply(
         _.templates.status(

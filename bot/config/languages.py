@@ -1,8 +1,13 @@
-from dataclasses import dataclass
 from typing import Any
 
 from iso639 import Lang
-from pydantic import BaseModel
+from msgspec import Struct, convert
+
+
+class ValidatedStruct(Struct, frozen=True):
+    def __post_init__(self, **kwargs):
+        convert(kwargs, type=self.__class__)
+
 
 GOOGLE_LANGS_FIXES = {
     "he": "iw",
@@ -18,8 +23,7 @@ def reverse(d: dict[str, str]) -> dict[str, str]:
     return {value: key for key, value in d.items()}
 
 
-@dataclass
-class TranslationLanguage:
+class TranslationLanguage(Struct):
     emoji: str
     name: str
 
@@ -41,7 +45,7 @@ LANGS = {
 }
 
 
-class Language(BaseModel):
+class Language(Struct, frozen=True):
     name: str
 
     alpha_2: str
@@ -55,31 +59,36 @@ class Language(BaseModel):
     def google(self) -> str:
         return GOOGLE_LANGS_FIXES.get(self.code, self.code)
 
-    def __init__(self, lang: str) -> "Language":  # type: ignore
+    @classmethod
+    def from_str(cls, lang: str) -> "Language":
         lang = reverse(GOOGLE_LANGS_FIXES).get(lang, lang)
 
         if lang == "ua":
             lang = "uk"
 
         if lang in ["zt", "c"]:
-            super(Language, self).__init__(
-                name=f"SpecialLang {lang}",
-                alpha_2=lang,
-                alpha_3="",
+            return convert(
+                dict(
+                    name=f"SpecialLang {lang}",
+                    alpha_2=lang,
+                    alpha_3="",
+                ),
+                Language,
             )
 
-            return None  # type: ignore
+        iso = Language._get(lang)
 
-        l = self._get(lang)
-
-        super(Language, self).__init__(
-            name=l.name,  # type: ignore
-            alpha_2=l.pt1,  # type: ignore
-            alpha_3=l.pt2b or l.pt3,  # type: ignore
+        return convert(
+            dict(
+                name=iso.name,
+                alpha_2=iso.pt1,
+                alpha_3=iso.pt2b or iso.pt3,
+            ),
+            Language,
         )
 
     @staticmethod
-    def _get(lang: str) -> tuple:
+    def _get(lang: str) -> Lang:
         try:
             return Lang(lang)
         except Exception as e:
@@ -283,4 +292,6 @@ GTRANSLATE_LANGS = list(
     }
 )
 
-GLANGS = [Language(lang) for lang in GTRANSLATE_LANGS]
+GLANGS = [
+    Language.from_str(lang) for lang in GTRANSLATE_LANGS
+]

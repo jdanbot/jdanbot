@@ -6,11 +6,10 @@ from aiogram.filters import Command
 from aiogram.utils.markdown import bold, italic
 
 from bot.database.member import Member
-from bot.database.pidor import Pidor, PidorEvent
+from bot.database.pidor import Pidor_
 
 from ..config.bot import router
 from ..config.lib.locales import Locale
-from ..database import Member, PidorEvent
 from ..lib.text import prettyword
 
 
@@ -24,11 +23,17 @@ async def init_pidor(
         return False
 
     if not await member.is_pidor():
-        await message.reply(_.pidor.reg)
+        await message.reply(
+            _.pidor.reg, parse_mode="Markdown"
+        )
         return False
 
-    if not await member.check_run_pidor():
-        pidor = await Pidor.get(id=member.chat.pidor_id)
+    if await member.check_run_pidor():
+        assert member.chat.current_pidor_id
+
+        pidor = await Pidor_.get(
+            id=member.chat.current_pidor_id
+        )
         mem = await Member.get(pidor.user_id, pidor.chat_id)
 
         await message.reply(
@@ -47,47 +52,29 @@ async def init_pidor(
 async def find_pidor(
     message: types.Message,
     _: Locale,
+    member: Member,
     ignore_pidor_wait: bool = False,
 ):
-    member: Member = await Member.get_by(message)
-
     if not await init_pidor(message, member, _):
         return
 
-    pidor, __ = await member.get_pidor()
+    random_member: Member = await member.get_random_pidor()
 
-    await PidorEvent.create(
-        pidor_id=pidor.id,
-        chat_id=member.chat_id,
-    )
-
-    new_pidor: Pidor = await member.get_random_pidor()
-    new_member: Member = await Member.get(
-        user_id=new_pidor.user_id,
-        chat_id=new_pidor.chat_id,
-    )
-
-    if await new_member.is_left():
+    if await random_member.is_left():
         await message.reply(_.pidor.pidor_left)
         return
 
-    event: PidorEvent = await PidorEvent.create(
-        pidor_id=new_pidor.id, chat_id=new_pidor.chat_id
-    )
+    await random_member.become_today_pidor()
 
-    await new_pidor.update(latest_time=event.id)
-    await member.chat.update(pidor_id=new_pidor.id)
-
-    for phrase in choice(_.pidor.pidor_searching).split("\n"):
-        if phrase != "":
+    for phrase in choice(_.pidor.pidor_searching):
+        if phrase != "\n":
             await message.answer(italic(phrase))
         if not ignore_pidor_wait:
             await asyncio.sleep(2.5)
 
     await message.answer(
-        choice(
-            _.pidor.today_pidor,
-            user=bold(new_member.tag),
+        choice(_.pidor.today_pidor)(
+            user=bold(random_member.tag),
         )
     )
 
@@ -100,15 +87,17 @@ def get_emojed_num(num: int) -> str:
 
 
 @router.message(Command("pidorstats"))
-async def pidor_stats(message: types.Message, _: Locale):
-    member = await Member.get_by(message)
-
+async def pidor_stats(
+    message: types.Message,
+    member: Member,
+    _: Locale,
+):
     msg = _.pidor.top_10 + "\n\n"
 
     for num, pidor in enumerate(
         await member.get_top_pidors(), 1
     ):
-        count = prettyword(pidor.count, _.count)
+        count = prettyword(pidor.count, _.cases)
 
         msg += PIDOR_TEMPLATE.format(
             get_emojed_num(num),
@@ -132,10 +121,12 @@ async def pidor_stats(message: types.Message, _: Locale):
 async def reg_pidor(
     message: types.Message, _: Locale, member: Member
 ) -> None:
-    __, is_created = await member.get_pidor()
+    __, is_created= await member.get_pidor()
 
     if is_created:
-        await message.reply(_.pidor.in_db, parse_mode="Markdown")
+        await message.reply(
+            _.pidor.in_db, parse_mode="Markdown"
+        )
         return
 
     await message.reply(_.pidor.already_in_db)

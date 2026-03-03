@@ -2,23 +2,31 @@ from aiogram import F, types
 from aiogram.filters import Command
 
 from ..config import Locale, bot, router
-from ..triggers.legacy import triggers
 from ..filters import Check
+from ..triggers.legacy import triggers
 
 
-@router.message(Command("admins"), Check("__enable_admin__"))
+@router.message(
+    Command("admins"), Check("__enable_admin__")
+)
 async def call_admins(message, _: Locale):
     buttons = [
         [
             types.InlineKeyboardButton(
-                text=triggers["yes_"], callback_data="call_admin"
+                text=triggers["yes_"],
+                callback_data="call_admin",
+                style="danger",
             ),
             types.InlineKeyboardButton(
-                text=triggers["delete"], callback_data="delete"
+                text=triggers["delete"],
+                callback_data="delete",
+                style="success",
             ),
         ]
     ]
-    keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
+    keyboard = types.InlineKeyboardMarkup(
+        inline_keyboard=buttons
+    )
 
     await message.reply(
         triggers["call_admin_warn"], reply_markup=keyboard
@@ -30,14 +38,21 @@ async def call_admin(call: types.CallbackQuery, _: Locale):
     buttons = [
         [
             types.InlineKeyboardButton(
-                text=triggers["delete"], callback_data="delete"
+                text=triggers["delete"],
+                callback_data="delete",
             )
         ]
     ]
-    keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
+    keyboard = types.InlineKeyboardMarkup(
+        inline_keyboard=buttons
+    )
 
-    admins = await bot.get_chat_administrators(call.message.chat.id)
-    usernames = [admin.user.mention_html() for admin in admins]
+    admins = await bot.get_chat_administrators(
+        call.message.chat.id
+    )
+    usernames = [
+        admin.user.mention_html() for admin in admins
+    ]
     admins_call = ", ".join(usernames) + "\n\n"
 
     await call.message.edit_text(

@@ -27,7 +27,9 @@ class i18nMiddleware(BaseMiddleware):
         return await handler(event, data)
 
     @classmethod
-    async def get_language(cls, event: types.Update) -> str:
+    async def get_language(cls, event: types.Update, member: Member | None=None,) -> str:
+        print("rewrite i18n!!!")
+        return "ru"
         # print(event.model_dump_json(indent=4))
 
         try:
@@ -65,9 +67,14 @@ class i18nMiddleware(BaseMiddleware):
             if event is None:
                 return "ru"
 
-            member = await Member.get_by(event)
+            if not member:
+                member = await Member.get_by(event)
             user_id, check_chat = member.user_id, True
 
+        if check_chat:
+            if not member:
+                member = await Member.get_by(event)
+            
         if check_chat and (chat_lang := member.lang):
             return chat_lang.strip()
         elif user_chat_lang := await Member.get_note(
@@ -75,6 +82,6 @@ class i18nMiddleware(BaseMiddleware):
         ):
             return user_chat_lang.strip()
         elif user := event.from_user:
-            return user.language_code
+            return user.language_code or "ru"
         else:
             return "ru"

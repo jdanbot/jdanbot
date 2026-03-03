@@ -32,8 +32,8 @@ class Template(str):
 
 
 class Locale(Struct, frozen=True):
-    cases: set[str]
-
+    cases: list[str]
+    
     class Pidor(Struct, frozen=True):
         top_10: str
         works_only_in_chats: str
@@ -45,7 +45,7 @@ class Locale(Struct, frozen=True):
 
         pidor_left: str
         already_finded: list[Template]
-        pidor_searching: list[frozenset[str]]
+        pidor_searching: list[list[str]]
         today_pidor: list[Template]
 
     pidor: Pidor

@@ -2,7 +2,7 @@ from functools import cached_property
 from typing import Annotated
 
 import pendulum as pdl
-import pytimeparse
+import pytimeparse2 as pytimeparse
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.utils.text_decorations import (
@@ -29,7 +29,7 @@ from bot.config import bot
 
 from ..config import router
 from ..database import Member
-from ..filters import Arguments, Check, GetText, IsAdmin
+from ..filters import Arguments, Check, IsAdmin
 from .lib.ban_logs import BanLog
 
 
