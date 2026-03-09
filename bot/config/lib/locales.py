@@ -32,8 +32,9 @@ class Template(str):
 
 
 class Locale(Struct, frozen=True):
+    lang: str
     cases: list[str]
-    
+
     class Pidor(Struct, frozen=True):
         top_10: str
         works_only_in_chats: str
@@ -89,6 +90,13 @@ class Locale(Struct, frozen=True):
         command_requires: CommandRequires
 
     errors: Errors
+
+    class Ban(Struct, frozen=True):
+        selfmute: Template
+        mute: Template
+        warn: Template
+
+    ban: Ban
 
     docs: dict[str, str]
 

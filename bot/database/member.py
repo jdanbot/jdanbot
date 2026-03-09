@@ -11,7 +11,7 @@ from bot.lib.admin import check_admin
 from ..config.bot import bot
 from ._base import queries
 from .chat import Chat
-from .pidor import Pidor_, PidorTop
+from .pidor import Pidor, PidorTop
 from .user import User
 
 # from .warn import Warn
@@ -34,7 +34,7 @@ class Member(Struct, frozen=True):
     lang: str
     # user: types.User = Field(repr=False, default=None)
     chat: Chat
-    pidor: Pidor_ | None = None
+    pidor: Pidor | None = None
 
     def __rich_repr__(self):
         for field in self.__struct_fields__:

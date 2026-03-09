@@ -1,9 +1,6 @@
-from markdown import markdown as md2html
-from markdownify import markdownify as html2md
+import bleach
 from pydantic import BaseModel, Field
 from pyquery import PyQuery as jq
-
-import bleach
 
 
 def unwrap(i: int, tag: jq, space: str = "\n\n"):

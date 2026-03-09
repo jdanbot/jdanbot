@@ -3,7 +3,6 @@ import io
 from typing import Annotated
 
 import humanize
-import pendulum as pdl
 from aiogram import F, types
 from aiogram.filters import Command
 from pydantic import BaseModel, RootModel, field_validator
@@ -77,7 +76,7 @@ def build_user_info(user: User) -> str:
 
 @router.message(Command("export_notes"), IsAdmin())
 async def export_notes(message: types.Message):
-    humanize.i18n.activate("ru_RU")  # type: ignore
+    humanize.i18n.activate("ru_RU")
 
     notes = await Note.get_notes(message.chat.id)
     notes_raw = ""
@@ -175,9 +174,9 @@ async def get(
         return
 
     try:
-        await message.reply(note, parse_mode="MarkdownV2")
+        await message.reply(note.text, parse_mode="MarkdownV2")
     except Exception:
-        await message.reply(note)
+        await message.reply(note.text)
 
 
 @router.message(Command("show", "notes"))
@@ -193,6 +192,8 @@ async def show(message: types.Message):
 
 @router.message(F.text.startswith("#"))
 async def use_by_hashtag(message: types.Message, _: Locale):
+    assert message.text
+    
     text = message.text.removeprefix("#")
 
     name, *text = text.split(" ", maxsplit=1)

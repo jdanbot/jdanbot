@@ -9,7 +9,7 @@ license = "MIT"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-  "aiogram>=3.21.0",
+  "aiogram>=3.26.0",
   "art>=6.2",
   "beautifulsoup4>=4.14.2",
   "lxml>=6.0.0",
@@ -19,24 +19,18 @@ dependencies = [
   "humanize>=4.1.0",
   "pytimeparse2>=1.7.1",
   "python-ffmpeg>=2.0.12",
-  "pydantic-settings>=2.2.1",
   "pymemeru",
   "shellous>=0.36.0",
   "aiopytesseract>=0.14.0",
   "tghtml>=1.2.0",
-  "tortoise-orm>=1.1.5",
-  "pendulum>=3.1.0",
   "pyquery>=2.0.1",
   "iso639-lang>=2.2.3",
-  "pydantic-extra-types>=2.10.1",
   "async-property>=0.2.2",
-  "pypika-tortoise>=0.6.3",
   "bleach>=6.3.0",
   "whenever>=0.9.5",
   "rich>=14.3.2",
   "wikipya",
   "msgspec[toml]>=0.20.0",
-  "peewee>=4.0.1",
   "aiosql>=15.0",
   "aiosqlite>=0.22.1",
 ]

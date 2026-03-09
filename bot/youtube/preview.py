@@ -1,5 +1,3 @@
-import contextlib
-
 from aiogram import types
 from aiogram.filters import Command
 from yarl import URL
@@ -13,16 +11,13 @@ max_url = "{base_url}/vi/{id}/maxresdefault.jpg"
 hq_url = "{base_url}/vi/{id}/hqdefault.jpg"
 
 
-def get_video_id(url: str) -> str:
-    with contextlib.suppress():
-        return URL(url).query["v"]
-
-    return url.replace("&feature=share", "").split("/")[-1]
+def get_video_id(url: URL) -> str:
+    return url.query.get("v", url.path.removeprefix("/"))
 
 
 @router.message(Command("preview"), GetText())
 async def preview(message: types.Message, query: str):
-    video_id = get_video_id(query)
+    video_id = get_video_id(URL(query))
 
     await bot.send_chat_action(
         message.chat.id, "upload_photo"

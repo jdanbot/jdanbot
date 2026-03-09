@@ -1,32 +1,11 @@
 import aiosqlite
 from msgspec import convert
-from tortoise import fields
-from tortoise.fields import Field
-from whenever import Instant, ZonedDateTime, PlainDateTime
+from whenever import Instant, PlainDateTime
 
 from ._base import Base, queries
-from .lib.base_table import BaseTable
-from .lib.pdl_field import PendulumField
 
 
-class Usera(BaseTable):
-    id: int | Field[int] = fields.BigIntField(
-        pk=True, default=None
-    )
-
-    first_name: str | Field[str] = fields.TextField()
-    last_name: str | None | Field[str] = fields.TextField(
-        null=True
-    )
-    username: str | None | Field[str] = fields.TextField(
-        null=True
-    )
-
-    class Meta:
-        table = "user"
-
-
-class PidorEvent_(Base):
+class PidorEvent(Base):
     id: int
     pidor_id: int
     chat_id: int
@@ -57,7 +36,7 @@ class PidorEvent_(Base):
 #     latest_time: int | None = fields.IntField(null=True)
 
 
-class Pidor_(Base):
+class Pidor(Base):
     id: int
     chat_id: int
     user_id: int
@@ -65,7 +44,7 @@ class Pidor_(Base):
     is_allowed: bool
     latest_time: int | None  # backed by latest_time_id
 
-    async def get(id: int) -> "Pidor_":
+    async def get(id: int) -> "Pidor":
         async with aiosqlite.connect("tortoise.db") as conn:
             _ = await queries.pidor.get(conn, id=id)
 
@@ -75,7 +54,7 @@ class Pidor_(Base):
                     bool(_[-2]),
                     _[-1],
                 ),
-                Pidor_,
+                Pidor,
             )
 
         raise NotImplementedError

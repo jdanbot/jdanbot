@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from aiogram import types
 
 
@@ -9,10 +10,5 @@ class ChatMock:
 
     title: str = "jdan's secret test chat"
     username: str = "savekanobu"
-
-    async def restrict(self, *args, **kwargs) -> bool:
-        # TODO: Implement restrict
-
-        return True
 
     full_name = types.Chat.full_name

@@ -6,7 +6,7 @@ from aiogram.filters import Command
 from aiogram.utils.markdown import bold, italic
 
 from bot.database.member import Member
-from bot.database.pidor import Pidor_
+from bot.database.pidor import Pidor
 
 from ..config.bot import router
 from ..config.lib.locales import Locale
@@ -31,7 +31,7 @@ async def init_pidor(
     if await member.check_run_pidor():
         assert member.chat.current_pidor_id
 
-        pidor = await Pidor_.get(
+        pidor = await Pidor.get(
             id=member.chat.current_pidor_id
         )
         mem = await Member.get(pidor.user_id, pidor.chat_id)

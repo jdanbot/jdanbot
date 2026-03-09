@@ -1,30 +1,26 @@
 from datetime import datetime, timedelta
-from typing import override
-
-import pendulum as pdl
-from tortoise import fields
-from tortoise.fields import Field
-
-from .lib.base_table import BaseTable
 
 
-class Warn(BaseTable):
-    id: Field[int] | int = fields.IntField(pk=True)
+class Warn: ...
 
-    who_warned_id: Field[int] | int = fields.IntField()
 
-    who_warn_id: Field[int] | int = fields.IntField()
+# class Warn(BaseTable):
+#     id: Field[int] | int = fields.IntField(pk=True)
 
-    reason: Field[str] | str | None = fields.TextField(
-        nullable=True
-    )
-    warned_at: Field[pdl.DateTime] | pdl.DateTime = (
-        fields.DatetimeField(auto_now=True)
-    )
+#     who_warned_id: Field[int] | int = fields.IntField()
 
-    @override
-    def __repr__(self) -> str:
-        return f"<Warn [{self.id}] m{self.who_warned_id} by m{self.who_warn_id}>"
+#     who_warn_id: Field[int] | int = fields.IntField()
+
+#     reason: Field[str] | str | None = fields.TextField(
+#         nullable=True
+#     )
+#     warned_at: Field[pdl.DateTime] | pdl.DateTime = (
+#         fields.DatetimeField(auto_now=True)
+#     )
+
+#     @override
+#     def __repr__(self) -> str:
+#         return f"<Warn [{self.id}] m{self.who_warned_id} by m{self.who_warn_id}>"
 
 
 class WarnOld:

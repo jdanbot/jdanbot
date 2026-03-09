@@ -1,12 +1,13 @@
-import humanize
-
-from aiogram import types
-from aiogram.utils.text_decorations import markdown_decoration as md
 from dataclasses import dataclass
 
+import humanize
 import pendulum as pdl
-from fluentogram import TranslatorRunner
+from aiogram import types
+from aiogram.utils.text_decorations import (
+    markdown_decoration as md,
+)
 
+from ...config import Locale
 
 escape_md = md.quote
 
@@ -15,7 +16,7 @@ escape_md = md.quote
 class BaseClass:
     message: types.Message
     reply: types.Message
-    _: TranslatorRunner
+    _: Locale
 
 
 @dataclass
@@ -30,7 +31,7 @@ class BanLog(BaseClass):
 
     @property
     def time_localed(self) -> str:
-        lang = self._._lang
+        lang = self._.lang
         humanize.i18n.activate(None if lang == "en" else lang)
 
         return humanize.precisedelta(self.ban_time)
@@ -49,9 +50,9 @@ class BanLog(BaseClass):
         user, admin = self.reply.from_user, self.message.from_user
 
         return (
-            self._.admin.mute
+            self._.ban.mute
             if not self.is_selfmute
-            else self._.selfmutr
+            else self._.ban.selfmute
         )(
             admin=admin.mention_markdown(),
             **(
@@ -73,8 +74,7 @@ class WarnLog(BaseClass):
     def generate(self) -> str:
         user, admin = self.reply.from_user, self.message.from_user
 
-        return _(
-            "ban.warn",
+        return self._.ban.warn(
             user=user.get_mention(),
             admin=admin.get_mention(),
             why=escape_md(self.reason),
@@ -90,8 +90,7 @@ class UnwarnLog(BaseClass):
     def generate(self) -> str:
         user, admin = self.reply.from_user, self.message.from_user
 
-        return _(
-            "ban.unwarn",
+        return self._.ban.unwarn(
             user=user.get_mention(),
             admin=admin.get_mention(),
             why=escape_md(self.reason),

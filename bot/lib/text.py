@@ -1,8 +1,3 @@
-from typing import Iterable
-
-# TODO: Full rewrite
-
-
 def prettyword(
     n: int,
     forms: list[str] | tuple[str, str, str] | str,
@@ -24,8 +19,8 @@ def prettyword(
 
 
 def paginate(
-    data: Iterable, page: int = 0, limit: int = 10
-) -> Iterable:
+    data: str, page: int = 0, limit: int = 10
+) -> str:
     """
     FROM AIOGRAM2
 
@@ -44,7 +39,7 @@ def paginate(
 
 
 def cute_crop(text: str, limit: int = 100) -> str:
-    return paginate(text, limit=limit)
+    return paginate(data=text, limit=limit)
 
 
 def fix_words(text: str) -> str:

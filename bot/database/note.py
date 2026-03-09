@@ -1,15 +1,17 @@
 from typing import TYPE_CHECKING, Any, Callable
 
-from tortoise import fields
-from tortoise.fields import Field
+import aiosqlite
+from msgspec import convert
 
-from .lib import BaseTable
+from ._base import Base, queries
 
 if TYPE_CHECKING:
     from .member import Member
 
 
-def str2bool(value: str, default: bool | None = None) -> bool | None:
+def str2bool(
+    value: str, default: bool | None = None
+) -> bool | None:
     match value.strip().lower():
         case "true" | "yes" | "1":
             return True
@@ -19,19 +21,63 @@ def str2bool(value: str, default: bool | None = None) -> bool | None:
             return default
 
 
-class Note(BaseTable):
-    id: int | Field[int] = fields.IntField(pk=True)
-    chat_id: int | Field[int] = fields.IntField()
+class Note(Base):
+    name: str
+    text: str
 
-    name: str | Field[str] = fields.TextField()
-    text: str | Field[str] = fields.TextField()
+    @staticmethod
+    async def get(chat_id: int, key: str) -> "Note" | None:
+        async with aiosqlite.connect("tortoise.db") as conn:
+            return convert(
+                await queries.notes.get_note(
+                    conn, chat_id=chat_id, name=key
+                ),
+                Note,
+            )
 
-    is_admin_note: bool | Field[bool] = fields.BooleanField(null=True)
+    @staticmethod
+    async def get_notes_list(chat_id: int) -> list[str]:
+        async with aiosqlite.connect("tortoise.db") as conn:
+            notes = [
+                note
+                async for note in queries.notes.get_notes(
+                    conn, chat_id=chat_id
+                )
+            ]
 
-    author_id: int | Field[int] = fields.IntField()
-    created_at: int | Field[int] = fields.IntField(null=True, default=None)
+            return convert(
+                [note[0] for note in notes],
+                list[str],
+            )
 
-    editor_id: int | Field[int] = fields.IntField(null=True, default=None)
+    @staticmethod
+    async def add_or_update() -> None:
+        pass
+
+    @staticmethod
+    async def remove() -> None:
+        pass
+
+
+class Note_OLD:
+#     id: int | Field[int] = fields.IntField(pk=True)
+#     chat_id: int | Field[int] = fields.IntField()
+
+#     name: str | Field[str] = fields.TextField()
+#     text: str | Field[str] = fields.TextField()
+
+#     is_admin_note: bool | Field[bool] = fields.BooleanField(
+#         null=True
+#     )
+
+#     author_id: int | Field[int] = fields.IntField()
+#     created_at: int | Field[int] = fields.IntField(
+#         null=True, default=None
+#     )
+
+#     editor_id: int | Field[int] = fields.IntField(
+#         null=True, default=None
+#     )
 
     #    author: fields.ForeignKeyRelation["Member"] = fields.ForeignKeyField("models.Member")
     #    created_at: Field[pdl.DateTime] = PendulumField(auto_now_add=True)
@@ -42,11 +88,20 @@ class Note(BaseTable):
     #    edited_at: Field[pdl.DateTime] = PendulumField(null=True)
 
     @staticmethod
-    async def find(chat_id: int, query: str) -> "Note | None":
-        return await Note.filter(chat_id=chat_id, name=query).first()
+    async def find(
+        chat_id: int, query: str
+    ) -> "Note | None":
+        return await Note.filter(
+            chat_id=chat_id, name=query
+        ).first()
 
     @staticmethod
-    async def add(member: "Member", name: str, text: str, is_admin_note: bool) -> bool:
+    async def add(
+        member: "Member",
+        name: str,
+        text: str,
+        is_admin_note: bool,
+    ) -> bool:
         if is_admin_note and not await member.check_admin():
             raise AttributeError
 
@@ -69,7 +124,9 @@ class Note(BaseTable):
             )
         else:
             await res.update(
-                data=dict(text=text, editor_id=member.user_id),
+                data=dict(
+                    text=text, editor_id=member.user_id
+                ),
             )
 
         return is_edit
@@ -81,7 +138,9 @@ class Note(BaseTable):
         default: Any = None,
         type: Callable[[str, Any], Any] = lambda x, y: x,
     ) -> Any:
-        res = await Note.filter(chat_id=chat_id, name=name).first()
+        res = await Note.filter(
+            chat_id=chat_id, name=name
+        ).first()
 
         if res is None:
             return default
@@ -94,21 +153,25 @@ class Note(BaseTable):
 
     @staticmethod
     async def get_notes_list(chat_id: int) -> list[str]:
-        return await Note.filter(chat_id=chat_id).values_list("name", flat=True)
+        return await Note.filter(
+            chat_id=chat_id
+        ).values_list("name", flat=True)
 
     @staticmethod
     async def remove(member: "Member", name: str):
-        note = await Note.filter(chat_id=member.chat_id, name=name).first()
+        note = await Note.filter(
+            chat_id=member.chat_id, name=name
+        ).first()
 
         if note is None:
             return note
 
-        if note.is_admin_note and not await member.check_admin():
+        if (
+            note.is_admin_note
+            and not await member.check_admin()
+        ):
             raise AttributeError
 
         return await Note.filter(id=note.id).delete()
 
 
-class Member_NoteExt:
-    async def find_note(self: "Member", q: str) -> "Note":
-        return await Note.find(self.chat.id, q)

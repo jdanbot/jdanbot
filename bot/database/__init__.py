@@ -1,4 +1,3 @@
-from ._setup import setup_db
 from .chat import Chat
 from .command import Command
 from .member import Member
@@ -16,5 +15,4 @@ __all__ = (
     Note,
     str2bool,
     Warn,
-    setup_db,
 )
