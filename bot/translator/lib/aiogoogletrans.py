@@ -16,4 +16,9 @@ class AioGoogleTranslator(Struct, frozen=True, kw_only=True):
             q=query,
         )
 
-        return json.decode(text)[0][0]
+        answer = json.decode(text)
+
+        if isinstance(answer[0], str):
+            return answer[0]
+        else:
+            return answer[0][0]
