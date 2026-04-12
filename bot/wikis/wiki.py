@@ -1,7 +1,6 @@
 import aiohttp
-from aiogram import F, types
+from aiogram import types
 from aiogram.filters import Command, CommandObject
-from aiogram.utils.markdown import code
 from wikipya import Wikipya
 from wikipya.constants import TAG_BLOCKLIST
 from yarl import URL
@@ -170,10 +169,8 @@ async def custom_mediawiki(
     ]
 
     if not any(
-        
-            await check_mediawiki_api_url(base_url := var)
-            for var in url_variants
-        
+        await check_mediawiki_api_url(base_url := var)
+        for var in url_variants
     ):
         return await message.reply(
             "Can't find valid API url"
@@ -241,22 +238,4 @@ async def get_summary(
         href=summary.content_urls.desktop.page,
         image=image,
         parse_mode="html",
-    )
-
-
-@router.message(Command("s"))
-@router.message(
-    F.text.startswith("/s"),
-    F.text.func(
-        lambda x: len(x.split(" ", maxsplit=1)[0]) == 4
-    ),
-    F.text.func(lambda x: not x.startswith("/scp")),
-)
-async def wikiSearch(message: types.Message):
-    opts = message.text.split(maxsplit=1)
-    lang = opts[0].removeprefix("/s") or "ru"
-    query = opts[1] if len(opts) == 2 else "Название Статьи"
-
-    return await message.reply(
-        f"*Use bot's inline instead of this command*\nexample: {code(f'@jdan734_bot {lang} {query}.')}"
     )

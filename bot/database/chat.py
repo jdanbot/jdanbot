@@ -20,7 +20,7 @@ class ChatSettings(Struct, frozen=True):
     enable_kick_on_join: bool = False  # polish mode
 
     enable_poll: bool = True
-    enable_triggers: bool = True    # maybe memes?
+    enable_triggers: bool = False    # maybe memes?
     enable_twitter_redirect: bool = True
 
     enable_inline_set_note: bool = False
