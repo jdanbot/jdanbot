@@ -35,12 +35,12 @@ class UnwarnHammer(Struct, frozen=True):
 
 
 @router.message(
-    Command("unwarn"),
+    Command("kick"),
     IsAdmin(),
     Check(ChatSettings.enable_admin),
     Arguments(),
 )
-async def admin_unwarn(
+async def admin_kick(
     message: types.Message,
     reply: types.Message,
     member: Member,
@@ -51,27 +51,17 @@ async def admin_unwarn(
     assert reply.from_user
     assert message.from_user
 
-    admin = member
-    user = await Member.get_by(reply)
-
-    if reply.from_user.id == message.from_user.id:
-        await message.reply(_.ban.admin_cant_unwarn_self)
-        return
-
-    try:
-        i = await admin.unwarn(user, args.reason)
-    except IndexError:
-        await message.reply(bold(_.ban.warns_not_found))
-        return
-    else:
-        await message.reply(
-            admin_log := _.ban.unwarn(
-                user=reply.from_user.mention_markdown(),
-                admin=message.from_user.mention_markdown(),
-                why=escape_md(args.reason),
-                i=i,
-            )
+    await message.chat.ban(
+        reply.from_user.id,
+        revoke_messages=False,
+    )
+    await message.answer(
+        admin_log := _.ban.kick(
+            user=reply.from_user.mention_markdown(),
+            admin=message.from_user.mention_markdown(),
+            why=escape_md(args.reason),
         )
+    )
 
     if settings.admin_chat:
         await reply.forward(settings.admin_chat)

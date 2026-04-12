@@ -97,6 +97,7 @@ class Locale(Struct, frozen=True):
         unmute: Template
         warn: Template
         unwarn: Template
+        kick: Template
         warn_limit_reached: Template
         reason_not_found: str
         admin_cant_unwarn_self: str
