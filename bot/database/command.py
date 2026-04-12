@@ -1,20 +1,25 @@
-from tortoise import fields
-from tortoise.fields import Field
+import aiosqlite
 
-from bot.database.lib.base_table import BaseTable
+from ._base import Base, queries
 
 
-class Command(BaseTable):
-    id: Field[int] | int = fields.IntField(
-        default=None,
-        primary_key=True,
-    )
+class Command(Base):
+    id: int | None
 
-    chat_id: Field[int] | int = fields.IntField()
-    user_id: Field[int] | int = fields.IntField()
+    chat_id: int
+    user_id: int
 
-    name: Field[str] | str = fields.TextField()
-    args: Field[str] | str | None = fields.TextField(
-        nullable=True,
-        default=None,
-    )
+    name: str
+    args: str | None
+
+    async def save(self) -> None:
+        async with aiosqlite.connect("tortoise.db") as conn:
+            await queries.log_command(
+                conn,
+                chat_id=self.chat_id,
+                user_id=self.user_id,
+                name=self.name,
+                args=self.args,
+            )
+
+            await conn.commit()

@@ -307,7 +307,7 @@ async def wiktionaryf(query: types.CallbackQuery):
     )
 
     btn = InlineKeyboardButton(
-        text="Загрузка...", callback_data="wait"
+        text="Загрузка...", callback_data="wait", style="primary"
     )
     kb = InlineKeyboardMarkup(inline_keyboard=[[btn]])
 
@@ -385,7 +385,9 @@ async def wikijewfrew(query: types.CallbackQuery):
         wiki = Wikipya(lang)
 
     btn = InlineKeyboardButton(
-        text="Загрузка...", callback_data="wait"
+        text="Загрузка...", callback_data="wait",
+        style="primary"
+
     )
     kb = InlineKeyboardMarkup(inline_keyboard=[[btn]])
 

@@ -8,43 +8,37 @@ from aiogram.filters import (
 )
 
 from ..config import router
-from ..database import Member, Note, str2bool
+from ..database import ChatSettings, Member
 from .legacy import triggers
 
 
 @router.chat_member(
     ChatMemberUpdatedFilter(IS_NOT_MEMBER >> IS_MEMBER)
 )
-async def on_john_join(message: types.Message):
-    chat_id = message.chat.id
-
-    if await Note.get(chat_id, "__polish_mode__", False, str2bool):
+async def on_john_join(
+    message: types.Message,
+    member: Member,
+    settings: ChatSettings,
+):
+    if settings.enable_kick_on_join:
         await Member.get_by(message)
         await message.delete()
         return
 
-    welcome = await Note.get(
-        chat_id, "__enable_greatings__", False, str2bool
-    )
-    welcome = welcome or await Note.get(
-        chat_id, "__enable_welcome__", False, str2bool
-    )
-
-    if welcome and message.from_user.id == 795449748:
+    if (
+        message.from_user
+        and message.from_user.id == 795449748
+    ):
         trigger = choice(triggers["jdan_welcome"])
-
-    elif welcome:
+    elif settings.enable_welcome:
         trigger = choice(triggers["welcome"])
-
     else:
         trigger = None
 
     if trigger:
         await message.reply(f"{trigger}?")
 
-    rules = await Note.get(message.chat.id, "__rules__")
-
-    if rules is None:
+    if (rules := member.chat.rules) is None:
         return
 
     try:

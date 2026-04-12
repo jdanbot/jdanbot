@@ -2,8 +2,8 @@ from typing import Any
 
 from aiogram import types
 from aiogram.utils.markdown import hide_link
-from bs4 import BeautifulSoup
 from pydantic import BaseModel
+from selectolax.lexbor import LexborHTMLParser
 
 from ..text import cute_crop
 
@@ -49,7 +49,9 @@ class Article(BaseModel):
                     hide_link(self.image)
                     if self.image
                     else "",
-                    self.bold2link(self.text),
+                    self.bold2link(self.text).replace(
+                        "&nbsp;", " "
+                    ),
                 ]
             )
         )
@@ -58,43 +60,45 @@ class Article(BaseModel):
         if self.href is None:
             return text
 
-        soup = BeautifulSoup(text, "html.parser")
-        b = soup.find_all(["b", "strong"])
+        sel = LexborHTMLParser(text)
 
-        if str(soup).startswith(self.title):
+        html = sel.html or ""
+        b = sel.css("b, strong")
+
+        if html.startswith(self.title):
             return self.bold2link(
                 f"<b>{self.title}</b>"
-                + str(soup).removeprefix(self.title)
+                + html.removeprefix(self.title)
             )
 
         if (
             len(b) == 0 or self.force_add_title
         ) and self.title:
-            soup = str(soup).replace(" – ", " — ")
+            html = html.replace(" – ", " — ")
             self.force_add_title = False
 
             if (
-                "Beholder" in soup
-                or soup.split(" — ", maxsplit=1)[0]
+                "Beholder" in html
+                or html.split(" — ", maxsplit=1)[0]
                 == self.title
             ):
                 return self.bold2link(
-                    soup.replace(
+                    html.replace(
                         f"{self.title} — ",
                         f"<b>{self.title}</b> — ",
                     )
                 )
             else:
                 return self.bold2link(
-                    f"<b>{self.title}</b>\n\n{soup}"
+                    f"<b>{self.title}</b>\n\n{html}"
                 )
 
         if len(b) > 0:
-            b = b[0]
-            b.name = "a"
-            b["href"] = self.href
-            b = b.wrap(soup.new_tag("b"))
-
-            return str(soup)
+            b[0].replace_with(
+                LexborHTMLParser(
+                    f"""<b><a href="{self.href}">{b[0].inner_html}</a></b>"""
+                ).body.child
+            )
+            return sel.body.inner_html
 
         return text

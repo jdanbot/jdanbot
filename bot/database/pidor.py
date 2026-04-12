@@ -1,53 +1,64 @@
-from typing import TYPE_CHECKING
+import aiosqlite
+from msgspec import convert
+from whenever import Instant, PlainDateTime
 
-import pendulum as pdl
-from pydantic import BaseModel
-from pydantic.type_adapter import TypeAdapter
-from pydantic_extra_types.pendulum_dt import DateTime
-from tortoise import fields
-from tortoise.fields import Field
-
-from .lib.base_table import BaseTable
-from .lib.pdl_field import PendulumField
-
-if TYPE_CHECKING:
-    from .user import User
+from ._base import Base, queries
 
 
-class PidorEvent(BaseTable):
-    id: int | Field[int] = fields.IntField(pk=True)
+class PidorEvent(Base, frozen=True):
+    id: int
     pidor_id: int
-    pidor: fields.ForeignKeyRelation["Pidor"] = fields.ForeignKeyField(
-        "models.Pidor", default=None
-    )
-    chat_id: int | Field[int] = fields.IntField()
-    caused_at: DateTime | Field[pdl.DateTime] = PendulumField(auto_now=True)
+    chat_id: int
+
+    caused_at: Instant
 
 
-class Pidor(BaseTable):
-    id: int | Field[int] = fields.IntField(pk=True)
-    chat_id: int | Field[int] = fields.IntField()
+class Pidor(Base, frozen=True):
+    id: int
+    chat_id: int
     user_id: int
 
-    user: fields.ForeignKeyRelation["User"] = fields.ForeignKeyField(
-        "models.User", default=None
-    )
+    is_allowed: bool
+    latest_time: int | None  # backed by latest_time_id
 
-    is_allowed: bool | Field[bool] = fields.BooleanField(default=True)
-    latest_time: int | None | Field[int] = fields.IntField(null=True)
+    async def get(id: int) -> "Pidor":
+        async with aiosqlite.connect("tortoise.db") as conn:
+            _ = await queries.pidor.get(conn, id=id)
 
-    async def get_latest_datetime(self) -> pdl.DateTime | None:
+            return convert(
+                (
+                    *_[:-2],
+                    bool(_[-2]),
+                    _[-1],
+                ),
+                Pidor,
+            )
+
+    async def get_latest_datetime(
+        self, timezone: str
+    ) -> Instant | None:
         if self.latest_time is None:
             return None
 
-        print(f"{self.latest_time=}")
+        async with aiosqlite.connect("tortoise.db") as conn:
+            time = await queries.pidor.get_latest_datetime(
+                conn, event_id=self.latest_time
+            )
 
-        event: PidorEvent = await PidorEvent.get(id=self.latest_time)
+            from datetime import datetime
 
-        return event.caused_at
+            return PlainDateTime(
+                datetime.fromisoformat(time)
+            ).assume_utc()
+
+    async def get_pidor_count(self) -> int:
+        async with aiosqlite.connect("tortoise.db") as conn:
+            return await queries.pidor.get_pidor_count(
+                conn, pidor_id=self.id
+            )
 
 
-class PidorInTop(BaseModel):
+class PidorInTop(Base, frozen=True):
     count: int
 
     first_name: str
@@ -57,9 +68,11 @@ class PidorInTop(BaseModel):
     @property
     def full_name(self) -> str:
         if self.last_name:
-            return " ".join([self.first_name, self.last_name])
+            return " ".join(
+                [self.first_name, self.last_name]
+            )
 
         return self.first_name
 
 
-PidorTop: TypeAdapter[list[PidorInTop]] = TypeAdapter(list[PidorInTop])
+type PidorTop = list[PidorInTop]

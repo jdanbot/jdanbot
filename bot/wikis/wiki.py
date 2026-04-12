@@ -35,6 +35,22 @@ async def fallout(message: types.Message) -> Wikipya:
 
 
 @router.message(
+    Command("blood"), GetText(disable_reply=True)
+)
+async def blood(message: types.Message) -> Wikipya:
+    return Wikipya(
+        base_url="https://www.blood-wiki.org/api.php",
+        params=dict(
+            tag_blocklist=[
+                "div.cquote",
+                "div.toccolours",
+                *TAG_BLOCKLIST,
+            ]
+        ),
+    )
+
+
+@router.message(
     Command("beholder"), GetText(disable_reply=True)
 )
 async def beholder(message: types.Message) -> Wikipya:
@@ -154,12 +170,14 @@ async def custom_mediawiki(
     ]
 
     if not any(
-        [
+        
             await check_mediawiki_api_url(base_url := var)
             for var in url_variants
-        ]
+        
     ):
-        return await message.reply("Can't find valid API url")
+        return await message.reply(
+            "Can't find valid API url"
+        )
 
     url = URL(command.args)
     query = url.path.split("/")[-1].replace("_", " ")

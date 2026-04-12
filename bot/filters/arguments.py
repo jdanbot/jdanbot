@@ -15,12 +15,20 @@ class Arguments(BaseFilter):
         handler: HandlerObject,
         _: Locale,
     ) -> dict[str, BaseModel]:
+        model =handler.callback.__annotations__["args"]
+
+        try:
+            model.model_fields
+            parse= self.parse
+        except AttributeError:
+            parse = model.parse
+        
         return {
-            "args": await self.parse(
-                message,
-                handler.callback.__annotations__["args"],
-                command.args or "",
-                _,
+            "args": await parse(
+                message=message,
+                model=model,
+                args=command.args or "",
+                _=_,
             )
         }
 
@@ -32,7 +40,6 @@ class Arguments(BaseFilter):
         _: Locale,
     ) -> BaseModel:
         params = {}
-        print(args)
 
         for name in model.model_fields:
             field = model.model_fields[name]

@@ -41,12 +41,12 @@ async def translate(
 
     if slang is None:
         t = AioGoogleTranslator(
-            to_lang=Language(flang).google
+            to_lang=Language.from_str(flang).google
         )
     else:
         t = AioGoogleTranslator(
-            to_lang=Language(slang[0]).google,
-            from_lang=Language(flang).google,
+            to_lang=Language.from_str(slang[0]).google,
+            from_lang=Language.from_str(flang).google,
         )
 
     translation = await t.translate(query)

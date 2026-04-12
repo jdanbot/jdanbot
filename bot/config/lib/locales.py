@@ -32,6 +32,7 @@ class Template(str):
 
 
 class Locale(Struct, frozen=True):
+    lang: str
     cases: list[str]
 
     class Pidor(Struct, frozen=True):
@@ -45,7 +46,7 @@ class Locale(Struct, frozen=True):
 
         pidor_left: str
         already_finded: list[Template]
-        pidor_searching: list[frozenset[str]]
+        pidor_searching: list[list[str]]
         today_pidor: list[Template]
 
     pidor: Pidor
@@ -89,6 +90,20 @@ class Locale(Struct, frozen=True):
         command_requires: CommandRequires
 
     errors: Errors
+
+    class Ban(Struct, frozen=True):
+        selfmute: Template
+        mute: Template
+        unmute: Template
+        warn: Template
+        unwarn: Template
+        warn_limit_reached: Template
+        reason_not_found: str
+        admin_cant_unwarn_self: str
+        warns_not_found: str
+        selfmute_limit_reached: str
+
+    ban: Ban
 
     docs: dict[str, str]
 

@@ -15,13 +15,12 @@ builtins.print = print
 
 
 async def main() -> None:
-    await setup_db()
-
-    dp.update.outer_middleware(middleware=i18nMiddleware())
     router.message.middleware(middleware=SpyMiddleware())
+    dp.update.outer_middleware(middleware=i18nMiddleware())
 
     dp.include_router(router)
 
+    await setup_db()
     await dp.start_polling(bot, reset_webhook=True)
 
 

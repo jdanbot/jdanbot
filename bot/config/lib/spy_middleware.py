@@ -5,16 +5,13 @@ import aiohttp
 from aiogram import BaseMiddleware, types
 from aiogram.filters import Command as CommandFilter
 from bs4 import BeautifulSoup as bs4
+from msgspec import DecodeError, json
 from wikipya.clients import Fandom, MediaWiki, Wikipedia
-
-from bot.database.command import Command
 
 from ...config import bot
 from ...config.lib.tghtml import TgHTML
 from ...database import Command, Member
 from ...lib.models import Article
-
-from msgspec import json
 
 
 async def fetch_all(
@@ -26,7 +23,7 @@ async def fetch_all(
     if isinstance(query, int):
         query = await client.get_page_name(query)
 
-    client.automatic_session_close=False
+    client.automatic_session_close = False
 
     async with aiohttp.ClientSession(
         headers={
@@ -40,8 +37,12 @@ async def fetch_all(
 
         result = None
 
-        res = json.decode(await r.text())
-        id_ = list(res["query"]["pages"].keys())[0]
+        try:
+            res = json.decode(await r.text())
+        except DecodeError:
+            id_ = "-1"
+        else:
+            id_ = list(res["query"]["pages"].keys())[0]
 
     if id_ != "-1":
         title = res["query"]["pages"][id_]["title"]
@@ -80,7 +81,6 @@ async def fetch_all(
         try:
             image = await client.image(page.title)
         except Exception as e:
-            raise e
             image = None
 
     await client.close()
@@ -132,22 +132,26 @@ class SpyMiddleware(BaseMiddleware):
 
         member = await Member.get_by(message)
 
-        locked_commands = (
-            await Member.get_note("locked_commands") or ""
-        ).split(" ")
+        try:
+            data["reply"] = message.reply_to_message
+        except:
+            pass
 
         if command is not None:
-            member = await Member.get_by(message)
             data["member"] = member
+            data["settings"] = member.chat.settings
 
-            await Command.create(
+            await Command(
+                id=None,
                 user_id=member.user_id,
                 chat_id=member.chat_id,
                 name=command.lower(),
                 args=args or "",
-            )
+            ).save()
 
-        for lcommand_raw in locked_commands:
+        for (
+            lcommand_raw
+        ) in member.chat.settings.locked_commands:
             lcommand = lcommand_raw.removeprefix("-")
             is_force_admin = command != lcommand_raw
 
@@ -203,6 +207,7 @@ class SpyMiddleware(BaseMiddleware):
             query=query,
             fetch_image_from_page=(
                 "encyclopatia.ru" in wiki.url.url
+                or "blood-wiki.org" in wiki.url.url
             ),
         )
 
@@ -299,6 +304,7 @@ class SpyMiddleware(BaseMiddleware):
                 **params,
             )
             return
+
         try:
             await message.reply(
                 text, parse_mode=result.parse_mode, **params

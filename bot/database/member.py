@@ -1,42 +1,56 @@
 from typing import Any, override
 
-import pendulum as pdl
+import aiosqlite
 from aiogram import types
 from aiogram.utils.markdown import hlink, link
-from pendulum.datetime import DateTime
-from pendulum.tz.timezone import Timezone
-from pydantic import BaseModel, Field
-from pydantic.config import ConfigDict
-from pypika_tortoise.functions import Count
-from tortoise.contrib.postgres.functions import Random
+from cysqlite.aio import connect
+from msgspec import Struct, convert
+from pypika import Order, Query, Table
+from pypika import functions as fn
+from whenever import Instant, Time
 
 from bot.lib.admin import check_admin
 
 from ..config.bot import bot
+from ._base import queries
 from .chat import Chat
-from .pidor import Pidor, PidorEvent, PidorInTop, PidorTop
+from .pidor import Pidor, PidorTop
 from .user import User
 
-# from .warn import Warn
-# from .user import User
+
+class PidorRepr(Struct, frozen=True):
+    id: int
+    latest_time: int | None
 
 
-class Member(BaseModel):
+class Member(Struct, frozen=True):
     user_id: int
     chat_id: int
 
-    lang: str = "ru"
-
     first_name: str
-    last_name: str | None = None
-    username: str | None = None
+    last_name: str | None
+    username: str | None
 
+    lang: str
     # user: types.User = Field(repr=False, default=None)
-    chat: Chat = Field(repr=False, default=None)
+    chat: Chat
+    pidor: Pidor | None = None
 
-    model_config: ConfigDict = ConfigDict(
-        arbitrary_types_allowed=True
-    )
+    def __rich_repr__(self):
+        for field in self.__struct_fields__:
+            if field == "pidor":
+                pidor = getattr(self, field)
+                yield (
+                    "pidor",
+                    PidorRepr(
+                        id=pidor.id,
+                        latest_time=pidor.latest_time,
+                    )
+                    if pidor is not None
+                    else None,
+                )
+            elif field not in ["chat", "user"]:
+                yield field, getattr(self, field)
 
     @override
     def __str__(self):
@@ -72,30 +86,42 @@ class Member(BaseModel):
         chat: Chat = await Chat.get_by(message)
         user: User = await User.get_by(message)
 
-        return Member(
-            user_id=user.id,
-            chat_id=chat.id,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            username=user.username,
-            # user=message.from_user,  # type: ignore
-            chat=chat,
+        return convert(
+            dict(
+                user_id=user.id,
+                chat_id=chat.id,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                username=user.username,
+                lang="ru",
+                # user=message.from_user
+                chat=chat,
+            ),
+            Member,
         )
 
     @classmethod
     async def get(
-        cls, user_id: int, chat_id: int
+        cls,
+        user_id: int,
+        chat_id: int,
+        pidor: Pidor | None = None,
     ) -> "Member":
         chat: Chat = await Chat.get(id=chat_id)
         user: User = await User.get(id=user_id)
 
-        return Member(
-            user_id=user.id,
-            chat_id=chat.id,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            username=user.username,
-            chat=chat,
+        return convert(
+            dict(
+                user_id=user.id,
+                chat_id=chat.id,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                username=user.username,
+                lang="ru",
+                chat=chat,
+                pidor=pidor,
+            ),
+            Member,
         )
 
     ############ NOTES ############
@@ -109,42 +135,79 @@ class Member(BaseModel):
     ############ PIDOR ############
 
     async def is_pidor(self) -> bool:
-        try:
-            return bool(
-                await Pidor.get(
-                    chat_id=self.chat_id,
-                    user_id=self.user_id,
-                )
+        async with aiosqlite.connect("tortoise.db") as conn:
+            return await queries.pidor.check_is_pidor(
+                conn,
+                chat_id=self.chat_id,
+                user_id=self.user_id,
             )
-        except:
-            return False
-
-    async def get_is_already_pidor(self) -> bool:
-        if await self.is_pidor():
-            return False
-
-        return bool(await self.update(is_pidor=True))
-
-    async def find_new_pidor(self) -> "Member | bool":
-        return False
 
     async def get_pidor(self) -> tuple[Pidor, bool]:
-        return await Pidor.get_or_create(
-            chat_id=self.chat_id,
-            user_id=self.user_id,
-        )
-
-    async def get_random_pidor(self) -> Pidor:
-        pidor = (
-            await Pidor.filter(
-                chat_id=self.chat_id, is_allowed=True
+        async with aiosqlite.connect("tortoise.db") as conn:
+            _ = await queries.pidor.get_or_create(
+                conn,
+                chat_id=self.chat_id,
+                user_id=self.user_id,
             )
-            .annotate(order=Random())
-            .order_by("order")
-            .first()
+            await conn.commit()
+
+        return (
+            convert(
+                (
+                    *_[:-3],
+                    bool(_[-3]),
+                    _[-2],
+                ),
+                Pidor,
+            ),
+            bool(_[-1]),
         )
 
-        return pidor
+    async def become_today_pidor(self):
+        assert self.pidor is not None, "???"
+
+        async with aiosqlite.connect("tortoise.db") as conn:
+            event_id = await queries.pidor.new_pidor_event(
+                conn,
+                pidor_id=self.pidor.id,
+                chat_id=self.chat.id,
+            )
+            await queries.pidor.update_latest_time(
+                conn,
+                pidor_id=self.pidor.id,
+                event_id=event_id,
+            )
+            await queries.pidor.update_chat_pidor(
+                conn,
+                chat_id=self.chat.id,
+                pidor_id=self.pidor.id,
+            )
+
+            await conn.commit()
+
+    async def get_random_pidor(self) -> "Member":
+        async with aiosqlite.connect("tortoise.db") as conn:
+            _ = await queries.pidor.get_random_pidor(
+                conn, chat_id=self.chat_id
+            )
+
+        if _ is None:
+            raise KeyError
+
+        pidor = convert(
+            (
+                *_[:-2],
+                bool(_[-2]),
+                _[-1],
+            ),
+            Pidor,
+        )
+
+        return await Member.get(
+            user_id=pidor.user_id,
+            chat_id=pidor.chat_id,
+            pidor=pidor,
+        )
 
     async def get_status(self) -> str:
         return (
@@ -157,134 +220,174 @@ class Member(BaseModel):
         return await self.get_status() == "left"
 
     async def get_pidor_count(self) -> int:
-        return await Pidor.filter(
-            chat_id=self.chat_id, is_allowed=True
-        ).count()
+        async with aiosqlite.connect("tortoise.db") as conn:
+            return (
+                await queries.pidor.get_pidor_members_count(
+                    conn, chat_id=self.chat_id
+                )
+            )
 
     async def get_top_pidors(
         self, limit: int = 10
-    ) -> list[PidorInTop]:
-        return PidorTop.validate_python(
-            await PidorEvent.annotate(count=Count("id"))
-            .filter(chat_id=self.chat_id)
-            .group_by("pidor_id")
-            .limit(limit)
-            .order_by("-count")
-            .prefetch_related("pidor__user")
-            .values(
-                "count",
-                first_name="pidor__user__first_name",
-                last_name="pidor__user__last_name",
-                username="pidor__user__username",
-            )
-        )
+    ) -> PidorTop:
+        async with aiosqlite.connect("tortoise.db") as conn:
+            _ = [
+                i
+                async for i in queries.pidor.get_top(
+                    conn,
+                    chat_id=self.chat_id,
+                    limit=limit,
+                )
+            ]
+
+        return convert(_, PidorTop)
 
     async def check_run_pidor(self) -> bool:
-        if self.chat.pidor_id is None:
+        if self.chat.current_pidor_id is None:
             return True
 
         pidor: Pidor = await Pidor.get(
-            id=self.chat.pidor_id
+            id=self.chat.current_pidor_id
         )
-        date: (
-            DateTime | None
-        ) = await pidor.get_latest_datetime()
+
+        timezone: str = "Europe/Moscow"
+        date = await pidor.get_latest_datetime(timezone)
 
         if date is None:
             return True
 
-        timezone: Timezone = pdl.timezone("Europe/Moscow")
+        next_pidor_day = date.to_tz(timezone).replace_time(
+            Time(
+                hour=0,
+                minute=0,
+                second=0,
+                nanosecond=0,
+            )
+        )
 
-        next_pidor_day: DateTime = date.replace(
-            tzinfo=timezone
-        ).replace(
-            hour=0, minute=0, second=0, microsecond=0
-        ) + pdl.duration(days=1)
-
-        return pdl.now() >= next_pidor_day
+        return (
+            Instant.now().to_tz(timezone) >= next_pidor_day
+        )
 
     async def get_members_count(self) -> int:
         return -1
 
     async def get_in_chats_count(self) -> int:
         return -1
-        return await Member.filter(user_id=self.user.id).count()
+        return await Member.filter(
+            user_id=self.user.id
+        ).count()
 
     async def get_pidor_events_count(self) -> int:
-        pidor = await Pidor.get(user_id=self.user_id, chat_id=self.chat_id)
-        return await PidorEvent.filter(pidor_id=pidor.id).count()
+        return -1
+
+        pidor = await Pidor.get(
+            user_id=self.user_id, chat_id=self.chat_id
+        )
+        return await PidorEvent.filter(
+            pidor_id=pidor.id
+        ).count()
+
+    ############ ADMIN ############
 
     async def check_admin(self) -> bool:
-        return True
         return await check_admin(
             bot,
             self.chat_id,
             self.user_id,
         )
 
-    async def warn(self, *args, **kwargs):
-        return
+    async def warn(
+        self, user: "Member", reason: str
+    ) -> int:
+        async with connect("tortoise.db") as db:
+            w = Table("warns")
 
+            await db.execute_one(
+                Query.into(w)
+                .columns(
+                    w.chat_id,
+                    w.victim_id,
+                    w.warn_admin_id,
+                    w.reason,
+                )
+                .insert(
+                    self.chat_id,
+                    user.user_id,
+                    self.user_id,
+                    reason,
+                )
+                .get_sql()
+            )
 
-#         return self.is_admin or False
-# class Member_old(ormar.Model):
-#     # ormar_config = base_ormar_config.copy(tablename="members")
+            return await user.get_warn_count()
 
-#     # id: int = ormar.Integer(primary_key=True)
-#     # chat = ormar.ForeignKey(Chat, skip_reverse=True)
-#     # user: User = ormar.ForeignKey(User, skip_reverse=True)
+    async def unwarn(
+        self, user: "Member", reason: str
+    ) -> int:
+        _ = await user.get_warn_count()
 
-#     # is_admin: Optional[bool] = ormar.Boolean(nullable=True)
-#     # is_pidor: bool = ormar.Boolean(nullable=True)
+        if _ == 0:
+            raise IndexError
 
-#     # last_pidor: PidorEvent = ormar.ForeignKey(PidorEvent)
+        async with connect("tortoise.db") as db:
+            w = Table("warns")
 
-#     # warns: fields.ReverseRelation
-#     # warned: fields.ReverseRelation
+            get_latest_warn = (
+                Query.from_(w)
+                .select(w.id)
+                .where(
+                    (w.chat_id == self.chat_id)
+                    & (w.victim_id == user.user_id)
+                    & (w.unwarned_at.isnull())
+                )
+                .orderby(w.warned_at, order=Order.desc)
+                .limit(1)
+            )
 
-#     @classmethod
-#     async def filter(cls, *args, **kwargs):
-#         return cls.filter(*args, **kwargs)
+            await db.execute_one(
+                Query.update(w)
+                .set(w.unwarn_admin_id, self.user_id)
+                .set(w.unwarn_reason, reason)
+                .set(w.unwarned_at, fn.Now())
+                .where(w.id == get_latest_warn)
+                .get_sql()
+                .replace("NOW()", "CURRENT_TIMESTAMP")
+            )
 
-#     async def check_admin(self) -> bool:
-#         await self.update(is_admin=await check_admin(bot, self.chat_id, self.user_id))
+            return _
 
-#         return self.is_admin or False
-
-#     @staticmethod
-#     async def get_by(message: types.Message) -> "Member":
-#         return (
-#             await Member.get_or_create(
-#                 chat=(await Chat.get_by(message)).id,
-#                 user=(await User.get_by(message)).id,
-#             )
-#         )[0]
-
-#     @staticmethod
-#     async def get_by_id(id: int) -> "Member":
-#         return await Member.get(id=id)
-
-#     async def get_latest_datetime(self) -> pdl.DateTime | None:
-#         if self.last_pidor is None:
-#             return None
-
-#         return (await self.last_pidor.load()).caused_at
-
-
-#     @staticmethod
-#     async def get_id_by(message: types.Message) -> int:
-#         return (await Member.get_by(message)).id
-
-#     async def get_pidor_events_count(self) -> int:
-#         return await PidorEvent.filter(pidor_id=self.id).count()
-
-
-#     async def get_in_chats_count(self) -> int:
-#         return await Member.filter(user_id=self.user.id).count()
-
-#     async def warn(self, victim: "Member", reason: str) -> Warn:
-#         return await Warn.create(
-#             who_warn_id=self.id,
-#             who_warned_id=victim.id,
-#             reason=reason,
-#         )
+    async def get_warn_count(self) -> int:
+        async with connect("tortoise.db") as db:
+            w = Table("warns")
+            print(
+                Query.from_(w)
+                .select(fn.Count(w.id))
+                .where(
+                    (w.chat_id == self.chat_id)
+                    & (w.victim_id == self.user_id)
+                    & (w.unwarned_at.isnull())
+                    & (w.warned_at > fn.Now())
+                )
+                .get_sql()
+                .replace(
+                    "NOW()",
+                    "datetime(CURRENT_TIMESTAMP, '-24 hours')",
+                )
+            )
+            _ = await db.execute_scalar(
+                Query.from_(w)
+                .select(fn.Count(w.id))
+                .where(
+                    (w.chat_id == self.chat_id)
+                    & (w.victim_id == self.user_id)
+                    & (w.unwarned_at.isnull())
+                    & (w.warned_at > fn.Now())
+                )
+                .get_sql()
+                .replace(
+                    "NOW()",
+                    "datetime(CURRENT_TIMESTAMP, '-24 hours')",
+                )
+            )
+            return _

@@ -1,5 +1,4 @@
 from aiogram import F, types
-from fluentogram import TranslatorRunner
 
 from ..config import LANGS, Locale, router
 from ..database import Member, Note
@@ -9,7 +8,7 @@ from .settings import settings_
 
 
 @router.callback_query(F.data == "set_lang", IsAdmin())
-async def test(call: types.CallbackQuery, _: TranslatorRunner):
+async def test(call: types.CallbackQuery, _: Locale):
     try:
         message = call.message
     except AttributeError:
@@ -42,7 +41,7 @@ async def test(call: types.CallbackQuery, _: TranslatorRunner):
 
 
 @router.callback_query(F.data == "set_reactions", IsAdmin())
-async def test(call: types.CallbackQuery, _: TranslatorRunner):
+async def test(call: types.CallbackQuery, _: Locale):
     buttons = []
 
     try:
@@ -100,7 +99,7 @@ async def test(call: types.CallbackQuery, _: TranslatorRunner):
 
 
 @router.callback_query(F.data == "set_warn_count", IsAdmin())
-async def test(call: types.CallbackQuery, _: TranslatorRunner):
+async def test(call: types.CallbackQuery, _: Locale):
     buttons = []
     message = call.message
 
@@ -129,7 +128,7 @@ async def test(call: types.CallbackQuery, _: TranslatorRunner):
 
 
 @router.callback_query(F.data.startswith("set "), IsAdmin())
-async def test(call: types.CallbackQuery, _: TranslatorRunner):
+async def test(call: types.CallbackQuery, _: Locale):
     message = call.message
     member = await Member.get_by(message)
 

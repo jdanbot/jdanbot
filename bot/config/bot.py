@@ -2,8 +2,6 @@ import sys
 
 from aiogram import Bot, Dispatcher, Router
 from aiogram.client.default import DefaultBotProperties
-from aiogram.dispatcher.dispatcher import Dispatcher
-from aiogram.dispatcher.router import Router
 from aiogram.enums import ParseMode
 
 from .config import settings

@@ -1,12 +1,11 @@
-from msgspec import json
-from pydantic import BaseModel
+from msgspec import Struct, json
 
 from ...lib.aioget import aioget
 
 
-class AioGoogleTranslator(BaseModel):
+class AioGoogleTranslator(Struct, frozen=True, kw_only=True):
     from_lang: str = "auto"
-    to_lang: str
+    to_lang: str = "auto"
 
     async def translate(self, query: str) -> str:
         r, text = await aioget(
@@ -17,4 +16,9 @@ class AioGoogleTranslator(BaseModel):
             q=query,
         )
 
-        return json.decode(text)[0][0]
+        answer = json.decode(text)
+
+        if isinstance(answer[0], str):
+            return answer[0]
+        else:
+            return answer[0][0]

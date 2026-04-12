@@ -1,24 +1,28 @@
-from dataclasses import dataclass
-from ..database import Note, str2bool
+from typing import override
 
 from aiogram import types
 from aiogram.filters import BaseFilter
 
+from ..database import Chat
 
-@dataclass
+
 class Check(BaseFilter):
-    keys: list[str]
+    keys: tuple[bool]
 
-    def __init__(self, *keys):
+    def __init__(self, *keys: bool):
+        for key in keys:
+            if isinstance(key, str):
+                raise AttributeError
+
         self.keys = keys
 
-    async def __call__(self, message: types.Message) -> bool | None:
-        if all(
-            [
-                await Note.get(
-                    message.chat.id, key, default=True, type=str2bool
-                )
-                for key in self.keys
-            ]
-        ):
-            return True
+    @override
+    async def __call__(
+        self, message: types.Message
+    ) -> bool:
+        chat = await Chat.get(message.chat.id)
+
+        return all(
+            getattr(chat.settings, key.__name__)
+            for key in self.keys
+        )

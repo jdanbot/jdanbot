@@ -1,4 +1,4 @@
-import pendulum as pdl
+from whenever import Instant
 
 from .bot import bot, dp, router
 from .config import (
@@ -14,7 +14,7 @@ from .languages import (
 from .lib.locales import Locale
 from .logger import logger
 
-START_TIME = pdl.now()
+START_TIME = Instant.now()
 
 
 __all__ = (

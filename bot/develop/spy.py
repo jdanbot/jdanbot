@@ -9,8 +9,13 @@ from ..filters import IsSuperuser
 
 
 @router.message(Command("me", "pidorme"))
-async def me_info(message: types.Message, _: Locale):
-    member = await Member.get_by(message)
+async def me_info(
+    message: types.Message,
+    member: Member,
+    _: Locale,
+):
+    assert message.from_user is not None, "???"
+
     user = await bot.get_chat_member(
         message.chat.id, message.from_user.id
     )
@@ -27,7 +32,7 @@ async def me_info(message: types.Message, _: Locale):
     )
 
 
-@router.message(Command("stats"),)# IsSuperuser())
+@router.message(Command("stats"), IsSuperuser())
 async def calc_stats(message: types.Message, _: Locale):
     member = await Member.get_by(message)
 

@@ -6,13 +6,10 @@ from aiogram.filters import Command
 from aiogram.utils.markdown import bold, italic
 
 from bot.database.member import Member
-from bot.database.pidor import Pidor, PidorEvent
-
-from tortoise.contrib.pydantic import pydantic_model_creator
+from bot.database.pidor import Pidor
 
 from ..config.bot import router
 from ..config.lib.locales import Locale
-from ..database import Member, PidorEvent
 from ..lib.text import prettyword
 
 
@@ -31,8 +28,11 @@ async def init_pidor(
         )
         return False
 
-    if False and not await member.check_run_pidor():
-        pidor = await Pidor.get(id=member.chat.pidor_id)
+    if await member.check_run_pidor():
+        pidor = await Pidor.get(
+            id=member.chat.current_pidor_id
+        )
+
         mem = await Member.get(pidor.user_id, pidor.chat_id)
 
         await message.reply(
@@ -51,36 +51,19 @@ async def init_pidor(
 async def find_pidor(
     message: types.Message,
     _: Locale,
+    member: Member,
     ignore_pidor_wait: bool = False,
 ):
-    member: Member = await Member.get_by(message)
-
     if not await init_pidor(message, member, _):
         return
 
-    pidor, __ = await member.get_pidor()
+    random_member: Member = await member.get_random_pidor()
 
-    await PidorEvent.create(
-        pidor_id=pidor.id,
-        chat_id=member.chat_id,
-    )
-
-    new_pidor: Pidor = await member.get_random_pidor()
-    new_member: Member = await Member.get(
-        user_id=new_pidor.user_id,
-        chat_id=new_pidor.chat_id,
-    )
-
-    if await new_member.is_left():
+    if await random_member.is_left():
         await message.reply(_.pidor.pidor_left)
         return
 
-    event: PidorEvent = await PidorEvent.create(
-        pidor_id=new_pidor.id, chat_id=new_pidor.chat_id
-    )
-
-    await new_pidor.update(latest_time=event.id)
-    await member.chat.update(pidor_id=new_pidor.id)
+    await random_member.become_today_pidor()
 
     for phrase in choice(_.pidor.pidor_searching):
         if phrase != "\n":
@@ -90,7 +73,7 @@ async def find_pidor(
 
     await message.answer(
         choice(_.pidor.today_pidor)(
-            user=bold(new_member.tag),
+            user=bold(random_member.tag),
         )
     )
 
@@ -103,9 +86,11 @@ def get_emojed_num(num: int) -> str:
 
 
 @router.message(Command("pidorstats"))
-async def pidor_stats(message: types.Message, _: Locale):
-    member = await Member.get_by(message)
-
+async def pidor_stats(
+    message: types.Message,
+    member: Member,
+    _: Locale,
+):
     msg = _.pidor.top_10 + "\n\n"
 
     for num, pidor in enumerate(
