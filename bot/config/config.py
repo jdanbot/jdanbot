@@ -53,14 +53,20 @@ class Settings(Struct):
         return _
 
 
-with (
-    open("settings.toml", "r") as file1,
-    open(".secrets.toml", "r") as file2,
-):
-    settings = toml.decode(
-        "\n".join([file1.read(), file2.read()]),
-        type=Settings,
-    )
+try:
+    secret_conf = Path(".secrets.toml").read_text()
+except FileNotFoundError:
+    secret_conf = ""
+
+settings = toml.decode(
+    "\n".join(
+        [
+            Path("settings.toml").read_text(),
+            secret_conf,
+        ]
+    ),
+    type=Settings,
+)
 
 BASE_DIR = Path(__file__).parent.parent.parent
 LOCALES_DIR = BASE_DIR / "locales"
