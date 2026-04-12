@@ -55,7 +55,7 @@ async def admin_kick(
         reply.from_user.id,
         revoke_messages=False,
     )
-    await message.answer(
+    await reply.reply(
         admin_log := _.ban.kick(
             user=reply.from_user.mention_markdown(),
             admin=message.from_user.mention_markdown(),
