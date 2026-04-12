@@ -70,7 +70,7 @@ async def beholder(message: types.Message) -> Wikipya:
 )
 async def lurkmore(message: types.Message) -> Wikipya:
     return Wikipya(
-        base_url="https://lurkmore.online/api.php",
+        base_url="https://lurkmore.media/api.php",
         params=dict(
             tag_blocklist=[
                 "p.quote_sign",

@@ -14,6 +14,9 @@ install(show_locals=True)
 builtins.print = print
 
 
+async def main() -> None:
+    await setup_db()
+
 
 async def main() -> None:
     router.message.middleware(middleware=SpyMiddleware())
@@ -23,5 +26,6 @@ async def main() -> None:
 
     await setup_db()
     await dp.start_polling(bot, reset_webhook=True)
+
 
 asyncio.run(main())

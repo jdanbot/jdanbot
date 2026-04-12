@@ -8,6 +8,11 @@ from msgspec import json
 
 from ..config import Locale, bot, router
 
+FFMPEG_PIXEL_MAGIC = (
+    "scale=iw/8:ih/8,scale=8*iw:8*ih:flags=neighbor"
+)
+FFMPEG_BAD_AUDIO = "compand=attacks=0.01:decays=0.1:points=-80/-80|-30/-20|-10/0|0/0, equalizer=f=3000:t=q:w=2:g=-20, volume=10"
+
 
 @router.message(
     F.reply_to_message,
@@ -15,7 +20,14 @@ from ..config import Locale, bot, router
     | F.reply_to_message.sticker.is_video
     | F.reply_to_message.video,
     Command(
-        "fast", "slow", "reverse", "reversed", "to_gif"
+        "fast",
+        "slow",
+        "reverse",
+        "reversed",
+        "to_gif",
+        "p4",
+        "p8",
+        "p14",
     ),
 )
 async def edit_gif(
@@ -57,6 +69,24 @@ async def edit_gif(
             )
         case "to_gif":
             params = dict(an=None)
+        case "p4":
+            params = dict(
+                vf=FFMPEG_PIXEL_MAGIC.format(p="4"),
+                af=FFMPEG_BAD_AUDIO,
+                ab="1k",
+            )
+        case "p8":
+            params = dict(
+                vf=FFMPEG_PIXEL_MAGIC.format(p="8"),
+                af=FFMPEG_BAD_AUDIO,
+                ab="4k",
+            )
+        case "p14":
+            params = dict(
+                vf=FFMPEG_PIXEL_MAGIC.format(p="14"),
+                af=FFMPEG_BAD_AUDIO,
+                ab="8k",
+            )
         case _:
             params = dict()
 
@@ -80,13 +110,15 @@ async def edit_gif(
         print("stderr:", line)
 
     global i
-    i=0
+    i = 0
 
     global msg
-    msg = await message.reply("We started!", parse_mode=None)
+    msg = await message.reply(
+        "We started!", parse_mode=None
+    )
 
     @ffmpeg.on("progress")
-    async def on_progress(progress: Progress):        
+    async def on_progress(progress: Progress):
         global i
         global msg
 
@@ -95,7 +127,7 @@ async def edit_gif(
             return
 
         percent = 100 * (progress.frame / total_frames)
-            
+
         await msg.edit_text(
             f"<b>{int(percent)}%</b> {progress.frame} / {total_frames} | {progress.time}",
             parse_mode="html",
@@ -108,10 +140,11 @@ async def edit_gif(
         global msg
         await msg.delete()
 
-
     await ffmpeg.execute()
 
-    await bot.send_chat_action(message.chat.id, "upload_video")
+    await bot.send_chat_action(
+        message.chat.id, "upload_video"
+    )
     await message.reply_animation(
         animation=types.FSInputFile(path=output)
     )

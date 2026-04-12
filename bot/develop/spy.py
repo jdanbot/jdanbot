@@ -32,7 +32,7 @@ async def me_info(
     )
 
 
-@router.message(Command("stats"), IsSuperuser())
+@router.message(Command("stats"),)# IsSuperuser())
 async def calc_stats(message: types.Message, _: Locale):
     member = await Member.get_by(message)
 
