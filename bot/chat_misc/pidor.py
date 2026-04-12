@@ -8,8 +8,6 @@ from aiogram.utils.markdown import bold, italic
 from bot.database.member import Member
 from bot.database.pidor import Pidor
 
-from tortoise.contrib.pydantic import pydantic_model_creator
-
 from ..config.bot import router
 from ..config.lib.locales import Locale
 from ..lib.text import prettyword
@@ -31,7 +29,10 @@ async def init_pidor(
         return False
 
     if await member.check_run_pidor():
-        pidor = await Pidor.get(id=member.chat.pidor_id)
+        pidor = await Pidor.get(
+            id=member.chat.current_pidor_id
+        )
+
         mem = await Member.get(pidor.user_id, pidor.chat_id)
 
         await message.reply(
@@ -72,7 +73,7 @@ async def find_pidor(
 
     await message.answer(
         choice(_.pidor.today_pidor)(
-            user=bold(new_member.tag),
+            user=bold(random_member.tag),
         )
     )
 
@@ -119,7 +120,7 @@ async def pidor_stats(
 async def reg_pidor(
     message: types.Message, _: Locale, member: Member
 ) -> None:
-    __, is_created= await member.get_pidor()
+    __, is_created = await member.get_pidor()
 
     if is_created:
         await message.reply(

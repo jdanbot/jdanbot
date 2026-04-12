@@ -15,10 +15,6 @@ builtins.print = print
 
 
 async def main() -> None:
-    await setup_db()
-
-
-async def main() -> None:
     router.message.middleware(middleware=SpyMiddleware())
     dp.update.outer_middleware(middleware=i18nMiddleware())
 
