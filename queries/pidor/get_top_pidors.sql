@@ -1,5 +1,4 @@
 -- name: get_top(chat_id, limit)
--- Get a user from the database using a named parameter
    select COUNT(e.id) as events_count,
           u.first_name,
           u.last_name,

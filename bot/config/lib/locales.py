@@ -94,7 +94,14 @@ class Locale(Struct, frozen=True):
     class Ban(Struct, frozen=True):
         selfmute: Template
         mute: Template
+        unmute: Template
         warn: Template
+        unwarn: Template
+        warn_limit_reached: Template
+        reason_not_found: str
+        admin_cant_unwarn_self: str
+        warns_not_found: str
+        selfmute_limit_reached: str
 
     ban: Ban
 

@@ -5,10 +5,11 @@ from typing import Annotated
 import humanize
 from aiogram import F, types
 from aiogram.filters import Command
+from msgspec import Struct
 from pydantic import BaseModel, RootModel, field_validator
 
 from ..config import Locale, router, settings
-from ..database import Member, Note, User, str2bool
+from ..database import ChatSettings, Member, Note, User
 from ..filters import Arguments, IsAdmin
 
 
@@ -32,30 +33,39 @@ class NoteUpdateModel(NoteSelectModel):
         return self.key in settings.admin_notes
 
 
+class NoteUpdate(Struct, frozen=True):
+    key: str
+    value: str
+
+    async def parse(
+        message: types.Message,
+        args: str,
+        _: Locale,
+        model: Struct,
+    ) -> "NoteUpdate":
+        key, value = args.split(maxsplit=2)
+
+        return NoteUpdate(key=key, value=value)
+
+
 @router.message(Command("remove"), Arguments())
 async def remove(
     message: types.Message,
     args: NoteSelectModel,
     _: Locale,
-    member: Member,
 ):
-    try:
-        res = await Note.remove(member, args.key)
+    is_deleted = await Note.remove(
+        message.chat.id, args.key
+    )
 
-        if res is None:
-            await message.reply(_.notes.not_found)
-        else:
-            await message.reply(_.notes.successful_deleted)
-    except AttributeError:
-        await message.reply(_.notes.no_rights_for_edit)
+    if is_deleted:
+        await message.reply(_.notes.successful_deleted)
+    else:
+        await message.reply(_.notes.not_found)
 
 
 @router.message(Command("remove_bulk"), IsAdmin())
-async def remove_bulk(
-    message: types.Message,
-    _: Locale,
-    member: Member,
-):
+async def remove_bulk(message: types.Message, _: Locale):
     for note in message.text.split(" ")[1:]:
         message = message.model_copy(
             update=dict(text=f"/remove {note}")
@@ -66,7 +76,6 @@ async def remove_bulk(
                 message,
                 args=NoteSelectModel(key=note),
                 _=_,
-                member=member,
             )
 
 
@@ -76,6 +85,8 @@ def build_user_info(user: User) -> str:
 
 @router.message(Command("export_notes"), IsAdmin())
 async def export_notes(message: types.Message):
+    import pendulum as pdl
+
     humanize.i18n.activate("ru_RU")
 
     notes = await Note.get_notes(message.chat.id)
@@ -143,20 +154,19 @@ async def export_notes(message: types.Message):
 async def set_(
     message: types.Message,
     args: NoteUpdateModel,
+    member: Member,
     _: Locale,
 ):
-    is_edit = await Note.add(
-        await Member.get_by(message),
+    is_note_added = await Note.add_or_update(
+        member,
         args.key,
         args.value.strip(),
-        args.is_admin_note,
     )
 
-    await message.reply(
-        _.notes.add_note
-        if not is_edit
-        else _.notes.edit_note
-    )
+    if is_note_added:
+        await message.reply(_.notes.add_note)
+    else:
+        await message.reply(_.notes.edit_note)
 
 
 @router.message(Command("get"), Arguments())
@@ -169,12 +179,16 @@ async def get(
 
     if note is None:
         if message.from_user.id != -1:
-            await message.reply(_.notes.create_var(name=args.key))
+            await message.reply(
+                _.notes.create_var(name=args.key)
+            )
 
         return
 
     try:
-        await message.reply(note.text, parse_mode="MarkdownV2")
+        await message.reply(
+            note.text, parse_mode="MarkdownV2"
+        )
     except Exception:
         await message.reply(note.text)
 
@@ -190,16 +204,32 @@ async def show(message: types.Message):
     )
 
 
+@router.message(Command("opt"), IsAdmin(), Arguments())
+async def change(
+    message: types.Message,
+    args: NoteUpdate,
+    member: Member,
+):
+    await member.chat.set_setting(args.key, args.value)
+    await message.reply(
+        "настройка установлена (наверно)", parse_mode=None
+    )
+
+
 @router.message(F.text.startswith("#"))
-async def use_by_hashtag(message: types.Message, _: Locale):
+async def use_by_hashtag(
+    message: types.Message,
+    settings: ChatSettings,
+    _: Locale,
+):
     assert message.text
-    
+
     text = message.text.removeprefix("#")
 
     name, *text = text.split(" ", maxsplit=1)
-    text = text[0] if len(text) == 1 else ""
+    text = text[0] if len(text) == 1 else None
 
-    if text == "":
+    if text is None:
         message = message.model_copy(
             update=dict(
                 text=f"/get {name}", from_user=dict(id=-1)
@@ -210,14 +240,11 @@ async def use_by_hashtag(message: types.Message, _: Locale):
             message, args=NoteSelectModel(key=name), _=_
         )
 
-    if await Note.get(
-        message.chat.id,
-        "enable_inline_set_note",
-        False,
-        str2bool,
-    ) and (text != "" and message.forward_from is None):
+    if settings.enable_inline_set_note and (
+        message.forward_from is None
+    ):
         x = message.text.split(" ", maxsplit=1)
-        return await set_(
+        await set_(
             message.model_copy(
                 update=dict(text=f"/set {message.text}")
             ),

@@ -1,132 +1,83 @@
-from dataclasses import dataclass
+from typing import Self
 
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.utils.text_decorations import (
     markdown_decoration as md,
 )
-from async_property import (
-    async_cached_property,
-    async_property,
-)
-from async_property.base import AsyncPropertyDescriptor
-from async_property.cached import (
-    AsyncCachedPropertyDescriptor,
-)
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    Field,
-)
+from msgspec import Struct
 
-from bot.config import bot
-
-from ..config import Locale, router
-from ..database import Member
+from ..config import Locale, bot, router
+from ..database import ChatSettings, Member
 from ..filters import Arguments, Check, IsAdmin
+from .mute import BanHammer, admin_mute
 
 escape_md = md.quote
 
 
-class BaseHammer(BaseModel):
-    model_config = ConfigDict(
-        ignored_types=(
-            AsyncPropertyDescriptor,
-            AsyncCachedPropertyDescriptor,
-        ),
-        arbitrary_types_allowed=True,
-    )
-
-    message: types.Message = Field(repr=False)
-    reply: types.Message | None = Field(repr=False)
-    i18n: Locale = Field(repr=False)
-
-
-@dataclass
-class BaseClass:
-    message: types.Message
-    reply: types.Message
-    _: Locale
-
-
-class WarnHammer(BaseHammer):
-    reason: str | None = None
-
-    @async_property
-    async def warns_to_ban(self) -> int:
-        return 3
-
-    @async_cached_property
-    async def member(self) -> Member:
-        return await Member.get_by(self.reply)
-
-    @async_cached_property
-    async def warn_counter(self) -> int:
-        return 0
-        # return await (await self.member).warns.filter().count()
-
-    @async_cached_property
-    async def new_warn_counter(self) -> int:
-        return await self.warn_counter + 1
-
-
-@dataclass
-class WarnLog(BaseClass):
+class WarnHammer(Struct, frozen=True):
     reason: str
-    i: int
 
-    def generate(self) -> str:
-        user, admin = (
-            self.reply.from_user,
-            self.message.from_user,
-        )
-
-        return self._.ban.warn(
-            user=user.get_mention(),
-            admin=admin.get_mention(),
-            why=escape_md(self.reason),
-            i=self.i,
+    async def parse(
+        model: Self,
+        message: types.Message,
+        args: str,
+        _: Locale,
+    ):
+        return WarnHammer(
+            reason=args.strip()
+            if args.strip() != ""
+            else _.ban.reason_not_found,
         )
 
 
 @router.message(
     Command("warn"),
     IsAdmin(),
-    Check("__enable_admin__"),
+    Check(ChatSettings.enable_admin),
     Arguments(),
 )
 async def admin_warn(
     message: types.Message,
+    reply: types.Message,
     args: WarnHammer,
+    member: Member,
+    settings: ChatSettings,
     _: Locale,
 ):
-    member = await Member.get_by(args.reply)
-    admin = await Member.get_by(args.message)
+    admin = member
+    user = await Member.get_by(reply)
 
-    await args.new_warn_counter
-    # await admin.warn(member, reason=args.reason)
+    assert reply.from_user
+    assert message.from_user
 
-    await args.reply.reply(
+    warn_count = await admin.warn(user, reason=args.reason)
+    await reply.reply(
         admin_log := _.ban.warn(
-            user=args.reply.from_user.mention_markdown(),
+            user=reply.from_user.mention_markdown(),
             admin=message.from_user.mention_markdown(),
-            why=md.quote(args.reason)
-            if args.reason
-            else "null",
-            i=await args.new_warn_counter,
+            why=md.quote(args.reason),
+            i=warn_count,
         )
     )
 
-    if message.chat.id == -1001176998310:
-        await args.reply.forward(-1001334412934)
+    if settings.admin_chat:
+        await reply.forward(settings.admin_chat)
         await bot.send_message(
-            -1001334412934, admin_log, parse_mode="Markdown"
+            settings.admin_chat, admin_log
         )
 
     await message.delete()
 
-    if (
-        await args.new_warn_counter
-        >= await args.warns_to_ban
-    ):
-        await args.reply.reply("TOO MANY WARNS")
+    if warn_count >= settings.warns_to_ban:
+        await admin_mute(
+            message,
+            settings,
+            await BanHammer.parse(
+                model=BanHammer,
+                message=message,
+                args=f"1d {_.ban.warn_limit_reached(i=warn_count)}",
+                _=_,
+            ),
+            _,
+        )

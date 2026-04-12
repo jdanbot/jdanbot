@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING
 
 import aiosqlite
 from msgspec import convert
@@ -9,31 +9,19 @@ if TYPE_CHECKING:
     from .member import Member
 
 
-def str2bool(
-    value: str, default: bool | None = None
-) -> bool | None:
-    match value.strip().lower():
-        case "true" | "yes" | "1":
-            return True
-        case "false" | "no" | "0":
-            return False
-        case _:
-            return default
-
-
-class Note(Base):
+class Note(Base, frozen=True):
     name: str
     text: str
 
     @staticmethod
     async def get(chat_id: int, key: str) -> "Note" | None:
         async with aiosqlite.connect("tortoise.db") as conn:
-            return convert(
-                await queries.notes.get_note(
-                    conn, chat_id=chat_id, name=key
-                ),
-                Note,
+            raw = await queries.notes.get_note(
+                conn, chat_id=chat_id, name=key
             )
+
+            if raw is not None:
+                return convert(raw, Note)
 
     @staticmethod
     async def get_notes_list(chat_id: int) -> list[str]:
@@ -51,127 +39,27 @@ class Note(Base):
             )
 
     @staticmethod
-    async def add_or_update() -> None:
-        pass
-
-    @staticmethod
-    async def remove() -> None:
-        pass
-
-
-class Note_OLD:
-#     id: int | Field[int] = fields.IntField(pk=True)
-#     chat_id: int | Field[int] = fields.IntField()
-
-#     name: str | Field[str] = fields.TextField()
-#     text: str | Field[str] = fields.TextField()
-
-#     is_admin_note: bool | Field[bool] = fields.BooleanField(
-#         null=True
-#     )
-
-#     author_id: int | Field[int] = fields.IntField()
-#     created_at: int | Field[int] = fields.IntField(
-#         null=True, default=None
-#     )
-
-#     editor_id: int | Field[int] = fields.IntField(
-#         null=True, default=None
-#     )
-
-    #    author: fields.ForeignKeyRelation["Member"] = fields.ForeignKeyField("models.Member")
-    #    created_at: Field[pdl.DateTime] = PendulumField(auto_now_add=True)
-
-    #    editor: Optional[fields.ForeignKeyRelation["Member"]] = fields.ForeignKeyField(
-    #        "models.Member", null=True, related_name="models.Member"
-    #    )
-    #    edited_at: Field[pdl.DateTime] = PendulumField(null=True)
-
-    @staticmethod
-    async def find(
-        chat_id: int, query: str
-    ) -> "Note | None":
-        return await Note.filter(
-            chat_id=chat_id, name=query
-        ).first()
-
-    @staticmethod
-    async def add(
-        member: "Member",
-        name: str,
-        text: str,
-        is_admin_note: bool,
+    async def add_or_update(
+        editor: Member, key: str, text: str
     ) -> bool:
-        if is_admin_note and not await member.check_admin():
-            raise AttributeError
-
-        res: Note | None = await Note.find(
-            chat_id=member.chat_id,
-            query=name,
-        )
-        is_edit: bool = res is not None
-
-        print(is_edit)
-        print(res)
-
-        if not is_edit:
-            _ = await Note.create(
-                name=name,
+        async with aiosqlite.connect("tortoise.db") as conn:
+            r = await queries.notes.add_or_update(
+                conn=conn,
+                chat_id=editor.chat_id,
+                name=key,
                 text=text,
-                chat_id=member.chat_id,
-                author_id=member.user_id,
-                is_admin_note=is_admin_note,
+                author_id=editor.user_id,
             )
-        else:
-            await res.update(
-                data=dict(
-                    text=text, editor_id=member.user_id
-                ),
+            await conn.commit()
+            return bool(r)
+
+    @staticmethod
+    async def remove(chat_id: int, key: str) -> bool:
+        async with aiosqlite.connect("tortoise.db") as conn:
+            r = await queries.notes.delete_note(
+                conn=conn,
+                chat_id=chat_id,
+                name=key,
             )
-
-        return is_edit
-
-    @staticmethod
-    async def get(
-        chat_id: int,
-        name: str,
-        default: Any = None,
-        type: Callable[[str, Any], Any] = lambda x, y: x,
-    ) -> Any:
-        res = await Note.filter(
-            chat_id=chat_id, name=name
-        ).first()
-
-        if res is None:
-            return default
-
-        return type(res.text, default)
-
-    @staticmethod
-    async def get_notes(chat_id: int) -> list["Note"]:
-        return await Note.filter(chat_id=chat_id)
-
-    @staticmethod
-    async def get_notes_list(chat_id: int) -> list[str]:
-        return await Note.filter(
-            chat_id=chat_id
-        ).values_list("name", flat=True)
-
-    @staticmethod
-    async def remove(member: "Member", name: str):
-        note = await Note.filter(
-            chat_id=member.chat_id, name=name
-        ).first()
-
-        if note is None:
-            return note
-
-        if (
-            note.is_admin_note
-            and not await member.check_admin()
-        ):
-            raise AttributeError
-
-        return await Note.filter(id=note.id).delete()
-
-
+            await conn.commit()
+            return r > 0

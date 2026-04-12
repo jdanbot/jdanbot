@@ -2,12 +2,13 @@ from aiogram import F, types
 from aiogram.filters import Command
 
 from ..config import Locale, bot, router
+from ..database.chat import ChatSettings
 from ..filters import Check
 from ..triggers.legacy import triggers
 
 
 @router.message(
-    Command("admins"), Check("__enable_admin__")
+    Command("admins"), Check(ChatSettings.enable_admin)
 )
 async def call_admins(message, _: Locale):
     buttons = [

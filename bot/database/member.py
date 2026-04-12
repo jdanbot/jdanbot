@@ -3,7 +3,10 @@ from typing import Any, override
 import aiosqlite
 from aiogram import types
 from aiogram.utils.markdown import hlink, link
+from cysqlite.aio import connect
 from msgspec import Struct, convert
+from pypika import Order, Query, Table
+from pypika import functions as fn
 from whenever import Instant, Time
 
 from bot.lib.admin import check_admin
@@ -13,9 +16,6 @@ from ._base import queries
 from .chat import Chat
 from .pidor import Pidor, PidorTop
 from .user import User
-
-# from .warn import Warn
-# from .user import User
 
 
 class PidorRepr(Struct, frozen=True):
@@ -105,7 +105,7 @@ class Member(Struct, frozen=True):
         cls,
         user_id: int,
         chat_id: int,
-        pidor: Pidor_ | None = None,
+        pidor: Pidor | None = None,
     ) -> "Member":
         chat: Chat = await Chat.get(id=chat_id)
         user: User = await User.get(id=user_id)
@@ -142,7 +142,7 @@ class Member(Struct, frozen=True):
                 user_id=self.user_id,
             )
 
-    async def get_pidor(self) -> tuple[Pidor_, bool]:
+    async def get_pidor(self) -> tuple[Pidor, bool]:
         async with aiosqlite.connect("tortoise.db") as conn:
             _ = await queries.pidor.get_or_create(
                 conn,
@@ -158,7 +158,7 @@ class Member(Struct, frozen=True):
                     bool(_[-3]),
                     _[-2],
                 ),
-                Pidor_,
+                Pidor,
             ),
             bool(_[-1]),
         )
@@ -200,7 +200,7 @@ class Member(Struct, frozen=True):
                 bool(_[-2]),
                 _[-1],
             ),
-            Pidor_,
+            Pidor,
         )
 
         return await Member.get(
@@ -234,7 +234,9 @@ class Member(Struct, frozen=True):
             _ = [
                 i
                 async for i in queries.pidor.get_top(
-                    conn, chat_id=self.chat_id, limit=limit
+                    conn,
+                    chat_id=self.chat_id,
+                    limit=limit,
                 )
             ]
 
@@ -244,7 +246,7 @@ class Member(Struct, frozen=True):
         if self.chat.current_pidor_id is None:
             return True
 
-        pidor: Pidor_ = await Pidor_.get(
+        pidor: Pidor = await Pidor.get(
             id=self.chat.current_pidor_id
         )
 
@@ -286,25 +288,106 @@ class Member(Struct, frozen=True):
             pidor_id=pidor.id
         ).count()
 
+    ############ ADMIN ############
+
     async def check_admin(self) -> bool:
-        return True
         return await check_admin(
             bot,
             self.chat_id,
             self.user_id,
         )
 
-    async def warn(self, *args, **kwargs):
-        raise NotImplementedError
+    async def warn(
+        self, user: "Member", reason: str
+    ) -> int:
+        async with connect("tortoise.db") as db:
+            w = Table("warns")
 
+            await db.execute_one(
+                Query.into(w)
+                .columns(
+                    w.chat_id,
+                    w.victim_id,
+                    w.warn_admin_id,
+                    w.reason,
+                )
+                .insert(
+                    self.chat_id,
+                    user.user_id,
+                    self.user_id,
+                    reason,
+                )
+                .get_sql()
+            )
 
-#     # warns: fields.ReverseRelation
-#     # warned: fields.ReverseRelation
+            return await user.get_warn_count()
 
+    async def unwarn(
+        self, user: "Member", reason: str
+    ) -> int:
+        _ = await user.get_warn_count()
 
-#     async def warn(self, victim: "Member", reason: str) -> Warn:
-#         return await Warn.create(
-#             who_warn_id=self.id,
-#             who_warned_id=victim.id,
-#             reason=reason,
-#         )
+        if _ == 0:
+            raise IndexError
+
+        async with connect("tortoise.db") as db:
+            w = Table("warns")
+
+            get_latest_warn = (
+                Query.from_(w)
+                .select(w.id)
+                .where(
+                    (w.chat_id == self.chat_id)
+                    & (w.victim_id == user.user_id)
+                    & (w.unwarned_at.isnull())
+                )
+                .orderby(w.warned_at, order=Order.desc)
+                .limit(1)
+            )
+
+            await db.execute_one(
+                Query.update(w)
+                .set(w.unwarn_admin_id, self.user_id)
+                .set(w.unwarn_reason, reason)
+                .set(w.unwarned_at, fn.Now())
+                .where(w.id == get_latest_warn)
+                .get_sql()
+                .replace("NOW()", "CURRENT_TIMESTAMP")
+            )
+
+            return _
+
+    async def get_warn_count(self) -> int:
+        async with connect("tortoise.db") as db:
+            w = Table("warns")
+            print(
+                Query.from_(w)
+                .select(fn.Count(w.id))
+                .where(
+                    (w.chat_id == self.chat_id)
+                    & (w.victim_id == self.user_id)
+                    & (w.unwarned_at.isnull())
+                    & (w.warned_at > fn.Now())
+                )
+                .get_sql()
+                .replace(
+                    "NOW()",
+                    "datetime(CURRENT_TIMESTAMP, '-24 hours')",
+                )
+            )
+            _ = await db.execute_scalar(
+                Query.from_(w)
+                .select(fn.Count(w.id))
+                .where(
+                    (w.chat_id == self.chat_id)
+                    & (w.victim_id == self.user_id)
+                    & (w.unwarned_at.isnull())
+                    & (w.warned_at > fn.Now())
+                )
+                .get_sql()
+                .replace(
+                    "NOW()",
+                    "datetime(CURRENT_TIMESTAMP, '-24 hours')",
+                )
+            )
+            return _

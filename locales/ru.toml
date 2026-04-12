@@ -79,7 +79,7 @@ successful_deleted = "✅ *Заметка успешно удалена*"
 
 [templates]
 status = """
-🤖 *{name}* v{version} on `{platform}`
+🤖 *{name}* v{version}
 🕓 *Uptime*: {uptime}
 """
 
@@ -87,7 +87,10 @@ about_user = """
 🧑‍💻 *{name}* <`{id}`>
   
 👮‍♂️ *Должность*: {status}
-🏳️‍🌈 *Пидор дня*: {pidor_local} из {pidor_all}
+🏳️‍🌈 *Пидор дня*: *{pidor_local}* из *{pidor_all}*
+
+🌎 *Фичей заюзано*: None%
+⏲️ *Дней использования*: *None* дней 
 """
 
 stats = """
@@ -115,6 +118,12 @@ mute = """
 ⛓ *Амнистия:* {unban_time} МСК
 """
 
+unmute = """
+*{admin}* снял мут *{user}*
+
+🤔 *Причина:* {why}
+"""
+
 selfmute = """
 *{admin}* самозамутился
 
@@ -135,9 +144,9 @@ unwarn = """
 
 warn_limit_reached = "получено {i}-е предупреждение"
 admin_cant_unwarn_self = "Админ не может отменить пред сам себе"
-warns_not_found = "Предов нет"
+warns_not_found = "У этого пользователя предов нет"
 reason_not_found = "не указана"
-selfmute_limit_reached = "Запрещен селфмут больше чем на неделю (10080 минут)"
+selfmute_limit_reached = "selfmute дольше недели запрещен"
 
 [errors]
 enter_wiki_query = """

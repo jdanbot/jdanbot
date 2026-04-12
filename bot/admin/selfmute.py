@@ -1,68 +1,54 @@
-from dataclasses import dataclass
-
-import pytimeparse2 as pytimeparse
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.utils.text_decorations import (
     markdown_decoration as md,
 )
-from async_property.base import AsyncPropertyDescriptor
-from async_property.cached import (
-    AsyncCachedPropertyDescriptor,
-)
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    Field,
-)
+from whenever import TimeDelta
 
 from ..config import Locale, router
+from ..database import ChatSettings
 from ..filters import Arguments, Check
+from .mute import BanHammer
 
 escape_md = md.quote
-
-
-class BaseHammer(BaseModel):
-    model_config = ConfigDict(
-        ignored_types=(
-            AsyncPropertyDescriptor,
-            AsyncCachedPropertyDescriptor,
-        ),
-        arbitrary_types_allowed=True,
-    )
-
-    message: types.Message = Field(repr=False)
-    reply: types.Message | None = Field(repr=False)
-    i18n: Locale = Field(repr=False)
-
-
-@dataclass
-class BaseClass:
-    message: types.Message
-    reply: types.Message
-    _: Locale
+bold = md.bold
 
 
 @router.message(
     Command("selfmute", "selfban"),
-    Check("__enable_admin__", "__enable_selfmute__"),
+    Check(
+        ChatSettings.enable_admin,
+        ChatSettings.enable_selfmute,
+    ),
     Arguments(),
 )
 async def selfmute(
-    message: types.Message,
-    time: CustomField(
-        pytimeparse.parse,
-        fallback=lambda x: int(x) / 60,
-        default=1,
-    ),
-    reason: CustomField(
-        lambda x: str(x).strip(),
-        default=lambda: _("ban.reason_not_found"),
-    ),
+    message: types.Message, args: BanHammer, _: Locale
 ):
-    action = BanHammer(message, message, time, reason)
+    if args.until > TimeDelta(
+        weeks=1, days_assumed_24h_ok=True
+    ):
+        await message.reply(
+            bold(_.ban.selfmute_limit_reached)
+        )
+        return
 
-    if await action.execute():
-        await action.log()
-    else:
-        await message.reply(_("ban.selfmute_limit_reached"))
+    user = message.from_user
+    assert user
+
+    await message.reply(
+        _.ban.selfmute(
+            admin=user.mention_markdown(),
+            why=escape_md(args.reason),
+            time=escape_md(args.human_delta),
+            unban_time=escape_md(args.human_until),
+        )
+    )
+
+    await message.chat.restrict(
+        user.id,
+        until_date=args.until_date.timestamp(),
+        permissions=types.ChatPermissions(),
+    )
+
+    await message.delete()

@@ -1,21 +1,14 @@
-from dataclasses import dataclass
+from typing import Self
 
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.utils.text_decorations import (
     markdown_decoration as md,
 )
-from async_property.base import AsyncPropertyDescriptor
-from async_property.cached import (
-    AsyncCachedPropertyDescriptor,
-)
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    Field,
-)
+from msgspec import Struct
 
 from bot.config import bot
+from bot.database.chat import ChatSettings
 
 from ..config import Locale, router
 from ..filters import Arguments, Check, IsAdmin
@@ -23,35 +16,26 @@ from ..filters import Arguments, Check, IsAdmin
 escape_md = md.quote
 
 
-class BaseHammer(BaseModel):
-    model_config = ConfigDict(
-        ignored_types=(
-            AsyncPropertyDescriptor,
-            AsyncCachedPropertyDescriptor,
-        ),
-        arbitrary_types_allowed=True,
-    )
+class UnbanHammer(Struct, frozen=True):
+    reason: str
 
-    message: types.Message = Field(repr=False)
-    reply: types.Message | None = Field(repr=False)
-    i18n: Locale = Field(repr=False)
-
-
-@dataclass
-class BaseClass:
-    message: types.Message
-    reply: types.Message
-    _: Locale
-
-
-class UnbanHammer(BaseHammer):
-    reason: str = "None"
+    async def parse(
+        model: Self,
+        message: types.Message,
+        args: str,
+        _: Locale,
+    ):
+        return UnbanHammer(
+            reason=args.strip()
+            if args.strip() != ""
+            else _.ban.reason_not_found
+        )
 
 
 @router.message(
     Command("unmute"),
     IsAdmin(),
-    Check("__enable_admin__"),
+    Check(ChatSettings.enable_admin),
     Arguments(),
 )
 async def admin_unmute(
@@ -59,35 +43,28 @@ async def admin_unmute(
     args: UnbanHammer,
     _: Locale,
 ):
-    print(args)
+    reply = message.reply_to_message
+    assert reply
 
-    await message.chat.restrict(
-        args.reply.from_user.id,
-        until_date=30,
-        use_independent_chat_permissions=False,
-        permissions=types.ChatPermissions(),
+    user, admin = (
+        reply.from_user,
+        message.from_user,
     )
-    await message.chat.restrict(
-        args.reply.from_user.id,
-        until_date=30,
-        use_independent_chat_permissions=False,
-        permissions=types.ChatPermissions(
-            can_send_messages=True,
-            can_send_polls=True,
-            can_send_other_messages=True,
-            can_send_media_messages=True,
-            can_add_web_page_previews=True,
-        ),
-    )
+    assert user
+    assert admin
 
-    await message.chat.unban(
-        args.reply.from_user.id, only_if_banned=True
-    )
+    await message.chat.unban(user.id, only_if_banned=True)
 
-    await args.reply.reply(admin_log := "UNMUTTED")
+    await reply.reply(
+        admin_log := _.ban.unmute(
+            admin=admin.mention_markdown(),
+            user=user.mention_markdown(),
+            why=args.reason,
+        )
+    )
 
     if message.chat.id == -1001176998310:
-        await args.reply.forward(-1001334412934)
+        await reply.forward(-1001334412934)
         await bot.send_message(-1001334412934, admin_log)
 
     await message.delete()

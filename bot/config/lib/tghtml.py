@@ -107,7 +107,7 @@ class TgHTML(BaseModel):
                 + jq(x)
                 .find("annotation")
                 .text()
-                .replace("\displaystyle ", "")
+                .replace("\\displaystyle ", "")
                 .removeprefix("{")
                 .removesuffix("}")
                 .strip()

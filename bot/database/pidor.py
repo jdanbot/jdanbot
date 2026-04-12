@@ -5,7 +5,7 @@ from whenever import Instant, PlainDateTime
 from ._base import Base, queries
 
 
-class PidorEvent(Base):
+class PidorEvent(Base, frozen=True):
     id: int
     pidor_id: int
     chat_id: int
@@ -13,30 +13,7 @@ class PidorEvent(Base):
     caused_at: Instant
 
 
-# class PidorEvent:
-#     id: int | Field[int] = fields.IntField(pk=True)
-#     pidor_id: int
-#     pidor: fields.ForeignKeyRelation["Pidor"] = (
-#         fields.ForeignKeyField("models.Pidor", default=None)
-#     )
-#     chat_id: int | Field[int] = fields.IntField()
-#     caused_at = PendulumField(auto_now=True)
-
-
-# class Pidor:
-#     id: int = fields.IntField(pk=True)
-#     chat_id: int = fields.IntField()
-#     user_id: int
-
-#     user: "Usera" = fields.ForeignKeyField(
-#         "models.Usera", default=None
-#     )
-
-#     is_allowed: bool = fields.BooleanField(default=True)
-#     latest_time: int | None = fields.IntField(null=True)
-
-
-class Pidor(Base):
+class Pidor(Base, frozen=True):
     id: int
     chat_id: int
     user_id: int
@@ -57,8 +34,6 @@ class Pidor(Base):
                 Pidor,
             )
 
-        raise NotImplementedError
-
     async def get_latest_datetime(
         self, timezone: str
     ) -> Instant | None:
@@ -72,16 +47,18 @@ class Pidor(Base):
 
             from datetime import datetime
 
-            return PlainDateTime.from_py_datetime(
+            return PlainDateTime(
                 datetime.fromisoformat(time)
             ).assume_utc()
 
     async def get_pidor_count(self) -> int:
         async with aiosqlite.connect("tortoise.db") as conn:
-            return await queries.pidor.get_pidor_count(conn, pidor_id=self.id)
+            return await queries.pidor.get_pidor_count(
+                conn, pidor_id=self.id
+            )
 
 
-class PidorInTop(Base):
+class PidorInTop(Base, frozen=True):
     count: int
 
     first_name: str

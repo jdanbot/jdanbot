@@ -1,10 +1,11 @@
-from dataclasses import dataclass
+from typing import Self
 
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.utils.text_decorations import (
     markdown_decoration as md,
 )
+from msgspec import Struct
 
 from bot.config import bot
 
@@ -14,91 +15,24 @@ from ..database.chat import ChatSettings
 from ..filters import Arguments, Check, IsAdmin
 
 escape_md = md.quote
+bold = md.bold
 
 
-@dataclass
-class BaseClass:
-    message: types.Message
-    reply: types.Message
-    _: Locale
 
 
-class BaseHammer(BaseClass):
-    async def repost(self):
-        await self.reply.forward(-1001334412934)
-        await bot.send_message(
-            -1001334412934,
-            self.admin_log,
-            parse_mode="MarkdownV2",
-        )
-
-    async def log(self):
-        try:
-            # await self.message.delete()
-            await self.reply.reply(self.admin_log)
-            await self.reply.reply(
-                self.admin_log, parse_mode="MarkdownV2"
-            )
-        except Exception:
-            await self.message.answer(
-                self.admin_log, parse_mode="MarkdownV2"
-            )
-
-
-@dataclass
-class UnwarnHammer(BaseHammer):
-    reason: Optional[str] = None
-
-    def __post_init__(self):
-        self.warn_reason = self.user_warns[-1].reason
-        self.admin_log = UnwarnLog(
-            self.message,
-            self.reply,
-            self.warn_reason,
-            self.warn_counter,
-        ).generate()
-
-    @property
-    def user_warns(self) -> list[Warn]:
-        warned = ChatMember.get_by_message(self.reply)
-
-        return Warn.get_user_warns(warned.id)
-
-    @property
-    def warn_counter(self) -> int:
-        warned = ChatMember.get_by_message(self.reply)
-
-        return Warn.count_warns(warned.id)
-
-    async def execute(self):
-        admin = await Member.get_by(self.message)
-
-        if len(self.user_warns) == 0:
-            raise AttributeError()
-
-        last_warn = self.user_warns[-1]
-        Warn.update(
-            who_unwarn_id=admin.id,
-            unwarned_at=datetime.now(TIMEZONE),
-        ).where(Warn.id == last_warn.id).execute()
-
-
-@dataclass
-class UnwarnLog(BaseClass):
+class UnwarnHammer(Struct, frozen=True):
     reason: str
-    i: int
 
-    def generate(self) -> str:
-        user, admin = (
-            self.reply.from_user,
-            self.message.from_user,
-        )
-
-        return self._.ban.unwarn(
-            user=user.get_mention(),
-            admin=admin.get_mention(),
-            why=escape_md(self.reason),
-            i=self.i,
+    async def parse(
+        model: Self,
+        message: types.Message,
+        args: str,
+        _: Locale,
+    ):
+        return UnwarnHammer(
+            reason=args.strip()
+            if args.strip() != ""
+            else _.ban.reason_not_found,
         )
 
 
@@ -111,22 +45,38 @@ class UnwarnLog(BaseClass):
 async def admin_unwarn(
     message: types.Message,
     reply: types.Message,
-    reason: CustomField(
-        str, default=lambda: _("ban.reason_not_found")
-    ),
+    member: Member,
+    args: UnwarnHammer,
+    settings: ChatSettings,
+    _: Locale,
 ):
+    assert reply.from_user
+    assert message.from_user
+
+    admin = member
+    user = await Member.get_by(reply)
+
     if reply.from_user.id == message.from_user.id:
-        await message.reply(_("ban.admin_cant_unwarn_self"))
+        await message.reply(_.ban.admin_cant_unwarn_self)
         return
 
     try:
-        action = UnwarnHammer(message, reply, reason)
+        i = await admin.unwarn(user, args.reason)
     except IndexError:
-        await message.reply(_("ban.warns_not_found"))
+        await message.reply(bold(_.ban.warns_not_found))
         return
+    else:
+        await message.reply(admin_log := _.ban.unwarn(
+            user=reply.from_user.mention_markdown(),
+            admin=message.from_user.mention_markdown(),
+            why=escape_md(args.reason),
+            i=i,
+        ))
 
-    await action.execute()
-    await action.log()
+    if settings.admin_chat:
+        await reply.forward(settings.admin_chat)
+        await bot.send_message(
+            settings.admin_chat, admin_log
+        )
 
-    if message.chat.id == -1001176998310:
-        await action.repost()
+    await message.delete()

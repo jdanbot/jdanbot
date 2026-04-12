@@ -2,19 +2,23 @@ from aiogram import types
 from aiogram.filters import Command
 
 from ..config import router
+from ..database import ChatSettings
 from ..filters import Check, GetText
 
 
 @router.message(
-    Command("poll"), Check("enable_poll"), GetText()
+    Command("poll"),
+    Check(ChatSettings.enable_poll),
+    GetText(),
 )
-async def kz_poll(message: types.Message, query: str):
+async def create_poll(
+    message: types.Message,
+    settings: ChatSettings,
+    query: str,
+):
     options = ["Да", "Нет", "Воздержусь"]
-    is_katz_bots = (
-        False and message.chat.id == -1001334412934
-    )
 
-    if is_katz_bots:
+    if settings.enable_extra_poll_option:
         options.append("Нет прав")
 
     await message.answer_poll(

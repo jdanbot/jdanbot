@@ -1,36 +1,30 @@
-from sys import platform
-
-import os
-import distro
 from aiogram import types
 from aiogram.filters import Command
-from msgspec import toml
+from msgspec import Struct, toml
 from whenever import Instant, TimeDelta
-from shellous import sh
 
 from ..config import START_TIME, Locale, router, settings
 
 with open("pyproject.toml", "r") as f:
-    pyproject = toml.decode(f.read())
+
+    class PyProject(Struct, frozen=True):
+        class Project(Struct, frozen=True):
+            version: str
+
+        project: Project
+
+    pyproject = toml.decode(f.read(), type=PyProject)
 
 
-__version__ = pyproject["project"]["version"]
-
-
-async def get_python_version() -> str:
-    return os.environ.get("PYTHON_VERSION") or (
-        await sh("python", "--version")
-    ).removeprefix("Python")
+__version__ = pyproject.project.version
 
 
 def format_interval(duration: TimeDelta) -> str:
-    hours, minutes, seconds, _ = (
-        duration.in_hrs_mins_secs_nanos()
-    )
-    days, hours = divmod(hours, 24)
-
     return "{:02}:{:02}:{:02}:{:02}".format(
-        days, hours, minutes, seconds
+        *duration.in_units(
+            ["days", "hours", "minutes", "seconds"],
+            days_assumed_24h_ok=True,
+        ).values()
     )
 
 
@@ -42,15 +36,7 @@ async def get_status(message: types.Message, _: Locale):
         _.templates.status(
             name=settings.status,
             version=__version__,
-            platform=distro.id()
-            if platform == "linux"
-            else platform,
             uptime=format_interval(interval),
         ),
         parse_mode="markdown",
-    )
-
-    await message.reply(
-        f"python {await get_python_version()}"
-        , parse_mode="markdown"
     )

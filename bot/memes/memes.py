@@ -1,12 +1,18 @@
 import contextlib
-from aiogram.filters import Command, CommandObject
-from ..config import router
+
 from aiogram import types
+from aiogram.filters import Command, CommandObject
+
+from bot.database.chat import ChatSettings
+
+from ..config import router
 from ..filters import Check
 
 
 async def send_meme(
-    message: types.Message, text: str, is_sticker: bool = False
+    message: types.Message,
+    text: str,
+    is_sticker: bool = False,
 ):
     try:
         reply = message.reply_to_message
@@ -42,7 +48,9 @@ stickers = {
 
 
 @router.message(Command(*memes.keys()))
-async def bylo(message: types.Message, command: CommandObject):
+async def bylo(
+    message: types.Message, command: CommandObject
+):
     await send_meme(message, memes[command.command])
 
 
@@ -55,7 +63,9 @@ async def meme_stickers(
     )
 
 
-@router.message(Command("ban"), Check("enable_ban_trigger"))
+@router.message(
+    Command("ban"), Check(ChatSettings.enable_triggers)
+)
 async def ban(message):
     msg = message.text.split(maxsplit=1)
     await send_meme(

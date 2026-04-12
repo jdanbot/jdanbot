@@ -4,6 +4,7 @@ from random import choice, randint
 from aiogram import F, types
 
 from ..config import bot, router
+from ..database.chat import ChatSettings
 from ..filters import Check, WithRandom
 from .legacy import triggers
 
@@ -25,9 +26,10 @@ NAKI_REGEXP = rf"(^|{space})наки({space}|$)"
 @router.message(
     F.text.lower().startswith("бот, сколько ")
     & F.text.endswith("?"),
-    Check("__enable_response__"),
+    Check(ChatSettings.enable_triggers),
 )
 async def random_answer(message: types.Message):
+    assert message.text
     number = randint(0, 1000)
 
     word = message.text.lower()[:-1].split(" ")[2:][0]
@@ -48,7 +50,7 @@ async def duakyu(message: types.Message):
     F.text.lower().func(smart_split).contains("секс")
     | F.text.lower().func(smart_split).contains("кфс"),
     WithRandom(),
-    Check("__enable_response__"),
+    Check(ChatSettings.enable_triggers),
 )
 async def who(message: types.Message):
     await message.reply("Что?")
@@ -57,7 +59,7 @@ async def who(message: types.Message):
 @router.message(
     F.text.lower().func(smart_split).contains("бойкот"),
     WithRandom(),
-    Check("__enable_response__"),
+    Check(ChatSettings.enable_triggers),
 )
 async def boikot(message: types.Message):
     await message.reply(triggers["boikot"])
@@ -66,7 +68,7 @@ async def boikot(message: types.Message):
 @router.message(
     F.text.lower().regexp(NAKI_REGEXP, search=True),
     WithRandom(),
-    Check("__enable_response__"),
+    Check(ChatSettings.enable_triggers),
 )
 async def naki(message):
     await message.reply("Майкл Наки — в жопе козинаки")
@@ -76,7 +78,7 @@ async def naki(message):
     F.text.lower().func(smart_split).contains("яблоко")
     | F.text.lower().func(lambda x: x.find("яблочн") != -1),
     WithRandom(),
-    Check("__enable_response__"),
+    Check(ChatSettings.enable_triggers),
 )
 async def apple(message: types.Message):
     await message.reply(triggers["apple"])
@@ -84,12 +86,14 @@ async def apple(message: types.Message):
 
 @router.message(
     F.text.lower().regexp(BAN_REGEXP),
-    Check("__enable_response__"),
+    Check(ChatSettings.enable_triggers),
 )
 async def get_a_ban(message: types.Message):
     messages = triggers["ban_messages"]
+    user_id = message.from_user.id if message.from_user else 0
+
     words = (
-        messages.get(str(message.from_user.id))
+        messages.get(str(user_id))
         or messages["all"]
     )
 
@@ -109,7 +113,7 @@ async def get_a_ban(message: types.Message):
     try:
         await bot.restrict_chat_member(
             message.chat.id,
-            message.from_user.id,
+            user_id,
             until_date=int(time.time() + 60),
             permissions=types.ChatPermissions(
                 can_send_messages=True
@@ -122,7 +126,7 @@ async def get_a_ban(message: types.Message):
 @router.message(
     F.text.lower().startswith("бот, почему")
     & F.text.endswith("?"),
-    Check("__enable_response__"),
+    Check(ChatSettings.enable_triggers),
 )
 async def why_list(message: types.Message):
     await message.reply(choice(triggers["why_list"]))
@@ -133,7 +137,7 @@ async def why_list(message: types.Message):
     & F.text.func(
         lambda text: " или " in text or " чи " in text
     ),
-    Check("__enable_response__"),
+    Check(ChatSettings.enable_triggers),
 )
 async def question(message):
     text = (
@@ -152,7 +156,7 @@ async def question(message):
 
 @router.message(
     F.text.lower().startswith("бот,"),
-    Check("__enable_response__"),
+    Check(ChatSettings.enable_triggers),
 )
 async def all_question(message: types.Message):
     await message.reply(choice(["Да", "Нет"]))
