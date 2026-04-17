@@ -42,4 +42,4 @@ async def eban(
 
 @router.message(Command("sqrt"), GetText(disable_reply=True))
 async def sqrt_(message, query: str):
-    await message.reply(code(sqrt(query)))
+    await message.reply(code(sqrt(int(query))))

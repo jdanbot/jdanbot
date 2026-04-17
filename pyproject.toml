@@ -33,6 +33,7 @@ dependencies = [
   "aiosqlite>=0.22.1",
   "cysqlite>=0.2.2",
   "pypika>=0.51.1",
+  "roman>=5.2",
 ]
 
 [dependency-groups]
