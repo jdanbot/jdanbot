@@ -7,11 +7,11 @@ from aiogram.types import (
     InputTextMessageContent,
 )
 from aiogram.utils.markdown import bold, code
+from tghtml import TgHTML
 from wikipya.aiowiki import Wikipya
 
 from ..config import WIKIPEDIA_LANGS, bot, router
 from ..config.lib.spy_middleware import SpyMiddleware
-from ..config.lib.tghtml import TgHTML
 from ..lib import chez
 from ..lib.models import Article
 from ..wikis.wiktionary import get_word

@@ -60,12 +60,12 @@ class Article(BaseModel):
         if self.href is None:
             return text
 
-        sel = LexborHTMLParser(text)
+        sel = LexborHTMLParser(text).css_first("body")
+        html = sel.inner_html or ""
 
-        html = sel.html or ""
         b = sel.css("b, strong")
 
-        if html.startswith(self.title):
+        if self.title and html.startswith(self.title):
             return self.bold2link(
                 f"<b>{self.title}</b>"
                 + html.removeprefix(self.title)
@@ -99,6 +99,6 @@ class Article(BaseModel):
                     f"""<b><a href="{self.href}">{b[0].inner_html}</a></b>"""
                 ).body.child
             )
-            return sel.body.inner_html
+            return sel.inner_html
 
         return text

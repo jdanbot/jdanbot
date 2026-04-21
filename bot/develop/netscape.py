@@ -1,8 +1,8 @@
 from aiogram import types
 from aiogram.filters import Command
+from tghtml import TgHTML
 
 from ..config import router
-from ..config.lib.tghtml import TgHTML
 from ..filters import GetText, IsSuperuser
 from ..lib.aioget import aioget
 from ..lib.models import Article

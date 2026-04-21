@@ -40,7 +40,6 @@ async def mock(
         _kwargs["_"] = locales.ru
     if "command" in anns:
         _kwargs["command"] = Command.extract_command(
-            self=anns["command"],
             text=command,
         )
     if "query" in anns:

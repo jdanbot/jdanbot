@@ -13,7 +13,7 @@ from ..config.config import (
     WIKIPEDIA_SHORTCUTS,
 )
 from ..config.languages import WIKIPEDIA_LANGS
-from ..config.lib.tghtml import TgHTML
+from tghtml import TgHTML
 from ..lib.models import Article
 from ..lib.text import fix_words
 
