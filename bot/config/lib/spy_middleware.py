@@ -1,15 +1,16 @@
+import io
 from collections.abc import Awaitable
 from typing import Any, Callable, override
 
 import aiohttp
 from aiogram import BaseMiddleware, types
 from aiogram.filters import Command as CommandFilter
-from bs4 import BeautifulSoup as bs4
 from msgspec import DecodeError, json
+from selectolax.lexbor import LexborHTMLParser
+from tghtml import TgHTML
 from wikipya.clients import Fandom, MediaWiki, Wikipedia
 
 from ...config import bot
-from ...config.lib.tghtml import TgHTML
 from ...database import Command, Member
 from ...lib.models import Article
 
@@ -34,8 +35,6 @@ async def fetch_all(
         r = await session.get(
             f"{client.url}?&action=query&titles={query}&format=json"
         )
-
-        result = None
 
         try:
             res = json.decode(await r.text())
@@ -66,24 +65,24 @@ async def fetch_all(
     try:
         opensearch = await client.opensearch(title)
         link = opensearch.results[0].link
-    except:
+    except Exception:
         link = f"{BASE_URL}/wiki/{title}"
 
     if fetch_image_from_page:
         try:
-            image = bs4(
-                page.text, features="lxml"
-            ).find_all("img")[0]["srcset"]
+            image = (
+                LexborHTMLParser(page.text)
+                .css_first("img")
+                .attributes.get("srcset", "")
+            )
             image = BASE_URL + image.split(" ")[-2]
-        except:
+        except Exception:
             image = None
     else:
         try:
             image = await client.image(page.title)
-        except Exception as e:
+        except Exception:
             image = None
-
-    await client.close()
 
     return page, image, link
 
@@ -188,6 +187,14 @@ class SpyMiddleware(BaseMiddleware):
                 wiki=res_client, query=query
             )
 
+            if isinstance(res, str):
+                await message.reply_document(
+                    types.BufferedInputFile(
+                        res.encode("UTF-8"),
+                        f"{query.removesuffix('SOURCE').strip()}.html",
+                    )
+                )
+
         if isinstance(res, Article):
             await self.send_article(message, res)
 
@@ -219,7 +226,7 @@ class SpyMiddleware(BaseMiddleware):
             or len(
                 parse_html(
                     page_text, wiki.tag_blocklist
-                ).output
+                ).parsed
             )
             < 200
         ):
@@ -233,25 +240,19 @@ class SpyMiddleware(BaseMiddleware):
                     + page2.text[: page2.text.find("<h3>")]
                     # + page3.text[: page3.text.find("<h3>")]
                 )
-            except:
-                pass
+            except Exception:
+                raise
+
+        await wiki.close()
+
+        if send_original_html:
+            return page_text
 
         if page_text.strip().endswith("</h2>"):
             page_text = page_text[: page_text.rfind("<h2>")]
 
-        if send_original_html:
-            print(page_text)
-            with open("test.html", "w") as f:
-                f.write(page_text)
-            return Article(
-                text=page_text or "",
-                href=url,
-                title=page.title,
-                disable_web_page_preview=True,
-                parse_mode=None,
-            )
-
         x = parse_html(page_text, wiki.tag_blocklist)
+        print(x.parsed)
 
         image: str | None = (
             None if image in (-1, "-1") else image
@@ -263,7 +264,7 @@ class SpyMiddleware(BaseMiddleware):
             pass
 
         return Article(
-            text=x.output or "",
+            text=x.parsed or "",
             href=url,
             image=image,
             title=page.title,

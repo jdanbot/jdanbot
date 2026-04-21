@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
+from tghtml import TgHTML
 
-from ...config.lib.tghtml import TgHTML
 from ...lib.aioget import aioget
 from ...lib.models.article import Article
 
