@@ -1008,8 +1008,8 @@ wheels = [
 
 [[package]]
 name = "tghtml"
-version = "2.0.0"
-source = { git = "https://github.com/jdan735/tghtml?branch=dev#c179f23b2cd90966eb501cb288cfacd0b5c32bf0" }
+version = "2.0.1"
+source = { git = "https://github.com/jdan735/tghtml?branch=dev#8f1b86a0048b07140fe59cc718381b51956b614a" }
 dependencies = [
     { name = "haitch" },
     { name = "nh3" },
