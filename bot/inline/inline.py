@@ -270,7 +270,7 @@ async def test(query: types.ChosenInlineResult) -> Article:
         ],
     )
 
-    text = x.output.strip()
+    text = x.parsed.strip()
 
     image: str | None = (
         None if image in (-1, "-1") else image

@@ -14,20 +14,20 @@ class i18nMiddleware(BaseMiddleware):
         handler: Callable[
             [types.Message, dict[str, Any]], Awaitable[Any]
         ],
-        event: types.Message,
+        event: types.TelegramObject,
         data: dict[str, Any],
     ) -> Any:
         data["user_lang"] = await self.get_language(event)
-
-        # try:
-        #     data["_"] = getattr(locales, data["user_lang"])
-        # except KeyError:
-        data["_"] = locales.ru
+        data["_"] = getattr(locales, data["user_lang"], locales.ru)
 
         return await handler(event, data)
 
     @classmethod
-    async def get_language(cls, event: types.Update, member: Member | None=None,) -> str:
+    async def get_language(
+        cls,
+        event: types.TelegramObject,
+        member: Member | None = None,
+    ) -> str:
         print("rewrite i18n!!!")
         return "ru"
         # print(event.model_dump_json(indent=4))
@@ -74,7 +74,7 @@ class i18nMiddleware(BaseMiddleware):
         if check_chat:
             if not member:
                 member = await Member.get_by(event)
-            
+
         if check_chat and (chat_lang := member.lang):
             return chat_lang.strip()
         elif user_chat_lang := await Member.get_note(
