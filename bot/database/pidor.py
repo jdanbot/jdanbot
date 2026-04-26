@@ -2,7 +2,7 @@ import aiosqlite
 from msgspec import convert
 from whenever import Instant, PlainDateTime
 
-from ._base import Base, queries
+from ._base import Base, queries, dbmethod, BetterConnection
 
 
 class PidorEvent(Base, frozen=True):
@@ -21,18 +21,14 @@ class Pidor(Base, frozen=True):
     is_allowed: bool
     latest_time: int | None  # backed by latest_time_id
 
-    async def get(id: int) -> "Pidor":
-        async with aiosqlite.connect("tortoise.db") as conn:
-            _ = await queries.pidor.get(conn, id=id)
+    @dbmethod
+    async def get(
+        id: int, conn: BetterConnection
+    ) -> "Pidor":
+        _ = await queries.pidor.get(conn, id=id)
+        assert _
 
-            return convert(
-                (
-                    *_[:-2],
-                    bool(_[-2]),
-                    _[-1],
-                ),
-                Pidor,
-            )
+        return convert(_, Pidor)
 
     async def get_latest_datetime(
         self, timezone: str

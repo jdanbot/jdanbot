@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class UserMock(BaseModel):
-    id: int = 0
+    id: int = 1
 
     full_name: str | None = None
     url: str | None = None
@@ -16,7 +16,10 @@ class UserMock(BaseModel):
     username: str = "xy"
 
     def __post_init__(self) -> None:
-        self.full_name = f"{self.first_name} {self.last_name}" or self.first_name
+        self.full_name = (
+            f"{self.first_name} {self.last_name}"
+            or self.first_name
+        )
         self.url = create_tg_link("user", id=self.id)
 
     # @property

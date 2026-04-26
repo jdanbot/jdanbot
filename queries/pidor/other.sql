@@ -18,7 +18,8 @@ select id,
 insert into pidor(chat_id, user_id)
      values (:chat_id, :user_id)
 on conflict
- do nothing
+  do update
+        set chat_id = :chat_id
   returning id,
             chat_id,
             user_id,

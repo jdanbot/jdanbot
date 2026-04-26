@@ -1,10 +1,8 @@
-from dataclasses import dataclass
-
 from aiogram import types
+from pydantic import BaseModel
 
 
-@dataclass
-class ChatMock:
+class ChatMock(BaseModel):
     id: int = -10020000000
     type: str = "supergroup"
 

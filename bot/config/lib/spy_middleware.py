@@ -1,4 +1,3 @@
-import io
 from collections.abc import Awaitable
 from typing import Any, Callable, override
 

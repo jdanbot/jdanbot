@@ -3,10 +3,10 @@ from aiogram import types
 from msgspec import convert
 
 from ..config.languages import Language
-from ._base import Base, queries
+from ._base import Base, queries, dbmethod, BetterConnection
 
 
-class User(Base):
+class User(Base, frozen=True):
     id: int
 
     first_name: str
@@ -29,23 +29,26 @@ class User(Base):
         return self.username or self.full_name
 
     @staticmethod
-    async def get_by(message: types.Message) -> "User":
+    @dbmethod
+    async def get_by(
+        message: types.Message,
+        conn: BetterConnection,
+    ) -> "User":
         if message.from_user is None:
             raise KeyError
 
-        async with aiosqlite.connect("tortoise.db") as conn:
-            user = await queries.user.get_by(
-                conn,
-                **message.from_user.model_dump(
-                    include={
-                        "username",
-                        "first_name",
-                        "last_name",
-                        "id",
-                    }
-                ),
-            )
-            await conn.commit()
+        user = await queries.user.get_by(
+            conn,
+            **message.from_user.model_dump(
+                include={
+                    "username",
+                    "first_name",
+                    "last_name",
+                    "id",
+                }
+            ),
+        )
+        await conn.commit()
 
         return convert(
             [*user, Language.from_str("ru")],
@@ -53,13 +56,13 @@ class User(Base):
         )
 
     @staticmethod
-    async def get(id: int) -> "User":
-        async with aiosqlite.connect("tortoise.db") as conn:
-            user = await queries.user.get(conn, id=id)
+    @dbmethod
+    async def get(
+        id: int, conn: BetterConnection
+    ) -> "User":
+        user = await queries.user.get(conn, id=id)
 
-        # return convert(chat, Chat)
         return convert(
             [*user, Language.from_str("ru")],
             User,
         )
-    async def update(*args, **kwargs):...

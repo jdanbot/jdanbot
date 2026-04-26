@@ -1,6 +1,7 @@
 import aiohttp
 from aiogram import types
 from aiogram.filters import Command, CommandObject
+from tghtml import TgHTML
 from wikipya import Wikipya
 from wikipya.constants import TAG_BLOCKLIST
 from yarl import URL
@@ -13,7 +14,6 @@ from ..config.config import (
     WIKIPEDIA_SHORTCUTS,
 )
 from ..config.languages import WIKIPEDIA_LANGS
-from tghtml import TgHTML
 from ..lib.models import Article
 from ..lib.text import fix_words
 

@@ -1,9 +1,17 @@
 import os
+import sys
 from pathlib import Path
 
 from msgspec import Struct, toml
 
 from .languages import WIKIPEDIA_LANGS
+
+is_test_session = any(
+    [
+        "pytest" in sys.argv[0],
+        "unittest" in sys.argv[0],
+    ]
+)
 
 
 class Settings(Struct):
@@ -12,9 +20,7 @@ class Settings(Struct):
         os.environ.get("logging_chat", 0)
     )
 
-    db_path: Path = Path(
-        os.environ.get("db_path", "jdanbot.db")
-    )
+    db_path: str = os.environ.get("db_path", "jdanbot.db")
     music_path: Path = Path("media/music")
 
     admin_notes: list[str] = []
@@ -67,6 +73,9 @@ settings = toml.decode(
     ),
     type=Settings,
 )
+
+if is_test_session:
+    settings.db_path = "test.db"
 
 BASE_DIR = Path(__file__).parent.parent.parent
 LOCALES_DIR = BASE_DIR / "locales"

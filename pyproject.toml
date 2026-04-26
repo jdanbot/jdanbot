@@ -18,15 +18,14 @@ dependencies = [
   "python-ffmpeg>=2.0.12",
   "shellous>=0.36.0",
   "aiopytesseract>=0.14.0",
-  "tghtml>=2.0.1",
+  "tghtml==2.0.1",
   "iso639-lang>=2.2.3",
   "whenever>=0.10.0",
-  "rich>=14.3.2",
+  "rich>=15.0.0",
   "wikipya",
-  "msgspec[toml]>=0.20.0",
+  "msgspec[toml]>=0.21.1",
   "aiosql>=15.0",
   "aiosqlite>=0.22.1",
-  "cysqlite>=0.2.2",
   "pypika>=0.51.1",
   "roman>=5.2",
   "pymemeru",
@@ -34,20 +33,19 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "deptry>=0.24.0",
-  "faker>=35.0.0",
+  "faker>=40.15.0",
   "pytest-asyncio>=0.25.2",
   "pytest-modern>=0.7.4",
-  "pytest>=8.3.4",
+  "pytest>=9.0.3",
 ]
 
 [tool.pyright]
 reportUnusedCallResult = false
 
-[tool.pytest.ini_options]
-addopts = "-p no:warnings"
-norecursedirs = ".svn _build tmp*"
-testpaths = "tests"
+[tool.pytest]
+addopts = ["-p no:warnings"]
+norecursedirs = [".svn", "_build", "tmp*"]
+testpaths = ["tests"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 

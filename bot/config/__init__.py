@@ -4,6 +4,7 @@ from .bot import bot, dp, router
 from .config import (
     WIKI_COMMANDS,
     WIKIPEDIA_SHORTCUTS,
+    is_test_session,
     settings,
 )
 from .languages import (
@@ -28,5 +29,6 @@ __all__ = (
     bot,
     dp,
     router,
-    Locale
+    Locale,
+    is_test_session,
 )

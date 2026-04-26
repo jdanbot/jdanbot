@@ -25,7 +25,7 @@ async def send_meme(
         if is_sticker:
             message.answer = message.answer_sticker
 
-        await message.answer(text)
+        await message.answer(text, parse_mode=None)
 
     with contextlib.suppress(Exception):
         await message.delete()

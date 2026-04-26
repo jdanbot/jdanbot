@@ -34,29 +34,27 @@ async def mock(
     )
 
     anns = func.__annotations__
-    _kwargs = {}
+    kw = {}
 
     if "_" in anns:
-        _kwargs["_"] = locales.ru
+        kw["_"] = locales.ru
     if "command" in anns:
-        _kwargs["command"] = Command.extract_command(
-            text=command,
+        kw["command"] = Command.extract_command(
+            text=command
         )
     if "query" in anns:
-        _, _kwargs["query"] = command.split(" ", 1)
+        _, kw["query"] = command.split(" ", 1)
     if "member" in anns:
-        _kwargs["member"] = await Member.get_by(
-            message_mock
-        )
+        kw["member"] = await Member.get_by(message_mock)
     if "args" in anns:
-        _kwargs["args"] = await Arguments.parse(
+        kw["args"] = await Arguments.parse(
             message_mock,
             anns["args"],
             command.split(" ", maxsplit=1)[1],
             locales.ru,
         )
 
-    await func(message=message_mock, **_kwargs, **kwargs)
+    await func(message=message_mock, **kw, **kwargs)
 
     return message_mock.answer_text
 

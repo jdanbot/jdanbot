@@ -1,5 +1,6 @@
 from aiosqlite import connect
 
+from ..config.config import settings
 from .chat import Chat, ChatSettings
 from .command import Command
 from .member import Member
@@ -10,7 +11,7 @@ from .warn import Warn
 
 
 async def setup_db():
-    async with connect("tortoise.db") as conn:
+    async with connect(settings.db_path) as conn:
         await conn.execute("""
 CREATE TABLE if not exists "chat" (
 	"id"	INTEGER NOT NULL,
@@ -42,7 +43,7 @@ CREATE TABLE if not exists "note" (
 	"created_at"	INT DEFAULT CURRENT_TIMESTAMP,
 	"editor_id"	INT,
 	"updated_at"	INT,
-	"is_locked" INT DEFAULT 0,
+	"is_locked" BOOLEAN DEFAULT 0,
 	UNIQUE("chat_id","name"),
 	PRIMARY KEY("id" AUTOINCREMENT)
 )
@@ -52,9 +53,10 @@ CREATE TABLE if not exists "note" (
 CREATE TABLE if not exists "pidor" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "chat_id" INT NOT NULL,
-    "is_allowed" INT NOT NULL DEFAULT 1,
+    "is_allowed" BOOLEAN NOT NULL DEFAULT 1,
     "latest_time" INT,
-    "user_id" BIGINT NOT NULL
+    "user_id" BIGINT NOT NULL,
+	UNIQUE("chat_id","user_id")
 )           
         """)
         await conn.execute("""
@@ -65,7 +67,7 @@ CREATE TABLE if not exists "pidorevent" (
     "pidor_id" INT NOT NULL
 )           
         """)
-        
+
         await conn.execute("""
 CREATE TABLE if not exists "user" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -74,7 +76,7 @@ CREATE TABLE if not exists "user" (
     "username" TEXT
 )           
         """)
-        
+
         await conn.execute("""
 CREATE TABLE if not exists "warns" (
 	"id"	INTEGER NOT NULL,

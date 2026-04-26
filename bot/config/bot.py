@@ -1,12 +1,8 @@
-import sys
-
 from aiogram import Bot, Dispatcher, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from .config import settings
-
-is_pytest_session = any("pytest" in arg for arg in sys.argv)
+from .config import is_test_session, settings
 
 bot_params = dict(
     token=settings.token,
@@ -16,7 +12,7 @@ bot_params = dict(
 )
 
 
-if is_pytest_session:
+if is_test_session:
 
     class FakeUser:
         status: str = "fake"

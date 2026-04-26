@@ -10,19 +10,22 @@ from bot.database.pidor import Pidor
 
 from ..config.bot import router
 from ..config.lib.locales import Locale
+from ..database._base import BetterConnection, dbmethod
 from ..lib.text import prettyword
 
 
+@dbmethod
 async def init_pidor(
     message: types.Message,
     member: Member,
+    conn: BetterConnection,
     _: Locale,
 ) -> bool:
     if message.chat.id > 0:
         await message.reply(_.pidor.works_only_in_chats)
         return False
 
-    if not await member.is_pidor():
+    if not await member.is_pidor(conn=conn):
         await message.reply(
             _.pidor.reg, parse_mode="Markdown"
         )
@@ -33,7 +36,9 @@ async def init_pidor(
             id=member.chat.current_pidor_id
         )
 
-        mem = await Member.get(pidor.user_id, pidor.chat_id)
+        mem = await Member.get(
+            pidor.user_id, pidor.chat_id, conn=conn
+        )
 
         await message.reply(
             choice(
@@ -54,7 +59,7 @@ async def find_pidor(
     member: Member,
     ignore_pidor_wait: bool = False,
 ):
-    if not await init_pidor(message, member, _):
+    if not await init_pidor(message, member, _=_):
         return
 
     random_member: Member = await member.get_random_pidor()
@@ -122,12 +127,9 @@ async def reg_pidor(
 ) -> None:
     __, is_created = await member.get_pidor()
 
-    if is_created:
-        await message.reply(
-            _.pidor.in_db, parse_mode="Markdown"
-        )
-        return
-
     await message.reply(
-        _.pidor.already_in_db, parse_mode="Markdown"
+        _.pidor.in_db
+        if is_created
+        else _.pidor.already_in_db,
+        parse_mode="Markdown",
     )

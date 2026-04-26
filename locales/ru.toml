@@ -42,7 +42,6 @@ pidor_searching = [
     "*Шутит*",
   ],
   [
-
     "Запускаю систему обнаружения пидора",
     "ZeroDivisionError: division by zero",
     "Ммм, приколы от автора",

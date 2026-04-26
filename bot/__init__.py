@@ -1,11 +1,11 @@
-import sys
 from os import listdir, walk
 from pathlib import Path
 
 from rich.console import Console
 from rich.traceback import Traceback
 
-is_pytest_session = "pytest" in sys.modules
+from .config import is_test_session
+
 console = Console()
 
 
@@ -51,9 +51,11 @@ def prepare_paths(
 
     else:
         allowed_modules = filter(
-            lambda file: not file.startswith("__")
-            and file.endswith(".py")
-            and file[:-3] not in ("ban", "ocr"),
+            lambda file: (
+                not file.startswith("__")
+                and file.endswith(".py")
+                and file[:-3] not in ("ban", "ocr")
+            ),
             modules,
         )
 
@@ -69,7 +71,7 @@ def prepare_paths(
         )
 
 
-if not is_pytest_session:
+if not is_test_session:
     force_import(*prepare_paths(files))
     force_import(*prepare_paths(folders, is_folders=True))
 
