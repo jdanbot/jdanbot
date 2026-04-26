@@ -1,6 +1,5 @@
 from typing import Any, Literal
 
-import aiosqlite
 from aiogram import types
 from msgspec import Struct, convert, json
 
@@ -77,7 +76,7 @@ class Chat(Base, frozen=True):
     @dbmethod
     async def get(
         id: int,
-        conn: aiosqlite.Connection,
+        conn: BetterConnection,
     ) -> "Chat":
         chat = await queries.chat.get(conn, id=id)
 

@@ -1,9 +1,7 @@
-import aiosqlite
-
-from ._base import Base, queries
+from ._base import Base, BetterConnection, dbmethod, queries
 
 
-class Command(Base):
+class Command(Base, frozen=True):
     id: int | None
 
     chat_id: int
@@ -12,14 +10,14 @@ class Command(Base):
     name: str
     args: str | None
 
-    async def save(self) -> None:
-        async with aiosqlite.connect("tortoise.db") as conn:
-            await queries.log_command(
-                conn,
-                chat_id=self.chat_id,
-                user_id=self.user_id,
-                name=self.name,
-                args=self.args,
-            )
+    @dbmethod
+    async def save(self, conn: BetterConnection) -> None:
+        await queries.log_command(
+            conn,
+            chat_id=self.chat_id,
+            user_id=self.user_id,
+            name=self.name,
+            args=self.args,
+        )
 
-            await conn.commit()
+        await conn.commit()

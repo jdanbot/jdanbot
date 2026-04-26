@@ -1,6 +1,5 @@
 from typing import Any, override
 
-import aiosqlite
 from aiogram import types
 from aiogram.utils.markdown import hlink, link
 from msgspec import Struct, convert
@@ -221,13 +220,13 @@ class Member(Struct, frozen=True):
     async def is_left(self) -> bool:
         return await self.get_status() == "left"
 
-    async def get_pidor_count(self) -> int:
-        async with aiosqlite.connect("tortoise.db") as conn:
-            return (
-                await queries.pidor.get_pidor_members_count(
-                    conn, chat_id=self.chat_id
-                )
-            )
+    @dbmethod
+    async def get_pidor_count(
+        self, conn: BetterConnection
+    ) -> int:
+        return await queries.pidor.get_pidor_members_count(
+            conn, chat_id=self.chat_id
+        )
 
     @dbmethod
     async def get_top_pidors(

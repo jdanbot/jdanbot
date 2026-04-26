@@ -1,9 +1,8 @@
-import aiosqlite
 from aiogram import types
 from msgspec import convert
 
 from ..config.languages import Language
-from ._base import Base, queries, dbmethod, BetterConnection
+from ._base import Base, BetterConnection, dbmethod, queries
 
 
 class User(Base, frozen=True):
