@@ -1,7 +1,11 @@
 from dataclasses import dataclass
 
 from aiogram import types
-from aiogram.filters import BaseFilter, CommandObject
+from aiogram.filters import (
+    BaseFilter,
+    CommandObject,
+    Command,
+)
 from aiogram.utils.markdown import bold
 
 from ..config import Locale
@@ -54,3 +58,19 @@ class GetText(BaseFilter):
             return False
 
         return {"query": text}
+
+
+@dataclass
+class GetTextGuest(GetText):
+    async def __call__(
+        self,
+        message: types.Message,
+        _: Locale,
+    ) -> bool | dict[str, str]:
+        command = Command.extract_command(
+            message.text or ""
+        )
+
+        return await GetText.__call__(
+            self, message, command, _
+        )

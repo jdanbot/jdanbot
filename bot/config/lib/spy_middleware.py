@@ -118,9 +118,25 @@ class SpyMiddleware(BaseMiddleware):
             [types.TelegramObject, dict[str, Any]],
             Awaitable[Any],
         ],
-        message: types.Message,
+        event: types.TelegramObject,
         data: dict[str, Any],
     ):
+        if isinstance(event, types.Message):
+            message = event
+
+        is_guest_message = message.guest_query_id
+        me = await bot.me()
+
+        if is_guest_message:
+            message = message.model_copy(
+                update=dict(
+                    text=(message.text or "")
+                    .replace(f"@{me.username}", "")
+                    .strip()
+                )
+            )
+            data["command"] = None
+
         command_orig = CommandFilter.extract_command(
             text=message.text
         )
@@ -251,7 +267,6 @@ class SpyMiddleware(BaseMiddleware):
             page_text = page_text[: page_text.rfind("<h2>")]
 
         x = parse_html(page_text, wiki.tag_blocklist)
-        print(x.parsed)
 
         image: str | None = (
             None if image in (-1, "-1") else image
@@ -302,6 +317,19 @@ class SpyMiddleware(BaseMiddleware):
                 parse_mode=result.parse_mode,
                 inline_message_id=message.inline_message_id,
                 **params,
+            )
+            return
+        elif message.guest_query_id and not result.image:
+            await message.answer_guest_query(
+                types.InlineQueryResultArticle(
+                    id="1",
+                    title="test",
+                    input_message_content=types.InputTextMessageContent(
+                        message_text=text,
+                        parse_mode=result.parse_mode,
+                        **params,
+                    ),
+                )
             )
             return
 
