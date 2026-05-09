@@ -6,7 +6,7 @@ from wikipya import Wikipya
 from wikipya.constants import TAG_BLOCKLIST
 from yarl import URL
 
-from bot.filters.get_text import GetText
+from bot.filters.get_text import GetText, GetTextGuest
 
 from ..config import router
 from ..config.config import (
@@ -185,14 +185,21 @@ async def custom_mediawiki(
 @router.message(
     Command(*WIKI_COMMANDS), GetText(disable_reply=True)
 )
+@router.guest_message(GetTextGuest(disable_reply=True))
 async def wikihandler(
     message: types.Message, command: CommandObject
 ) -> tuple[Wikipya, str]:
-    command, args = command.command, command.args
-    lang = command.removeprefix("wiki").removeprefix("w")
+    try:
+        cmd, args = command.command, command.args
+    except AttributeError:
+        command = Command.extract_command(
+            message.text or ""
+        )
+        cmd, args = command.command, command.args
+    lang = cmd.removeprefix("wiki").removeprefix("w")
 
     for lang_ in WIKIPEDIA_SHORTCUTS:
-        if command in WIKIPEDIA_SHORTCUTS[lang_]:
+        if cmd in WIKIPEDIA_SHORTCUTS[lang_]:
             lang = lang_
             break
 
