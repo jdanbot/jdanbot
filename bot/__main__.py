@@ -15,6 +15,9 @@ builtins.print = print
 
 
 async def main() -> None:
+    router.guest_message.middleware(
+        middleware=SpyMiddleware()
+    )
     router.message.middleware(middleware=SpyMiddleware())
     dp.update.outer_middleware(middleware=i18nMiddleware())
 
