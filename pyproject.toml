@@ -29,7 +29,6 @@ dependencies = [
   "pypika>=0.51.1",
   "roman>=5.2",
   "pymemeru",
-  "peewee-migrate>=1.15.0",
 ]
 
 [dependency-groups]
