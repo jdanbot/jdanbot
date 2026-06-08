@@ -46,7 +46,7 @@ class i18nMiddleware(BaseMiddleware):
 
         if not skip_to_message and event.inline_query:
             event: types.InlineQuery = event.inline_query
-            user_id, check_chat = (
+            _user_id, check_chat = (
                 event.from_user.id,
                 False,
             )
@@ -57,7 +57,7 @@ class i18nMiddleware(BaseMiddleware):
             event: types.ChosenInlineResult = (
                 event.chosen_inline_result
             )
-            user_id, check_chat = event.from_user.id, False
+            _user_id, check_chat = event.from_user.id, False
         else:
             try:
                 event: types.Message = event.message
@@ -69,7 +69,7 @@ class i18nMiddleware(BaseMiddleware):
 
             if not member:
                 member = await Member.get_by(event)
-            user_id, check_chat = member.user_id, True
+            _user_id, check_chat = member.user_id, True
 
         if check_chat:
             if not member:

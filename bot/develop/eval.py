@@ -14,20 +14,26 @@ from ..filters import GetText, IsSuperuser
 
 
 @router.message(
-    Command("e", "pe"), IsSuperuser(), GetText(disable_reply=True)
+    Command("e", "pe"),
+    IsSuperuser(),
+    GetText(disable_reply=True),
 )
 async def supereval(
-    message: types.Message, command: CommandObject, query: str
+    message: types.Message,
+    command: CommandObject,
+    query: str,
 ):
     q = [f"\n {line}" for line in query.split("\n")]
     q[-1] = q[-1].replace("\n ", "\n return ")
 
     f_code = compile(
-        f"async def gfg(message, reply, bot, member): {"   ".join(q)}",
+        f"async def gfg(message, reply, bot, member): {'   '.join(q)}",
         "<int>",
         "exec",
     )
-    f_func = FunctionType(f_code.co_consts[0], globals(), "gfg")
+    f_func = FunctionType(
+        f_code.co_consts[0], globals(), "gfg"
+    )
 
     try:
         member = await Member.get_by(message)
@@ -48,14 +54,20 @@ async def supereval(
         output: types.Message
 
         return await message.reply(
-            code(pformat(json.loads(output.model_dump_json()))[:4096])
+            code(
+                pformat(
+                    json.loads(output.model_dump_json())
+                )[:4096]
+            )
         )
 
     await message.reply(code(str(output)[:4096]))
 
 
 @router.message(
-    Command("jbash"), IsSuperuser(), GetText(disable_reply=True)
+    Command("jbash"),
+    IsSuperuser(),
+    GetText(disable_reply=True),
 )
 async def bash(message: types.Message, query: str):
     try:

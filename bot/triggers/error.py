@@ -34,10 +34,10 @@ async def catch_error(
     ):
         return
 
-    if err_name in ("NotFound",):
+    if err_name == "NotFound":
         return await message.reply(bold(_.errors.not_found))
 
-    if err_name in ("JdanbotError",):
+    if err_name == "JdanbotError":
         print(event.exception.args[0])
         return await message.reply(
             bold(_.get(event.exception.args[0]))
