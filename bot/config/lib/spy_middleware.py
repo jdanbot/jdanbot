@@ -148,7 +148,7 @@ class SpyMiddleware(BaseMiddleware):
 
         try:
             data["reply"] = message.reply_to_message
-        except:
+        except Exception:
             pass
 
         if command is not None:
@@ -274,7 +274,7 @@ class SpyMiddleware(BaseMiddleware):
 
         try:
             image = image.source
-        except:
+        except Exception:
             pass
 
         return Article(

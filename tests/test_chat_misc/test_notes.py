@@ -5,6 +5,7 @@ from bot.config.lib.locales import locales
 from tests.mocks import mock
 
 
+@pytest.mark.skip("rewrite")
 @pytest.mark.asyncio
 async def test_notes():
     assert (

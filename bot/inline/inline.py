@@ -129,8 +129,6 @@ async def query_say(query: types.InlineQuery):
     )
 )
 async def wiktionary(query: types.InlineQuery):
-    q = query.query.strip()
-
     btns = [
         InlineQueryResultArticle(
             id="1",
@@ -237,7 +235,7 @@ async def test(query: types.ChosenInlineResult) -> Article:
     else:
         wiki = Wikipya(lang)
 
-    wiki.automatic_session_close=False
+    wiki.automatic_session_close = False
 
     page_name = await wiki.get_page_name(query.result_id)
     page = await wiki.page(page_name)
@@ -300,14 +298,16 @@ async def wiktionaryf(query: types.CallbackQuery):
 
     if lang == "te":
         lang = "ru"
-    
+
     wiki = Wikipya(
         lang,
         base_url="https://{lang}.wiktionary.org/w/api.php",
     )
 
     btn = InlineKeyboardButton(
-        text="Загрузка...", callback_data="wait", style="primary"
+        text="Загрузка...",
+        callback_data="wait",
+        style="primary",
     )
     kb = InlineKeyboardMarkup(inline_keyboard=[[btn]])
 
@@ -385,9 +385,9 @@ async def wikijewfrew(query: types.CallbackQuery):
         wiki = Wikipya(lang)
 
     btn = InlineKeyboardButton(
-        text="Загрузка...", callback_data="wait",
-        style="primary"
-
+        text="Загрузка...",
+        callback_data="wait",
+        style="primary",
     )
     kb = InlineKeyboardMarkup(inline_keyboard=[[btn]])
 

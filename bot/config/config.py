@@ -49,6 +49,9 @@ class Settings(Struct):
 
     @property
     def token(self) -> str:
+        if is_test_session:
+            return ""
+
         if (
             _ := (self.bot_token or self.tokens.bot_token)
         ) == "":

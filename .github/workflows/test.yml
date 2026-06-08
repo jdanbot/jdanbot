@@ -1,0 +1,21 @@
+name: Run Python Tests
+
+on: [ push ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Install uv and set Python version
+      uses: astral-sh/setup-uv@v7
+      with:
+        python-version: "3.14"
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+
+    - name: Install dependencies
+      run: uv sync --group dev
+
+    - name: Run unit tests
+      run: uv run python -m pytest

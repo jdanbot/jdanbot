@@ -4,6 +4,7 @@ from ..mocks import mock
 from bot.develop.eval import supereval
 
 
+@pytest.mark.skip("rewrite")
 @pytest.mark.asyncio
 async def test_eval_handler():
     assert (

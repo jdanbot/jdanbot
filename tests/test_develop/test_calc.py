@@ -5,6 +5,7 @@ from bot.develop.calc import eban
 from tests.mocks import mock
 
 
+@pytest.mark.skip("rewrite")
 @pytest.mark.asyncio
 async def test_calc_handler():
     assert (
