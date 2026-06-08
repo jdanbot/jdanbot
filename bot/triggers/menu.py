@@ -1,8 +1,7 @@
-from aiogram import types, F
-
+from aiogram import F, types
 from aiogram.filters import Command
-from ..config import Locale, router
 
+from ..config import Locale, router
 
 buttons = [
     "main",
@@ -36,7 +35,8 @@ def generate_keyboard_grid(
             text=(
                 btn_dict[button]
                 if button != selected_button
-                else "✅ " + btn_dict[button].split(maxsplit=1)[1]
+                else "✅ "
+                + btn_dict[button].split(maxsplit=1)[1]
             ),
             callback_data=button,
         )
@@ -52,13 +52,13 @@ def generate_keyboard_grid(
 
 
 @router.message(Command("start", "help"))
-async def menu(
-    message: types.Message,
-):
+async def menu(message: types.Message, _: Locale):
     await message.reply(
         _("menu.main"),
         parse_mode="Markdown",
-        reply_markup=generate_keyboard_grid(buttons, _, "main"),
+        reply_markup=generate_keyboard_grid(
+            buttons, _, "main"
+        ),
         disable_web_page_preview=True,
     )
 
@@ -70,7 +70,9 @@ async def callback_worker(
     await call.message.edit_text(
         _(f"menu.{call.data}"),
         parse_mode="Markdown",
-        reply_markup=generate_keyboard_grid(buttons, _, call.data),
+        reply_markup=generate_keyboard_grid(
+            buttons, _, call.data
+        ),
         disable_web_page_preview=True,
     )
     await call.answer()

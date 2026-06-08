@@ -1,6 +1,6 @@
-from ..database import Chat
-
 from aiogram import types
+
+from ..database import Chat
 
 
 # @dp.message_handler(commands="modules_beta", is_admin=True)
@@ -9,7 +9,7 @@ async def modules_(message: types.Message):
     try:
         message: types.Message = message.message
         is_inline = True
-    except:
+    except Exception:
         is_inline = False
 
     _ = str
@@ -53,10 +53,12 @@ async def modules_(message: types.Message):
     )
     kb.row(
         types.InlineKeyboardButton(
-            f"⚠️ {_('settings.stickers')}", callback_data="test"
+            f"⚠️ {_('settings.stickers')}",
+            callback_data="test",
         ),
         types.InlineKeyboardButton(
-            f"⚠️ {_('settings.text_memes')}", callback_data="test"
+            f"⚠️ {_('settings.text_memes')}",
+            callback_data="test",
         ),
     )
     kb.row(
@@ -73,7 +75,8 @@ async def modules_(message: types.Message):
             f"⚠️ {_('settings.ban2')}", callback_data="test"
         ),
         types.InlineKeyboardButton(
-            f"⚠️ {_('settings.boikot')}", callback_data="test"
+            f"⚠️ {_('settings.boikot')}",
+            callback_data="test",
         ),
     )
 
