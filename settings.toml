@@ -20,6 +20,7 @@ admin_notes = [
     "enable_inline_set_note",
     "locked_commands"
 ]
+db_path = "tortoise.db"
 
 eggs = [
     { commands = [ "java1" ], audio = "java.ogg" },
