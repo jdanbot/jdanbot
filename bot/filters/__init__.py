@@ -1,9 +1,9 @@
-from .superuser import IsSuperuser
 from .admin import IsAdmin
-from .random import WithRandom
-from .get_text import GetText
-from .check import Check
 from .arguments import Arguments
+from .check import Check
+from .get_text import GetText
+from .random import WithRandom
+from .superuser import IsSuperuser
 
 __all__ = (
     IsSuperuser,

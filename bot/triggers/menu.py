@@ -1,8 +1,7 @@
-from aiogram import types, F
-
+from aiogram import F, types
 from aiogram.filters import Command
-from ..config import Locale, router
 
+from ..config import Locale, router
 
 buttons = [
     "main",

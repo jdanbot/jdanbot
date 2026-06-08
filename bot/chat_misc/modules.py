@@ -1,6 +1,6 @@
-from ..database import Chat
-
 from aiogram import types
+
+from ..database import Chat
 
 
 # @dp.message_handler(commands="modules_beta", is_admin=True)

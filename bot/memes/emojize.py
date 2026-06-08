@@ -1,13 +1,11 @@
-from aiogram import types
-
-from aiogram.filters import Command
-from ..config import router
-from ..filters import GetText
-
-from emoji import EMOJI_DATA
-
 import random
 
+from aiogram import types
+from aiogram.filters import Command
+from emoji import EMOJI_DATA
+
+from ..config import router
+from ..filters import GetText
 
 emoji_list = list(
     set(
