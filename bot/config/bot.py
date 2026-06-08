@@ -26,7 +26,11 @@ if is_test_session:
         ) -> FakeUser:
             return FakeUser()
 
-    bot = FakeBot(**bot_params)
+    # bot = FakeBot(**bot_params)
+
+    def BotMock(*args, **kwargs): ...
+
+    bot = BotMock
 else:
     bot = Bot(**bot_params)
 
