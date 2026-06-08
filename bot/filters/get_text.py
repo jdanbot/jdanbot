@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from aiogram import types
 from aiogram.filters import (
     BaseFilter,
-    CommandObject,
     Command,
+    CommandObject,
 )
 from aiogram.utils.markdown import bold
 

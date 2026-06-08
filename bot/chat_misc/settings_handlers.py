@@ -41,7 +41,7 @@ async def test(call: types.CallbackQuery, _: Locale):
 
 
 @router.callback_query(F.data == "set_reactions", IsAdmin())
-async def test(call: types.CallbackQuery, _: Locale):
+async def test_(call: types.CallbackQuery, _: Locale):
     buttons = []
 
     try:
@@ -56,7 +56,9 @@ async def test(call: types.CallbackQuery, _: Locale):
         ("5", f"⚠️ {_.disable_join_message()}"),
     ):
         btns.append(
-            types.InlineKeyboardButton(text=b, callback_data=a)
+            types.InlineKeyboardButton(
+                text=b, callback_data=a
+            )
         )
 
     buttons.append(btns)
@@ -68,7 +70,9 @@ async def test(call: types.CallbackQuery, _: Locale):
         ("5", f"⚠️ {_.settings.edit()}"),
     ):
         btns.append(
-            types.InlineKeyboardButton(text=b, callback_data=a)
+            types.InlineKeyboardButton(
+                text=b, callback_data=a
+            )
         )
 
     buttons.append(btns)
@@ -80,7 +84,9 @@ async def test(call: types.CallbackQuery, _: Locale):
         ("5", f"⚠️ {_.edit()}"),
     ):
         btns.append(
-            types.InlineKeyboardButton(text=b, callback_data=a)
+            types.InlineKeyboardButton(
+                text=b, callback_data=a
+            )
         )
 
     buttons.append(btns)
@@ -88,18 +94,23 @@ async def test(call: types.CallbackQuery, _: Locale):
     buttons.append(
         [
             types.InlineKeyboardButton(
-                text=_.button_back(), callback_data="settings_menu"
+                text=_.button_back(),
+                callback_data="settings_menu",
             )
         ]
     )
 
     kb = types.InlineKeyboardMarkup(inline_keyboard=buttons)
 
-    await message.edit_text(_.settings_text(), reply_markup=kb)
+    await message.edit_text(
+        _.settings_text(), reply_markup=kb
+    )
 
 
-@router.callback_query(F.data == "set_warn_count", IsAdmin())
-async def test(call: types.CallbackQuery, _: Locale):
+@router.callback_query(
+    F.data == "set_warn_count", IsAdmin()
+)
+async def test____(call: types.CallbackQuery, _: Locale):
     buttons = []
     message = call.message
 
@@ -118,17 +129,20 @@ async def test(call: types.CallbackQuery, _: Locale):
     buttons.append(
         [
             types.InlineKeyboardButton(
-                text=_.button_back(), callback_data="settings_menu"
+                text=_.button_back(),
+                callback_data="settings_menu",
             )
         ]
     )
 
     kb = types.InlineKeyboardMarkup(inline_keyboard=buttons)
-    await message.edit_text(_.warns_to_ban_text(), reply_markup=kb)
+    await message.edit_text(
+        _.warns_to_ban_text(), reply_markup=kb
+    )
 
 
 @router.callback_query(F.data.startswith("set "), IsAdmin())
-async def test(call: types.CallbackQuery, _: Locale):
+async def test__(call: types.CallbackQuery, _: Locale):
     message = call.message
     member = await Member.get_by(message)
 
@@ -138,7 +152,9 @@ async def test(call: types.CallbackQuery, _: Locale):
 
     if section == "settings":
         await settings_(
-            call.model_copy(update={"data": "settings_menu"}),
+            call.model_copy(
+                update={"data": "settings_menu"}
+            ),
             _=_,
         )
     elif section == "modules":
