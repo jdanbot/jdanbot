@@ -1,8 +1,8 @@
 name: Run Python Tests
 
-on: [ push, pull_request ]
+on: [ push ]
 jobs:
-  ty:
+  ruff:
     runs-on: ubuntu-latest
 
     steps:

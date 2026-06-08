@@ -1,6 +1,6 @@
 name: Run Python Tests
 
-on: [ push, pull_request ]
+on: [ push ]
 jobs:
   test:
     runs-on: ubuntu-latest
