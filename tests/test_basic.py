@@ -1,6 +1,7 @@
 from pathlib import Path
 from unittest.async_case import IsolatedAsyncioTestCase
 
+from bot.chat_misc.ger import german_to_cyr
 from bot.chat_misc.pidor import find_pidor, reg_pidor
 from bot.config.lib.locales import locales
 from bot.database import setup_db
@@ -40,3 +41,6 @@ class Tests(IsolatedAsyncioTestCase):
             await mock(reg_pidor, "/pidorreg"),
             _.pidor.already_in_db,
         )
+
+    def test_german_cur(self):
+        self.assertEqual(german_to_cyr("Heute"), "Хойте")

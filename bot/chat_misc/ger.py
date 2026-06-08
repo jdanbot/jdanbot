@@ -12,17 +12,15 @@ Die Diskussion über die zeitliche und inhaltliche Bestimmung dessen, was genau 
 """
 
 german = toml.decode(
-    Path("./lib/german.toml").read_bytes()
+    Path("bot/chat_misc/lib/german.toml").read_bytes()
 ).items()
 
-def german_to_cyr(text: str, variant: dict[str, str]):
+
+def german_to_cyr(
+    text: str, variant: dict[str, str] = german
+):
     for a, b in variant:
         text = text.replace(a, b)
         text = text.replace(a.upper(), b.upper())
 
     return text
-
-if __name__ == "__main__":
-    print(TEXT)
-    print(german_to_cyr(TEXT, german))
-    
