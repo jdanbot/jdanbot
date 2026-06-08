@@ -26,7 +26,7 @@ class SCP:
         )
         r, text = await aioget(url)
 
-        soup = BeautifulSoup(text, "lxml")
+        soup = BeautifulSoup(text, "lxml")  # noqa
         content = soup.find(id="page-content")
 
         title = soup.find("title").text

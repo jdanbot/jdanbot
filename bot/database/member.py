@@ -289,7 +289,7 @@ class Member(Struct, frozen=True):
         pidor = await Pidor.get(
             user_id=self.user_id, chat_id=self.chat_id
         )
-        return await PidorEvent.filter(
+        return await PidorEvent.filter(  # noqa
             pidor_id=pidor.id
         ).count()
 

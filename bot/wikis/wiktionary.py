@@ -45,7 +45,7 @@ class KaikkiWord(BaseModel):
             return (
                 get_lang_emoji_by_name(self.lang_code) + " "
             )
-        except:
+        except Exception:
             return ""
 
     @property
@@ -165,11 +165,7 @@ async def wiktionary(
         _ = _.removesuffix("2")
         _ = _ + "in" + _[-2:]
 
-    langs = (
-        _.removeprefix("v")
-        .split(" ")[0]
-        .split("2")
-    )
+    langs = _.removeprefix("v").split(" ")[0].split("2")
 
     if len(langs) == 1:
         langs = langs[0].split("in")
@@ -212,30 +208,32 @@ async def get_word(
         from msgspec import json
 
         json_line = json.decode(line)
-        
+
         try:
             ipa = (
                 json_line["sounds"][0]["ipa"]
                 .replace("[", "/")
                 .replace("]", "/")
             )
-        except:
+        except Exception:
             try:
                 ipa = (
                     json_line["sounds"][1]["ipa"]
                     .replace("[", "/")
                     .replace("]", "/")
                 )
-            except:
+            except Exception:
                 ipa = ""
 
         try:
             if lang_raw != "en":
                 raise
-            
+
             sounds = json_line["sounds"]
             for sound in sounds:
-                if "Received-Pronunciation" in sound.get("tags", []):
+                if "Received-Pronunciation" in sound.get(
+                    "tags", []
+                ):
                     ipa = (
                         sound["ipa"]
                         .replace("[", "/")
@@ -243,14 +241,16 @@ async def get_word(
                     )
                     break
 
-        except:
+        except Exception:
             pass
 
         ipa_usa = ""
         try:
             sounds = json_line["sounds"]
             for sound in sounds:
-                if "General-American" in sound.get("tags", []):
+                if "General-American" in sound.get(
+                    "tags", []
+                ):
                     ipa_usa = (
                         sound["ipa"]
                         .replace("[", "/")
@@ -258,7 +258,7 @@ async def get_word(
                     )
                     break
 
-        except:
+        except Exception:
             ipa_usa = ""
 
         word = KaikkiWord.model_validate_json(line)
