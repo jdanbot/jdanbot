@@ -1,5 +1,5 @@
 status = "jdanbot-nightly"
-logging_chat = "-1001410092459"
+# logging_chat = "-1001410092459"
 
 admin_notes = [
     "__rules__",
