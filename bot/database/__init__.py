@@ -1,6 +1,7 @@
 from aiosqlite import connect
 
 from ..config.config import settings
+from ._migrator import MigratorService
 from .chat import Chat, ChatSettings
 from .command import Command
 from .member import Member
@@ -104,4 +105,5 @@ __all__ = (
     Note,
     Warn,
     setup_db,
+    MigratorService,
 )

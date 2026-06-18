@@ -8,7 +8,7 @@ from . import *  # noqa
 from .config.bot import bot, dp, router
 from .config.lib.i18n_middleware import i18nMiddleware
 from .config.lib.spy_middleware import SpyMiddleware
-from .database import setup_db
+from .database import MigratorService, setup_db
 
 install(show_locals=True)
 builtins.print = print
@@ -23,7 +23,9 @@ async def main() -> None:
 
     dp.include_router(router)
 
+    MigratorService.activate_migrations()
     await setup_db()
+    return
     await dp.start_polling(bot, reset_webhook=True)
 
 
