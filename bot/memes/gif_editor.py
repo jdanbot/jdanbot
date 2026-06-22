@@ -44,10 +44,13 @@ async def edit_gif(
         await message.reply(_.errors.too_big_gif)
         return
 
-    file = Path("/tmp") / (
-        "test-" + str(video.file_name or "test.mp4")
-    )
-    output = Path("/tmp") / "abibiri_edit.mp4"
+    video_name = getattr(
+        video,
+        "file_name",
+        getattr(video, "file_unique_id", "test"),
+    ).__str__()
+    file = Path("/tmp") / f"test-{video_name}.mp4"
+    output = Path("/tmp") / f"{video_name}_edit.mp4"
 
     await bot.download(video, file)
 
