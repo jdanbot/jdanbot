@@ -1,7 +1,5 @@
-from datetime import datetime
-
 from msgspec import convert
-from whenever import Instant, PlainDateTime
+from whenever import Instant
 
 from ._base import Base, BetterConnection, dbmethod, queries
 
@@ -23,11 +21,11 @@ class Pidor(Base, frozen=True):
     latest_time: int | None  # backed by latest_time_id
 
     @dbmethod
+    @staticmethod
     async def get(
         id: int, conn: BetterConnection
     ) -> "Pidor":
         _ = await queries.pidor.get(conn, id=id)
-        assert _
 
         return convert(_, Pidor)
 
@@ -42,9 +40,7 @@ class Pidor(Base, frozen=True):
             conn, event_id=self.latest_time
         )
 
-        return PlainDateTime(
-            datetime.fromisoformat(time)
-        ).assume_utc()
+        return Instant.from_timestamp(time)
 
     @dbmethod
     async def get_pidor_count(

@@ -14,6 +14,8 @@ from .chat import Chat
 from .pidor import Pidor, PidorTop
 from .user import User
 
+MSK: str = "Europe/Moscow"
+
 
 class PidorRepr(Struct, frozen=True):
     id: int
@@ -77,6 +79,7 @@ class Member(Struct, frozen=True):
         )
 
     @dbmethod
+    @staticmethod
     async def get_by(
         message: types.Message,
         conn: BetterConnection,
@@ -104,7 +107,8 @@ class Member(Struct, frozen=True):
         user_id: int,
         chat_id: int,
         pidor: Pidor | None = None,
-        conn: BetterConnection = None,
+        *,
+        conn: BetterConnection,
     ) -> "Member":
         chat: Chat = await Chat.get(id=chat_id, conn=conn)
         user: User = await User.get(id=user_id, conn=conn)
@@ -193,18 +197,11 @@ class Member(Struct, frozen=True):
 
         if _ is None:
             raise KeyError
-        print(_)
 
-        pidor = convert(
-            (
-                *_[:-2],
-                bool(_[-2]),
-                _[-1],
-            ),
-            Pidor,
-        )
+        pidor = convert(_, Pidor)
 
         return await Member.get(
+            conn=conn,
             user_id=pidor.user_id,
             chat_id=pidor.chat_id,
             pidor=pidor,
@@ -232,7 +229,8 @@ class Member(Struct, frozen=True):
     async def get_top_pidors(
         self,
         limit: int = 10,
-        conn: BetterConnection = None,
+        *,
+        conn: BetterConnection,
     ) -> PidorTop:
         _ = [
             i
@@ -245,34 +243,32 @@ class Member(Struct, frozen=True):
 
         return convert(_, PidorTop)
 
-    async def check_run_pidor(self) -> bool:
+    @dbmethod
+    async def check_pidor_is_runnable(
+        self, conn: BetterConnection
+    ) -> bool:
         if self.chat.current_pidor_id is None:
-            return True
+            return False
+
         print(self.chat.current_pidor_id)
         print("!!!!")
 
         pidor: Pidor = await Pidor.get(
-            id=self.chat.current_pidor_id
+            id=self.chat.current_pidor_id, conn=conn
         )
 
-        timezone: str = "Europe/Moscow"
-        date = await pidor.get_latest_datetime(timezone)
+        date = await pidor.get_latest_datetime(
+            MSK, conn=conn
+        )
 
         if date is None:
             return True
 
-        next_pidor_day = date.to_tz(timezone).replace_time(
-            Time(
-                hour=0,
-                minute=0,
-                second=0,
-                nanosecond=0,
-            )
+        next_pidor_day = date.to_tz(MSK).replace_time(
+            Time(hour=0, minute=0, second=0, nanosecond=0)
         )
 
-        return (
-            Instant.now().to_tz(timezone) >= next_pidor_day
-        )
+        return Instant.now().to_tz(MSK) >= next_pidor_day
 
     async def get_members_count(self) -> int:
         return -1
@@ -338,7 +334,7 @@ class Member(Struct, frozen=True):
         reason: str,
         conn: BetterConnection,
     ) -> int:
-        _ = await user.get_warn_count()
+        _ = await user.get_warn_count(conn=conn)
 
         if _ == 0:
             raise IndexError
@@ -364,7 +360,7 @@ class Member(Struct, frozen=True):
             .set(w.unwarned_at, fn.Now())
             .where(w.id == get_latest_warn)
             .get_sql()
-            .replace("NOW()", "CURRENT_TIMESTAMP")
+            .replace("NOW()", "unixepoch()")
         )
         await conn.commit()
 
@@ -374,6 +370,7 @@ class Member(Struct, frozen=True):
     async def get_warn_count(
         self, conn: BetterConnection
     ) -> int:
+
         w = Table("warns")
         _ = await conn.execute_scalar(
             Query.from_(w)

@@ -31,7 +31,7 @@ async def init_pidor(
         )
         return False
 
-    if await member.check_run_pidor():
+    if await member.check_pidor_is_runnable():
         pidor = await Pidor.get(
             id=member.chat.current_pidor_id
         )

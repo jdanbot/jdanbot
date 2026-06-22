@@ -3,10 +3,10 @@
           u.first_name,
           u.last_name,
           u.username
-     from pidorevent e
-left join pidor p
+     from pidor_events e
+left join pidors p
        on p.id = e.pidor_id
-left join user u
+left join users u
        on u.id = p.user_id
     where e.chat_id = :chat_id
  group by u.id
