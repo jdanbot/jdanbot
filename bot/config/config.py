@@ -16,9 +16,7 @@ is_test_session = any(
 
 class Settings(Struct):
     status: str = "unknown"
-    logging_chat: int | None = int(
-        os.environ.get("logging_chat", 0)
-    )
+    logging_chat: str | None = os.environ.get("logging_chat")
 
     db_path: str = os.environ.get("db_path", "jdanbot.db")
     music_path: Path = Path("media/music")
