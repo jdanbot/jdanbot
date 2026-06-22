@@ -52,8 +52,9 @@ class Chat(Base, frozen=True):
 
         chat = await queries.chat.get_by(
             conn,
+            title=message.chat.full_name,
             **message.chat.model_dump(
-                include={"id", "title", "username"}
+                include={"id", "username"}
             ),
         )
         await conn.commit()
