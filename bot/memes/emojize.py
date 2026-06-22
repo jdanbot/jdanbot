@@ -7,15 +7,11 @@ from emoji import EMOJI_DATA
 from ..config import router
 from ..filters import GetText
 
-emoji_list = list(
-    set(
-        [
-            emoji[0]
-            for emoji in EMOJI_DATA
-            if EMOJI_DATA[emoji]["status"] == 2
-        ]
-    )
-)
+emoji_list = [
+    emoji[0]
+    for emoji in EMOJI_DATA
+    if EMOJI_DATA[emoji]["status"] == 2
+]
 
 
 @router.message(Command("emojize"), GetText())

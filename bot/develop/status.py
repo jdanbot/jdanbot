@@ -5,7 +5,7 @@ from whenever import Instant, TimeDelta
 
 from ..config import START_TIME, Locale, router, settings
 
-with open("pyproject.toml", "r") as f:
+with open("pyproject.toml") as f:
 
     class PyProject(Struct, frozen=True):
         class Project(Struct, frozen=True):
