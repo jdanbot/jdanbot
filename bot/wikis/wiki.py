@@ -14,6 +14,7 @@ from ..config.config import (
     WIKIPEDIA_SHORTCUTS,
 )
 from ..config.languages import WIKIPEDIA_LANGS
+from ..lib.errors import JdanbotError
 from ..lib.models import Article
 from ..lib.text import fix_words
 
@@ -160,7 +161,8 @@ async def check_mediawiki_api_url(url: str) -> bool:
 )
 async def custom_mediawiki(
     message: types.Message, command: CommandObject
-) -> dict[Wikipya, str]:
+) -> tuple[Wikipya, str]:
+    assert command.args
     host = URL(command.args).host
 
     url_variants = [
@@ -168,13 +170,12 @@ async def custom_mediawiki(
         f"https://{host}/w/api.php",
     ]
 
-    if not any(
-        await check_mediawiki_api_url(base_url := var)
-        for var in url_variants
-    ):
-        return await message.reply(
-            "Can't find valid API url"
-        )
+    for url in url_variants:
+        if await check_mediawiki_api_url(base_url := url):
+            break
+
+        await message.reply("Can't find valid API url")
+        raise JdanbotError
 
     url = URL(command.args)
     query = url.path.split("/")[-1].replace("_", " ")
