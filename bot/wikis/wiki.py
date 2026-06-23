@@ -1,5 +1,3 @@
-from ..lib.errors import JdanbotError
-
 import aiohttp
 from aiogram import types
 from aiogram.filters import Command, CommandObject
@@ -16,6 +14,7 @@ from ..config.config import (
     WIKIPEDIA_SHORTCUTS,
 )
 from ..config.languages import WIKIPEDIA_LANGS
+from ..lib.errors import JdanbotError
 from ..lib.models import Article
 from ..lib.text import fix_words
 
