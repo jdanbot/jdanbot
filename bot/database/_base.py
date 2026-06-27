@@ -1,6 +1,6 @@
 import sqlite3
 from functools import wraps
-from typing import Any, Callable, Iterable, TypeVar
+from typing import Any, Callable, Iterable, TypeVar, Union
 
 import aiosql
 import aiosqlite
@@ -27,7 +27,9 @@ queries = aiosql.from_path("queries/", "aiosqlite")
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-def dbmethod(func: F) -> F:
+def dbmethod(
+    func: F,
+) -> Callable[..., Any]:
     @wraps(func)
     async def wrapper(*args, **kwargs):
         conn = kwargs.get("conn")
@@ -71,7 +73,7 @@ class BetterConnection(aiosqlite.Connection):
         _ = await self.execute_raw(sql)
         return await _.fetchone()
 
-    async def execute_scalar(self, sql: SQL) -> Any | None:
+    async def execute_scalar(self, sql: SQL) -> Any:
         _ = await self.execute_raw(sql)
         _ = await _.fetchone()
 

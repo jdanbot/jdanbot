@@ -1,7 +1,12 @@
 from msgspec import convert
+from pypika import Query, Table
+from pypika import functions as fn
 from whenever import Instant
 
-from ._base import Base, BetterConnection, dbmethod, queries
+from ._base import Base, BetterConnection, dbmethod
+
+E = Table("pidor_events")
+P = Table("pidors")
 
 
 class PidorEvent(Base, frozen=True):
@@ -25,29 +30,43 @@ class Pidor(Base, frozen=True):
     async def get(
         id: int, conn: BetterConnection
     ) -> "Pidor":
-        _ = await queries.pidor.get(conn, id=id)
+        _ = await conn.execute_one(
+            Query.from_(P)
+            .select(
+                P.id,
+                P.chat_id,
+                P.user_id,
+                P.is_allowed,
+                P.latest_time,
+            )
+            .where(P.id == id)
+        )
 
         return convert(_, Pidor)
 
     @dbmethod
     async def get_latest_datetime(
-        self, timezone: str, conn: BetterConnection
+        self, conn: BetterConnection
     ) -> Instant | None:
         if self.latest_time is None:
             return None
 
-        time = await queries.pidor.get_latest_datetime(
-            conn, event_id=self.latest_time
+        time = await conn.execute_scalar(
+            Query.from_(E)
+            .select(E.caused_at)
+            .where(E.id == self.latest_time)
         )
 
-        return Instant.from_timestamp(time)
+        return Instant.from_timestamp(int(time))
 
     @dbmethod
     async def get_pidor_count(
         self, conn: BetterConnection
     ) -> int:
-        return await queries.pidor.get_pidor_count(
-            conn, pidor_id=self.id
+        return await conn.execute_scalar(
+            Query.from_(E)
+            .select(fn.Count("*"))
+            .where(E.pidor_id == self.id)
         )
 
 

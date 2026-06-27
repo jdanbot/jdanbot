@@ -1,5 +1,6 @@
 import sqlite3
 from importlib.machinery import SourceFileLoader
+from operator import sub
 from pathlib import Path
 
 from ..config.logger import logger
@@ -11,9 +12,9 @@ migrations = sorted(Path("migrations").glob("*.py"))
 class MigratorService:
     @classmethod
     def activate_migrations(cls) -> bool:
-        migrations_to_activate = (
-            cls.get_count_of_available_migrations()
-            - cls.get_count_of_active_migrations()
+        migrations_to_activate = sub(
+            cls.get_count_of_available_migrations(),
+            cls.get_count_of_active_migrations(),
         )
 
         results: list[bool] = []

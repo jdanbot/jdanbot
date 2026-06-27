@@ -1,19 +1,20 @@
 -- name: init_tables#
 CREATE TABLE IF NOT EXISTS "chats" (
     "id"       INTEGER    PRIMARY KEY NOT NULL,
-    "title"    TEXT       NOT NULL,
     "username" TEXT,
+    "title"    TEXT       NOT NULL,
     "language" VARCHAR(2),
     "pidor_id" INTEGER,
     "settings" JSONB      NOT NULL DEFAULT "{}"
 );
 
 CREATE TABLE IF NOT EXISTS "commands" (
-    "id"      INTEGER PRIMARY KEY NOT NULL,
-    "chat_id" INTEGER NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "name"    TEXT    NOT NULL,
-    "args"    TEXT    NOT NULL
+    "id"          INTEGER   PRIMARY KEY NOT NULL,
+    "chat_id"     INTEGER   NOT NULL,
+    "user_id"     INTEGER   NOT NULL,
+    "name"        TEXT      NOT NULL,
+    "args"        TEXT      NOT NULL,
+    "executed_at" TIMESTAMP NOT NULL DEFAULT (unixepoch())
 );
 
 CREATE TABLE IF NOT EXISTS "notes" (
@@ -69,7 +70,7 @@ CREATE TABLE IF NOT EXISTS "members" (
     "chat_id"           INTEGER   NOT NULL,
     "user_id"           INTEGER   NOT NULL,
     "pidor_id"          INTEGER,
-    "joined_at"         TIMESTAMP,
+    "joined_at"         TIMESTAMP DEFAULT (unixepoch()),
     "is_captcha_passed" BOOLEAN   DEFAULT 0,
     "is_admin"          INTEGER
 );

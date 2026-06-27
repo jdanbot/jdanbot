@@ -7,3 +7,4 @@
              SET title = excluded.title,
                  username = excluded.username
 RETURNING *;
+

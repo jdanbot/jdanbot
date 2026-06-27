@@ -15,7 +15,7 @@ on conflict (chat_id, name)
          do
  update set text = :text,
             editor_id = :author_id,
-            updated_at = CURRENT_TIMESTAMP
+            updated_at = unixepoch()
   returning _rowid_ = last_insert_rowid();
   
 -- name: delete_note (chat_id, name)!

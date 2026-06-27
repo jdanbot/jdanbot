@@ -1,10 +1,15 @@
 from typing import Any, Literal
 
 from aiogram import types
+from aiosqlite import Row
 from msgspec import Struct, convert, json
+from pypika import Query, Table
 
 from ..config.languages import Language
 from ._base import Base, BetterConnection, dbmethod, queries
+from ._extras import Json, JsonSet
+
+C = Table("chats")
 
 
 class ChatSettings(Struct, frozen=True):
@@ -20,7 +25,7 @@ class ChatSettings(Struct, frozen=True):
 
     enable_poll: bool = True
     enable_triggers: bool = False  # maybe memes?
-    enable_twitter_redirect: bool = True
+    enable_twitter_redirect: bool = False
 
     enable_inline_set_note: bool = False
     enable_extra_poll_option: bool = False
@@ -31,8 +36,8 @@ class ChatSettings(Struct, frozen=True):
 class Chat(Base, frozen=True):
     id: int
 
-    title: str
     username: str | None
+    title: str
     language: Language
 
     current_pidor_id: int | None
@@ -40,6 +45,22 @@ class Chat(Base, frozen=True):
 
     welcome: str | None = None
     rules: str | None = None
+
+    @staticmethod
+    def __parse(chat: list[Any] | Row) -> "Chat":
+        return convert(
+            [
+                *chat[:3],
+                Language.from_str("ru"),
+                chat[-2],
+                json.decode(
+                    chat[-1] or "{}",
+                    type=ChatSettings,
+                    strict=False,
+                ),
+            ],
+            Chat,
+        )
 
     @staticmethod
     @dbmethod
@@ -59,19 +80,7 @@ class Chat(Base, frozen=True):
         )
         await conn.commit()
 
-        return convert(
-            [
-                *chat[:3],
-                Language.from_str("ru"),
-                chat[-2],
-                json.decode(
-                    chat[-1] or "{}",
-                    type=ChatSettings,
-                    strict=False,
-                ),
-            ],
-            Chat,
-        )
+        return Chat.__parse(chat)
 
     @staticmethod
     @dbmethod
@@ -79,17 +88,32 @@ class Chat(Base, frozen=True):
         id: int,
         conn: BetterConnection,
     ) -> "Chat":
-        chat = await queries.chat.get(conn, id=id)
-
-        return convert(
-            [
-                *chat[:3],
-                Language.from_str("ru"),
-                None,
-                dict(),
-            ],
-            Chat,
+        chat = await conn.execute_one(
+            Query.from_(C).select("*").where(C.id == id)
         )
+        assert chat
+
+        return Chat.__parse(chat)
+
+    @dbmethod
+    async def set_setting_raw(
+        self,
+        setting: str,
+        value: Any,
+        conn: BetterConnection,
+    ):
+        await conn.execute_raw(
+            Query.update(C)
+            .set(
+                C.settings,
+                JsonSet(
+                    C.settings, f"$.{setting}", Json(value)
+                ),
+            )
+            .where(C.id == self.id)
+        )
+
+        await conn.commit()
 
     @dbmethod
     async def set_setting(
@@ -97,18 +121,52 @@ class Chat(Base, frozen=True):
         setting: str,
         value: Any,
         conn: BetterConnection,
-    ) -> bool:
-        if value.lower() == "true":
-            value = 1
-        elif value.lower() == "false":
-            value = 0
+    ):
+        try:
+            value = float(value)
 
-        test = await queries.chat.set_setting(
-            conn,
-            chat_id=self.id,
-            key="$." + setting,
-            value=value,
+            if float(value) == int(value):
+                value = int(value)
+        except ValueError:
+            pass
+
+        getattr(ChatSettings, setting)
+        convert({setting: value}, ChatSettings)
+
+        await self.set_setting_raw(
+            setting, value, conn=conn
         )
 
+    @dbmethod
+    async def set_bool_setting(
+        self,
+        setting: str,
+        value: bool,
+        conn: BetterConnection,
+    ):
+        assert isinstance(value, bool)
+
+        await self.set_setting_raw(
+            setting, value, conn=conn
+        )
+
+    @dbmethod
+    async def set_list_setting(
+        self,
+        setting: str,
+        value: list | set,
+        conn: BetterConnection,
+    ):
+        js = json.encode(value).decode("utf-8")
+        await self.set_setting_raw(setting, js, conn=conn)
+
+    @dbmethod
+    async def set_language(
+        self, lang: str, conn: BetterConnection
+    ):
+        await conn.execute_raw(
+            Query.update(C)
+            .set(C.language, lang)
+            .where(C.id == self.id)
+        )
         await conn.commit()
-        return test

@@ -257,9 +257,7 @@ class Member(Struct, frozen=True):
             id=self.chat.current_pidor_id, conn=conn
         )
 
-        date = await pidor.get_latest_datetime(
-            MSK, conn=conn
-        )
+        date = await pidor.get_latest_datetime(conn=conn)
 
         if date is None:
             return True
@@ -322,7 +320,6 @@ class Member(Struct, frozen=True):
                 reason,
             )
         )
-        await conn.execute_one(Query.into(w).insert())
         await conn.commit()
 
         return await user.get_warn_count(conn=conn)
