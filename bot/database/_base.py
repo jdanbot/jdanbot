@@ -1,6 +1,6 @@
 import sqlite3
 from functools import wraps
-from typing import Any, Callable, Iterable, TypeVar, Union
+from typing import Any, Callable, Iterable, TypeVar
 
 import aiosql
 import aiosqlite
