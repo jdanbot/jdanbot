@@ -97,6 +97,11 @@ async def pidor_stats(
     _: Locale,
 ):
     msg = _.pidor.top_10 + "\n\n"
+    count = await member.get_pidor_count()
+
+    if count == 0:
+        await message.reply(_.pidor.stats_unavailable)
+        return
 
     for num, pidor in enumerate(
         await member.get_top_pidors(), 1
@@ -111,9 +116,7 @@ async def pidor_stats(
         )
 
     msg += "\n"
-    msg += _.pidor.total_members(
-        count=await member.get_pidor_count()
-    )
+    msg += _.pidor.total_members(count=count)
 
     await message.reply(
         msg,

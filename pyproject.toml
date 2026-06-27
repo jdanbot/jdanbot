@@ -33,7 +33,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "faker>=40.15.0",
   "pytest-asyncio>=0.25.2",
   "pytest-modern>=0.7.4",
   "pytest>=9.0.3",
