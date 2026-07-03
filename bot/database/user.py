@@ -1,11 +1,10 @@
 from aiogram import types
 from msgspec import convert
-from pypika import Query, Table
+from pypika import Query
 
 from ..config.languages import Language
 from ._base import Base, BetterConnection, dbmethod, queries
-
-U = Table("users")
+from ._tables import U
 
 
 class User(Base, frozen=True):
@@ -65,6 +64,9 @@ class User(Base, frozen=True):
         user = await conn.execute_one(
             Query.from_(U).select("*").where(U.id == id)
         )
+
+        if user is None:
+            raise KeyError
 
         return convert(
             [*user, Language.from_str("ru")],

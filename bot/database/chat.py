@@ -3,13 +3,12 @@ from typing import Any, Literal
 from aiogram import types
 from aiosqlite import Row
 from msgspec import Struct, convert, json
-from pypika import Query, Table
+from pypika import Query
 
 from ..config.languages import Language
 from ._base import Base, BetterConnection, dbmethod, queries
 from ._extras import Json, JsonSet
-
-C = Table("chats")
+from ._tables import C
 
 
 class ChatSettings(Struct, frozen=True, omit_defaults=True):

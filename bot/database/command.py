@@ -1,8 +1,7 @@
-from pypika import Query, Table
+from pypika import Query
 
 from ._base import Base, BetterConnection, dbmethod
-
-CMD = Table("commands")
+from ._tables import CMD
 
 
 class Command(Base, frozen=True):

@@ -5,20 +5,18 @@ from zoneinfo import ZoneInfo
 from aiogram import types
 from aiogram.utils.markdown import hlink, link
 from msgspec import Struct, convert
-from pypika import Order, Query, Table
+from pypika import Order, Query
 from pypika import functions as fn
 
 from ..config.bot import bot
 from ..lib.admin import check_admin
 from ._base import BetterConnection, dbmethod, queries
+from ._tables import P, W
 from .chat import Chat
 from .pidor import Pidor, PidorTop
 from .user import User
 
 MSK = ZoneInfo("Europe/Moscow")
-W = Table("warns")
-M = Table("members")
-P = Table("pidors")
 
 
 class PidorRepr(Struct, frozen=True):
