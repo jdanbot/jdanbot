@@ -1,4 +1,8 @@
-from ._base import Base, BetterConnection, dbmethod, queries
+from pypika import Query, Table
+
+from ._base import Base, BetterConnection, dbmethod
+
+CMD = Table("commands")
 
 
 class Command(Base, frozen=True):
@@ -12,12 +16,17 @@ class Command(Base, frozen=True):
 
     @dbmethod
     async def save(self, conn: BetterConnection) -> None:
-        await queries.log_command(
-            conn,
-            chat_id=self.chat_id,
-            user_id=self.user_id,
-            name=self.name,
-            args=self.args,
+        await conn.execute_raw(
+            Query.into(CMD)
+            .columns(
+                CMD.chat_id, CMD.user_id, CMD.name, CMD.args
+            )
+            .insert(
+                self.chat_id,
+                self.user_id,
+                self.name,
+                self.args,
+            )
         )
 
         await conn.commit()

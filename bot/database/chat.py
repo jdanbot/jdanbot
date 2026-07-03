@@ -12,12 +12,13 @@ from ._extras import Json, JsonSet
 C = Table("chats")
 
 
-class ChatSettings(Struct, frozen=True):
+class ChatSettings(Struct, frozen=True, omit_defaults=True):
     enable_welcome: bool = True
     enable_rules: bool = True
 
     enable_admin: bool = True
     admin_chat: int = 0
+    enable_captcha: bool = False
 
     warns_to_ban: Literal[-1, 3, 5] = 3
     enable_selfmute: bool = True

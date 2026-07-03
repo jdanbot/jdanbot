@@ -1,11 +1,12 @@
+from datetime import datetime, timedelta
 from typing import Any, override
+from zoneinfo import ZoneInfo
 
 from aiogram import types
 from aiogram.utils.markdown import hlink, link
 from msgspec import Struct, convert
 from pypika import Order, Query, Table
 from pypika import functions as fn
-from whenever import Instant, Time
 
 from ..config.bot import bot
 from ..lib.admin import check_admin
@@ -14,7 +15,7 @@ from .chat import Chat
 from .pidor import Pidor, PidorTop
 from .user import User
 
-MSK: str = "Europe/Moscow"
+MSK = ZoneInfo("Europe/Moscow")
 
 
 class PidorRepr(Struct, frozen=True):
@@ -35,22 +36,6 @@ class Member(Struct, frozen=True):
     chat: Chat
     pidor: Pidor | None = None
 
-    def __rich_repr__(self):
-        for field in self.__struct_fields__:
-            if field == "pidor":
-                pidor = getattr(self, field)
-                yield (
-                    "pidor",
-                    PidorRepr(
-                        id=pidor.id,
-                        latest_time=pidor.latest_time,
-                    )
-                    if pidor is not None
-                    else None,
-                )
-            elif field not in ["chat", "user"]:
-                yield field, getattr(self, field)
-
     @override
     def __str__(self):
         return f"Member {self.user_id}@{self.chat_id}"
@@ -70,6 +55,8 @@ class Member(Struct, frozen=True):
 
     @property
     def tag(self, use_html: bool = False) -> str:
+        print(self)
+        print(self.username)
         if self.username:
             return f"@{self.username}"
 
@@ -248,25 +235,16 @@ class Member(Struct, frozen=True):
         self, conn: BetterConnection
     ) -> bool:
         if self.chat.current_pidor_id is None:
-            return False
-
-        print(self.chat.current_pidor_id)
-        print("!!!!")
+            return True
 
         pidor: Pidor = await Pidor.get(
             id=self.chat.current_pidor_id, conn=conn
         )
 
         date = await pidor.get_latest_datetime(conn=conn)
+        next_pidor_day = date + timedelta(days=1)
 
-        if date is None:
-            return True
-
-        next_pidor_day = date.to_tz(MSK).replace_time(
-            Time(hour=0, minute=0, second=0, nanosecond=0)
-        )
-
-        return Instant.now().to_tz(MSK) >= next_pidor_day
+        return datetime.now(MSK).date() >= next_pidor_day
 
     async def get_members_count(self) -> int:
         return -1
@@ -283,7 +261,7 @@ class Member(Struct, frozen=True):
         pidor = await Pidor.get(
             user_id=self.user_id, chat_id=self.chat_id
         )
-        return await PidorEvent.filter(  # noqa
+        return await PidorEvent.filter(
             pidor_id=pidor.id
         ).count()
 

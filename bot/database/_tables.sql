@@ -1,8 +1,7 @@
--- name: init_tables#
 CREATE TABLE IF NOT EXISTS "chats" (
     "id"       INTEGER    PRIMARY KEY NOT NULL,
     "username" TEXT,
-    "title"    TEXT       NOT NULL,
+    "title"    TEXT,
     "language" VARCHAR(2),
     "pidor_id" INTEGER,
     "settings" JSONB      NOT NULL DEFAULT "{}"
@@ -35,15 +34,20 @@ CREATE TABLE IF NOT EXISTS "pidors" (
     "chat_id"     INTEGER NOT NULL,
     "user_id"     INTEGER NOT NULL,
     "is_allowed"  BOOLEAN NOT NULL DEFAULT 1,
-    "latest_time" INTEGER,
-                  UNIQUE ("chat_id", "user_id")
+    "latest_time" INTEGER--,
+                  -- UNIQUE ("chat_id", "user_id")
 );
 
 CREATE TABLE IF NOT EXISTS "pidor_events" (
     "id"        INTEGER   PRIMARY KEY NOT NULL,
     "chat_id"   INTEGER   NOT NULL,
     "pidor_id"  INTEGER   NOT NULL,
-    "caused_at" TIMESTAMP NOT NULL DEFAULT (unixepoch())
+    "date"      DATE      NOT NULL DEFAULT (
+        date(unixepoch() + 10800, 'unixepoch')
+    ),
+    "seconds"   INT      NOT NULL DEFAULT (
+        unixepoch() - strftime('%s', date()) + 10800
+    )
 );
 
 CREATE TABLE IF NOT EXISTS "users" (

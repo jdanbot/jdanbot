@@ -1,7 +1,6 @@
 from aiosqlite import connect
 
 from ..config import settings
-from ._base import queries
 from ._migrator import MigratorService
 from .chat import Chat, ChatSettings
 from .command import Command
@@ -13,8 +12,12 @@ from .warn import Warn
 
 
 async def setup_db():
+    from pathlib import Path
+
     async with connect(settings.db_path) as conn:
-        await queries.init_tables(conn)
+        await conn.executescript(
+            Path("bot/database/_tables.sql").read_text()
+        )
         await conn.commit()
 
 

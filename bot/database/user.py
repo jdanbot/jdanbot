@@ -1,8 +1,11 @@
 from aiogram import types
 from msgspec import convert
+from pypika import Query, Table
 
 from ..config.languages import Language
 from ._base import Base, BetterConnection, dbmethod, queries
+
+U = Table("users")
 
 
 class User(Base, frozen=True):
@@ -59,7 +62,9 @@ class User(Base, frozen=True):
     async def get(
         id: int, conn: BetterConnection
     ) -> "User":
-        user = await queries.user.get(conn, id=id)
+        user = await conn.execute_one(
+            Query.from_(U).select("*").where(U.id == id)
+        )
 
         return convert(
             [*user, Language.from_str("ru")],

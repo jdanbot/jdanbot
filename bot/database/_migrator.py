@@ -18,10 +18,11 @@ class MigratorService:
         )
 
         results: list[bool] = []
+        from_which = (
+            len(migrations) - migrations_to_activate
+        )
 
-        for migration in migrations[
-            -migrations_to_activate:
-        ]:
+        for migration in migrations[from_which:]:
             foo = SourceFileLoader(
                 "test", migration.__str__()
             ).load_module()
@@ -33,14 +34,25 @@ class MigratorService:
             logger.debug(
                 f"migration {migration.__str__()} successfuly ended"
             )
+            new_id = int(
+                migration.name.split("_", maxsplit=1)[0]
+            )
+            db.execute(
+                "INSERT INTO migratehistory(id, name, migrated_at) "
+                f'VALUES ({new_id}, "{migration.name}", CURRENT_TIMESTAMP);'
+            )
+            db.commit()
 
         return all(results)
 
     @classmethod
     def get_count_of_active_migrations(cls) -> int:
-        return db.execute(
-            "SELECT count(*) FROM migratehistory;"
-        ).fetchone()[0]
+        try:
+            return db.execute(
+                "SELECT count(*) FROM migratehistory;"
+            ).fetchone()[0]
+        except sqlite3.OperationalError:
+            return cls.get_count_of_available_migrations()
 
     @classmethod
     def get_count_of_available_migrations(cls) -> int:

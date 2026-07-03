@@ -31,7 +31,10 @@ async def init_pidor(
         )
         return False
 
+    # Should we start finding of a pidor?
     if await member.check_pidor_is_runnable():
+        return True
+    else:
         pidor = await Pidor.get(
             id=member.chat.current_pidor_id
         )
@@ -48,8 +51,6 @@ async def init_pidor(
             )
         )
         return False
-
-    return True
 
 
 @router.message(Command("pidor"))

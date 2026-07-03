@@ -1,7 +1,8 @@
+from datetime import date
+
 from msgspec import convert
 from pypika import Query, Table
 from pypika import functions as fn
-from whenever import Instant
 
 from ._base import Base, BetterConnection, dbmethod
 
@@ -14,7 +15,8 @@ class PidorEvent(Base, frozen=True):
     pidor_id: int
     chat_id: int
 
-    caused_at: Instant
+    date: date
+    seconds: int
 
 
 class Pidor(Base, frozen=True):
@@ -47,17 +49,17 @@ class Pidor(Base, frozen=True):
     @dbmethod
     async def get_latest_datetime(
         self, conn: BetterConnection
-    ) -> Instant | None:
+    ) -> date | None:
         if self.latest_time is None:
             return None
 
-        time = await conn.execute_scalar(
+        date = await conn.execute_scalar(
             Query.from_(E)
-            .select(E.caused_at)
+            .select(E.date)
             .where(E.id == self.latest_time)
         )
 
-        return Instant.from_timestamp(int(time))
+        return date
 
     @dbmethod
     async def get_pidor_count(
