@@ -28,6 +28,10 @@ async def lock_command_(
 ):
     commands = member.chat.settings.locked_commands
 
+    for __ in ["lock", "unlock", "locklist", "locked"]:
+        if __ in query:
+            await message.reply("crazy.")
+
     print(query)
     # TODO: add custom append & pop method
     await member.chat.set_list_setting(

@@ -18,3 +18,15 @@ class Json(Function):
         super(Json, self).__init__(
             "json", value, alias=alias
         )
+
+
+class IsInserted(Function):
+    def __init__(self):
+        super(IsInserted, self).__init__(
+            "_rowid_ = last_insert_rowid"
+        )
+
+
+class Unixepoch(Function):
+    def __init__(self):
+        super(Unixepoch, self).__init__("unixepoch")

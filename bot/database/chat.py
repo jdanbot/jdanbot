@@ -3,10 +3,10 @@ from typing import Any, Literal
 from aiogram import types
 from aiosqlite import Row
 from msgspec import Struct, convert, json
-from pypika import Query
+from pypika import PostgreSQLQuery as Query
 
 from ..config.languages import Language
-from ._base import Base, BetterConnection, dbmethod, queries
+from ._base import Base, BetterConnection, dbmethod
 from ._extras import Json, JsonSet
 from ._tables import C
 
@@ -71,12 +71,18 @@ class Chat(Base, frozen=True):
         if message.from_user is None:
             raise KeyError
 
-        chat = await queries.chat.get_by(
-            conn,
-            title=message.chat.full_name,
-            **message.chat.model_dump(
-                include={"id", "username"}
-            ),
+        chat = await conn.execute_first(
+            Query.into(C)  # type: ignore[operator]
+            .columns(C.id, C.title, C.username)
+            .insert(
+                message.chat.id,
+                message.chat.full_name,
+                message.chat.username,
+            )
+            .on_conflict(C.id)
+            .do_update(C.title)
+            .do_update(C.username)
+            .returning("*")
         )
         await conn.commit()
 

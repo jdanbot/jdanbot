@@ -26,5 +26,5 @@ async def get_status(message: types.Message, _: Locale):
             version=__version__,
             uptime=interval,
         ),
-        # parse_mode="markdown",
+        parse_mode="Markdown",
     )

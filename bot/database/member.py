@@ -1,17 +1,20 @@
 from datetime import datetime, timedelta
+from itertools import chain
 from typing import Any, override
 from zoneinfo import ZoneInfo
 
 from aiogram import types
 from aiogram.utils.markdown import hlink, link
 from msgspec import Struct, convert
-from pypika import Order, Query
+from pypika import Field, Order, Query
 from pypika import functions as fn
 
 from ..config.bot import bot
+from ..config.config import settings
 from ..lib.admin import check_admin
-from ._base import BetterConnection, dbmethod, queries
-from ._tables import P, W
+from ._base import BetterConnection, dbmethod
+from ._extras import IsInserted
+from ._tables import CMD, C, E, M, P, U, W
 from .chat import Chat
 from .pidor import Pidor, PidorTop
 from .user import User
@@ -56,8 +59,6 @@ class Member(Struct, frozen=True):
 
     @property
     def tag(self, use_html: bool = False) -> str:
-        print(self)
-        print(self.username)
         if self.username:
             return f"@{self.username}"
 
@@ -75,6 +76,8 @@ class Member(Struct, frozen=True):
         chat: Chat = await Chat.get_by(message, conn=conn)
         user: User = await User.get_by(message, conn=conn)
 
+        await Member.safe_create(chat, user)
+
         return convert(
             dict(
                 user_id=user.id,
@@ -88,6 +91,13 @@ class Member(Struct, frozen=True):
             ),
             Member,
         )
+
+    @dbmethod
+    @staticmethod
+    async def safe_create(
+        chat: Chat, user: User, *, conn: BetterConnection
+    ):
+        pass
 
     @classmethod
     async def get(
@@ -115,6 +125,27 @@ class Member(Struct, frozen=True):
             Member,
         )
 
+    @staticmethod
+    def status_to_emoji(status: str) -> str:
+        match status:
+            case "creator":
+                return "🤴"
+            case "administrator":
+                return "👮‍♂️"
+            case "member":
+                return "🥸"
+            case _:
+                return "🌚"
+
+    async def get_status_emoji(self) -> str:
+        status = await self.get_status()
+
+        return self.status_to_emoji(
+            status
+            if self.user_id not in settings.bot_owners
+            else "owner"
+        )
+
     ############ NOTES ############
 
     @classmethod
@@ -129,21 +160,36 @@ class Member(Struct, frozen=True):
     async def is_pidor(
         self, conn: BetterConnection
     ) -> bool:
-        return await queries.pidor.check_is_pidor(
-            conn,
-            chat_id=self.chat_id,
-            user_id=self.user_id,
+        return await conn.execute_scalar(
+            Query.from_(P)
+            .select(1)
+            .where(P.chat_id == self.chat_id)
+            .where(P.user_id == self.user_id)
+            .where(P.is_allowed)
         )
 
     @dbmethod
     async def get_pidor(
         self, conn: BetterConnection
     ) -> tuple[Pidor, bool]:
-        _ = await queries.pidor.get_or_create(
-            conn,
-            chat_id=self.chat_id,
-            user_id=self.user_id,
+        from pypika import PostgreSQLQuery as Query
+
+        _ = await conn.execute_one(
+            Query.into(P)  # type: ignore[operator]
+            .columns(P.chat_id, P.user_id)
+            .insert(self.chat_id, self.user_id)
+            .on_conflict(P.chat_id, P.user_id)
+            .do_update(P.chat_id, self.chat_id)
+            .returning(
+                P.id,
+                P.chat_id,
+                P.user_id,
+                P.is_allowed,
+                P.latest_time,
+                IsInserted(),
+            )
         )
+
         await conn.commit()
 
         return (
@@ -156,21 +202,22 @@ class Member(Struct, frozen=True):
         self, conn: BetterConnection
     ):
         assert self.pidor is not None, "???"
+        from pypika import PostgreSQLQuery as Query
 
-        event_id = await queries.pidor.new_pidor_event(
-            conn,
-            pidor_id=self.pidor.id,
-            chat_id=self.chat.id,
+        event_id = await conn.execute_scalar(
+            Query.into(E)  # type: ignore[operator]
+            .columns(E.chat_id, E.pidor_id)
+            .insert(self.chat_id, self.user_id)
+            .returning(E.id)
         )
-        await queries.pidor.update_latest_time(
-            conn,
-            pidor_id=self.pidor.id,
-            event_id=event_id,
-        )
-        await queries.pidor.update_chat_pidor(
-            conn,
-            chat_id=self.chat.id,
-            pidor_id=self.pidor.id,
+
+        await conn.execute_many(
+            Query.update(P)
+            .set(P.latest_time, event_id)
+            .where(P.id == self.pidor.id),
+            Query.update(C)
+            .set(C.pidor_id, self.pidor.id)
+            .where(C.id == self.chat_id),
         )
 
         await conn.commit()
@@ -179,8 +226,19 @@ class Member(Struct, frozen=True):
     async def get_random_pidor(
         self, conn: BetterConnection
     ) -> "Member":
-        _ = await queries.pidor.get_random_pidor(
-            conn, chat_id=self.chat_id
+        _ = await conn.execute_one(
+            Query.from_(P)
+            .select(
+                P.id,
+                P.chat_id,
+                P.user_id,
+                P.is_allowed,
+                P.latest_time,
+            )
+            .where(P.chat_id == self.chat_id)
+            .where(P.is_allowed == 1)
+            .orderby("random()")
+            .limit(1)
         )
 
         if _ is None:
@@ -209,8 +267,10 @@ class Member(Struct, frozen=True):
     async def get_pidor_count(
         self, conn: BetterConnection
     ) -> int:
-        return await queries.pidor.get_pidor_members_count(
-            conn, chat_id=self.chat_id
+        return await conn.execute_scalar(
+            Query.from_(P)
+            .select(fn.Count("*"))
+            .where(P.chat_id == self.chat_id)
         )
 
     @dbmethod
@@ -220,15 +280,26 @@ class Member(Struct, frozen=True):
         *,
         conn: BetterConnection,
     ) -> PidorTop:
-        _ = [
-            i
-            async for i in queries.pidor.get_top(
-                conn,
-                chat_id=self.chat_id,
-                limit=limit,
+        _ = await conn.execute_all(
+            Query.from_(E)
+            .select(
+                fn.Count(E.id).as_("events_count"),
+                U.first_name,
+                U.last_name,
+                U.username,
             )
-        ]
-
+            .join(P)
+            .on(P.id == E.pidor_id)
+            .join(U)
+            .on(U.id == P.user_id)
+            .where(E.chat_id == self.chat_id)
+            .where(P.is_allowed == 1)
+            .groupby(U.id)
+            .orderby(
+                Field("events_count"), order=Order.desc
+            )
+            .limit(limit)
+        )
         return convert(_, PidorTop)
 
     @dbmethod
@@ -247,24 +318,30 @@ class Member(Struct, frozen=True):
 
         return datetime.now(MSK).date() >= next_pidor_day
 
-    async def get_members_count(self) -> int:
-        return -1
-
-    async def get_in_chats_count(self) -> int:
-        return -1
-        return await Member.filter(
-            user_id=self.user.id
-        ).count()
-
-    async def get_pidor_events_count(self) -> int:
-        return -1
-
-        pidor = await Pidor.get(
-            user_id=self.user_id, chat_id=self.chat_id
+    @dbmethod
+    async def get_pidor_count_here(
+        self, conn: BetterConnection
+    ) -> int:
+        return await conn.execute_scalar(
+            Query.from_(E)
+            .select(fn.Count("*"))
+            .join(P)
+            .on(E.pidor_id == P.id)
+            .where(E.chat_id == self.chat_id)
+            .where(P.user_id == self.user_id)
         )
-        return await PidorEvent.filter(  # noqa
-            pidor_id=pidor.id
-        ).count()
+
+    @dbmethod
+    async def get_pidor_count_anywhere(
+        self, conn: BetterConnection
+    ) -> int:
+        return await conn.execute_scalar(
+            Query.from_(E)
+            .select(fn.Count("*"))
+            .join(P)
+            .on(E.pidor_id == P.id)
+            .where(P.user_id == self.user_id)
+        )
 
     @dbmethod
     async def change_pidor_agreement(
@@ -277,6 +354,49 @@ class Member(Struct, frozen=True):
             .where(P.user_id == self.user_id)
         )
         await conn.commit()
+
+    ############  SPY  ############
+    async def get_members_count(self) -> int:
+        return 12345
+
+    @dbmethod
+    async def features_used(
+        self, conn: BetterConnection
+    ) -> int:
+        _ = await conn.execute_all(
+            Query.from_(CMD)
+            .select(CMD.name)
+            .distinct()
+            .where(CMD.user_id == self.user_id)
+        )
+
+        user_commands = list(chain.from_iterable(_))
+
+        COMMANDS = (
+            ("w", "v", "wru"),
+            (
+                "tru",
+                "ten",
+            ),
+        )
+
+        USER = sum(
+            any(
+                command in user_commands
+                for command in command_variants
+            )
+            for command_variants in COMMANDS
+        )
+
+        return int(USER / len(COMMANDS)) * 100
+
+    @dbmethod
+    async def has_chats(self, conn: BetterConnection):
+        return await conn.execute_scalar(
+            Query.from_(M)
+            .select(fn.Count("*"))
+            .where(M.user_id == self.user_id)
+        )
 
     ############ ADMIN ############
 

@@ -24,7 +24,6 @@ dependencies = [
   "rich>=15.0.0",
   "wikipya",
   "msgspec[toml]>=0.21.1",
-  "aiosql>=15.0",
   "aiosqlite>=0.22.1",
   "pypika>=0.51.1",
   "roman>=5.2",

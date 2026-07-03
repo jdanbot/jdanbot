@@ -25,7 +25,7 @@ async def main() -> None:
 
     MigratorService.activate_migrations()
     await setup_db()
-    return
+
     await dp.start_polling(bot, reset_webhook=True)
 
 

@@ -121,7 +121,7 @@ def migrate_members(conn: Connection):
 
     conn.execute(
         "INSERT INTO members "
-        "SELECT cm.id, cm.chat_id, cm.user_id, cm.pidor_id, cm.joined_at, 0, cm.is_admin FROM chat_members cm "
+        "SELECT cm.id, cm.chat_id, cm.user_id, cm.joined_at, 0, cm.is_admin FROM chat_members cm "
     )
     conn.execute(
         "UPDATE members SET is_captcha_passed = null"

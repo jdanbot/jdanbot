@@ -2,7 +2,6 @@ import sqlite3
 from functools import wraps
 from typing import Any, Callable, Iterable, TypeVar
 
-import aiosql
 import aiosqlite
 from msgspec import Struct
 from pypika.queries import QueryBuilder
@@ -21,8 +20,6 @@ class Base(
     frozen=True,
 ): ...
 
-
-queries = aiosql.from_path("queries/", "aiosqlite")
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -56,9 +53,15 @@ class BetterConnection(aiosqlite.Connection):
         self, sql: SQL
     ) -> aiosqlite.Cursor:
         if isinstance(sql, QueryBuilder):
-            sql = sql.get_sql()
+            sql = sql.get_sql().replace(
+                "EXCLUDED", "excluded"
+            )
 
         return await self.execute(sql)
+
+    async def execute_many(self, *sql: SQL):
+        for _ in sql:
+            await self.execute_raw(_)
 
     async def execute_all(
         self, sql: SQL
@@ -72,6 +75,16 @@ class BetterConnection(aiosqlite.Connection):
     ) -> aiosqlite.Row | None:
         _ = await self.execute_raw(sql)
         return await _.fetchone()
+
+    async def execute_first(
+        self, sql: SQL
+    ) -> aiosqlite.Row:
+        _ = await self.execute_one(sql)
+
+        if _ is None:
+            raise KeyError
+
+        return _
 
     async def execute_scalar(self, sql: SQL) -> Any:
         _ = await self.execute_raw(sql)

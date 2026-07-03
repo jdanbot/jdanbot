@@ -73,7 +73,6 @@ CREATE TABLE IF NOT EXISTS "members" (
     "id"                INTEGER   PRIMARY KEY NOT NULL,
     "chat_id"           INTEGER   NOT NULL,
     "user_id"           INTEGER   NOT NULL,
-    "pidor_id"          INTEGER,
     "joined_at"         TIMESTAMP DEFAULT (unixepoch()),
     "is_captcha_passed" BOOLEAN   DEFAULT 0,
     "is_admin"          INTEGER,
