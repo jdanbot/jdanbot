@@ -9,6 +9,7 @@ left join pidors p
 left join users u
        on u.id = p.user_id
     where e.chat_id = :chat_id
+      and p.is_allowed = 1
  group by u.id
  order by events_count desc
     limit :limit;

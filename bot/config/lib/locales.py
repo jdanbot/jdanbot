@@ -33,7 +33,12 @@ class Template(str):
 
 class Locale(Struct, frozen=True):
     lang: str
-    cases: list[str]
+
+    class Cases(Struct, frozen=True):
+        times: list[str]
+        members: list[str]
+
+    cases: Cases
 
     class Pidor(Struct, frozen=True):
         top_10: str
@@ -43,6 +48,7 @@ class Locale(Struct, frozen=True):
         reg: str
         in_db: str
         already_in_db: str
+        rejoin_in_game: str
         stats_unavailable: str
 
         pidor_left: str

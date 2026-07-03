@@ -2,7 +2,7 @@
 SELECT EXISTS(
     SELECT 1 
     FROM pidors
-    WHERE chat_id = :chat_id AND user_id = :user_id
+    WHERE chat_id = :chat_id AND user_id = :user_id AND is_allowed = 1
 );
 
 -- name: get_or_create(chat_id, user_id)^

@@ -4,7 +4,6 @@ from typing import Any
 
 from msgspec import Struct, convert, json
 from pypika import Field, Query, Table
-from pypika import functions as fn
 from pypika.functions import Function
 
 from bot.database.chat import ChatSettings
@@ -186,6 +185,33 @@ def migrate_commands(conn: Connection):
 
 def migrate_pidors(conn: Connection):
     P = MTable("pidors_old", conn)
+
+    ## FIX PIDOR DUPLICATES
+    dups = conn.execute(
+        "select member_id, count(*) from pidors_old group by member_id having count(*) > 1"
+    ).fetchall()
+
+    for dup in dups:
+        duplicates = conn.execute(
+            f"select id, member_id from pidors_old where member_id = {dup[0]}"
+        ).fetchall()
+
+        valid_pidor = duplicates[0]
+        duplicates = duplicates[1:]
+
+        for duplicate in duplicates:
+            PE = Table("pidor_events_old")
+            conn.execute(
+                Query.update(PE)
+                .set(PE.pidor_id, valid_pidor[0])
+                .where(PE.pidor_id == duplicate[0])
+                .get_sql()
+            )
+            conn.execute(
+                f"delete from pidors_old where id = {duplicate[0]}"
+            )
+    conn.commit()
+    ## END FIX PIDOR DUPLICATES!
 
     P.rename_column("is_pidor_allowed", "is_allowed")
     P.rename_column("latest_pidor_event", "latest_time")

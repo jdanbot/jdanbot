@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS "pidors" (
     "chat_id"     INTEGER NOT NULL,
     "user_id"     INTEGER NOT NULL,
     "is_allowed"  BOOLEAN NOT NULL DEFAULT 1,
-    "latest_time" INTEGER--,
-                  -- UNIQUE ("chat_id", "user_id")
+    "latest_time" INTEGER,
+                  UNIQUE ("chat_id", "user_id")
 );
 
 CREATE TABLE IF NOT EXISTS "pidor_events" (

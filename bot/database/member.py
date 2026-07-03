@@ -16,6 +16,9 @@ from .pidor import Pidor, PidorTop
 from .user import User
 
 MSK = ZoneInfo("Europe/Moscow")
+W = Table("warns")
+M = Table("members")
+P = Table("pidors")
 
 
 class PidorRepr(Struct, frozen=True):
@@ -146,7 +149,7 @@ class Member(Struct, frozen=True):
         await conn.commit()
 
         return (
-            convert(_, Pidor),
+            convert(_[:-1], Pidor),
             bool(_[-1]),
         )
 
@@ -261,9 +264,21 @@ class Member(Struct, frozen=True):
         pidor = await Pidor.get(
             user_id=self.user_id, chat_id=self.chat_id
         )
-        return await PidorEvent.filter(
+        return await PidorEvent.filter(  # noqa
             pidor_id=pidor.id
         ).count()
+
+    @dbmethod
+    async def change_pidor_agreement(
+        self, value: bool, *, conn: BetterConnection
+    ):
+        await conn.execute_raw(
+            Query.update(P)
+            .set(P.is_allowed, value)
+            .where(P.chat_id == self.chat_id)
+            .where(P.user_id == self.user_id)
+        )
+        await conn.commit()
 
     ############ ADMIN ############
 
@@ -281,15 +296,13 @@ class Member(Struct, frozen=True):
         reason: str,
         conn: BetterConnection,
     ) -> int:
-        w = Table("warns")
-
         await conn.execute_one(
-            Query.into(w)
+            Query.into(W)
             .columns(
-                w.chat_id,
-                w.victim_id,
-                w.warn_admin_id,
-                w.reason,
+                W.chat_id,
+                W.victim_id,
+                W.warn_admin_id,
+                W.reason,
             )
             .insert(
                 self.chat_id,
@@ -314,26 +327,24 @@ class Member(Struct, frozen=True):
         if _ == 0:
             raise IndexError
 
-        w = Table("warns")
-
         get_latest_warn = (
-            Query.from_(w)
-            .select(w.id)
+            Query.from_(W)
+            .select(W.id)
             .where(
-                (w.chat_id == self.chat_id)
-                & (w.victim_id == user.user_id)
-                & (w.unwarned_at.isnull())
+                (W.chat_id == self.chat_id)
+                & (W.victim_id == user.user_id)
+                & (W.unwarned_at.isnull())
             )
-            .orderby(w.warned_at, order=Order.desc)
+            .orderby(W.warned_at, order=Order.desc)
             .limit(1)
         )
 
         await conn.execute_one(
-            Query.update(w)
-            .set(w.unwarn_admin_id, self.user_id)
-            .set(w.unwarn_reason, reason)
-            .set(w.unwarned_at, fn.Now())
-            .where(w.id == get_latest_warn)
+            Query.update(W)
+            .set(W.unwarn_admin_id, self.user_id)
+            .set(W.unwarn_reason, reason)
+            .set(W.unwarned_at, fn.Now())
+            .where(W.id == get_latest_warn)
             .get_sql()
             .replace("NOW()", "unixepoch()")
         )
@@ -345,16 +356,14 @@ class Member(Struct, frozen=True):
     async def get_warn_count(
         self, conn: BetterConnection
     ) -> int:
-
-        w = Table("warns")
         _ = await conn.execute_scalar(
-            Query.from_(w)
-            .select(fn.Count(w.id))
+            Query.from_(W)
+            .select(fn.Count(W.id))
             .where(
-                (w.chat_id == self.chat_id)
-                & (w.victim_id == self.user_id)
-                & (w.unwarned_at.isnull())
-                & (w.warned_at > fn.Now())
+                (W.chat_id == self.chat_id)
+                & (W.victim_id == self.user_id)
+                & (W.unwarned_at.isnull())
+                & (W.warned_at > fn.Now())
             )
             .get_sql()
             .replace(

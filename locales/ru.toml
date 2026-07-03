@@ -1,14 +1,17 @@
 lang = "ru"
-cases = ["раз", "раза", "раз"]
+
+[cases]
+times = ["раз", "раза", "раз"]
+members = ["участник", "участника", "участников"]
 
 [pidor]
 top_10 = "Топ-10 *пидоров* за все время:"
-total_members = "Всего участников — *{count}*"
+total_members = "Всего *{count}*"
 
 reg = "Ты не в базе. Зарегайся через /pidorreg"
 in_db = "Попался в базу, ищи себя в `jdanbot.db`"
-status_fixed = "Пофиксил имя в бд"
-already_in_db = "Ты уже в `jdanbot.db`"
+rejoin_in_game = "Ты вернулся в `jdanbot.db`"
+already_in_db = "Ты и так уже в `jdanbot.db`"
 works_only_in_chats = "Пидор дня работает только в чятах!"
 pidor_left = "Я нашел пидора дня, но похоже, что он вышел из этого чата (вот пидор!), так что попробуйте еще раз"
 
