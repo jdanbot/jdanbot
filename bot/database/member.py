@@ -76,8 +76,7 @@ class Member(Struct, frozen=True):
         chat: Chat = await Chat.get_by(message, conn=conn)
         user: User = await User.get_by(message, conn=conn)
 
-        await Member.safe_create(chat, user)
-
+        await Member.safe_create(chat, user, conn=conn)
         return convert(
             dict(
                 user_id=user.id,
@@ -97,7 +96,16 @@ class Member(Struct, frozen=True):
     async def safe_create(
         chat: Chat, user: User, *, conn: BetterConnection
     ):
-        pass
+        from pypika import PostgreSQLQuery as Query
+
+        await conn.execute_raw(
+            Query.into(M)  # type: ignore[operator]
+            .columns(M.chat_id, M.user_id)
+            .insert(chat.id, user.id)
+            .on_conflict(M.chat_id, M.user_id)
+            .do_nothing()
+        )
+        await conn.commit()
 
     @classmethod
     async def get(

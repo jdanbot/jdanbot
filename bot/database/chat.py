@@ -101,6 +101,19 @@ class Chat(Base, frozen=True):
 
         return Chat.__parse(chat)
 
+    @staticmethod
+    @dbmethod
+    async def get_settings(
+        id: int, conn: BetterConnection
+    ) -> ChatSettings:
+        _ = await conn.execute_scalar(
+            Query.from_(C)
+            .select(C.settings)
+            .where(C.id == id)
+        )
+
+        return json.decode(_, type=ChatSettings)
+
     @dbmethod
     async def set_setting_raw(
         self,
