@@ -37,9 +37,6 @@ dev = [
   "pytest>=9.0.3",
 ]
 
-[tool.pyright]
-reportUnusedCallResult = false
-
 [tool.pytest]
 addopts = ["-p no:warnings"]
 norecursedirs = [".svn", "_build", "tmp*"]
