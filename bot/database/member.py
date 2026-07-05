@@ -1,18 +1,25 @@
+from datetime import datetime, timedelta
+from itertools import chain
 from typing import Any, override
+from zoneinfo import ZoneInfo
 
 from aiogram import types
 from aiogram.utils.markdown import hlink, link
 from msgspec import Struct, convert
-from pypika import Order, Query, Table
+from pypika import Field, Order, Query
 from pypika import functions as fn
-from whenever import Instant, Time
 
 from ..config.bot import bot
+from ..config.config import settings
 from ..lib.admin import check_admin
-from ._base import BetterConnection, dbmethod, queries
+from ._base import BetterConnection, dbmethod
+from ._extras import IsInserted
+from ._tables import CMD, C, E, M, P, U, W
 from .chat import Chat
 from .pidor import Pidor, PidorTop
 from .user import User
+
+MSK = ZoneInfo("Europe/Moscow")
 
 
 class PidorRepr(Struct, frozen=True):
@@ -32,22 +39,6 @@ class Member(Struct, frozen=True):
     # user: types.User = Field(repr=False, default=None)
     chat: Chat
     pidor: Pidor | None = None
-
-    def __rich_repr__(self):
-        for field in self.__struct_fields__:
-            if field == "pidor":
-                pidor = getattr(self, field)
-                yield (
-                    "pidor",
-                    PidorRepr(
-                        id=pidor.id,
-                        latest_time=pidor.latest_time,
-                    )
-                    if pidor is not None
-                    else None,
-                )
-            elif field not in ["chat", "user"]:
-                yield field, getattr(self, field)
 
     @override
     def __str__(self):
@@ -77,6 +68,7 @@ class Member(Struct, frozen=True):
         )
 
     @dbmethod
+    @staticmethod
     async def get_by(
         message: types.Message,
         conn: BetterConnection,
@@ -84,6 +76,7 @@ class Member(Struct, frozen=True):
         chat: Chat = await Chat.get_by(message, conn=conn)
         user: User = await User.get_by(message, conn=conn)
 
+        await Member.safe_create(chat, user, conn=conn)
         return convert(
             dict(
                 user_id=user.id,
@@ -98,13 +91,30 @@ class Member(Struct, frozen=True):
             Member,
         )
 
+    @dbmethod
+    @staticmethod
+    async def safe_create(
+        chat: Chat, user: User, *, conn: BetterConnection
+    ):
+        from pypika import PostgreSQLQuery as Query
+
+        await conn.execute_raw(
+            Query.into(M)  # type: ignore[operator]
+            .columns(M.chat_id, M.user_id)
+            .insert(chat.id, user.id)
+            .on_conflict(M.chat_id, M.user_id)
+            .do_nothing()
+        )
+        await conn.commit()
+
     @classmethod
     async def get(
         cls,
         user_id: int,
         chat_id: int,
         pidor: Pidor | None = None,
-        conn: BetterConnection = None,
+        *,
+        conn: BetterConnection,
     ) -> "Member":
         chat: Chat = await Chat.get(id=chat_id, conn=conn)
         user: User = await User.get(id=user_id, conn=conn)
@@ -123,6 +133,27 @@ class Member(Struct, frozen=True):
             Member,
         )
 
+    @staticmethod
+    def status_to_emoji(status: str) -> str:
+        match status:
+            case "creator":
+                return "🤴"
+            case "administrator":
+                return "👮‍♂️"
+            case "member":
+                return "🥸"
+            case _:
+                return "🌚"
+
+    async def get_status_emoji(self) -> str:
+        status = await self.get_status()
+
+        return self.status_to_emoji(
+            status
+            if self.user_id not in settings.bot_owners
+            else "owner"
+        )
+
     ############ NOTES ############
 
     @classmethod
@@ -137,25 +168,40 @@ class Member(Struct, frozen=True):
     async def is_pidor(
         self, conn: BetterConnection
     ) -> bool:
-        return await queries.pidor.check_is_pidor(
-            conn,
-            chat_id=self.chat_id,
-            user_id=self.user_id,
+        return await conn.execute_scalar(
+            Query.from_(P)
+            .select(1)
+            .where(P.chat_id == self.chat_id)
+            .where(P.user_id == self.user_id)
+            .where(P.is_allowed)
         )
 
     @dbmethod
     async def get_pidor(
         self, conn: BetterConnection
     ) -> tuple[Pidor, bool]:
-        _ = await queries.pidor.get_or_create(
-            conn,
-            chat_id=self.chat_id,
-            user_id=self.user_id,
+        from pypika import PostgreSQLQuery as Query
+
+        _ = await conn.execute_one(
+            Query.into(P)  # type: ignore[operator]
+            .columns(P.chat_id, P.user_id)
+            .insert(self.chat_id, self.user_id)
+            .on_conflict(P.chat_id, P.user_id)
+            .do_update(P.chat_id, self.chat_id)
+            .returning(
+                P.id,
+                P.chat_id,
+                P.user_id,
+                P.is_allowed,
+                P.latest_time,
+                IsInserted(),
+            )
         )
+
         await conn.commit()
 
         return (
-            convert(_, Pidor),
+            convert(_[:-1], Pidor),
             bool(_[-1]),
         )
 
@@ -164,21 +210,22 @@ class Member(Struct, frozen=True):
         self, conn: BetterConnection
     ):
         assert self.pidor is not None, "???"
+        from pypika import PostgreSQLQuery as Query
 
-        event_id = await queries.pidor.new_pidor_event(
-            conn,
-            pidor_id=self.pidor.id,
-            chat_id=self.chat.id,
+        event_id = await conn.execute_scalar(
+            Query.into(E)  # type: ignore[operator]
+            .columns(E.chat_id, E.pidor_id)
+            .insert(self.chat_id, self.user_id)
+            .returning(E.id)
         )
-        await queries.pidor.update_latest_time(
-            conn,
-            pidor_id=self.pidor.id,
-            event_id=event_id,
-        )
-        await queries.pidor.update_chat_pidor(
-            conn,
-            chat_id=self.chat.id,
-            pidor_id=self.pidor.id,
+
+        await conn.execute_many(
+            Query.update(P)
+            .set(P.latest_time, event_id)
+            .where(P.id == self.pidor.id),
+            Query.update(C)
+            .set(C.pidor_id, self.pidor.id)
+            .where(C.id == self.chat_id),
         )
 
         await conn.commit()
@@ -187,24 +234,28 @@ class Member(Struct, frozen=True):
     async def get_random_pidor(
         self, conn: BetterConnection
     ) -> "Member":
-        _ = await queries.pidor.get_random_pidor(
-            conn, chat_id=self.chat_id
+        _ = await conn.execute_one(
+            Query.from_(P)
+            .select(
+                P.id,
+                P.chat_id,
+                P.user_id,
+                P.is_allowed,
+                P.latest_time,
+            )
+            .where(P.chat_id == self.chat_id)
+            .where(P.is_allowed == 1)
+            .orderby("random()")
+            .limit(1)
         )
 
         if _ is None:
             raise KeyError
-        print(_)
 
-        pidor = convert(
-            (
-                *_[:-2],
-                bool(_[-2]),
-                _[-1],
-            ),
-            Pidor,
-        )
+        pidor = convert(_, Pidor)
 
         return await Member.get(
+            conn=conn,
             user_id=pidor.user_id,
             chat_id=pidor.chat_id,
             pidor=pidor,
@@ -224,74 +275,136 @@ class Member(Struct, frozen=True):
     async def get_pidor_count(
         self, conn: BetterConnection
     ) -> int:
-        return await queries.pidor.get_pidor_members_count(
-            conn, chat_id=self.chat_id
+        return await conn.execute_scalar(
+            Query.from_(P)
+            .select(fn.Count("*"))
+            .where(P.chat_id == self.chat_id)
         )
 
     @dbmethod
     async def get_top_pidors(
         self,
         limit: int = 10,
-        conn: BetterConnection = None,
+        *,
+        conn: BetterConnection,
     ) -> PidorTop:
-        _ = [
-            i
-            async for i in queries.pidor.get_top(
-                conn,
-                chat_id=self.chat_id,
-                limit=limit,
+        _ = await conn.execute_all(
+            Query.from_(E)
+            .select(
+                fn.Count(E.id).as_("events_count"),
+                U.first_name,
+                U.last_name,
+                U.username,
             )
-        ]
-
+            .join(P)
+            .on(P.id == E.pidor_id)
+            .join(U)
+            .on(U.id == P.user_id)
+            .where(E.chat_id == self.chat_id)
+            .where(P.is_allowed == 1)
+            .groupby(U.id)
+            .orderby(
+                Field("events_count"), order=Order.desc
+            )
+            .limit(limit)
+        )
         return convert(_, PidorTop)
 
-    async def check_run_pidor(self) -> bool:
+    @dbmethod
+    async def check_pidor_is_runnable(
+        self, conn: BetterConnection
+    ) -> bool:
         if self.chat.current_pidor_id is None:
             return True
-        print(self.chat.current_pidor_id)
-        print("!!!!")
 
         pidor: Pidor = await Pidor.get(
-            id=self.chat.current_pidor_id
+            id=self.chat.current_pidor_id, conn=conn
         )
 
-        timezone: str = "Europe/Moscow"
-        date = await pidor.get_latest_datetime(timezone)
+        date = await pidor.get_latest_datetime(conn=conn)
+        next_pidor_day = date + timedelta(days=1)
 
-        if date is None:
-            return True
+        return datetime.now(MSK).date() >= next_pidor_day
 
-        next_pidor_day = date.to_tz(timezone).replace_time(
-            Time(
-                hour=0,
-                minute=0,
-                second=0,
-                nanosecond=0,
-            )
+    @dbmethod
+    async def get_pidor_count_here(
+        self, conn: BetterConnection
+    ) -> int:
+        return await conn.execute_scalar(
+            Query.from_(E)
+            .select(fn.Count("*"))
+            .join(P)
+            .on(E.pidor_id == P.id)
+            .where(E.chat_id == self.chat_id)
+            .where(P.user_id == self.user_id)
         )
 
-        return (
-            Instant.now().to_tz(timezone) >= next_pidor_day
+    @dbmethod
+    async def get_pidor_count_anywhere(
+        self, conn: BetterConnection
+    ) -> int:
+        return await conn.execute_scalar(
+            Query.from_(E)
+            .select(fn.Count("*"))
+            .join(P)
+            .on(E.pidor_id == P.id)
+            .where(P.user_id == self.user_id)
         )
 
+    @dbmethod
+    async def change_pidor_agreement(
+        self, value: bool, *, conn: BetterConnection
+    ):
+        await conn.execute_raw(
+            Query.update(P)
+            .set(P.is_allowed, value)
+            .where(P.chat_id == self.chat_id)
+            .where(P.user_id == self.user_id)
+        )
+        await conn.commit()
+
+    ############  SPY  ############
     async def get_members_count(self) -> int:
-        return -1
+        return 12345
 
-    async def get_in_chats_count(self) -> int:
-        return -1
-        return await Member.filter(
-            user_id=self.user.id
-        ).count()
-
-    async def get_pidor_events_count(self) -> int:
-        return -1
-
-        pidor = await Pidor.get(
-            user_id=self.user_id, chat_id=self.chat_id
+    @dbmethod
+    async def features_used(
+        self, conn: BetterConnection
+    ) -> int:
+        _ = await conn.execute_all(
+            Query.from_(CMD)
+            .select(CMD.name)
+            .distinct()
+            .where(CMD.user_id == self.user_id)
         )
-        return await PidorEvent.filter(  # noqa
-            pidor_id=pidor.id
-        ).count()
+
+        user_commands = list(chain.from_iterable(_))
+
+        COMMANDS = (
+            ("w", "v", "wru"),
+            (
+                "tru",
+                "ten",
+            ),
+        )
+
+        USER = sum(
+            any(
+                command in user_commands
+                for command in command_variants
+            )
+            for command_variants in COMMANDS
+        )
+
+        return int(USER / len(COMMANDS)) * 100
+
+    @dbmethod
+    async def has_chats(self, conn: BetterConnection):
+        return await conn.execute_scalar(
+            Query.from_(M)
+            .select(fn.Count("*"))
+            .where(M.user_id == self.user_id)
+        )
 
     ############ ADMIN ############
 
@@ -309,15 +422,13 @@ class Member(Struct, frozen=True):
         reason: str,
         conn: BetterConnection,
     ) -> int:
-        w = Table("warns")
-
         await conn.execute_one(
-            Query.into(w)
+            Query.into(W)
             .columns(
-                w.chat_id,
-                w.victim_id,
-                w.warn_admin_id,
-                w.reason,
+                W.chat_id,
+                W.victim_id,
+                W.warn_admin_id,
+                W.reason,
             )
             .insert(
                 self.chat_id,
@@ -326,7 +437,6 @@ class Member(Struct, frozen=True):
                 reason,
             )
         )
-        await conn.execute_one(Query.into(w).insert())
         await conn.commit()
 
         return await user.get_warn_count(conn=conn)
@@ -338,33 +448,31 @@ class Member(Struct, frozen=True):
         reason: str,
         conn: BetterConnection,
     ) -> int:
-        _ = await user.get_warn_count()
+        _ = await user.get_warn_count(conn=conn)
 
         if _ == 0:
             raise IndexError
 
-        w = Table("warns")
-
         get_latest_warn = (
-            Query.from_(w)
-            .select(w.id)
+            Query.from_(W)
+            .select(W.id)
             .where(
-                (w.chat_id == self.chat_id)
-                & (w.victim_id == user.user_id)
-                & (w.unwarned_at.isnull())
+                (W.chat_id == self.chat_id)
+                & (W.victim_id == user.user_id)
+                & (W.unwarned_at.isnull())
             )
-            .orderby(w.warned_at, order=Order.desc)
+            .orderby(W.warned_at, order=Order.desc)
             .limit(1)
         )
 
         await conn.execute_one(
-            Query.update(w)
-            .set(w.unwarn_admin_id, self.user_id)
-            .set(w.unwarn_reason, reason)
-            .set(w.unwarned_at, fn.Now())
-            .where(w.id == get_latest_warn)
+            Query.update(W)
+            .set(W.unwarn_admin_id, self.user_id)
+            .set(W.unwarn_reason, reason)
+            .set(W.unwarned_at, fn.Now())
+            .where(W.id == get_latest_warn)
             .get_sql()
-            .replace("NOW()", "CURRENT_TIMESTAMP")
+            .replace("NOW()", "unixepoch()")
         )
         await conn.commit()
 
@@ -374,15 +482,14 @@ class Member(Struct, frozen=True):
     async def get_warn_count(
         self, conn: BetterConnection
     ) -> int:
-        w = Table("warns")
         _ = await conn.execute_scalar(
-            Query.from_(w)
-            .select(fn.Count(w.id))
+            Query.from_(W)
+            .select(fn.Count(W.id))
             .where(
-                (w.chat_id == self.chat_id)
-                & (w.victim_id == self.user_id)
-                & (w.unwarned_at.isnull())
-                & (w.warned_at > fn.Now())
+                (W.chat_id == self.chat_id)
+                & (W.victim_id == self.user_id)
+                & (W.unwarned_at.isnull())
+                & (W.warned_at > fn.Now())
             )
             .get_sql()
             .replace(

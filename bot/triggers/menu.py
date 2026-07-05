@@ -1,78 +1,55 @@
+import msgspec
 from aiogram import F, types
 from aiogram.filters import Command
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from ..config import Locale, router
 
-buttons = [
-    "main",
-    "network",
-    "wiki",
-    "settings",
-    "admin",
-    "system",
-    "notes",
-    "pidor",
-]
-
-
-def update_menu_buttons(_: Locale) -> list:
-    return [getattr(_.btn, btn)() for btn in buttons]
+MENU_BUTTONS = list(Locale.Menu.MenuButtons.__annotations__)
 
 
 def generate_keyboard_grid(
-    buttons: list[str], _: Locale, selected_button: str
-) -> types.InlineKeyboardMarkup:
-    """Makes 2x2 keyboard grid
+    selected_button: str, _: Locale
+) -> types.InlineKeyboardMarkup | types.ReplyKeyboardMarkup:
+    """Makes 2x2 keyboard grid"""
 
-    Buttons list must be divisible by 2
-    """
+    buttons = msgspec.to_builtins(_.menu.buttons)
+    keyboard = InlineKeyboardBuilder()
 
-    btn_dict = update_menu_buttons(_)
-    buttons = []
+    for button, label in buttons.items():
+        is_selected = button == selected_button
 
-    btns = [
-        types.InlineKeyboardButton(
-            text=(
-                btn_dict[button]
-                if button != selected_button
-                else "✅ "
-                + btn_dict[button].split(maxsplit=1)[1]
-            ),
+        keyboard.button(
+            text=f"✅ {label.split(maxsplit=1)[1]}"
+            if is_selected
+            else label,
             callback_data=button,
+            style="success" if is_selected else None,
         )
-        for button in buttons
-    ]
 
-    for ind, __ in enumerate(btns):
-        a = btns[ind : ind + 2]
-        btns.remove(a[1])
-        buttons.append(a)
-
-    return types.InlineKeyboardMarkup(keyboard=buttons)
+    return keyboard.adjust(2, repeat=True).as_markup()
 
 
 @router.message(Command("start", "help"))
 async def menu(message: types.Message, _: Locale):
     await message.reply(
-        _("menu.main"),
+        _.menu.main,
         parse_mode="Markdown",
-        reply_markup=generate_keyboard_grid(
-            buttons, _, "main"
-        ),
+        reply_markup=generate_keyboard_grid("main", _),
         disable_web_page_preview=True,
     )
 
 
-@router.callback_query(F.data.in_(buttons))
+@router.callback_query(F.data.in_(MENU_BUTTONS))
 async def callback_worker(
     call: types.CallbackQuery, _: Locale
 ):
+    assert call.data
+
     await call.message.edit_text(
-        _(f"menu.{call.data}"),
+        getattr(_.menu, call.data),
         parse_mode="Markdown",
-        reply_markup=generate_keyboard_grid(
-            buttons, _, call.data
-        ),
+        reply_markup=generate_keyboard_grid(call.data, _),
         disable_web_page_preview=True,
     )
     await call.answer()

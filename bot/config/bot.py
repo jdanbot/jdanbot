@@ -12,7 +12,9 @@ bot_params = dict(
 )
 
 
-if is_test_session:
+if not is_test_session:
+    bot = Bot(**bot_params)
+else:
 
     class FakeUser:
         status: str = "fake"
@@ -31,8 +33,6 @@ if is_test_session:
     def BotMock(*args, **kwargs): ...
 
     bot = BotMock
-else:
-    bot = Bot(**bot_params)
 
 dp: Dispatcher = Dispatcher()
 router: Router = Router()

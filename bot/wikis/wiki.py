@@ -150,7 +150,7 @@ async def neolurk(message: types.Message) -> Wikipya:
     return Wikipya(base_url="https://neolurk.org/w/api.php")
 
 
-async def check_mediawiki_api_url(url: str) -> bool:
+async def check_mediawiki_api(url: str) -> bool:
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as r:
             return r.status == 200
@@ -163,24 +163,21 @@ async def custom_mediawiki(
     message: types.Message, command: CommandObject
 ) -> tuple[Wikipya, str]:
     assert command.args
-    host = URL(command.args).host
+    url = URL(command.args.replace("_", " "))
 
-    url_variants = [
-        f"https://{host}/api.php",
-        f"https://{host}/w/api.php",
+    endpoints = [
+        f"https://{url.host}/api.php",
+        f"https://{url.host}/w/api.php",
     ]
 
-    for url in url_variants:
-        if await check_mediawiki_api_url(base_url := url):
+    for endpoint in endpoints:
+        if await check_mediawiki_api(endpoint):
             break
 
         await message.reply("Can't find valid API url")
         raise JdanbotError
 
-    url = URL(command.args)
-    query = url.path.split("/")[-1].replace("_", " ")
-
-    return Wikipya(base_url=base_url), query
+    return Wikipya(base_url=endpoint), url.parts[-1]
 
 
 @router.message(
@@ -197,6 +194,8 @@ async def wikihandler(
             message.text or ""
         )
         cmd, args = command.command, command.args
+
+    assert args
     lang = cmd.removeprefix("wiki").removeprefix("w")
 
     for lang_ in WIKIPEDIA_SHORTCUTS:
