@@ -4,14 +4,15 @@ from pathlib import Path
 from rich.console import Console
 from rich.traceback import Traceback
 
-from .config import is_test_session
-
 console = Console()
 
 
-__import__("bot.config.logger")
-__import__("bot.filters")
-root, folders, files = walk("bot", topdown=True).__next__()
+IGNORED_MODULES = {
+    "__pycache__",
+    "config",
+    "database",
+    "lib",
+}
 
 
 def force_import(*args):
@@ -21,7 +22,7 @@ def force_import(*args):
             continue
 
         try:
-            __import__(module.replace("\\", "."))
+            __import__(module)
 
         except Exception:
             console.print(Traceback())
@@ -29,51 +30,52 @@ def force_import(*args):
 
 def prepare_paths(
     modules,
-    is_folders=False,
     folder_name=None,
     prefix=Path("bot"),
 ):
-    if is_folders:
-        allowed_folders = filter(
-            lambda x: x not in ("__pycache__", "config"),
-            modules,
-        )
+    allowed_modules = filter(
+        lambda file: (
+            not file.startswith("_")
+            and file.endswith(".py")
+            and file[:-3] not in ("ban", "ocr")
+        ),
+        modules,
+    )
 
-        return tuple(
-            map(
-                lambda folder: prepare_paths(
-                    listdir(prefix / folder),
-                    folder_name=folder,
-                ),
-                allowed_folders,
-            )
+    return tuple(
+        map(
+            lambda x: str(
+                prefix / folder_name / x[:-3]
+                if folder_name
+                else prefix / x[:-3]
+            ).replace("/", "."),
+            allowed_modules,
         )
+    )
 
-    else:
-        allowed_modules = filter(
-            lambda file: (
-                not file.startswith("__")
-                and file.endswith(".py")
-                and file[:-3] not in ("ban", "ocr")
+
+def prepare_paths_folders(
+    modules,
+    folder_name=None,
+    prefix=Path("bot"),
+):
+    allowed_folders = set(modules) - IGNORED_MODULES
+
+    return tuple(
+        map(
+            lambda folder: prepare_paths(
+                listdir(prefix / folder),
+                folder_name=folder,
             ),
-            modules,
+            allowed_folders,
         )
-
-        return tuple(
-            map(
-                lambda x: str(
-                    prefix / folder_name / x[:-3]
-                    if folder_name
-                    else prefix / x[:-3]
-                ).replace("/", "."),
-                allowed_modules,
-            )
-        )
+    )
 
 
-if not is_test_session:
-    force_import(*prepare_paths(files))
-    force_import(*prepare_paths(folders, is_folders=True))
+__import__("bot.config.logger")
+__import__("bot.filters")
+root, folders, files = walk("bot", topdown=True).__next__()
 
-    force_import("bot.triggers.ban")
-    force_import("bot.chat_misc.ocr")
+force_import(*prepare_paths_folders(folders))
+force_import("bot.triggers.ban")
+force_import("bot.chat_misc.ocr")

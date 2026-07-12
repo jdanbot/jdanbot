@@ -24,7 +24,7 @@ async def me_info(
             chats=await member.has_chats(),
             pidor_local=await member.get_pidor_count_here(),
             pidor_all=await member.get_pidor_count_anywhere(),
-            usage="None" or await member.features_used(),
+            usage=await member.features_used(),
         ),
         parse_mode="Markdown",
     )

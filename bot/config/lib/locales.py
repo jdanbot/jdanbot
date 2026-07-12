@@ -3,7 +3,7 @@ from typing import Any
 
 from msgspec import Struct, toml
 
-from ...lib.text import prettyword
+from bot.lib.text import prettyword
 
 
 class Template(str):

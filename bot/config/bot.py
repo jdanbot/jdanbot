@@ -1,6 +1,7 @@
 from aiogram import Bot, Dispatcher, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from msgspec import Struct
 
 from .config import is_test_session, settings
 
@@ -22,7 +23,8 @@ else:
         def is_chat_admin(self) -> bool:
             return True
 
-    class FakeBot(Bot):
+    class FakeBot:
+        def __init__(self, *args, **kwargs): ...
         async def get_chat_member(
             self, *args, **kwargs
         ) -> FakeUser:
@@ -36,3 +38,24 @@ else:
 
 dp: Dispatcher = Dispatcher()
 router: Router = Router()
+
+
+class Commands(Struct):
+    __commands: set[tuple[str]] = set()
+
+    def parse_commands_from_router(self, router: Router):
+        handlers = router.message.handlers
+        for handler in handlers:
+            commands = handler.flags.get("commands", list())
+
+            for command_raw in commands:
+                self.__commands.add(
+                    tuple(command_raw.commands)
+                )
+
+    @property
+    def listed(self) -> set[tuple[str]]:
+        return self.__commands
+
+
+COMMANDS = Commands()

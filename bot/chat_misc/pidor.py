@@ -8,6 +8,7 @@ from aiogram.utils.markdown import bold, italic
 from bot.database.member import Member
 from bot.database.pidor import Pidor
 
+from ..config import is_test_session
 from ..config.bot import router
 from ..config.lib.locales import Locale
 from ..database._base import BetterConnection, dbmethod
@@ -32,11 +33,11 @@ async def init_pidor(
         return False
 
     # Should we start finding of a pidor?
-    if await member.check_pidor_is_runnable():
+    if await member.check_pidor_is_runnable(conn=conn):
         return True
     else:
         pidor = await Pidor.get(
-            id=member.chat.current_pidor_id
+            id=member.chat.current_pidor_id, conn=conn
         )
 
         mem = await Member.get(
@@ -56,9 +57,8 @@ async def init_pidor(
 @router.message(Command("pidor"))
 async def find_pidor(
     message: types.Message,
-    _: Locale,
     member: Member,
-    ignore_pidor_wait: bool = False,
+    _: Locale,
 ):
     if not await init_pidor(message, member, _=_):
         return
@@ -77,7 +77,7 @@ async def find_pidor(
     for phrase in choice(_.pidor.pidor_searching):
         if phrase != "\n":
             await message.answer(italic(phrase))
-        if not ignore_pidor_wait:
+        if not is_test_session:
             await asyncio.sleep(2.5)
 
     await message.answer(
