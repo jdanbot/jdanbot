@@ -33,8 +33,13 @@ class MessageMock:
     # get_args = types.Message.get_args
 
     @append_to_replies
-    async def reply(self, text: Any, **kwargs) -> "MessageMock":
-        return MessageMock(text.strip() if isinstance(text, str) else text, **kwargs)
+    async def reply(
+        self, text: Any, **kwargs
+    ) -> "MessageMock":
+        return MessageMock(
+            text.strip() if isinstance(text, str) else text,
+            **kwargs,
+        )
 
     @property
     def replies_text(self) -> tuple[str]:
@@ -44,7 +49,9 @@ class MessageMock:
     reply_photo = reply
     edit_text = reply
 
-    async def answer_chat_action(self, *args, **kwargs) -> None:
+    async def answer_chat_action(
+        self, *args, **kwargs
+    ) -> None:
         pass
 
     def is_forward(self) -> bool:
@@ -52,4 +59,11 @@ class MessageMock:
 
     @property
     def answer_text(self) -> str:
-        return self.replies[0].text
+        print(self.reply_to_message)
+        if self.reply_to_message:
+            return self.reply_to_message.replies[-1].text
+
+        return self.replies[-1].text
+
+    async def delete(self):
+        pass

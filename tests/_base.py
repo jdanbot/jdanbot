@@ -24,8 +24,14 @@ class AbcTests(IsolatedAsyncioTestCase):
         Path("test.db").unlink()
 
     async def assertMock(self, x: str, y: str):
-        self.assertEqualStrip(
-            await mock(self.get_handler_by_command(x), x), y
+        self.assertEqualStrip(await self.run_command(x), y)
+
+    async def assertInMock(self, y: str, x: str):
+        self.assertIn(y, await self.run_command(x))
+
+    async def run_command(self, x, **args):
+        return await mock(
+            self.get_handler_by_command(x), x, **args
         )
 
     def assertEqualStrip(self, x: str, y: str):

@@ -8,6 +8,14 @@ from ._base import AbcTests
 _ = locales.ru
 
 
+YOUTU_BE_LINK = "https://youtu.be/dQw4w9WgXcQ"
+ANSWER1 = "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg"
+YOUTUBE_COM_LINK = (
+    "https://www.youtube.com/watch?v=r40AvHs3uJE"
+)
+ANSWER2 = "https://img.youtube.com/vi/r40AvHs3uJE/maxresdefault.jpg"
+
+
 class Tests(AbcTests):
     async def test_mocks(self):
         await self.assertMock("/bylo", "Было")
@@ -17,8 +25,10 @@ class Tests(AbcTests):
             ("/pidor", _.pidor.reg),
             ("/pidorreg", _.pidor.in_db),
             ("/pidorreg", _.pidor.already_in_db),
-            # ("/pidor", "@test"),
         )
+
+        await self.assertInMock("@johndoe", "/pidor")
+        await self.assertInMock("**johndoe**", "/pidor")
 
     async def test_notes_simple(self):
         NOTE = "abc"
@@ -28,7 +38,7 @@ class Tests(AbcTests):
             (f"/remove {NOTE}", _.notes.not_found),
             (f"/set {NOTE} 42", _.notes.add_note),
             (f"/get {NOTE}", "42"),
-            ("/show", "abc"),
+            ("/show", NOTE),
             (f"/remove {NOTE}", _.notes.successful_deleted),
             ("/show", _.notes.no_notes),
             (f"/get {NOTE}", _.notes.create_var(name=NOTE)),
@@ -36,7 +46,6 @@ class Tests(AbcTests):
 
     async def test_misc(self):
         await self.assertBulkMock(
-            # ("/mute 5 test", ""),
             (
                 "/art test",
                 code(text2art("test", chr_ignore=True)),
@@ -44,4 +53,9 @@ class Tests(AbcTests):
             ("/calc 5+5", "`10`"),
             # ("/eval 2*2+2", "`6`"),
             ("/tru test", "тест"),
+            (f"/preview {YOUTU_BE_LINK}", ANSWER1),
+            (f"/preview {YOUTUBE_COM_LINK}", ANSWER2),
         )
+
+    async def test_admin_functions(self):
+        await self.assertInMock("John Doe", "/warn test")
