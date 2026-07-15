@@ -5,16 +5,13 @@ from msgspec import Struct
 
 from .config import is_test_session, settings
 
-bot_params = dict(
-    token=settings.token,
-    default=DefaultBotProperties(
-        parse_mode=ParseMode.MARKDOWN_V2
-    ),
-)
-
-
 if not is_test_session:
-    bot = Bot(**bot_params)
+    bot: Bot = Bot(
+        token=settings.token,
+        default=DefaultBotProperties(
+            parse_mode=ParseMode.MARKDOWN_V2
+        ),
+    )
 else:
 
     class FakeUser:
@@ -30,11 +27,15 @@ else:
         ) -> FakeUser:
             return FakeUser()
 
-    # bot = FakeBot(**bot_params)
+        async def send_chat_action(
+            self, *args, **kwargs
+        ): ...
 
-    def BotMock(*args, **kwargs): ...
+    bot: Bot = FakeBot()  # type: ignore[assignment]
 
-    bot = BotMock
+    # def BotMock(*args, **kwargs): ...
+
+    # bot = BotMock
 
 dp: Dispatcher = Dispatcher()
 router: Router = Router()
