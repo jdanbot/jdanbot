@@ -59,7 +59,6 @@ class MessageMock:
 
     @property
     def answer_text(self) -> str:
-        print(self.reply_to_message)
         if self.reply_to_message:
             return self.reply_to_message.replies[-1].text
 

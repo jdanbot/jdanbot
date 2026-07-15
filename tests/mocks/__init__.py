@@ -45,7 +45,6 @@ async def mock(
     )
 
     anns = func.__annotations__
-    print(anns)
     kw = {}
 
     if "_" in anns:
