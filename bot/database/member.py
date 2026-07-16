@@ -485,7 +485,7 @@ class Member(Struct, frozen=True):
             .get_sql()
             .replace(
                 "NOW()",
-                "datetime(unixepoch(), '-24 hours')",
+                "strftime('%s', datetime('now', '-24 hours'))",
             )
         )
         return _

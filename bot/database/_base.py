@@ -24,6 +24,7 @@ def date_adapter(object_date: bytes) -> date:
 
 
 sqlite3.register_converter("date", date_adapter)
+# sqlite3.register_converter("timestamp", timestamp_adapter)
 
 
 class Base(

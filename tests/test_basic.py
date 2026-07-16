@@ -38,8 +38,12 @@ class Tests(AbcTests):
             (f"/remove {NOTE}", _.notes.not_found),
             (f"/set {NOTE} 42", _.notes.add_note),
             (f"/get {NOTE}", "42"),
-            ("/show", NOTE),
+            (f"/set {NOTE} 52", _.notes.edit_note),
+            (f"/set else {NOTE}", _.notes.add_note),
+            ("/show", f"{NOTE}, else"),
             (f"/remove {NOTE}", _.notes.successful_deleted),
+            ("/remove else", _.notes.successful_deleted),
+            ("/remove else", _.notes.not_found),
             ("/show", _.notes.no_notes),
             (f"/get {NOTE}", _.notes.create_var(name=NOTE)),
         )
@@ -58,4 +62,7 @@ class Tests(AbcTests):
         )
 
     async def test_admin_functions(self):
-        await self.assertInMock("John Doe", "/warn test")
+        await self.assertInMock("1\\-й", "/warn test")
+        await self.assertInMock("2\\-й", "/warn test")
+        await self.assertInMock("выдал мут", "/warn test")
+        await self.assertInMock("выдал мут", "/mute 5 test")
