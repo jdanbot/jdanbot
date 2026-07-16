@@ -991,7 +991,7 @@ wheels = [
 [[package]]
 name = "stripped"
 version = "0.0.1"
-source = { git = "https://codeberg.org/dntn/stripped.git/#02491a7d4c3561df794d22da72babe7a6b25211d" }
+source = { git = "https://codeberg.org/dntn/stripped.git/#c1acad2148d07cce988ca720af9f0afa7e338f8f" }
 
 [[package]]
 name = "tghtml"
