@@ -6,7 +6,7 @@ from pydantic import BaseModel
 class UserMock(BaseModel):
     id: int = 1
 
-    full_name: str | None = None
+    # full_name: str | None = None
     url: str | None = None
 
     is_bot: bool = False
@@ -16,19 +16,26 @@ class UserMock(BaseModel):
     username: str = "xy"
 
     def __post_init__(self) -> None:
-        self.full_name = (
-            f"{self.first_name} {self.last_name}"
-            or self.first_name
-        )
+        # self.full_name = (
+        #     f"{self.first_name} {self.last_name}"
+        #     or self.first_name
+        # )
         self.url = create_tg_link("user", id=self.id)
 
-    # @property
-    # def full_name(self) -> str:
-    #     if self.last_name:
-    #         return f"{self.first_name} {self.last_name}"
-    #     return self.first_name
+    @property
+    def full_name(self) -> str:
+        if self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        return self.first_name
 
     def mention_html(self, name: str | None = None) -> str:
         if name is None:
             name = self.full_name
         return markdown.hlink(name, self.url)
+
+    def mention_markdown(
+        self, name: str | None = None
+    ) -> str:
+        if name is None:
+            name = self.full_name
+        return markdown.link(name, self.url)

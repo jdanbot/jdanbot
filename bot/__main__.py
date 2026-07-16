@@ -5,7 +5,7 @@ from rich import print
 from rich.traceback import install
 
 from . import *  # noqa
-from .config.bot import bot, dp, router
+from .config.bot import COMMANDS, bot, dp, router
 from .config.lib.i18n_middleware import i18nMiddleware
 from .config.lib.spy_middleware import SpyMiddleware
 from .database import MigratorService, setup_db
@@ -26,6 +26,7 @@ async def main() -> None:
     MigratorService.activate_migrations()
     await setup_db()
 
+    COMMANDS.parse_commands_from_router(router)
     await dp.start_polling(bot, reset_webhook=True)
 
 

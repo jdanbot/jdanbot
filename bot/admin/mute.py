@@ -92,6 +92,7 @@ class BanHammer(Struct, frozen=True):
 )
 async def admin_mute(
     message: types.Message,
+    reply: types.Message,
     settings: ChatSettings,
     args: BanHammer,
     _: Locale,

@@ -9,11 +9,11 @@ from msgspec import Struct, convert
 from pypika import Field, Order, Query
 from pypika import functions as fn
 
-from ..config.bot import bot
+from ..config.bot import COMMANDS, bot
 from ..config.config import settings
 from ..lib.admin import check_admin
 from ._base import BetterConnection, dbmethod
-from ._extras import IsInserted
+from ._extras import IsInserted, Unixepoch
 from ._tables import CMD, C, E, M, P, U, W
 from .chat import Chat
 from .pidor import Pidor, PidorTop
@@ -380,23 +380,16 @@ class Member(Struct, frozen=True):
 
         user_commands = list(chain.from_iterable(_))
 
-        COMMANDS = (
-            ("w", "v", "wru"),
-            (
-                "tru",
-                "ten",
-            ),
-        )
-
+        CMDS = COMMANDS.listed
         USER = sum(
             any(
                 command in user_commands
                 for command in command_variants
             )
-            for command_variants in COMMANDS
+            for command_variants in CMDS
         )
 
-        return int(USER / len(COMMANDS)) * 100
+        return int(USER / len(CMDS) * 100)
 
     @dbmethod
     async def has_chats(self, conn: BetterConnection):
@@ -469,10 +462,8 @@ class Member(Struct, frozen=True):
             Query.update(W)
             .set(W.unwarn_admin_id, self.user_id)
             .set(W.unwarn_reason, reason)
-            .set(W.unwarned_at, fn.Now())
+            .set(W.unwarned_at, Unixepoch())
             .where(W.id == get_latest_warn)
-            .get_sql()
-            .replace("NOW()", "unixepoch()")
         )
         await conn.commit()
 
@@ -494,7 +485,7 @@ class Member(Struct, frozen=True):
             .get_sql()
             .replace(
                 "NOW()",
-                "datetime(CURRENT_TIMESTAMP, '-24 hours')",
+                "strftime('%s', datetime('now', '-24 hours'))",
             )
         )
         return _

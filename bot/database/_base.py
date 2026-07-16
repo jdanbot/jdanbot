@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import date, datetime
 from functools import wraps
 from typing import Any, Callable, Iterable, TypeVar
 
@@ -12,6 +13,18 @@ sqlite3.register_adapter(bool, int)
 sqlite3.register_converter(
     "BOOLEAN", lambda v: bool(int(v))
 )
+
+
+def date_adapter(object_date: bytes) -> date:
+    "receives an object_date in the date adapter for adaptation to the new pattern of sqlite3"
+    adapter_format = datetime.fromisoformat(
+        object_date.decode("utf-8")
+    )
+    return adapter_format.date()
+
+
+sqlite3.register_converter("date", date_adapter)
+# sqlite3.register_converter("timestamp", timestamp_adapter)
 
 
 class Base(
