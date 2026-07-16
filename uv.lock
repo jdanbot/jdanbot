@@ -163,15 +163,6 @@ wheels = [
 ]
 
 [[package]]
-name = "art"
-version = "6.5"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d4/7d/7d80509bbd19fb747edef94ba487dbadd2747944774ccc0528ad0d005a36/art-6.5.tar.gz", hash = "sha256:a98d77b42c278697ec6cf4b5bdcdfd997f6b2425332da078d4e31e31377d1844", size = 672902, upload-time = "2025-04-12T17:02:20.279Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/67/29/57b06fdb3abdf52c621d3ca3caea735e2db4c8d48288ebd26af448e8e247/art-6.5-py3-none-any.whl", hash = "sha256:70706408144c45c666caab690627d5c74aea7b6c7ce8cc968408ddeef8d84afd", size = 610382, upload-time = "2025-04-12T17:02:21.97Z" },
-]
-
-[[package]]
 name = "attrs"
 version = "26.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -263,15 +254,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/54/7e/27f6b2a74d484742f4017553e710b01e396b23d809df3e95ca0bb9a2824b/coverage-7.15.2-cp314-cp314t-win_amd64.whl", hash = "sha256:77f091ea3a9cc611cd29f433565476bc1936c084ac8eee00ea0e7e70c27e4199", size = 224981, upload-time = "2026-07-15T18:56:12.928Z" },
     { url = "https://files.pythonhosted.org/packages/b1/48/284863423aa474240f6842bd00d680da22f4e6ea2e466618ef7c9c9e69a9/coverage-7.15.2-cp314-cp314t-win_arm64.whl", hash = "sha256:6fc448c377d6eeb00a47c673494bd9bae29280ca53987e1869e67ebedfe20658", size = 224294, upload-time = "2026-07-15T18:56:15.156Z" },
     { url = "https://files.pythonhosted.org/packages/ec/82/32e3bd191d498e64f6f911ad55d14006a0861e54869d2d32452326399e65/coverage-7.15.2-py3-none-any.whl", hash = "sha256:eb6bcae8d1a9d305351ecb108232441d11c5cfe9de840a04388ba5d2db8d735c", size = 213375, upload-time = "2026-07-15T18:56:17.305Z" },
-]
-
-[[package]]
-name = "emoji"
-version = "2.15.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a2/78/0d2db9382c92a163d7095fc08efff7800880f830a152cfced40161e7638d/emoji-2.15.0.tar.gz", hash = "sha256:eae4ab7d86456a70a00a985125a03263a5eac54cd55e51d7e184b1ed3b6757e4", size = 615483, upload-time = "2025-09-21T12:13:02.755Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e1/5e/4b5aaaabddfacfe36ba7768817bd1f71a7a810a43705e531f3ae4c690767/emoji-2.15.0-py3-none-any.whl", hash = "sha256:205296793d66a89d88af4688fa57fd6496732eb48917a87175a023c8138995eb", size = 608433, upload-time = "2025-09-21T12:13:01.197Z" },
 ]
 
 [[package]]
@@ -403,8 +385,6 @@ dependencies = [
     { name = "aiogram" },
     { name = "aiopytesseract" },
     { name = "aiosqlite" },
-    { name = "art" },
-    { name = "emoji" },
     { name = "humanize" },
     { name = "iso639-lang" },
     { name = "loguru" },
@@ -417,6 +397,7 @@ dependencies = [
     { name = "rich" },
     { name = "roman" },
     { name = "shellous" },
+    { name = "stripped" },
     { name = "tghtml" },
     { name = "whenever" },
     { name = "wikipya" },
@@ -435,8 +416,6 @@ requires-dist = [
     { name = "aiogram", specifier = ">=3.28.0" },
     { name = "aiopytesseract", specifier = ">=0.14.0" },
     { name = "aiosqlite", specifier = ">=0.22.1" },
-    { name = "art", specifier = ">=6.2" },
-    { name = "emoji", specifier = ">=1.6.1" },
     { name = "humanize", specifier = ">=4.1.0" },
     { name = "iso639-lang", specifier = ">=2.2.3" },
     { name = "loguru", specifier = ">=0.7.3" },
@@ -449,6 +428,7 @@ requires-dist = [
     { name = "rich", specifier = ">=15.0.0" },
     { name = "roman", specifier = ">=5.2" },
     { name = "shellous", specifier = ">=0.36.0" },
+    { name = "stripped", git = "https://codeberg.org/dntn/stripped.git/" },
     { name = "tghtml", git = "https://github.com/jdan735/tghtml?branch=dev" },
     { name = "whenever", specifier = ">=0.10.0" },
     { name = "wikipya", git = "https://github.com/jdan735/wikipya?branch=dev" },
@@ -1007,6 +987,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/c2/92/b0ff18610bfbc08db
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f9/24/87cb20a35c47478b888bb48e99e879ab19ec86e1b1c0364b2e8fe8302c28/shellous-0.40.0-py3-none-any.whl", hash = "sha256:c55e1b33a4bdb2f743fcdbcf556af5d2af4626ef96c7587e6bfc067c4bf56042", size = 55166, upload-time = "2026-05-13T21:15:45.247Z" },
 ]
+
+[[package]]
+name = "stripped"
+version = "0.0.1"
+source = { git = "https://codeberg.org/dntn/stripped.git/#02491a7d4c3561df794d22da72babe7a6b25211d" }
 
 [[package]]
 name = "tghtml"

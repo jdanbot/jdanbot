@@ -10,9 +10,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
   "aiogram>=3.28.0",
-  "art>=6.2",
   "pyduckgo",
-  "emoji>=1.6.1",
   "humanize>=4.1.0",
   "pytimeparse2>=1.7.1",
   "python-ffmpeg>=2.0.12",
@@ -29,6 +27,7 @@ dependencies = [
   "roman>=5.2",
   "pymemeru",
   "loguru>=0.7.3",
+  "stripped",
 ]
 
 [dependency-groups]
@@ -61,6 +60,7 @@ wikipya = { git = "https://github.com/jdan735/wikipya", branch = "dev" }
 pymemeru = { git = "https://github.com/jdan735/pymemeru", branch = "main" }
 tghtml = { git = "https://github.com/jdan735/tghtml", branch = "dev" }
 pyduckgo = { git = "https://github.com/jdan735/pyduckgo", branch = "main" }
+stripped = { git = "https://codeberg.org/dntn/stripped.git/" }
 # tghtml = { path = "../tghtml" }
 # wikipya = { path = "../wikipya" }
 # pymemeru = { path = "../pymemeru" }
