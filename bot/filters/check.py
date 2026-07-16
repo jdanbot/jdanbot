@@ -20,9 +20,9 @@ class Check(BaseFilter):
     async def __call__(
         self, message: types.Message
     ) -> bool:
-        chat = await Chat.get(message.chat.id)
+        settings = await Chat.get_settings(message.chat.id)
 
         return all(
-            getattr(chat.settings, key.__name__)
+            getattr(settings, key.__name__)
             for key in self.keys
         )

@@ -10,3 +10,6 @@ class ChatMock(BaseModel):
     username: str = "savekanobu"
 
     full_name = types.Chat.full_name
+
+    async def restrict(self, *args, **kwargs):
+        pass

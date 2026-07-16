@@ -1,4 +1,4 @@
-from whenever import Instant
+from datetime import datetime
 
 from .bot import bot, dp, router
 from .config import (
@@ -14,8 +14,9 @@ from .languages import (
 )
 from .lib.locales import Locale
 from .logger import logger
+from .version import __version__
 
-START_TIME = Instant.now()
+START_TIME = datetime.now()
 
 
 __all__ = (
@@ -31,4 +32,5 @@ __all__ = (
     router,
     Locale,
     is_test_session,
+    __version__,
 )

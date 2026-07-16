@@ -3,7 +3,7 @@ from typing import Any
 
 from msgspec import Struct, toml
 
-from ...lib.text import prettyword
+from bot.lib.text import prettyword
 
 
 class Template(str):
@@ -33,7 +33,12 @@ class Template(str):
 
 class Locale(Struct, frozen=True):
     lang: str
-    cases: list[str]
+
+    class Cases(Struct, frozen=True):
+        times: list[str]
+        members: list[str]
+
+    cases: Cases
 
     class Pidor(Struct, frozen=True):
         top_10: str
@@ -43,6 +48,8 @@ class Locale(Struct, frozen=True):
         reg: str
         in_db: str
         already_in_db: str
+        rejoin_in_game: str
+        stats_unavailable: str
 
         pidor_left: str
         already_finded: list[Template]
@@ -60,6 +67,8 @@ class Locale(Struct, frozen=True):
 
         not_found: str
         successful_deleted: str
+
+        no_notes: str
 
     notes: Notes
 
@@ -107,6 +116,56 @@ class Locale(Struct, frozen=True):
     ban: Ban
 
     docs: dict[str, str]
+
+    class Settings(Struct, frozen=True):
+        reactions: str
+        warns_to_ban: str
+        locale: str
+        done: str
+
+        button_back: str
+
+        settings_text: str
+        language_text: str
+        warns_to_ban_text: str
+
+    settings: Settings
+
+    class Menu(Struct, frozen=True):
+        main: str
+        network: str
+        wiki: str
+        ffmpeg: str
+        admin: str
+        system: str
+        notes: str
+        pidor: str
+
+        class MenuButtons(Struct, frozen=True):
+            main: str
+            network: str
+            wiki: str
+            ffmpeg: str
+            admin: str
+            system: str
+            notes: str
+            pidor: str
+
+        buttons: MenuButtons
+
+    menu: Menu
+
+    class Modules(Struct, frozen=True):
+        description: str
+        admin: str
+
+        mute: str
+        warn: str
+
+        selfmute: str
+        polls: str
+
+    modules: Modules
 
 
 class Locales(Struct):

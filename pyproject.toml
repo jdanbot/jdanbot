@@ -24,23 +24,20 @@ dependencies = [
   "rich>=15.0.0",
   "wikipya",
   "msgspec[toml]>=0.21.1",
-  "aiosql>=15.0",
   "aiosqlite>=0.22.1",
   "pypika>=0.51.1",
   "roman>=5.2",
   "pymemeru",
+  "loguru>=0.7.3",
 ]
 
 [dependency-groups]
 dev = [
-  "faker>=40.15.0",
+  "coverage>=7.15.2",
   "pytest-asyncio>=0.25.2",
   "pytest-modern>=0.7.4",
   "pytest>=9.0.3",
 ]
-
-[tool.pyright]
-reportUnusedCallResult = false
 
 [tool.pytest]
 addopts = ["-p no:warnings"]

@@ -5,10 +5,12 @@ from typing import Annotated
 import humanize
 from aiogram import F, types
 from aiogram.filters import Command
+from aiogram.utils.markdown import markdown_decoration as md
 from msgspec import Struct
+from msgspec import defstruct as strct
 from pydantic import BaseModel, RootModel, field_validator
 
-from ..config import Locale, router, settings
+from ..config import Locale, router
 from ..database import ChatSettings, Member, Note, User
 from ..filters import Arguments, IsAdmin
 
@@ -27,10 +29,6 @@ NotesSelectModel = RootModel[list[NoteSelectModel]]
 
 class NoteUpdateModel(NoteSelectModel):
     value: Annotated[str, dict(reply=True)]
-
-    @property
-    def is_admin_note(self) -> bool:
-        return self.key in settings.admin_notes
 
 
 class NoteUpdate(Struct, frozen=True):
@@ -93,7 +91,7 @@ async def export_notes(message: types.Message):
     notes_raw = ""
 
     for note in notes:
-        notes_raw += f"{note.name} {'★' if note.is_admin_note else ''}\n"
+        notes_raw += f"{note.name}\n"
 
         try:
             build_user_info(note.author.user)
@@ -178,6 +176,8 @@ async def get(
     note = await Note.get(message.chat.id, args.key)
 
     if note is None:
+        assert message.from_user
+
         if message.from_user.id != -1:
             await message.reply(
                 _.notes.create_var(name=args.key)
@@ -194,13 +194,14 @@ async def get(
 
 
 @router.message(Command("show", "notes"))
-async def show(message: types.Message):
+async def show(message: types.Message, _: Locale):
     await message.reply(
-        ", ".join(
-            await Note.get_notes_list(message.chat.id)
+        md.quote(
+            ", ".join(
+                await Note.get_notes_list(message.chat.id)
+            )
         )
-        or "No notes",
-        parse_mode=None,
+        or _.notes.no_notes
     )
 
 
@@ -210,6 +211,9 @@ async def change(
     args: NoteUpdate,
     member: Member,
 ):
+    if args.key == "admin_chat":
+        raise KeyError("Access denied.")
+
     await member.chat.set_setting(args.key, args.value)
     await message.reply(
         "настройка установлена (наверно)", parse_mode=None
@@ -232,7 +236,8 @@ async def use_by_hashtag(
     if text is None:
         message = message.model_copy(
             update=dict(
-                text=f"/get {name}", from_user=dict(id=-1)
+                text=f"/get {name}",
+                from_user=strct("User", {"id": int})(id=-1),
             )
         )
 

@@ -1,5 +1,6 @@
 from aiogram import F, types
 from aiogram.filters import Command
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from ..config import Locale, bot, router
 from ..database.chat import ChatSettings
@@ -10,42 +11,33 @@ from ..triggers.legacy import triggers
 @router.message(
     Command("admins"), Check(ChatSettings.enable_admin)
 )
-async def call_admins(message, _: Locale):
-    buttons = [
-        [
-            types.InlineKeyboardButton(
-                text=triggers["yes_"],
-                callback_data="call_admin",
-                style="danger",
-            ),
-            types.InlineKeyboardButton(
-                text=triggers["delete"],
-                callback_data="delete",
-                style="success",
-            ),
-        ]
-    ]
-    keyboard = types.InlineKeyboardMarkup(
-        inline_keyboard=buttons
+async def call_admins(message: types.Message, _: Locale):
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.button(
+        text=triggers["yes_"],
+        callback_data="call_admin",
+        style="danger",
+    )
+    keyboard.button(
+        text=triggers["delete"],
+        callback_data="delete",
+        style="success",
     )
 
     await message.reply(
-        triggers["call_admin_warn"], reply_markup=keyboard
+        triggers["call_admin_warn"],
+        reply_markup=keyboard.as_markup(),
     )
 
 
 @router.callback_query(F.data == "call_admin")
 async def call_admin(call: types.CallbackQuery, _: Locale):
-    buttons = [
-        [
-            types.InlineKeyboardButton(
-                text=triggers["delete"],
-                callback_data="delete",
-            )
-        ]
-    ]
-    keyboard = types.InlineKeyboardMarkup(
-        inline_keyboard=buttons
+    keyboard = InlineKeyboardBuilder()
+    keyboard.button(
+        text=triggers["delete"],
+        callback_data="delete",
+        style="danger",
     )
 
     admins = await bot.get_chat_administrators(
@@ -58,7 +50,7 @@ async def call_admin(call: types.CallbackQuery, _: Locale):
 
     await call.message.edit_text(
         text=admins_call + triggers["admins_called"],
-        reply_markup=keyboard,
+        reply_markup=keyboard.as_markup(),
         parse_mode="HTML",
     )
     await call.answer()
