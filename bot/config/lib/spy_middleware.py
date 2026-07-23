@@ -4,7 +4,7 @@ from typing import Any, Callable, override
 import aiohttp
 from aiogram import BaseMiddleware, types
 from aiogram.filters import Command as CommandFilter
-from msgspec import DecodeError, json
+from msgspec import json
 from selectolax.lexbor import LexborHTMLParser
 from tghtml import TgHTML
 from wikipya.clients import Fandom, MediaWiki, Wikipedia
@@ -37,7 +37,7 @@ async def fetch_all(
 
         try:
             res = json.decode(await r.text())
-        except DecodeError:
+        except Exception:
             id_ = "-1"
         else:
             id_ = list(res["query"]["pages"].keys())[0]
