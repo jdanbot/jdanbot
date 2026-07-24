@@ -19,6 +19,8 @@ jobs:
         version: latest
         enable-cache: true
     - name: Install dependencies
-      run: uv sync 
+      run: uv sync
+    - name: Install ruff != 16
+      run: uv add "ruff<0.16"
     - name: Type check with ruff
-      run: uvx ruff check bot
+      run: ruff check bot
