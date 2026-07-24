@@ -23,4 +23,4 @@ jobs:
     - name: Install ruff != 16
       run: uv add "ruff<0.16"
     - name: Type check with ruff
-      run: ruff check bot
+      run: uv run ruff check bot
