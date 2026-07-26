@@ -3,7 +3,7 @@ from importlib.machinery import SourceFileLoader
 from operator import sub
 from pathlib import Path
 
-from ..config.logger import logger
+from loguru import logger
 
 db = sqlite3.connect("jdanbot.db")
 migrations = sorted(Path("migrations").glob("*.py"))

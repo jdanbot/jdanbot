@@ -394,7 +394,6 @@ dependencies = [
     { name = "pypika" },
     { name = "python-ffmpeg" },
     { name = "pytimeparse2" },
-    { name = "rich" },
     { name = "roman" },
     { name = "shellous" },
     { name = "stripped" },
@@ -409,6 +408,7 @@ dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-modern" },
+    { name = "rich" },
 ]
 
 [package.metadata]
@@ -425,7 +425,6 @@ requires-dist = [
     { name = "pypika", specifier = ">=0.51.1" },
     { name = "python-ffmpeg", specifier = ">=2.0.12" },
     { name = "pytimeparse2", specifier = ">=1.7.1" },
-    { name = "rich", specifier = ">=15.0.0" },
     { name = "roman", specifier = ">=5.2" },
     { name = "shellous", specifier = ">=0.36.0" },
     { name = "stripped", git = "https://codeberg.org/dntn/stripped.git/" },
@@ -440,6 +439,7 @@ dev = [
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-asyncio", specifier = ">=0.25.2" },
     { name = "pytest-modern", specifier = ">=0.7.4" },
+    { name = "rich", specifier = ">=15.0.0" },
 ]
 
 [[package]]
@@ -806,7 +806,7 @@ wheels = [
 [[package]]
 name = "pyduckgo"
 version = "1.0.0"
-source = { git = "https://github.com/jdan735/pyduckgo?branch=main#ac7d4fd70e49288c2595dabd450f19f9e7650b8b" }
+source = { git = "https://github.com/jdan735/pyduckgo?branch=main#4bbb9b539e934e7841e15f97948ae3437c270856" }
 dependencies = [
     { name = "aiohttp" },
     { name = "msgspec" },
