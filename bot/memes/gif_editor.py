@@ -106,7 +106,11 @@ async def edit_gif(
         media["streams"][0]["nb_read_frames"]
     )
 
-    ffmpeg = FFmpeg().input(file).output(output, **params)
+    ffmpeg = (
+        FFmpeg()
+        .input(file)
+        .output(output, {"codec:v": "libx265"}, **params)
+    )
 
     @ffmpeg.on("stderr")
     def on_stderr(line):
