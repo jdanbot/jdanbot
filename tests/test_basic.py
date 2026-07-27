@@ -66,3 +66,4 @@ class Tests(AbcTests):
         await self.assertInMock("2\\-й", "/warn test")
         await self.assertInMock("выдал мут", "/warn test")
         await self.assertInMock("выдал мут", "/mute 5 test")
+        await self.assertInMock("MSK", "/selfmute 30")

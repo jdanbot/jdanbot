@@ -18,7 +18,6 @@ dependencies = [
   "aiopytesseract>=0.14.0",
   "tghtml==2.0.1",
   "iso639-lang>=2.2.3",
-  "whenever>=0.10.0",
   "wikipya",
   "msgspec[toml]>=0.21.1",
   "aiosqlite>=0.22.1",

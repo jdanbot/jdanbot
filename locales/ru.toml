@@ -118,7 +118,7 @@ mute = """
 🤔 *Причина:* {why}
 🕓 *Срок:* {time}
 
-⛓ *Амнистия:* {unban_time} МСК
+⛓ *Амнистия:* {unban_time} MSK
 """
 
 unmute = """
@@ -133,7 +133,7 @@ selfmute = """
 🤔 *Причина:* {why}
 🕓 *Срок:* {time}
 
-⛓ *Амнистия:* {unban_time} МСК"""
+⛓ *Амнистия:* {unban_time} MSK"""
 
 warn = """
 *{admin}* выдал {i}\\-й пред *{user}*
