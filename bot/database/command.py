@@ -1,4 +1,5 @@
 from pypika import Query
+from pypika import functions as fn
 
 from ._base import Base, BetterConnection, dbmethod
 from ._tables import CMD
@@ -29,3 +30,10 @@ class Command(Base, frozen=True):
         )
 
         await conn.commit()
+
+    @staticmethod
+    @dbmethod
+    async def count(conn: BetterConnection) -> int:
+        return await conn.execute_scalar(
+            Query.from_(CMD).select(fn.Count("*"))
+        )

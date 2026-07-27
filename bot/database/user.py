@@ -1,6 +1,7 @@
 from aiogram import types
 from msgspec import convert
 from pypika import PostgreSQLQuery as Query
+from pypika import functions as fn
 
 from ..config.languages import Language
 from ._base import Base, BetterConnection, dbmethod
@@ -77,4 +78,11 @@ class User(Base, frozen=True):
         return convert(
             [*user, Language.from_str("ru")],
             User,
+        )
+
+    @staticmethod
+    @dbmethod
+    async def count(conn: BetterConnection) -> int:
+        return await conn.execute_scalar(
+            Query.from_(U).select(fn.Count("*"))
         )
