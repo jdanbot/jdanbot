@@ -1,25 +1,5 @@
 status = "jdanbot-nightly"
-logging_chat = -1001410092459
-
-admin_notes = [
-    "__rules__",
-    "__enable_bot__",
-    "__ban__",
-    "__welcome__",
-    "__enable_response__",
-    "__enable_welcome__",
-    "__enable_greatings__",
-    "__warns_to_ban__",
-    "__chat_lang__",
-    "__enable_admin__",
-    "__enable_selfmute__",
-    "__polish_mode__",
-    "enable_ban_trigger",
-    "enable_poll",
-    "enable_twitter_redirect",
-    "enable_inline_set_note",
-    "locked_commands"
-]
+# logging_chat = "-1001410092459"
 
 eggs = [
     { commands = [ "java1" ], audio = "java.ogg" },

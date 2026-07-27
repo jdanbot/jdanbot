@@ -72,6 +72,7 @@ async def admin_warn(
     if warn_count >= settings.warns_to_ban:
         await admin_mute(
             message,
+            reply,
             settings,
             await BanHammer.parse(
                 model=BanHammer,

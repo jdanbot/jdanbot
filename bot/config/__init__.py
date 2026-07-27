@@ -1,4 +1,4 @@
-from whenever import Instant
+from datetime import datetime
 
 from .bot import bot, dp, router
 from .config import (
@@ -13,9 +13,9 @@ from .languages import (
     WIKIPEDIA_LANGS,
 )
 from .lib.locales import Locale
-from .logger import logger
+from .version import __version__
 
-START_TIME = Instant.now()
+START_TIME = datetime.now()
 
 
 __all__ = (
@@ -25,10 +25,10 @@ __all__ = (
     WIKIPEDIA_LANGS,
     WIKI_COMMANDS,
     WIKIPEDIA_SHORTCUTS,
-    logger,
     bot,
     dp,
     router,
     Locale,
     is_test_session,
+    __version__,
 )

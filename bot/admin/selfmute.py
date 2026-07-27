@@ -1,9 +1,10 @@
+from datetime import timedelta
+
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.utils.text_decorations import (
     markdown_decoration as md,
 )
-from whenever import TimeDelta
 
 from ..config import Locale, router
 from ..database import ChatSettings
@@ -25,9 +26,7 @@ bold = md.bold
 async def selfmute(
     message: types.Message, args: BanHammer, _: Locale
 ):
-    if args.until > TimeDelta(
-        weeks=1, days_assumed_24h_ok=True
-    ):
+    if args.until > timedelta(weeks=1):
         await message.reply(
             bold(_.ban.selfmute_limit_reached)
         )
@@ -47,7 +46,7 @@ async def selfmute(
 
     await message.chat.restrict(
         user.id,
-        until_date=args.until_date.timestamp(),
+        until_date=args.until_date,
         permissions=types.ChatPermissions(),
     )
 

@@ -10,9 +10,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
   "aiogram>=3.28.0",
-  "art>=6.2",
   "pyduckgo",
-  "emoji>=1.6.1",
   "humanize>=4.1.0",
   "pytimeparse2>=1.7.1",
   "python-ffmpeg>=2.0.12",
@@ -20,27 +18,24 @@ dependencies = [
   "aiopytesseract>=0.14.0",
   "tghtml==2.0.1",
   "iso639-lang>=2.2.3",
-  "whenever>=0.10.0",
-  "rich>=15.0.0",
   "wikipya",
   "msgspec[toml]>=0.21.1",
-  "aiosql>=15.0",
   "aiosqlite>=0.22.1",
   "pypika>=0.51.1",
   "roman>=5.2",
   "pymemeru",
+  "loguru>=0.7.3",
+  "stripped",
 ]
 
 [dependency-groups]
 dev = [
-  "faker>=40.15.0",
+  "coverage>=7.15.2",
   "pytest-asyncio>=0.25.2",
   "pytest-modern>=0.7.4",
   "pytest>=9.0.3",
+  "rich>=15.0.0",
 ]
-
-[tool.pyright]
-reportUnusedCallResult = false
 
 [tool.pytest]
 addopts = ["-p no:warnings"]
@@ -64,6 +59,7 @@ wikipya = { git = "https://github.com/jdan735/wikipya", branch = "dev" }
 pymemeru = { git = "https://github.com/jdan735/pymemeru", branch = "main" }
 tghtml = { git = "https://github.com/jdan735/tghtml", branch = "dev" }
 pyduckgo = { git = "https://github.com/jdan735/pyduckgo", branch = "main" }
+stripped = { git = "https://codeberg.org/dntn/stripped.git/" }
 # tghtml = { path = "../tghtml" }
 # wikipya = { path = "../wikipya" }
 # pymemeru = { path = "../pymemeru" }

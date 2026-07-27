@@ -1,9 +1,14 @@
 from aiogram import F, types
 from aiogram.filters import Command
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from ..config import LANGS, Locale, router
 from ..database import Chat
 from ..filters import IsAdmin
+
+
+def unite(*args) -> str:
+    return " ".join([*args])
 
 
 @router.message(Command("settings"), IsAdmin())
@@ -16,44 +21,49 @@ async def settings_(message: types.Message, _: Locale):
         is_inline = False
 
     chat = await Chat.get_by(message)
-    settings = await chat.get_settings()
+    settings = chat.settings
 
-    buttons = [
-        [
-            types.InlineKeyboardButton(
-                text=_.reactions(react=settings.reactions),
-                callback_data="set_reactions",
-            ),
-        ],
-        [
-            types.InlineKeyboardButton(
-                text=_.warns_to_ban(warns=settings.warns_to_ban),
-                callback_data="set_warn_count",
-            ),
-        ],
-        [
-            types.InlineKeyboardButton(
-                text=_.language(
-                    lang=LANGS[settings.language or -1].emoji
-                ),
-                callback_data="set_lang",
-            ),
-        ],
-        [
-            types.InlineKeyboardButton(
-                text=_.done(), callback_data="delete_msg"
-            ),
-        ],
-    ]
+    warns = {3: "3️⃣", 5: "5️⃣", -1: "⛔️"}
+    reactions = {None: "☑️", False: "❌", True: "✅"}
 
-    kb = types.InlineKeyboardMarkup(inline_keyboard=buttons)
+    keyboard = InlineKeyboardBuilder()
+    keyboard.button(
+        text=unite(
+            _.settings.reactions,
+            reactions[settings.enable_triggers],
+        ),
+        callback_data="set settings_switch enable_triggers ignore",
+    )
+    keyboard.button(
+        text=unite(
+            _.settings.warns_to_ban,
+            warns[settings.warns_to_ban],
+        ),
+        callback_data="set_warn_count",
+    )
+    keyboard.button(
+        text=unite(
+            _.settings.locale,
+            LANGS[chat.language.alpha_2].emoji,
+        ),
+        callback_data="set_lang",
+    )
+    keyboard.button(
+        text=_.settings.done,
+        callback_data="delete_msg",
+        style="primary",
+    )
+
+    kb = keyboard.adjust(1, repeat=True).as_markup()
 
     if is_inline:
         await message.edit_text(
-            text=_.settings_text(), reply_markup=kb
+            text=_.settings.settings_text, reply_markup=kb
         )
     else:
-        await message.answer(text=_.settings_text(), reply_markup=kb)
+        await message.answer(
+            text=_.settings.settings_text, reply_markup=kb
+        )
         await message.delete()
 
 

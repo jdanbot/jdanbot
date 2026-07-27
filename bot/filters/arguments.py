@@ -15,14 +15,14 @@ class Arguments(BaseFilter):
         handler: HandlerObject,
         _: Locale,
     ) -> dict[str, BaseModel]:
-        model =handler.callback.__annotations__["args"]
+        model = handler.callback.__annotations__["args"]
 
         try:
             model.model_fields
-            parse= self.parse
+            parse = self.parse
         except AttributeError:
             parse = model.parse
-        
+
         return {
             "args": await parse(
                 message=message,

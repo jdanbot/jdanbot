@@ -14,23 +14,26 @@ FFMPEG_PIXEL_MAGIC = (
 FFMPEG_BAD_AUDIO = "compand=attacks=0.01:decays=0.1:points=-80/-80|-30/-20|-10/0|0/0, equalizer=f=3000:t=q:w=2:g=-20, volume=10"
 
 
+GIF_EDITOR_COMMANDS = {
+    "fast",
+    "slow",
+    "reverse",
+    "reversed",
+    "to_gif",
+    "p4",
+    "p8",
+    "p14",
+    "jam",
+    "mirror"
+}
+
+
 @router.message(
     F.reply_to_message,
     F.reply_to_message.animation
     | F.reply_to_message.sticker.is_video
     | F.reply_to_message.video,
-    Command(
-        "fast",
-        "slow",
-        "reverse",
-        "reversed",
-        "to_gif",
-        "p4",
-        "p8",
-        "p14",
-        "jam",
-        "mirror",
-    ),
+    Command(*GIF_EDITOR_COMMANDS),
 )
 async def edit_gif(
     message: types.Message,
@@ -173,20 +176,13 @@ async def edit_gif(
 
 
 @router.message(
-    F.reply_to_message,
-    Command(
-        "fast", "slow", "reversed", "reverse", "to_gif"
-    ),
+    F.reply_to_message, Command(*GIF_EDITOR_COMMANDS)
 )
 async def edit_gif_without_source(message: types.Message):
     await message.reply("you only replied")
 
 
-@router.message(
-    Command(
-        "fast", "slow", "reversed", "reverse", "to_gif"
-    ),
-)
+@router.message(Command(*GIF_EDITOR_COMMANDS))
 async def edit_gif_without_source_and_reply(
     message: types.Message,
 ):

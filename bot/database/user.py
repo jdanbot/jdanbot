@@ -1,8 +1,11 @@
 from aiogram import types
 from msgspec import convert
+from pypika import PostgreSQLQuery as Query
+from pypika import functions as fn
 
 from ..config.languages import Language
-from ._base import Base, BetterConnection, dbmethod, queries
+from ._base import Base, BetterConnection, dbmethod
+from ._tables import U
 
 
 class User(Base, frozen=True):
@@ -33,19 +36,25 @@ class User(Base, frozen=True):
         message: types.Message,
         conn: BetterConnection,
     ) -> "User":
-        if message.from_user is None:
+        if (user := message.from_user) is None:
             raise KeyError
 
-        user = await queries.user.get_by(
-            conn,
-            **message.from_user.model_dump(
-                include={
-                    "username",
-                    "first_name",
-                    "last_name",
-                    "id",
-                }
-            ),
+        user = await conn.execute_one(
+            Query.into(U)  # type: ignore[operator]
+            .columns(
+                U.id, U.first_name, U.last_name, U.username
+            )
+            .insert(
+                user.id,
+                user.first_name,
+                user.last_name,
+                user.username,
+            )
+            .on_conflict(U.id)
+            .do_update(U.first_name)
+            .do_update(U.last_name)
+            .do_update(U.username)
+            .returning("*")
         )
         await conn.commit()
 
@@ -59,9 +68,21 @@ class User(Base, frozen=True):
     async def get(
         id: int, conn: BetterConnection
     ) -> "User":
-        user = await queries.user.get(conn, id=id)
+        user = await conn.execute_one(
+            Query.from_(U).select("*").where(U.id == id)
+        )
+
+        if user is None:
+            raise KeyError
 
         return convert(
             [*user, Language.from_str("ru")],
             User,
+        )
+
+    @staticmethod
+    @dbmethod
+    async def count(conn: BetterConnection) -> int:
+        return await conn.execute_scalar(
+            Query.from_(U).select(fn.Count("*"))
         )

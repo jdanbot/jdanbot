@@ -1,9 +1,9 @@
 from aiogram import types
 from aiogram.filters import Command
-from aiogram.utils.markdown import code, text
+from aiogram.utils.markdown import text
 
-from ..config import Locale, bot, router
-from ..database import Command as dCommand
+from ..config import Locale, router
+from ..database import Command as dbCommand
 from ..database import Member, User
 from ..filters import IsSuperuser
 
@@ -16,17 +16,15 @@ async def me_info(
 ):
     assert message.from_user is not None, "???"
 
-    user = await bot.get_chat_member(
-        message.chat.id, message.from_user.id
-    )
-
     await message.reply(
         _.templates.about_user(
             name=text(message.from_user.full_name),
             id=str(message.from_user.id),
-            status=code(user.status),
-            pidor_local=await member.get_pidor_events_count(),
-            pidor_all=await member.get_pidor_count(),
+            status_emoji=await member.get_status_emoji(),
+            chats=await member.has_chats(),
+            pidor_local=await member.get_pidor_count_here(),
+            pidor_all=await member.get_pidor_count_anywhere(),
+            usage=await member.features_used(),
         ),
         parse_mode="Markdown",
     )
@@ -39,9 +37,9 @@ async def calc_stats(message: types.Message, _: Locale):
     await message.reply(
         _.templates.stats(
             chat_users=await member.get_members_count(),
-            chat_commands=await member.chat.get_commands_count(),
+            chat_commands=await member.get_chat_commands_count(),
             users=await User.count(),
-            commands=await dCommand.count(),
+            commands=await dbCommand.count(),
         ),
         parse_mode="Markdown",
     )

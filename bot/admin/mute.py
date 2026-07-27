@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from typing import Self
 
 import humanize
@@ -8,25 +9,21 @@ from aiogram.utils.text_decorations import (
     markdown_decoration as md,
 )
 from msgspec import Struct
-from whenever import (
-    Instant,
-    TimeDelta,
-    ZonedDateTime,
-    hours,
-)
 
 from bot.config import bot
+from bot.lib.errors import JdanbotError
 
 from ..config import Locale, router
 from ..database.chat import ChatSettings
+from ..database.member import MSK
 from ..filters import Arguments, Check, IsAdmin
 
 escape_md = md.quote
 
 
 class BanHammer(Struct, frozen=True):
-    until: TimeDelta
-    until_date: ZonedDateTime
+    until: timedelta
+    until_date: datetime
     reason: str
     human_until: str
     human_delta: str
@@ -45,28 +42,27 @@ class BanHammer(Struct, frozen=True):
             if len(raw_args) == 1
             else raw_args[1].strip(),
         )
+
+        assert time, JdanbotError("No time!")
         time = max(30, min(31622400, int(time)))
 
-        delta = TimeDelta(seconds=time)
-        date = Instant.now() + delta
+        delta = timedelta(seconds=time)
+        date = datetime.now(tz=UTC) + delta
 
         return BanHammer(
             until=delta,
-            until_date=date.to_tz("UTC"),
+            until_date=date,
             reason=reason,
             human_delta=BanHammer.get_human_delta(
                 time, _.lang
             ),
             human_until=BanHammer.get_human_date(
-                date.to_tz("Europe/Moscow")
+                date.astimezone(MSK)
             ),
         )
 
     @staticmethod
-    def get_human_delta(
-        seconds: int,
-        lang: str,
-    ) -> str:
+    def get_human_delta(seconds: int, lang: str) -> str:
         humanize.i18n.activate(
             None if lang == "en" else lang
         )
@@ -74,13 +70,13 @@ class BanHammer(Struct, frozen=True):
         return humanize.precisedelta(seconds)
 
     @staticmethod
-    def get_human_date(date: ZonedDateTime) -> str:
+    def get_human_date(date: datetime) -> str:
         is_today = (
-            date - ZonedDateTime.now("UTC")
-        ) < hours(20)
+            date - datetime.now(tz=MSK)
+        ) < timedelta(hours=23, minutes=59)
 
-        return date.format(
-            "DD.MM.YYYY hh:mm" if not is_today else "hh:mm"
+        return date.strftime(
+            "%d.%m.%Y %H:%M" if not is_today else "%H:%M"
         )
 
 
@@ -92,6 +88,7 @@ class BanHammer(Struct, frozen=True):
 )
 async def admin_mute(
     message: types.Message,
+    reply: types.Message,
     settings: ChatSettings,
     args: BanHammer,
     _: Locale,
@@ -117,7 +114,7 @@ async def admin_mute(
     await reply.reply(log)
     await message.chat.restrict(
         user.id,
-        until_date=args.until_date.timestamp(),
+        until_date=args.until_date,
         permissions=types.ChatPermissions(),
     )
 

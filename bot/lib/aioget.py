@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any
 
 import aiohttp
 
@@ -10,7 +10,7 @@ async def aioget(
     headers: dict[str, Any] | None = None,
     disable_text_loading: bool = False,
     **kwargs_params,
-) -> Union[aiohttp.Response, str]:
+) -> tuple[aiohttp.Response, str]:
     headers = headers or {
         "user-agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0"
     }
