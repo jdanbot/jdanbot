@@ -19,7 +19,7 @@ def generate_word_variants_with_uppercase(
 
     a = list(map(itertools.permutations, combinations))
 
-    uppercase_map = set([x for a in list(a) for x in a])
+    uppercase_map = {x for a in list(a) for x in a}
     variants = []
 
     for m in uppercase_map:

@@ -1,10 +1,15 @@
 from os import listdir, walk
 from pathlib import Path
 
-from rich.console import Console
-from rich.traceback import Traceback
+try:
+    from rich.console import Console
+    from rich.traceback import Traceback
 
-console = Console()
+    console = Console()
+except ModuleNotFoundError:
+    import traceback
+
+    console = None
 
 
 IGNORED_MODULES = {
@@ -24,8 +29,11 @@ def force_import(*args):
         try:
             __import__(module)
 
-        except Exception:
-            console.print(Traceback())
+        except Exception as e:
+            if console:
+                console.print(Traceback())
+            else:
+                traceback.print_exception(e)
 
 
 def prepare_paths(

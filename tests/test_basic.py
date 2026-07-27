@@ -1,5 +1,5 @@
 from aiogram.utils.markdown import code
-from art import text2art
+from stripped import text2art
 
 from bot.config.lib.locales import locales
 
@@ -52,7 +52,7 @@ class Tests(AbcTests):
         await self.assertBulkMock(
             (
                 "/art test",
-                code(text2art("test", chr_ignore=True)),
+                code(text2art("test", True)),
             ),
             ("/calc 5+5", "`10`"),
             # ("/eval 2*2+2", "`6`"),
@@ -66,3 +66,4 @@ class Tests(AbcTests):
         await self.assertInMock("2\\-й", "/warn test")
         await self.assertInMock("выдал мут", "/warn test")
         await self.assertInMock("выдал мут", "/mute 5 test")
+        await self.assertInMock("MSK", "/selfmute 30")
