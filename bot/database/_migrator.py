@@ -32,7 +32,7 @@ class MigratorService:
             )
             results.append(foo.migrate(db))
             logger.debug(
-                f"migration {migration.__str__()} successfuly ended"
+                f"migration {migration.__str__()} successfully ended"
             )
             new_id = int(
                 migration.name.split("_", maxsplit=1)[0]
