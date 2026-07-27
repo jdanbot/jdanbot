@@ -101,6 +101,8 @@ async def edit_gif(
                 preset="ultrafast",
                 **{"codec:v": "libx264"},
             )
+        case "mirror":
+            params = dict(vf="hflip")
         case _:
             params = dict()
 
