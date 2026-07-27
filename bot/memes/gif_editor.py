@@ -59,7 +59,7 @@ async def edit_gif(
 
     await bot.download(video, file)
 
-    match command.command:
+    match x := command.command:
         case "fast":
             params = dict(
                 vf="setpts=0.5*PTS",
@@ -77,23 +77,12 @@ async def edit_gif(
             )
         case "to_gif":
             params = dict(an=None)
-        case "p4":
+        case "p4" | "p8" | "p14":
+            X = x.removeprefix("p")
             params = dict(
-                vf=FFMPEG_PIXEL_MAGIC.format(p="4"),
+                vf=FFMPEG_PIXEL_MAGIC.format(p=X),
                 af=FFMPEG_BAD_AUDIO,
-                ab="1k",
-            )
-        case "p8":
-            params = dict(
-                vf=FFMPEG_PIXEL_MAGIC.format(p="8"),
-                af=FFMPEG_BAD_AUDIO,
-                ab="4k",
-            )
-        case "p14":
-            params = dict(
-                vf=FFMPEG_PIXEL_MAGIC.format(p="14"),
-                af=FFMPEG_BAD_AUDIO,
-                ab="8k",
+                ab={"4": "1k", "8": "4k", "14": "8k"}[X],
             )
         case "jam":
             params = dict(
