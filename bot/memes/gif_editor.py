@@ -9,7 +9,7 @@ from msgspec import json
 from ..config import Locale, bot, router
 
 FFMPEG_PIXEL_MAGIC = (
-    "scale=iw/8:ih/8,scale=8*iw:8*ih:flags=neighbor"
+    "scale=iw/{p}:ih/{p},scale={p}*iw:{p}*ih:flags=neighbor"
 )
 FFMPEG_BAD_AUDIO = "compand=attacks=0.01:decays=0.1:points=-80/-80|-30/-20|-10/0|0/0, equalizer=f=3000:t=q:w=2:g=-20, volume=10"
 
