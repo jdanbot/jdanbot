@@ -9,7 +9,7 @@ from msgspec import json
 from ..config import Locale, bot, router
 
 FFMPEG_PIXEL_MAGIC = (
-    "scale=iw/8:ih/8,scale=8*iw:8*ih:flags=neighbor"
+    "scale=iw/{p}:ih/{p},scale={p}*iw:{p}*ih:flags=neighbor"
 )
 FFMPEG_BAD_AUDIO = "compand=attacks=0.01:decays=0.1:points=-80/-80|-30/-20|-10/0|0/0, equalizer=f=3000:t=q:w=2:g=-20, volume=10"
 
@@ -23,6 +23,8 @@ GIF_EDITOR_COMMANDS = {
     "p4",
     "p8",
     "p14",
+    "jam",
+    "mirror",
 }
 
 
@@ -57,7 +59,7 @@ async def edit_gif(
 
     await bot.download(video, file)
 
-    match command.command:
+    match x := command.command:
         case "fast":
             params = dict(
                 vf="setpts=0.5*PTS",
@@ -75,24 +77,23 @@ async def edit_gif(
             )
         case "to_gif":
             params = dict(an=None)
-        case "p4":
+        case "p4" | "p8" | "p14":
+            X = x.removeprefix("p")
             params = dict(
-                vf=FFMPEG_PIXEL_MAGIC.format(p="4"),
+                vf=FFMPEG_PIXEL_MAGIC.format(p=X),
                 af=FFMPEG_BAD_AUDIO,
-                ab="1k",
+                ab={"4": "1k", "8": "4k", "14": "8k"}[X],
             )
-        case "p8":
+        case "jam":
             params = dict(
-                vf=FFMPEG_PIXEL_MAGIC.format(p="8"),
-                af=FFMPEG_BAD_AUDIO,
-                ab="4k",
+                vb="50k",
+                maxrate="50k",
+                crf=51,
+                preset="ultrafast",
+                **{"codec:v": "libx264"},
             )
-        case "p14":
-            params = dict(
-                vf=FFMPEG_PIXEL_MAGIC.format(p="14"),
-                af=FFMPEG_BAD_AUDIO,
-                ab="8k",
-            )
+        case "mirror":
+            params = dict(vf="hflip")
         case _:
             params = dict()
 
@@ -109,7 +110,11 @@ async def edit_gif(
         media["streams"][0]["nb_read_frames"]
     )
 
-    ffmpeg = FFmpeg().input(file).output(output, **params)
+    ffmpeg = (
+        FFmpeg()
+        .input(file)
+        .output(output, {"codec:v": "libx265"}, **params)
+    )
 
     @ffmpeg.on("stderr")
     def on_stderr(line):
