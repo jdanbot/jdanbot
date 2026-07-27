@@ -19,11 +19,11 @@ async def get_weather_func(
         f"https://wttr.in/{query}?u", params=dict(format=1)
     )
 
-    emoji, grads = [
+    emoji, grads = (
         x.strip()
         for x in response.text.split(" ")
         if x != ""
-    ]
+    )
 
     if grads.endswith("F"):
         grads = f"{to_celsius(int(grads[0:-2]))}°C"

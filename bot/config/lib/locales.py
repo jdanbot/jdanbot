@@ -90,6 +90,7 @@ class Locale(Struct, frozen=True):
 
         too_big_gif: str
         failed_to_recognize: str
+        no_symbols: str
 
         class CommandRequires(Struct, frozen=True):
             reply: str

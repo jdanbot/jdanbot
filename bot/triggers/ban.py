@@ -147,7 +147,7 @@ async def question(message):
     )
     cuts = (
         cuts
-        if len((cuts := text.split(" или "))) > 1
+        if len(cuts := text.split(" или ")) > 1
         else text.split(" чи ")
     )
 

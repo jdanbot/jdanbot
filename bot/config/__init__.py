@@ -13,7 +13,6 @@ from .languages import (
     WIKIPEDIA_LANGS,
 )
 from .lib.locales import Locale
-from .logger import logger
 from .version import __version__
 
 START_TIME = datetime.now()
@@ -26,7 +25,6 @@ __all__ = (
     WIKIPEDIA_LANGS,
     WIKI_COMMANDS,
     WIKIPEDIA_SHORTCUTS,
-    logger,
     bot,
     dp,
     router,

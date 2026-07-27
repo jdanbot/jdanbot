@@ -1,3 +1,6 @@
+import traceback
+from datetime import datetime
+
 from aiogram import types
 from aiogram.utils.markdown import bold, code
 
@@ -14,12 +17,16 @@ log_schema = """
 {error_small}
 """
 
+error_file_template = '<meta name="viewport" content="width=device-width, initial-scale=1"><pre>{trace}</pre>'
+
 
 @router.error()
 async def catch_error(
     event: types.ErrorEvent, _: Locale, user_lang: str
 ):
     message = event.update.message
+    assert message
+
     err_name = event.exception.__class__.__name__
 
     if err_name in (
@@ -46,7 +53,7 @@ async def catch_error(
     if settings.logging_chat is not None:
         reply = message.reply_to_message
 
-        await bot.send_message(
+        m = await bot.send_message(
             settings.logging_chat,
             log_schema.format(
                 name=bold(message.chat.full_name),
@@ -58,18 +65,18 @@ async def catch_error(
                 reply=code(reply.content_type.value)
                 if reply is not None
                 else "❌",
-                error_small="\n".join(
-                    [
-                        code(err_name),
-                        bold(event.exception),
-                    ]
-                ),
+                error_small=code(err_name),
             ),
             disable_web_page_preview=True,
         )
-
-    if message is None:
-        return
+        await m.reply_document(
+            types.BufferedInputFile(
+                error_file_template.format(
+                    trace=traceback.format_exc()
+                ).encode("utf-8"),
+                filename=f"{datetime.now()}.html",
+            )
+        )
 
     await message.reply(
         "\n".join(

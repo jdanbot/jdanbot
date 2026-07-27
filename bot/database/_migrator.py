@@ -3,7 +3,7 @@ from importlib.machinery import SourceFileLoader
 from operator import sub
 from pathlib import Path
 
-from ..config.logger import logger
+from loguru import logger
 
 db = sqlite3.connect("jdanbot.db")
 migrations = sorted(Path("migrations").glob("*.py"))
@@ -32,7 +32,7 @@ class MigratorService:
             )
             results.append(foo.migrate(db))
             logger.debug(
-                f"migration {migration.__str__()} successfuly ended"
+                f"migration {migration.__str__()} successfully ended"
             )
             new_id = int(
                 migration.name.split("_", maxsplit=1)[0]
