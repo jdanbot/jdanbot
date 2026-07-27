@@ -28,6 +28,7 @@ FFMPEG_BAD_AUDIO = "compand=attacks=0.01:decays=0.1:points=-80/-80|-30/-20|-10/0
         "p4",
         "p8",
         "p14",
+        "jam",
     ),
 )
 async def edit_gif(
@@ -89,6 +90,14 @@ async def edit_gif(
                 vf=FFMPEG_PIXEL_MAGIC.format(p="14"),
                 af=FFMPEG_BAD_AUDIO,
                 ab="8k",
+            )
+        case "jam":
+            params = dict(
+                vb="50k",
+                maxrate="50k",
+                crf=51,
+                preset="ultrafast",
+                **{"codec:v": "libx264"},
             )
         case _:
             params = dict()
