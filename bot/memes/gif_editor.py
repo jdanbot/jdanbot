@@ -93,6 +93,14 @@ async def edit_gif(
                 af=FFMPEG_BAD_AUDIO,
                 ab="8k",
             )
+        case "jam":
+            params = dict(
+                vb="50k",
+                maxrate="50k",
+                crf=51,
+                preset="ultrafast",
+                **{"codec:v": "libx264"},
+            )
         case _:
             params = dict()
 
