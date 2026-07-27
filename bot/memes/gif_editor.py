@@ -29,6 +29,7 @@ FFMPEG_BAD_AUDIO = "compand=attacks=0.01:decays=0.1:points=-80/-80|-30/-20|-10/0
         "p8",
         "p14",
         "jam",
+        "mirror",
     ),
 )
 async def edit_gif(
@@ -99,6 +100,8 @@ async def edit_gif(
                 preset="ultrafast",
                 **{"codec:v": "libx264"},
             )
+        case "mirror":
+            params = dict(vf="hflip")
         case _:
             params = dict()
 
