@@ -23,6 +23,8 @@ GIF_EDITOR_COMMANDS = {
     "p4",
     "p8",
     "p14",
+    "jam",
+    "mirror",
 }
 
 
