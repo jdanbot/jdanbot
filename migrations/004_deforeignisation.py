@@ -430,6 +430,24 @@ def migrate_warns(conn: Connection):
     W = MTable("warns_old", conn)
 
     conn.execute("""
+        UPDATE warns_old
+        SET warned_at = CASE 
+            WHEN warned_at IS NOT NULL AND warned_at != '' 
+            THEN CAST(strftime('%s', warned_at, '-3 hours') AS INTEGER)
+            ELSE 0
+        END;  
+    """)
+
+    conn.execute("""
+        UPDATE warns_old
+        SET unwarned_at = CASE 
+            WHEN unwarned_at IS NOT NULL AND unwarned_at != '' 
+            THEN CAST(strftime('%s', unwarned_at, '-3 hours') AS INTEGER)
+            ELSE 0
+        END;  
+    """)
+
+    conn.execute("""
         INSERT INTO warns
         SELECT
             W.id,
