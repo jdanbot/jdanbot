@@ -364,8 +364,25 @@ class Member(Struct, frozen=True):
         await conn.commit()
 
     ############  SPY  ############
-    async def get_members_count(self) -> int:
-        return 12345
+    @dbmethod
+    async def get_members_count(
+        self, conn: BetterConnection
+    ) -> int:
+        return await conn.execute_scalar(
+            Query.from_(M)
+            .select(fn.Count("*"))
+            .where(M.chat_id == self.chat.id)
+        )
+
+    @dbmethod
+    async def get_chat_commands_count(
+        self, conn: BetterConnection
+    ) -> int:
+        return await conn.execute_scalar(
+            Query.from_(CMD)
+            .select(fn.Count("*"))
+            .where(CMD.chat_id == self.chat.id)
+        )
 
     @dbmethod
     async def features_used(

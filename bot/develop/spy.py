@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from aiogram.utils.markdown import text
 
 from ..config import Locale, router
-from ..database import Command as dCommand
+from ..database import Command as dbCommand
 from ..database import Member, User
 from ..filters import IsSuperuser
 
@@ -37,9 +37,9 @@ async def calc_stats(message: types.Message, _: Locale):
     await message.reply(
         _.templates.stats(
             chat_users=await member.get_members_count(),
-            chat_commands=await member.chat.get_commands_count(),
+            chat_commands=await member.get_chat_commands_count(),
             users=await User.count(),
-            commands=await dCommand.count(),
+            commands=await dbCommand.count(),
         ),
         parse_mode="Markdown",
     )
