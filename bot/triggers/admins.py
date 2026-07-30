@@ -5,7 +5,6 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from ..config import Locale, bot, router
 from ..database.chat import ChatSettings
 from ..filters import Check
-from ..triggers.legacy import triggers
 
 
 @router.message(
@@ -15,18 +14,18 @@ async def call_admins(message: types.Message, _: Locale):
     keyboard = InlineKeyboardBuilder()
 
     keyboard.button(
-        text=triggers["yes_"],
+        text=_.triggers.yes,
         callback_data="call_admin",
         style="danger",
     )
     keyboard.button(
-        text=triggers["delete"],
+        text=_.triggers.delete,
         callback_data="delete",
         style="success",
     )
 
     await message.reply(
-        triggers["call_admin_warn"],
+        _.triggers.call_admin_warn,
         reply_markup=keyboard.as_markup(),
     )
 
@@ -35,7 +34,7 @@ async def call_admins(message: types.Message, _: Locale):
 async def call_admin(call: types.CallbackQuery, _: Locale):
     keyboard = InlineKeyboardBuilder()
     keyboard.button(
-        text=triggers["delete"],
+        text=_.triggers.delete,
         callback_data="delete",
         style="danger",
     )
@@ -49,7 +48,7 @@ async def call_admin(call: types.CallbackQuery, _: Locale):
     admins_call = ", ".join(usernames) + "\n\n"
 
     await call.message.edit_text(
-        text=admins_call + triggers["admins_called"],
+        text=admins_call + _.triggers._admins_called,
         reply_markup=keyboard.as_markup(),
         parse_mode="HTML",
     )
