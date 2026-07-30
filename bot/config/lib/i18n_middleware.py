@@ -18,7 +18,9 @@ class i18nMiddleware(BaseMiddleware):
         data: dict[str, Any],
     ) -> Any:
         data["user_lang"] = await self.get_language(event)
-        data["_"] = getattr(locales, data["user_lang"], locales.ru)
+        data["_"] = getattr(
+            locales, data["user_lang"], locales.ru
+        )
 
         return await handler(event, data)
 
@@ -29,7 +31,7 @@ class i18nMiddleware(BaseMiddleware):
         member: Member | None = None,
     ) -> str:
         print("rewrite i18n!!!")
-        return "ru"
+        return "en"
         # print(event.model_dump_json(indent=4))
 
         try:
