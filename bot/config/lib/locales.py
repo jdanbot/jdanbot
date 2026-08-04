@@ -24,7 +24,7 @@ class Template(str):
                     ]
                 )
             elif len(forms) == 2:
-                form = forms[0] if count < 1 else forms[1]
+                form = forms[0] if count == 1 else forms[1]
                 return f"{count} {form}"
 
             return count + " " + match.group(0)
