@@ -195,7 +195,6 @@ warns_to_ban_text = "*Count of warns until get a ban*"
 main = "\"✋ Hi!\" I'm a bot with blackjack and bans. I can ban, take information from services, tell who's pidor of the day, and also be a notary"
 network = """
 *Services*
-*Онлайн-ресурсы*
 
 `/wget [link]` — Information on the speed of downloading page
 `/preview [link on YouTube video]` — load the thumbnail from YouTube
@@ -241,6 +240,7 @@ admin = """
 *Chat management*
 
 `/mute [time] [reason]` — mute a people
+`/unmute [time] [reason]` — unmute a people
 `/selfmute [time] [reason]` — mute a self
 
 `/warn [reason]` — warn a people
