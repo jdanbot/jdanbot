@@ -160,13 +160,13 @@ command_requires_reply_or_text = "Command wants a text parameter or reply"
 failed_to_recognize = "Failed to recognize anything"
 
 no_symbols = """
-*⚠️ В запросе нет корректных символов для отрисовки*
-Используйте буквы латиницы и кириллицы, цифры и спец\\. знаки типа \\!@? и прочие"""
+*⚠️ Your request lacks of supported symbols*
+Please use letters of latin or cyrillic, numbers or special symbols, i.e. \\!@? and others"""
 
 [errors.command_requires]
-reply = "Для выполнения команды необходим реплай на сообщение"
-text = "Для выполнения команды не хватает текстового параметра"
-reply_or_text = "Для выполнения команды не хватает текстового параметра или реплая"
+reply = "Command requires a reply"
+text = "Command wants the text parameter"
+reply_or_text = "Command wants a text parameter or reply"
 
 [docs]
 scp = """
@@ -230,11 +230,11 @@ ffmpeg = """
 all of commands require an reply to media sticker, gif, or video 
 
 `/to_gif` — convert to gif
-`/fast` — ускорить
-`/slow` — замедлить
+`/fast` — speed up
+`/slow` — slow your video
 `/reverse` — reverse
-`/p{4,8,14}` — превратить видео и звук в пиксельные
-`/jam` — сделать видео низкого качества
+`/p{4,8,14}` — pixelise your video and sound tracks
+`/jam` — made video a poor quolity
 `/mirror` — reverse horisontally
 """
 admin = """
