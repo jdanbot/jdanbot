@@ -184,6 +184,7 @@ class Locale(Struct, frozen=True):
 class Locales(Struct):
     ru: Locale
     en: Locale
+    uk: Locale
 
 
 def dec_hook(type: type, o: Any) -> Template:
@@ -198,6 +199,7 @@ def dec_hook(type: type, o: Any) -> Template:
 with (
     open("locales/ru.toml") as ru,
     open("locales/en.toml") as en,
+    open("locales/uk.toml") as uk,
 ):
     locales = Locales(
         ru=toml.decode(
@@ -205,5 +207,8 @@ with (
         ),
         en=toml.decode(
             en.read(), type=Locale, dec_hook=dec_hook
+        ),
+        uk=toml.decode(
+            uk.read(), type=Locale, dec_hook=dec_hook
         ),
     )
