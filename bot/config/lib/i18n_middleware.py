@@ -3,7 +3,7 @@ from typing import Any, Callable, override
 
 from aiogram import BaseMiddleware, types
 
-from ...database import Member
+from ...database import Chat
 from .locales import locales
 
 
@@ -12,12 +12,17 @@ class i18nMiddleware(BaseMiddleware):
     async def __call__(
         self,
         handler: Callable[
-            [types.Message, dict[str, Any]], Awaitable[Any]
+            [types.TelegramObject, dict[str, Any]],
+            Awaitable[Any],
         ],
         event: types.TelegramObject,
         data: dict[str, Any],
     ) -> Any:
-        data["user_lang"] = await self.get_language(event)
+        data["user_lang"] = await self.detect_language(
+            data.get("event_chat"),
+            data.get("event_from_user"),
+        )
+
         data["_"] = getattr(
             locales, data["user_lang"], locales.ru
         )
@@ -25,65 +30,20 @@ class i18nMiddleware(BaseMiddleware):
         return await handler(event, data)
 
     @classmethod
-    async def get_language(
+    async def detect_language(
         cls,
-        event: types.TelegramObject,
-        member: Member | None = None,
+        chat: types.Chat | None,
+        user: types.User | None,
     ) -> str:
-        print("rewrite i18n!!!")
-        return "en"
-        # print(event.model_dump_json(indent=4))
-
-        try:
-            skip_to_message = event.callback_query
-            if_has_callback = bool(event.callback_query)
-        except Exception:
-            skip_to_message = True
-            if_has_callback = False
-
-        if if_has_callback:
-            event: types.CallbackQuery = (
-                event.callback_query
-            )
-
-        if not skip_to_message and event.inline_query:
-            event: types.InlineQuery = event.inline_query
-            _user_id, check_chat = (
-                event.from_user.id,
-                False,
-            )
-        elif (
-            not skip_to_message
-            and event.chosen_inline_result
+        if chat and (
+            chat_lang := await Chat.get_language(chat.id)
         ):
-            event: types.ChosenInlineResult = (
-                event.chosen_inline_result
-            )
-            _user_id, check_chat = event.from_user.id, False
-        else:
-            try:
-                event: types.Message = event.message
-            except Exception:
-                pass
-
-            if event is None:
-                return "ru"
-
-            if not member:
-                member = await Member.get_by(event)
-            _user_id, check_chat = member.user_id, True
-
-        if check_chat:
-            if not member:
-                member = await Member.get_by(event)
-
-        if check_chat and (chat_lang := member.lang):
             return chat_lang.strip()
-        elif user_chat_lang := await Member.get_note(
-            "__chat_lang__"
+        elif user and (
+            user_lang := await Chat.get_language(user.id)
         ):
-            return user_chat_lang.strip()
-        elif user := event.from_user:
+            return user_lang.strip()
+        elif user:
             return user.language_code or "ru"
         else:
             return "ru"
