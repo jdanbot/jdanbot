@@ -2,6 +2,7 @@ from aiogram.utils.markdown import code
 from stripped import text2art
 
 from bot.config.lib.locales import locales
+from bot.network.repology import get_project
 
 from ._base import AbcTests
 
@@ -67,3 +68,8 @@ class Tests(AbcTests):
         await self.assertInMock("выдал мут", "/warn test")
         await self.assertInMock("выдал мут", "/mute 5 test")
         await self.assertInMock("MSK", "/selfmute 30")
+
+    async def test_repology(self):
+        pkg = await get_project("firefox")
+
+        assert len(pkg.packages) > 0
