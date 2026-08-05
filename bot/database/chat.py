@@ -57,7 +57,7 @@ class Chat(Base, frozen=True):
                     if chat[-3]
                     else None
                 ),
-                chat[-2],
+                chat[-1],
                 ChatSettings(),
                 # json.decode(
                 #     chat[-1] or "{}",
