@@ -187,10 +187,10 @@ async def get(
 
     try:
         await message.reply(
-            note.text, parse_mode="MarkdownV2"
+            note.text, parse_mode="Markdown"
         )
     except Exception:
-        await message.reply(note.text)
+        await message.reply(note.text, parse_mode=None)
 
 
 @router.message(Command("show", "notes"))
