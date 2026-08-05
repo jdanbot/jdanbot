@@ -7,6 +7,21 @@ from ..config import router
 from ..filters import GetText
 from ..lib.aioget import aioget
 
+DISTROS = {
+    "OpenBSD Ports": "🐡 OpenBSD",
+    "Alpine Linux 3.24": "🏔 Alpine Linux 3.24",
+    "AUR": "📦 AUR",
+    "Arch Linux": "🅰️ Arch Linux",
+    "Void Linux x86_64": "🟢 Void Linux",
+    "Termux": "🤖 Termux",
+    "Ubuntu 26.04": "♻️ Ubuntu 26.04",
+    "Artix": "🌌 Artix",
+    "Debian 14": "🌀 Debian 14",
+    "pkgsrc-2026Q2": "🚩 NetBSD",
+    "FreeBSD Ports": "👹 FreeBSD",
+    "nixpkgs stable 26.05": "❄️ NixOS",
+}
+
 
 class Package(Struct, frozen=True):
     distro: str
@@ -46,24 +61,8 @@ async def get_project(query: str = "inori") -> Project:
     )
 
 
-DISTROS = {
-    "OpenBSD Ports": "🐡 OpenBSD",
-    "Alpine Linux 3.24": "🏔 Alpine Linux 3.24",
-    "AUR": "📦 AUR",
-    "Arch Linux": "🅰️ Arch Linux",
-    "Void Linux x86_64": "🟢 Void Linux",
-    "Termux": "🤖 Termux",
-    "Ubuntu 26.04": "♻️ Ubuntu 26.04",
-    "Artix": "🌌 Artix",
-    "Debian 14": "🌀 Debian 14",
-    "pkgsrc-2026Q2": "🚩 NetBSD",
-    "FreeBSD Ports": "👹 FreeBSD",
-    "nixpkgs stable 26.05": "❄️ NixOS",
-}
-
-
 @router.message(Command("pkg", "repology"), GetText())
-async def get_weather_func(
+async def get_repology_package(
     message: types.Message, query: str
 ):
     pkg = await get_project(query)
