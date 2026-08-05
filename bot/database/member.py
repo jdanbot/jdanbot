@@ -13,7 +13,7 @@ from ..config.bot import COMMANDS, bot
 from ..config.config import settings
 from ..lib.admin import check_admin
 from ._base import BetterConnection, dbmethod
-from ._extras import IsInserted, Unixepoch
+from ._extras import IsInserted, Random, Unixepoch
 from ._tables import CMD, C, E, M, P, U, W
 from .chat import Chat
 from .pidor import Pidor, PidorTop
@@ -245,7 +245,7 @@ class Member(Struct, frozen=True):
             )
             .where(P.chat_id == self.chat_id)
             .where(P.is_allowed == 1)
-            .orderby("random()")
+            .orderby(Random())
             .limit(1)
         )
 
