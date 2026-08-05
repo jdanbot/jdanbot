@@ -113,6 +113,7 @@ async def edit_gif(
     ffmpeg = (
         FFmpeg()
         .input(file)
+        .option(key="y")
         .output(output, {"codec:v": "libx265"}, **params)
     )
 
