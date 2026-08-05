@@ -11,7 +11,7 @@ from ..config.languages import (
     LANGS,
     TranslationLanguage,
 )
-from ..config.lib.i18n_middleware import i18nMiddleware
+from ..config.lib.locales import Locale
 from ..filters import GetText
 from .lib.aiogoogletrans import AioGoogleTranslator
 from .lib.multitran import (
@@ -41,16 +41,14 @@ async def crazy_translator(
     message: types.Message,
     query: str,
     command: CommandObject,
+    _: Locale,
 ):
     msg = await message.reply("⏳")
-
-    mw = i18nMiddleware()
     t = CrazyTranslator()
 
     user_lang = (
         user_lang
-        if (user_lang := await mw.get_language(message))
-        in ("uk", "ru", "en")
+        if (user_lang := _.lang) in ("uk", "ru", "en")
         or "ru"
         else "ru"
     )
