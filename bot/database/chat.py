@@ -52,7 +52,7 @@ class Chat(Base, frozen=True):
             [
                 *chat[:3],
                 (
-                    Language.from_str(chat[-3])
+                    Language.from_str("ru")
                     if chat[-3]
                     else None
                 ),
