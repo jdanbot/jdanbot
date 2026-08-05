@@ -151,11 +151,11 @@ class SpyMiddleware(BaseMiddleware):
         except Exception:
             pass
 
-        if False and command is not None:
+        if command is not None:
             data["member"] = member
             data["settings"] = member.chat.settings
 
-            await Command(
+            Command(
                 id=None,
                 user_id=member.user_id,
                 chat_id=member.chat_id,
