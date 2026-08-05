@@ -12,17 +12,21 @@ class Template(str):
 
     def format(self, **kwargs) -> str:
         def replace_plural(match):
-            key, forms = match.group(1), match.group(2)
+            key, forms_raw = match.group(1), match.group(2)
             count = kwargs.get(key, 0)
-            forms_list = forms.split("|")
+            forms = forms_raw.split("|")
 
-            if len(forms_list) == 3:
+            if len(forms) == 3:
                 return " ".join(
                     [
                         str(count),
-                        prettyword(count, forms_list),
+                        prettyword(count, forms),
                     ]
                 )
+            elif len(forms) == 2:
+                form = forms[0] if count == 1 else forms[1]
+                return f"{count} {form}"
+
             return count + " " + match.group(0)
 
         result = re.sub(
@@ -168,10 +172,19 @@ class Locale(Struct, frozen=True):
 
     modules: Modules
 
+    class Triggers(Struct, frozen=True):
+        yes_: str
+        delete: str
+        call_admin_warn: str
+        admins_called: str
+
+    triggers: Triggers
+
 
 class Locales(Struct):
     ru: Locale
-    # en: Locale
+    en: Locale
+    uk: Locale
 
 
 def dec_hook(type: type, o: Any) -> Template:
@@ -183,9 +196,19 @@ def dec_hook(type: type, o: Any) -> Template:
     )
 
 
-with open("locales/ru.toml") as file:
+with (
+    open("locales/ru.toml") as ru,
+    open("locales/en.toml") as en,
+    open("locales/uk.toml") as uk,
+):
     locales = Locales(
         ru=toml.decode(
-            file.read(), type=Locale, dec_hook=dec_hook
+            ru.read(), type=Locale, dec_hook=dec_hook
+        ),
+        en=toml.decode(
+            en.read(), type=Locale, dec_hook=dec_hook
+        ),
+        uk=toml.decode(
+            uk.read(), type=Locale, dec_hook=dec_hook
         ),
     )

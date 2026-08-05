@@ -38,7 +38,7 @@ class Chat(Base, frozen=True):
 
     username: str | None
     title: str
-    language: Language
+    language: Language | None
 
     current_pidor_id: int | None
     settings: ChatSettings
@@ -51,7 +51,11 @@ class Chat(Base, frozen=True):
         return convert(
             [
                 *chat[:3],
-                Language.from_str("ru"),
+                (
+                    Language.from_str(chat[-3])
+                    if chat[-3]
+                    else None
+                ),
                 chat[-2],
                 json.decode(
                     chat[-1] or "{}",
@@ -189,3 +193,14 @@ class Chat(Base, frozen=True):
             .where(C.id == self.id)
         )
         await conn.commit()
+
+    @staticmethod
+    @dbmethod
+    async def get_language(
+        chat_id: int, conn: BetterConnection
+    ) -> Language:
+        return await conn.execute_scalar(
+            Query.from_(C)
+            .select(C.language)
+            .where(C.id == chat_id)
+        )
