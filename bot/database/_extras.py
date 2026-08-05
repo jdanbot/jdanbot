@@ -30,3 +30,8 @@ class IsInserted(Function):
 class Unixepoch(Function):
     def __init__(self):
         super(Unixepoch, self).__init__("unixepoch")
+
+
+class Random(Function):
+    def __init__(self):
+        super(Random, self).__init__("random")
