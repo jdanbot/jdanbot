@@ -1,3 +1,4 @@
+import random
 import re
 import textwrap
 from random import choice
@@ -17,6 +18,12 @@ from .lib.aiogoogletrans import AioGoogleTranslator
 from .lib.multitran import (
     GoogleTranslator as CrazyTranslator,
 )
+
+
+def shuffle(text: str) -> str:
+    return " ".join(
+        random.sample(words := text.split(), len(words))
+    )
 
 
 def get_lang_emoji_by_name(lang_name: str) -> str:
@@ -56,6 +63,9 @@ async def crazy_translator(
     langs = []
     text = query[:1000]
 
+    if command.command.endswith("2"):
+        text = shuffle(text)
+
     for __ in range(8):
         lang = choice(
             tuple(
@@ -84,8 +94,3 @@ async def crazy_translator(
         disable_web_page_preview=True,
         parse_mode=None,
     )
-
-    if command.command.endswith("2"):
-        await message.answer(
-            "".join(map(get_lang_emoji_by_name, langs))
-        )
