@@ -151,7 +151,7 @@ class SpyMiddleware(BaseMiddleware):
         except Exception:
             pass
 
-        if command is not None:
+        if False and command is not None:
             data["member"] = member
             data["settings"] = member.chat.settings
 
