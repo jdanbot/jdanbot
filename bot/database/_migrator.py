@@ -5,7 +5,9 @@ from pathlib import Path
 
 from loguru import logger
 
-db = sqlite3.connect("jdanbot.db")
+from ..config.config import settings
+
+db = sqlite3.connect(settings.db_path)
 migrations = sorted(Path("migrations").glob("*.py"))
 
 
