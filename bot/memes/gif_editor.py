@@ -24,6 +24,7 @@ GIF_EDITOR_COMMANDS = {
     "p8",
     "p14",
     "jam",
+    "munch",
     "mirror",
 }
 
@@ -84,7 +85,7 @@ async def edit_gif(
                 af=FFMPEG_BAD_AUDIO,
                 ab={"4": "1k", "8": "4k", "14": "8k"}[X],
             )
-        case "jam":
+        case "jam" | "munch":
             params = dict(
                 vb="50k",
                 maxrate="50k",
