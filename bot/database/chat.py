@@ -48,6 +48,7 @@ class Chat(Base, frozen=True):
 
     @staticmethod
     def __parse(chat: list[Any] | Row) -> "Chat":
+        print(chat)
         return convert(
             [
                 *chat[:3],
@@ -57,11 +58,12 @@ class Chat(Base, frozen=True):
                     else None
                 ),
                 chat[-2],
-                json.decode(
-                    chat[-1] or "{}",
-                    type=ChatSettings,
-                    strict=False,
-                ),
+                ChatSettings(),
+                # json.decode(
+                #     chat[-1] or "{}",
+                #     type=ChatSettings,
+                #     strict=False,
+                # ),
             ],
             Chat,
         )
