@@ -50,6 +50,10 @@ async def crazy_translator(
     command: CommandObject,
     _: Locale,
 ):
+    if message.reply_to_message:
+        await message.delete()
+        message = message.reply_to_message
+
     msg = await message.reply("⏳")
     t = CrazyTranslator()
 
