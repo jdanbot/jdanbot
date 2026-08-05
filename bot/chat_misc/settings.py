@@ -44,7 +44,9 @@ async def settings_(message: types.Message, _: Locale):
     keyboard.button(
         text=unite(
             _.settings.locale,
-            LANGS[chat.language.alpha_2].emoji,
+            LANGS[chat.language.alpha_2].emoji
+            if chat.language
+            else "🏳️ ",
         ),
         callback_data="set_lang",
     )
