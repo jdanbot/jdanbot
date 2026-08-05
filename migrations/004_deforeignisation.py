@@ -457,7 +457,7 @@ def migrate_warns(conn: Connection):
             W.reason,
             W.warned_at,
             M3.user_id as unwarn_admin_id,
-            w.unwarn_reason,
+            W.unwarn_reason,
             W.unwarned_at
         FROM warns_old W
         LEFT JOIN members M1 ON W.who_warned_id = M1.id
