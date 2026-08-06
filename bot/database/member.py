@@ -215,7 +215,7 @@ class Member(Struct, frozen=True):
         event_id = await conn.execute_scalar(
             Query.into(E)  # type: ignore[operator]
             .columns(E.chat_id, E.pidor_id)
-            .insert(self.chat_id, self.user_id)
+            .insert(self.chat_id, self.pidor.id)
             .returning(E.id)
         )
 
