@@ -1,6 +1,6 @@
 [project]
 name = "jdanbot"
-version = "4.0.0.b3"
+version = "4.0.0.b4"
 description = "Multifunctional Telegram Bot for banning and stuff."
 authors = [
   { name = "Daniel Zakharov", email = "gzdan734@gmail.com" }
