@@ -71,7 +71,7 @@ async def find_pidor(
     except TelegramBadRequest:
         is_member_left = None
 
-    if not is_member_left is False:
+    if is_member_left is not False:
         await message.reply(
             _.pidor.pidor_left, parse_mode=None
         )
