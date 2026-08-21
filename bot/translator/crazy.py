@@ -6,7 +6,7 @@ from random import choice
 from aiogram import types
 from aiogram.filters import Command, CommandObject
 
-from ..config import router
+from ..config import bot, router
 from ..config.languages import (
     CRAZY_LANGS,
     LANGS,
@@ -46,7 +46,16 @@ async def crazy_translator(
     command: CommandObject,
     _: Locale,
 ):
-    if message.reply_to_message:
+    if message.reply_to_message and (
+        (user := message.reply_to_message.from_user)
+        and (
+            user.id == bot.id
+            or (
+                (replier := message.from_user)
+                and user.id == replier.id
+            )
+        )
+    ):
         await message.delete()
         message = message.reply_to_message
 
