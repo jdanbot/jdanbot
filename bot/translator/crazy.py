@@ -32,11 +32,7 @@ def get_lang_emoji_by_name(lang_name: str) -> str:
     ).emoji
 
 
-async def cleared_translate(
-    t: CrazyTranslator, *args, **kwargs
-) -> str:
-    source_text = await t.translate(*args, **kwargs)
-
+def clear_text(source_text: str) -> str:
     text = re.sub(" +", " ", source_text)
     return textwrap.dedent(text)
 
@@ -82,9 +78,8 @@ async def crazy_translator(
         lang = "uk" if lang == "ua" else lang
         langs.append(lang)
 
-        text = await cleared_translate(
-            t, text, tgt_lang=lang
-        )
+        _text = await t.translate(text, tgt_lang=lang)
+        text = clear_text(_text)
     await t.close()
 
     langs.append(user_lang)
