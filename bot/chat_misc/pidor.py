@@ -2,6 +2,7 @@ import asyncio
 from random import choice
 
 from aiogram import types
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command
 from aiogram.utils.markdown import bold, italic
 
@@ -65,7 +66,12 @@ async def find_pidor(
 
     random_member: Member = await member.get_random_pidor()
 
-    if await random_member.is_left():
+    try:
+        is_member_left = await random_member.is_left()
+    except TelegramBadRequest:
+        is_member_left = None
+
+    if is_member_left is not False:
         await message.reply(
             _.pidor.pidor_left, parse_mode=None
         )
@@ -82,7 +88,7 @@ async def find_pidor(
 
     await message.answer(
         choice(_.pidor.today_pidor)(
-            user=bold(random_member.tag),
+            user=f"*{random_member.tag}*",
         )
     )
 

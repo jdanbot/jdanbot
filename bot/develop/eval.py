@@ -3,6 +3,7 @@ import traceback
 from pprint import pformat
 from types import FunctionType
 
+import hy
 from aiogram import types
 from aiogram.filters import Command, CommandObject
 from aiogram.utils.markdown import code
@@ -14,7 +15,7 @@ from ..filters import GetText, IsSuperuser
 
 
 @router.message(
-    Command("e", "pe"),
+    Command("e", "py"),
     IsSuperuser(),
     GetText(disable_reply=True),
 )
@@ -60,6 +61,20 @@ async def supereval(
                 )[:4096]
             )
         )
+
+    await message.reply(code(str(output)[:4096]))
+@router.message(
+    Command("hy"),
+    IsSuperuser(),
+    GetText(disable_reply=True),
+)
+async def supereval_hylang(
+    message: types.Message,
+    command: CommandObject,
+    query: str,
+):
+    hy_stmt = hy.read_many(query)
+    output = hy.eval(hy_stmt, locals=dict(message=message))
 
     await message.reply(code(str(output)[:4096]))
 

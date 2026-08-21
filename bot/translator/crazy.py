@@ -6,7 +6,7 @@ from random import choice
 from aiogram import types
 from aiogram.filters import Command, CommandObject
 
-from ..config import router
+from ..config import bot, router
 from ..config.languages import (
     CRAZY_LANGS,
     LANGS,
@@ -32,11 +32,7 @@ def get_lang_emoji_by_name(lang_name: str) -> str:
     ).emoji
 
 
-async def cleared_translate(
-    t: CrazyTranslator, *args, **kwargs
-) -> str:
-    source_text = await t.translate(*args, **kwargs)
-
+def clear_text(source_text: str) -> str:
     text = re.sub(" +", " ", source_text)
     return textwrap.dedent(text)
 
@@ -50,7 +46,16 @@ async def crazy_translator(
     command: CommandObject,
     _: Locale,
 ):
-    if message.reply_to_message:
+    if message.reply_to_message and (
+        (user := message.reply_to_message.from_user)
+        and (
+            user.id == bot.id
+            or (
+                (replier := message.from_user)
+                and user.id == replier.id
+            )
+        )
+    ):
         await message.delete()
         message = message.reply_to_message
 
@@ -67,9 +72,6 @@ async def crazy_translator(
     langs = []
     text = query[:1000]
 
-    if command.command.endswith("2"):
-        text = shuffle(text)
-
     for __ in range(8):
         lang = choice(
             tuple(
@@ -82,9 +84,11 @@ async def crazy_translator(
         lang = "uk" if lang == "ua" else lang
         langs.append(lang)
 
-        text = await cleared_translate(
-            t, text, tgt_lang=lang
-        )
+        _text = await t.translate(text, tgt_lang=lang)
+        text = clear_text(_text)
+
+        if command.command.endswith("2"):
+            text = shuffle(text)
     await t.close()
 
     langs.append(user_lang)
