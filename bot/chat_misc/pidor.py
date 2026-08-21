@@ -82,7 +82,7 @@ async def find_pidor(
 
     await message.answer(
         choice(_.pidor.today_pidor)(
-            user=bold(random_member.tag),
+            user=f"*{random_member.tag}*",
         )
     )
 
