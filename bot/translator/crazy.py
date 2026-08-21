@@ -63,9 +63,6 @@ async def crazy_translator(
     langs = []
     text = query[:1000]
 
-    if command.command.endswith("2"):
-        text = shuffle(text)
-
     for __ in range(8):
         lang = choice(
             tuple(
@@ -80,6 +77,9 @@ async def crazy_translator(
 
         _text = await t.translate(text, tgt_lang=lang)
         text = clear_text(_text)
+
+        if command.command.endswith("2"):
+            text = shuffle(text)
     await t.close()
 
     langs.append(user_lang)
