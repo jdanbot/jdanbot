@@ -5,6 +5,9 @@ from zoneinfo import ZoneInfo
 
 from aiogram import types
 from aiogram.utils.markdown import hlink, link
+from aiogram.utils.text_decorations import (
+    markdown_decoration as md,
+)
 from msgspec import Struct, convert
 from pypika import Field, Order, Query
 from pypika import functions as fn
@@ -60,7 +63,7 @@ class Member(Struct, frozen=True):
     @property
     def tag(self, use_html: bool = False) -> str:
         if self.username:
-            return f"@{self.username}"
+            return f"@{md.quote(self.username)}"
 
         return (hlink if use_html else link)(
             self.full_name,
