@@ -7,25 +7,25 @@ authors = [
 ]
 license = "MIT"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = "<3.15,>=3.13"
 dependencies = [
   "aiogram>=3.28.0",
-  "pyduckgo",
+  "pyduckgo @ git+https://github.com/jdan735/pyduckgo",
   "humanize>=4.1.0",
   "pytimeparse2>=1.7.1",
   "python-ffmpeg>=2.0.12",
   "shellous>=0.36.0",
   "aiopytesseract>=0.14.0",
-  "tghtml==2.0.1",
+  "tghtml @ git+https://github.com/jdan735/tghtml@dev",
   "iso639-lang>=2.2.3",
-  "wikipya",
+  "wikipya @ git+https://github.com/jdan735/wikipya@dev",
   "msgspec[toml]>=0.21.1",
   "aiosqlite>=0.22.1",
   "pypika>=0.51.1",
   "roman>=5.2",
-  "pymemeru",
+  "pymemeru @ git+https://github.com/jdan735/pymemeru",
   "loguru>=0.7.3",
-  "stripped",
+  "stripped @ git+https://codeberg.org/dntn/stripped",
   "hy>=1.3.1",
 ]
 
@@ -55,12 +55,15 @@ extend-select = [
   "FURB",   # refurb
 ]
 
-[tool.uv.sources]
-wikipya = { git = "https://github.com/jdan735/wikipya", branch = "dev" }
-pymemeru = { git = "https://github.com/jdan735/pymemeru", branch = "main" }
-tghtml = { git = "https://github.com/jdan735/tghtml", branch = "dev" }
-pyduckgo = { git = "https://github.com/jdan735/pyduckgo", branch = "main" }
-stripped = { git = "https://codeberg.org/dntn/stripped.git/" }
+[tool.setuptools]
+py-modules = []
+
+# [tool.uv.sources]
+# wikipya = { git = "https://github.com/jdan735/wikipya", branch = "dev" }
+# pymemeru = { git = "https://github.com/jdan735/pymemeru", branch = "main" }
+# tghtml = { git = "https://github.com/jdan735/tghtml", branch = "dev" }
+# pyduckgo = { git = "https://github.com/jdan735/pyduckgo", branch = "main" }
+# stripped = { git = "https://codeberg.org/dntn/stripped.git/" }
 # tghtml = { path = "../tghtml" }
 # wikipya = { path = "../wikipya" }
 # pymemeru = { path = "../pymemeru" }
