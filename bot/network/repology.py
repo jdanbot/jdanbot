@@ -20,6 +20,8 @@ DISTROS = {
     "pkgsrc-2026Q2": "🚩 NetBSD",
     "FreeBSD Ports": "👹 FreeBSD",
     "nixpkgs stable 26.05": "❄️ NixOS",
+    "Gentoo": "🐄 Gentoo Linux",
+    "Gentoo overlay GURU": "🐮 Gentoo GURU"
 }
 
 
