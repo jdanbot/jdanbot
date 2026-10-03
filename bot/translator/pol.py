@@ -79,10 +79,10 @@ def load_polish_cyrillic_variant(path: str):
 
 
 POLISH_EXP_TRANSLITERATION_SCHEMAS = load_polish_cyrillic_variant(
-    "bot/chat_misc/lib/polish_cyr_exp.toml"
+    "bot/translator/lib/polish_cyr_exp.toml"
 )
 POLISH_TRAD_TRANSLITERATION_SCHEMAS = load_polish_cyrillic_variant(
-    "bot/chat_misc/lib/polish_cyr_trad.toml"
+    "bot/translator/lib/polish_cyr_trad.toml"
 )
 
 
