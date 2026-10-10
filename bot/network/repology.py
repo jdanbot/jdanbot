@@ -79,7 +79,7 @@ async def get_repology_package(
 
     msg = "📦 "
     msg += md.link(
-        md.bold(query)} *versions*",
+        md.bold(query),
         f"https://repology.org/project{query}/history"
     )
     msg += " *versions\n"
