@@ -5,10 +5,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from ..config import LANGS, Locale, router
 from ..database import Chat
 from ..filters import IsAdmin
-
-
-def unite(*args) -> str:
-    return " ".join([*args])
+from ..lib.unite import unite
 
 
 @router.message(Command("settings"), IsAdmin())
