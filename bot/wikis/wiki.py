@@ -37,7 +37,7 @@ async def fallout(message: types.Message) -> Wikipya:
 @router.message(
     Command("gentoo"), GetText(disable_reply=True)
 )
-async def fallout(message: types.Message) -> Wikipya:
+async def gentoo(message: types.Message) -> Wikipya:
     return Wikipya(
         base_url="https://wiki.gentoo.org/api.php",
         params=dict(
