@@ -71,7 +71,6 @@ class Tests(AbcTests):
         await self.assertInMock("выдал мут", "/mute 5 test")
         await self.assertInMock("MSK", "/selfmute 30")
 
-    @unittest.skip("repology.org is down")
     async def test_repology(self):
         pkg = await get_project("firefox")
 
