@@ -35,6 +35,23 @@ async def fallout(message: types.Message) -> Wikipya:
 
 
 @router.message(
+    Command("gentoo"), GetText(disable_reply=True)
+)
+async def fallout(message: types.Message) -> Wikipya:
+    return Wikipya(
+        base_url="https://wiki.gentoo.org/api.php",
+        params=dict(
+            tag_blocklist=[
+                "nav",
+                ".alert",
+                "div.list-group-item",
+                ".noprint",
+                *TAG_BLOCKLIST,
+            ]
+        ),
+    )
+
+@router.message(
     Command("blood"), GetText(disable_reply=True)
 )
 async def blood(message: types.Message) -> Wikipya:

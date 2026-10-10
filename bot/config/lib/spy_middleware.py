@@ -278,7 +278,7 @@ class SpyMiddleware(BaseMiddleware):
             pass
 
         return Article(
-            text=x.parsed or "",
+            text=x.parsed.replace("&lt;translate&gt;", "") or "",
             href=url,
             image=image,
             title=page.title,
