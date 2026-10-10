@@ -9,6 +9,7 @@ from selectolax.lexbor import LexborHTMLParser
 from ..config import router
 from ..filters import GetText
 from ..lib.aioget import aioget
+from ..lib.unite import unite
 
 DISTROS = {
     "OpenBSD Ports": "🐡 OpenBSD",
@@ -77,12 +78,14 @@ async def get_repology_package(
         pkg.packages,
     )
 
-    msg = "📦 "
-    msg += md.link(
-        md.bold(query),
-        f"https://repology.org/project{query}/history"
+    msg = unite(
+        "📦",
+        md.link(
+            md.bold(query),
+            f"https://repology.org/project/{query}/history"
+        ),
+        "*versions*\n",
     )
-    msg += " *versions\n"
 
     for v in variants:
         for distro in DISTROS.keys():
