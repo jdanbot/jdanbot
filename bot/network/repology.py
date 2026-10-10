@@ -11,10 +11,14 @@ from ..filters import GetText
 from ..lib.aioget import aioget
 from ..lib.unite import unite
 
+
+def wrap(content: str, wrapper: str) -> str:
+    return "".join([wrapper, content, wrapper])
+
 DISTROS = {
     "OpenBSD Ports": "🐡 OpenBSD",
     "Alpine Linux 3.24": "🏔 Alpine Linux 3.24",
-    "AUR": "📦 AUR",
+    "AUR": "📦 AUR"
     "Arch Linux": "🅰️ Arch Linux",
     "Void Linux x86_64": "🟢 Void Linux",
     "Termux": "🤖 Termux",
@@ -80,12 +84,15 @@ async def get_repology_package(
 
     msg = unite(
         "📦",
-        md.link(
-            md.bold(query),
-            f"https://repology.org/project/{query}/history"
+        wrap(
+            md.link(
+                query,
+                f"https://repology.org/project/{query}/history"
+            ),
+            "**"
         ),
         md.bold("versions"),
-        end="\n"
+        end="\n\n"
     )
 
     for v in variants:
@@ -98,4 +105,4 @@ async def get_repology_package(
                     end="\n"
                 )
 
-    await message.reply(msg)
+    await message.reply(msg, parse_mode="Markdown")
