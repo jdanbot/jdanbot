@@ -1,8 +1,8 @@
 from aiogram import types
+from aiogram.filters import Command
 from aiogram.utils.text_decorations import (
     markdown_decoration as md,
 )
-from aiogram.filters import Command
 from msgspec import Struct
 from selectolax.lexbor import LexborHTMLParser
 
@@ -19,7 +19,8 @@ DISTROS = {
     "Termux": "🤖 Termux",
     "Ubuntu 26.04": "♻️ Ubuntu 26.04",
     "Artix": "🌌 Artix",
-    "Debian 14": "🌀 Debian 14",
+    "Debian 14": "🌀 Debian 13",
+    "Debian 14": "🌀 Debian 14 (unstable)",
     "pkgsrc-2026Q2": "🚩 NetBSD",
     "FreeBSD Ports": "👹 FreeBSD",
     "nixpkgs stable 26.05": "❄️ NixOS",
