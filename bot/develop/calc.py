@@ -5,7 +5,7 @@ from typing import Any
 
 from aiogram import types
 from aiogram.filters import Command
-from aiogram.utils.markdown import code
+from aiogram.utils.markdown import bold, code
 
 from ..config import Locale, router, settings
 from ..filters import GetText
@@ -24,15 +24,14 @@ async def eban(
     match = re.search(r"[a-zA-Zа-яА-Я]", query)
     match_symbols = re.search(r"[\[\]\^\{\}]|\*\*", query)
 
-    if type(match).__name__ == "Match":
-        await message.reply(_.errors.only_vars)
-        return
-
     if (
-        type(match_symbols).__name__ == "Match"
+        (
+            type(match_symbols).__name__ == "Match" or
+            type(match).__name__ == "Match"
+        )
         and message.from_user.id not in settings.bot_owners
     ):
-        await message.reply(_.errors.only_vars)
+        await message.reply(bold(_.errors.only_vars))
         return
 
     result = await asyncio.wait_for(calc(query), 1)
