@@ -76,11 +76,16 @@ async def get_repology_package(
         pkg.packages,
     )
 
-    msg = f"📦 *[{query}](https://repology.org/project/{query}/history) versions*\n\n"
+    msg = "📦 "
+    msg += md.link(
+        md.bold(query)} *versions*",
+        f"https://repology.org/project{query}/history"
+    )
+    msg += " *versions\n"
 
     for v in variants:
         for distro in DISTROS.keys():
             if v.distro == distro:
                 msg += f"*{DISTROS[distro]}*: {md.code(v.version)}\n"
 
-    await message.reply(msg, parse_mode="Markdown")
+    await message.reply(msg)
