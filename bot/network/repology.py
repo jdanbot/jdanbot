@@ -1,5 +1,8 @@
 from aiogram import types
 from aiogram.filters import Command
+from aiogram.utils.text_decorations import (
+    markdown_decoration as md,
+)
 from msgspec import Struct
 from selectolax.lexbor import LexborHTMLParser
 
@@ -16,12 +19,13 @@ DISTROS = {
     "Termux": "🤖 Termux",
     "Ubuntu 26.04": "♻️ Ubuntu 26.04",
     "Artix": "🌌 Artix",
-    "Debian 14": "🌀 Debian 14",
+    "Debian 13": "🌀 Debian 13",
+    "Debian 14": "🌀 Debian 14 (unstable)",
     "pkgsrc-2026Q2": "🚩 NetBSD",
     "FreeBSD Ports": "👹 FreeBSD",
     "nixpkgs stable 26.05": "❄️ NixOS",
     "Gentoo": "🐄 Gentoo Linux",
-    "Gentoo overlay GURU": "🐮 Gentoo GURU"
+    "Gentoo overlay GURU": "🐮 Gentoo GURU",
 }
 
 
@@ -73,11 +77,16 @@ async def get_repology_package(
         pkg.packages,
     )
 
-    msg = f"📦 *{query.capitalize()} Versions*\n\n"
+    msg = "📦 "
+    msg += md.link(
+        md.bold(query),
+        f"https://repology.org/project{query}/history"
+    )
+    msg += " *versions\n"
 
     for v in variants:
         for distro in DISTROS.keys():
             if v.distro == distro:
-                msg += f"*{DISTROS[distro]}*: {v.version}\n"
+                msg += f"*{DISTROS[distro]}*: {md.code(v.version)}\n"
 
-    await message.reply(msg, parse_mode="Markdown")
+    await message.reply(msg)
