@@ -21,7 +21,7 @@ DISTROS = {
     "Ubuntu 26.04": "♻️ Ubuntu 26.04",
     "Artix": "🌌 Artix",
     "Debian 13": "🌀 Debian 13",
-    "Debian 14": "🌀 Debian 14 \(unstable\)",
+    "Debian 14": "🌀 Debian 14 (unstable)",
     "pkgsrc-2026Q2": "🚩 NetBSD",
     "FreeBSD Ports": "👹 FreeBSD",
     "nixpkgs stable 26.05": "❄️ NixOS",
@@ -93,7 +93,7 @@ async def get_repology_package(
             if v.distro == distro:
                 msg += unite(
                     md.bold(DISTROS[distro]),
-                    md.code(v.version)
+                    md.code(v.version),
                     separator=": ",
                     end="\n"
                 )
