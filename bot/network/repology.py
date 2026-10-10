@@ -19,7 +19,7 @@ DISTROS = {
     "Termux": "🤖 Termux",
     "Ubuntu 26.04": "♻️ Ubuntu 26.04",
     "Artix": "🌌 Artix",
-    "Debian 14": "🌀 Debian 13",
+    "Debian 13": "🌀 Debian 13",
     "Debian 14": "🌀 Debian 14 (unstable)",
     "pkgsrc-2026Q2": "🚩 NetBSD",
     "FreeBSD Ports": "👹 FreeBSD",
