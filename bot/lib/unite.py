@@ -1,2 +1,2 @@
-def unite(*args) -> str:
-    return " ".join([*args])
+def unite(*args, separator: str = " ", end: str = "") -> str:
+    return separator.join([*args]) + end

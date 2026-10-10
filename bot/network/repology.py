@@ -84,12 +84,18 @@ async def get_repology_package(
             md.bold(query),
             f"https://repology.org/project/{query}/history"
         ),
-        "*versions*\n",
+        md.bold("versions"),
+        end="\n"
     )
 
     for v in variants:
         for distro in DISTROS.keys():
             if v.distro == distro:
-                msg += f"*{DISTROS[distro]}*: {md.code(v.version)}\n"
+                msg += unite(
+                    md.bold(DISTROS[distro]),
+                    md.code(v.version)
+                    separator=": ",
+                    end="\n"
+                )
 
     await message.reply(msg)
