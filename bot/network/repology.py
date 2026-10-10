@@ -18,7 +18,7 @@ def wrap(content: str, wrapper: str) -> str:
 DISTROS = {
     "OpenBSD Ports": "🐡 OpenBSD",
     "Alpine Linux 3.24": "🏔 Alpine Linux 3.24",
-    "AUR": "📦 AUR"
+    "AUR": "📦 AUR",
     "Arch Linux": "🅰️ Arch Linux",
     "Void Linux x86_64": "🟢 Void Linux",
     "Termux": "🤖 Termux",
