@@ -48,8 +48,13 @@ async def fetch_all(
             title, to_section=to_section
         )
     else:
-        search = await client.search(query)
-        result = search[0]
+        try:
+            search = await client.search(query)
+            result = search[0]
+        except Exception:
+            print(query)
+            opensearch = await client.opensearch(query)
+            result = opensearch[0]
 
         page = await client.page(
             result.title, to_section=to_section
