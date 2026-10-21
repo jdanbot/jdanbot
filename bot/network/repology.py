@@ -105,4 +105,8 @@ async def get_repology_package(
                     end="\n"
                 )
 
-    await message.reply(msg, parse_mode="Markdown")
+    await message.reply(
+        msg,
+        parse_mode="Markdown",
+        disable_web_page_preview=True,
+    )
