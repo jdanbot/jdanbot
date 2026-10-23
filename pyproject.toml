@@ -32,10 +32,6 @@ dependencies = [
 [dependency-groups]
 dev = [
   "coverage>=7.15.2",
-  "pytest-asyncio>=0.25.2",
-  "pytest-modern>=0.7.4",
-  "pytest>=9.0.3",
-  "rich>=15.0.0",
 ]
 
 [tool.pytest]
@@ -60,3 +56,6 @@ py-modules = []
 
 [tool.uv]
 default-groups = []
+
+[tool.pdm.scripts]
+test = {cmd = "python -m unittest tests/test_basic.py"}
