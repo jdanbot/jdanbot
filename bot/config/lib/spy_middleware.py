@@ -229,19 +229,18 @@ class SpyMiddleware(BaseMiddleware):
         else:
             send_original_html = False
 
-        page, image, url = await fetch_all(
-            client=wiki,
+        page, image, url = await wiki.fetch_all(
             query=query,
-            fetch_image_from_page=(
-                "encyclopatia.ru" in wiki.url.url
-                or "blood-wiki.org" in wiki.url.url
-            ),
+            # fetch_image_from_page=(
+            #     "encyclopatia.ru" in wiki.url.url
+            #     or "blood-wiki.org" in wiki.url.url
+            # ),
         )
 
         page_text: str = page.text
         is_fandom = "fandom.com" in url
 
-        if (
+        if FALSE and (
             is_fandom
             or len(
                 parse_html(
@@ -263,7 +262,7 @@ class SpyMiddleware(BaseMiddleware):
             except Exception:
                 raise
 
-        await wiki.close()
+        # await wiki.close()
 
         if send_original_html:
             return page_text
