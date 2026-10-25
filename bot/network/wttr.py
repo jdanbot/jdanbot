@@ -15,13 +15,13 @@ def to_celsius(grad: int) -> int:
 async def get_weather_func(
     message: types.Message, query: str
 ):
-    response = await aioget(
+    _, text = await aioget(
         f"https://wttr.in/{query}?u", params=dict(format=1)
     )
 
     emoji, grads = (
         x.strip()
-        for x in response.text.split(" ")
+        for x in text.split(" ")
         if x != ""
     )
 
