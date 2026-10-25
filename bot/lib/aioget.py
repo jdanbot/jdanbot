@@ -9,6 +9,7 @@ async def aioget(
     timeout: int = 10,
     headers: dict[str, Any] | None = None,
     disable_text_loading: bool = False,
+    encoding: str = "utf-8",
     **kwargs_params,
 ) -> tuple[aiohttp.Response, str]:
     headers = headers or {
@@ -26,6 +27,7 @@ async def aioget(
     async with aiohttp.ClientSession(
         headers=headers,
         timeout=aiohttp.ClientTimeout(timeout),
+        fallback_charset_resolver=lambda r, b: encoding,
     ) as session:
         async with session.get(
             url, params=params | kwargs_params
