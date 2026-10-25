@@ -1,94 +1,14 @@
 from collections.abc import Awaitable
 from typing import Any, Callable, override
 
-import aiohttp
 from aiogram import BaseMiddleware, types
 from aiogram.filters import Command as CommandFilter
-from msgspec import json
-from selectolax.lexbor import LexborHTMLParser
 from tghtml import TgHTML
 from wikipya.clients import Fandom, MediaWiki, Wikipedia
 
 from ...config import bot
 from ...database import Command, Member
 from ...lib.models import Article
-
-
-async def fetch_all(
-    client: Wikipedia,
-    query: str | int,
-    to_section: int = 0,
-    fetch_image_from_page: bool = False,
-):
-    if isinstance(query, int):
-        query = await client.get_page_name(query)
-
-    client.automatic_session_close = False
-
-    async with aiohttp.ClientSession(
-        headers={
-            "User-Agent": "Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
-            "Accept-Encoding": "gzip",
-        },
-    ) as session:
-        r = await session.get(
-            f"{client.url}?&action=query&titles={query}&format=json"
-        )
-
-        try:
-            res = json.decode(await r.text())
-        except Exception:
-            id_ = "-1"
-        else:
-            id_ = list(res["query"]["pages"].keys())[0]
-
-    if id_ != "-1":
-        title = res["query"]["pages"][id_]["title"]
-        page = await client.page(
-            title, to_section=to_section
-        )
-    else:
-        try:
-            search = await client.search(query)
-            result = search[0]
-        except Exception:
-            print(query)
-            opensearch = await client.opensearch(query)
-            result = opensearch[0]
-
-        page = await client.page(
-            result.title, to_section=to_section
-        )
-
-        title = result.title
-
-    BASE_URL = client.url.url.removesuffix(
-        "/api.php"
-    ).removesuffix("/w")
-
-    try:
-        opensearch = await client.opensearch(title)
-        link = opensearch.results[0].link
-    except Exception:
-        link = f"{BASE_URL}/wiki/{title}"
-
-    if fetch_image_from_page:
-        try:
-            image = (
-                LexborHTMLParser(page.text)
-                .css_first("img")
-                .attributes.get("srcset", "")
-            )
-            image = BASE_URL + image.split(" ")[-2]
-        except Exception:
-            image = None
-    else:
-        try:
-            image = await client.image(page.title)
-        except Exception:
-            image = None
-
-    return page, image, link
 
 
 def parse_html(source: str, blocklist: tuple) -> TgHTML:
@@ -230,17 +150,13 @@ class SpyMiddleware(BaseMiddleware):
             send_original_html = False
 
         page, image, url = await wiki.fetch_all(
-            query=query,
-            # fetch_image_from_page=(
-            #     "encyclopatia.ru" in wiki.url.url
-            #     or "blood-wiki.org" in wiki.url.url
-            # ),
+            query=query, close_session=False
         )
 
         page_text: str = page.text
         is_fandom = "fandom.com" in url
 
-        if FALSE and (
+        if (
             is_fandom
             or len(
                 parse_html(
@@ -262,7 +178,7 @@ class SpyMiddleware(BaseMiddleware):
             except Exception:
                 raise
 
-        # await wiki.close()
+        await wiki.close()
 
         if send_original_html:
             return page_text
