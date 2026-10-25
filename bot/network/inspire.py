@@ -15,6 +15,7 @@
 import datetime
 
 import aiohttp
+from aiogram import types
 from aiogram.filters import Command
 
 from ..config import bot, router
