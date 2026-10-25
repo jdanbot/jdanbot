@@ -1,10 +1,10 @@
 import ast
 import asyncio
 
-import aiogram
 from msgspec import json
 
 from ...lib.aioget import aioget
+
 
 class Anekru:
     def __init__(self):

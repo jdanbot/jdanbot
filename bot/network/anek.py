@@ -1,6 +1,7 @@
-from ..config import router
 from aiogram import types
 from aiogram.filters import Command
+
+from ..config import router
 from .lib.anekru import Anekru
 
 
