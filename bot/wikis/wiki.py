@@ -62,7 +62,8 @@ async def blood(message: types.Message) -> Wikipya:
                 "div.cquote",
                 "div.toccolours",
                 *TAG_BLOCKLIST,
-            ]
+            ],
+            fetch_image_from_page=True
         ),
     )
 
@@ -156,7 +157,10 @@ async def archwiki(message: types.Message) -> Wikipya:
 )
 async def encyclopedia(message: types.Message) -> Wikipya:
     return Wikipya(
-        base_url="https://encyclopatia.ru/w/api.php"
+        base_url="https://encyclopatia.ru/w/api.php",
+        params=dict(
+            fetch_image_from_page=True
+        )
     )
 
 
