@@ -16,7 +16,11 @@ async def get_weather_func(
     message: types.Message, query: str
 ):
     _, text = await aioget(
-        f"https://wttr.in/{query}?u", params=dict(format=1)
+        f"https://wttr.in/{query}?u",
+        params=dict(format=1),
+        headers={
+            "User-Agent": "curl/8.22.0"
+        }
     )
 
     emoji, grads = (

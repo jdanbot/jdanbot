@@ -75,3 +75,6 @@ class Tests(AbcTests):
         pkg = await get_project("firefox")
 
         assert len(pkg.packages) > 0
+
+    async def test_wttr(self):
+        await self.assertInMock("Spb", "/wttr SPB")
