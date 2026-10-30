@@ -123,7 +123,7 @@ async def edit_gif(
         print("stderr:", line)
 
     global i
-    i = 0
+    i = 4
 
     global msg
     msg = await message.reply(
@@ -142,11 +142,9 @@ async def edit_gif(
         percent = 100 * (progress.frame / total_frames)
 
         await msg.edit_text(
-            f"<b>{int(percent)}%</b> {progress.frame} / {total_frames} | {progress.time}",
+            f"<b>{int(percent)}%</b>\n{progress.frame} / {total_frames}",
             parse_mode="html",
         )
-
-        i = 3
 
     @ffmpeg.on("completed")
     async def on_completed():
