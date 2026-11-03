@@ -245,7 +245,7 @@ async def test(query: types.ChosenInlineResult) -> Article:
     except Exception:
         image = ""
 
-    opensearch = await wiki.opensearch(page_name)
+    results = await wiki.opensearch(page_name)
     await wiki.close()
 
     x = TgHTML(
@@ -286,7 +286,7 @@ async def test(query: types.ChosenInlineResult) -> Article:
             image=image,
             title=page.title,
             disable_web_page_preview=not bool(image),
-            href=opensearch.results[0].link,
+            href=results[0].link,
         ),
     )
 
