@@ -141,10 +141,11 @@ async def edit_gif(
 
         percent = 100 * (progress.frame / total_frames)
 
-        await msg.edit_text(
-            f"<b>{int(percent)}%</b>\n{progress.frame} / {total_frames}",
-            parse_mode="html",
-        )
+        if "SILENT" in message.text:
+            await msg.edit_text(
+                f"<b>{int(percent)}%</b>\n{progress.frame} / {total_frames}",
+                parse_mode="html",
+            )
 
     @ffmpeg.on("completed")
     async def on_completed():
