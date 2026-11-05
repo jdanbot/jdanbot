@@ -141,7 +141,7 @@ async def edit_gif(
 
         percent = 100 * (progress.frame / total_frames)
 
-        if "SILENT" in message.text:
+        if "SILENT" not in message.text:
             await msg.edit_text(
                 f"<b>{int(percent)}%</b>\n{progress.frame} / {total_frames}",
                 parse_mode="html",
