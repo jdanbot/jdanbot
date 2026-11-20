@@ -19,6 +19,7 @@ class Settings(Struct):
     logging_chat: str | None = os.environ.get(
         "logging_chat"
     )
+    enable_net_tests: bool = True
 
     db_path: str = os.environ.get("db_path", "jdanbot.db")
     music_path: Path = Path("media/music")
