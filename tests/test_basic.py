@@ -58,6 +58,7 @@ class Tests(AbcTests):
                 code(text2art("test", True)),
             ),
             ("/calc 5+5", "`10`"),
+            ("/calc ().ｃｌａｓｓ", _.errors.only_vars),
             # ("/eval 2*2+2", "`6`"),
             ("/tru test", "тест"),
             (f"/preview {YOUTU_BE_LINK}", ANSWER1),
