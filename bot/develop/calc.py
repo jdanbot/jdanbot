@@ -1,3 +1,4 @@
+import ast
 import asyncio
 import re
 from math import sqrt
@@ -19,8 +20,8 @@ async def calc(query: str) -> Any:
 async def eban(
     message: types.Message, query: str, _: Locale
 ):
-    await message.reply("temporary disabled because of https://docs.python.org/3/reference/lexical_analysis.html#non-ascii-characters-in-names", parse_mode=None)
-    return
+    query = ast.unparse(ast.parse(query))
+    query = query.replace("__", "")
 
     query = query.format(pi=3.14)
 
@@ -39,7 +40,7 @@ async def eban(
 
     result = await asyncio.wait_for(calc(query), 1)
 
-    await message.reply(code(result)[:4096])
+    await message.reply(code(str(result)[:4090]))
 
 
 @router.message(Command("sqrt"), GetText(disable_reply=True))

@@ -63,6 +63,7 @@ class Tests(AbcTests):
             (f"/preview {YOUTU_BE_LINK}", ANSWER1),
             (f"/preview {YOUTUBE_COM_LINK}", ANSWER2),
         )
+        await self.assertInMock(_.errors.only_vars[:-1], "/calc ().ｃｌａｓｓ")
 
     async def test_admin_functions(self):
         await self.assertInMock("1\\-й", "/warn test")
