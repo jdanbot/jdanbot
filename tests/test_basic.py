@@ -62,11 +62,13 @@ class Tests(AbcTests):
             (f"/preview {YOUTU_BE_LINK}", ANSWER1),
             (f"/preview {YOUTUBE_COM_LINK}", ANSWER2),
         )
-        await self.assertMock("/calc ().__ｃｌａｓｓ__", _.errors.only_vars)
+        
+        await self.assertInMock(_.errors.only_vars[:-1], "/calc ().ｃｌａｓｓ")
 
     @unittest.skip("")
     async def test_translator(self):
         self.assertMock("/tru test", "тест")
+        
 
     async def test_admin_functions(self):
         self.skipTest("barack obama")

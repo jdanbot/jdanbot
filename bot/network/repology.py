@@ -12,8 +12,13 @@ from ..lib.aioget import aioget
 from ..lib.unite import unite
 
 
+class CaptchaError(Exception):
+    pass
+
+
 def wrap(content: str, wrapper: str) -> str:
     return "".join([wrapper, content, wrapper])
+
 
 DISTROS = {
     "OpenBSD Ports": "🐡 OpenBSD",
@@ -51,7 +56,12 @@ async def get_project(query: str = "inori") -> Project:
     __, text = await aioget(
         f"https://repology.org/badge/vertical-allrepos/{query}.svg"
     )
-    svg = LexborHTMLParser(text).css_first("svg")
+    html = LexborHTMLParser(text)
+
+    try:
+        svg = html.css_first("svg")
+    except AttributeError:
+        raise CaptchaError(html.text())
 
     packages = []
 
