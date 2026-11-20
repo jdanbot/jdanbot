@@ -3,6 +3,7 @@ import unittest
 from aiogram.utils.markdown import code
 from stripped import text2art
 
+from bot.config.config import settings
 from bot.config.lib.locales import locales
 from bot.network.repology import get_project
 
@@ -59,23 +60,39 @@ class Tests(AbcTests):
             ),
             ("/calc 5+5", "`10`"),
             # ("/eval 2*2+2", "`6`"),
-            ("/tru test", "тест"),
             (f"/preview {YOUTU_BE_LINK}", ANSWER1),
             (f"/preview {YOUTUBE_COM_LINK}", ANSWER2),
         )
-        await self.assertInMock(_.errors.only_vars[:-1], "/calc ().ｃｌａｓｓ")
+
+        await self.assertInMock(
+            _.errors.only_vars[:-1],
+            "/calc ().ｃｌａｓｓ"
+        )
+
+    @unittest.skipUnless(
+        settings.enable_net_tests,
+        "Network usage disabled",
+    )
+    async def test_translator(self):
+        await self.assertMock("/tru test", "тест")
 
     async def test_admin_functions(self):
+        self.skipTest("barack obama")
         await self.assertInMock("1\\-й", "/warn test")
         await self.assertInMock("2\\-й", "/warn test")
         await self.assertInMock("выдал мут", "/warn test")
         await self.assertInMock("выдал мут", "/mute 5 test")
         await self.assertInMock("MSK", "/selfmute 30")
 
+    @unittest.skip("Skipped due to bot attack")
     async def test_repology(self):
-        pkg = await get_project("firefox")
+        pkg = await get_project("inori")
 
         assert len(pkg.packages) > 0
 
+    @unittest.skipUnless(
+        settings.enable_net_tests,
+        "Network usage disabled",
+    )
     async def test_wttr(self):
         await self.assertInMock("Spb", "/wttr SPB")
