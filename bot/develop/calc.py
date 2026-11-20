@@ -19,6 +19,9 @@ async def calc(query: str) -> Any:
 async def eban(
     message: types.Message, query: str, _: Locale
 ):
+    await message.reply("temporary disabled because of https://docs.python.org/3/reference/lexical_analysis.html#non-ascii-characters-in-names", parse_mode=None)
+    return
+
     query = query.format(pi=3.14)
 
     match = re.search(r"[a-zA-Zа-яА-Я]", query)
