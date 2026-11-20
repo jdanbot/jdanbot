@@ -247,8 +247,12 @@ async def get_summary(
     message: types.Message, query: str
 ) -> Article:
     wiki = Wikipya("ru")
+    wiki.automatic_session_close = False
 
-    summary = await wiki.summary(query)
+    results = await wiki.search(query)
+    summary = await wiki.summary(results[0].title)
+
+    await wiki.close()
 
     try:
         image = summary.original_image.source
@@ -256,12 +260,7 @@ async def get_summary(
         image = None
 
     return Article(
-        text=fix_words(
-            TgHTML(
-                summary.extract_html,
-                enable_preprocess=False,
-            ).parsed
-        ),
+        text=fix_words(TgHTML(summary.extract_html).parsed),
         title=summary.title,
         href=summary.content_urls.desktop.page,
         image=image,
