@@ -12,7 +12,6 @@ jobs:
       with:
         python-version: "3.14"
         enable-cache: true
-        cache-dependency-glob: "uv.lock"
 
     - name: Install dependencies
       run: uv sync
