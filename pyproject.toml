@@ -9,7 +9,7 @@ license = "MIT"
 readme = "README.md"
 requires-python = "<3.15,>=3.13"
 dependencies = [
-  "aiogram>=3.33.0",
+  "aiogram>=3.33.0,<4.0.0",
   "pyduckgo @ git+https://github.com/jdan735/pyduckgo",
   "humanize>=4.1.0",
   "pytimeparse2>=1.7.1",
