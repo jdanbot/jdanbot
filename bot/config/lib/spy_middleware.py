@@ -15,12 +15,7 @@ def parse_html(source: str, blocklist: tuple) -> TgHTML:
     return TgHTML(
         source,
         blocklist=[
-            "div.navigation-not-searchable",
-            "table",
-            ".error",
-            ".noprint",
             ".thumb",
-            "span.error",
             "span.mw-ext-cite-error",
             ".hatnote",
             "div#toc",
