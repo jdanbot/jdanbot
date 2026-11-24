@@ -17,7 +17,7 @@ log_schema = """
 {error_small}
 """
 
-error_file_template = '<meta name="viewport" content="width=device-width, initial-scale=1"><pre>{trace}</pre>'
+error_file_template = "```python\n{trace}```"
 
 
 @router.error()
@@ -74,7 +74,7 @@ async def catch_error(
                 error_file_template.format(
                     trace=traceback.format_exc()
                 ).encode("utf-8"),
-                filename=f"{datetime.now()}.html",
+                filename=f"{datetime.now()}.md",
             )
         )
 
