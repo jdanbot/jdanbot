@@ -39,7 +39,7 @@ class Article(BaseModel):
         if (
             new_text := cute_crop(self.text, limit=4096)
         ) != "":
-            self.text = new_text
+            self.text = new_text + "…"
         else:
             self.text[:4096]
 

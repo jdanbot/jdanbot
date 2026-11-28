@@ -209,9 +209,6 @@ class SpyMiddleware(BaseMiddleware):
         params = result.params or {}
         text = result.get_text()
 
-        if len(text) > 4096:
-            text = text[:4094] + "…"
-
         params = dict(
             disable_web_page_preview=(
                 result.disable_web_page_preview
