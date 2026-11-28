@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from selectolax.lexbor import LexborHTMLParser
 
 from ..text import cute_crop
+from ..unite import unite
 
 
 class Article(BaseModel):
@@ -44,15 +45,10 @@ class Article(BaseModel):
 
     def get_text(self) -> str:
         return self.format_schema.format(
-            "".join(
-                [
-                    hide_link(self.image)
-                    if self.image
-                    else "",
-                    self.bold2link(self.text).replace(
-                        "&nbsp;", " "
-                    ),
-                ]
+            unite(
+                hide_link(self.image) if self.image else "",
+                self.bold2link(self.text).replace("&nbsp;", " "),
+                separator=""
             )
         )
 
